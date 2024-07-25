@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import SignIn, { SignInForm } from './components/signin';
-import { auth } from './firebase';
+import SignIn, { SignInForm } from '../components/signin';
+import { auth } from '../firebase';
 
 async function handleOnSubmit(form: SignInForm) {
   await createUserWithEmailAndPassword(auth, form.email, form.password)
@@ -15,12 +15,8 @@ async function handleOnSubmit(form: SignInForm) {
     });
 }
 
-function App() {
-  return (
-    <>
-      <SignIn handleOnSubmit={handleOnSubmit} />
-    </>
-  );
-}
+const SignInPage = () => {
+  return <SignIn handleOnSubmit={handleOnSubmit} />;
+};
 
-export default App;
+export default SignInPage;
