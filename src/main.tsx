@@ -5,11 +5,12 @@ import ErrorPage from './pages/ErrorPage.tsx';
 import ClientLayout from './layouts/ClientLayout.tsx';
 import SignInPage from './pages/SignInPage.tsx';
 import DashboardPage from './pages/client/DashboardPage.tsx';
+import LandingPage from './pages/LandingPage.tsx';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <div>Hello world!</div>,
+    element: <LandingPage />,
     errorElement: <ErrorPage />,
   },
   {
