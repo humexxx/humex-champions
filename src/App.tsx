@@ -1,10 +1,11 @@
-import { SignInProps } from 'humex-auth/dist/types';
-import { SignIn } from 'humex-auth';
+import SignIn from './components/signin';
+
+async function handleOnSubmit() {}
 
 function App() {
   return (
     <>
-      <SignIn />
+      <SignIn handleOnSubmit={handleOnSubmit} />
     </>
   );
 }
