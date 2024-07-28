@@ -1,10 +1,10 @@
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import SignIn, { SignInForm } from '../components/signin';
 import { auth } from '../firebase';
 import { AutoLogRoute } from 'src/components';
 
 async function handleOnSubmit(form: SignInForm) {
-  await signInWithEmailAndPassword(auth, form.email, form.password)
+  await createUserWithEmailAndPassword(auth, form.email, form.password)
     .then((userCredential) => {
       const user = userCredential.user;
       console.log(user);
@@ -16,7 +16,7 @@ async function handleOnSubmit(form: SignInForm) {
     });
 }
 
-const SignInPage = () => {
+const ForgotPasswordPage = () => {
   return (
     <AutoLogRoute>
       <SignIn handleOnSubmit={handleOnSubmit} />
@@ -24,4 +24,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default ForgotPasswordPage;
