@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import PrivateRoute from 'src/components/private-route';
+import PrivateRoute from 'src/components/common/private-route';
 
 const ClientLayout = () => {
   return (

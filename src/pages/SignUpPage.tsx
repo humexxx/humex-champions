@@ -1,8 +1,8 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
-import SignUp, { SignUpForm } from 'src/components/sign-up';
+import SignUp, { SignUpForm } from 'src/components/pages/sign-up';
 import { useNavigate } from 'react-router-dom';
-import { AutoLogRoute } from 'src/components';
+import { AutoLogRoute } from 'src/components/common';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
