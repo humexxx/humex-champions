@@ -3,7 +3,6 @@ import {
   browserSessionPersistence,
   createUserWithEmailAndPassword,
   setPersistence,
-  signInWithEmailAndPassword,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import SignUp, { SignUpForm } from 'src/components/pages/sign-up';
