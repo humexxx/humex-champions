@@ -1,9 +1,8 @@
-// src/contexts/AuthContext.tsx
 import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from 'src/firebase';
-import AuthContext from './AuthContext';
 import { AuthContextType, AuthProviderProps } from './AuthContext.types';
+import { AuthContext } from './AuthContext';
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
