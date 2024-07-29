@@ -3,11 +3,13 @@ import {
   browserSessionPersistence,
   createUserWithEmailAndPassword,
   setPersistence,
+  AuthErrorCodes,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import SignUp, { SignUpForm } from 'src/components/pages/sign-up';
 import { useNavigate } from 'react-router-dom';
 import { AutoLogRoute } from 'src/components/common';
+import { FirebaseError } from 'firebase/app';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -26,7 +28,21 @@ const SignUpPage = () => {
         navigate('/client/dashboard');
       });
     } catch (error) {
-      console.error(error);
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case AuthErrorCodes.EMAIL_EXISTS:
+            alert('Email already exists');
+            break;
+          case AuthErrorCodes.INVALID_EMAIL:
+            alert('Invalid email');
+            break;
+          case AuthErrorCodes.WEAK_PASSWORD:
+            alert('Weak password');
+            break;
+          default:
+            alert('An error occurred');
+        }
+      }
     }
   }
 
