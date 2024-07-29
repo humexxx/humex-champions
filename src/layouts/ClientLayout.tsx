@@ -1,11 +1,14 @@
 import { Outlet } from 'react-router-dom';
+import PrivateRoute from 'src/components/common/private-route';
 
 const ClientLayout = () => {
   return (
-    <div>
-      ClientLayout
-      <Outlet />
-    </div>
+    <PrivateRoute>
+      <div>
+        ClientLayout
+        <Outlet />
+      </div>
+    </PrivateRoute>
   );
 };
 

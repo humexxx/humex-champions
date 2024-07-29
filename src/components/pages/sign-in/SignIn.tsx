@@ -1,15 +1,16 @@
-import Avatar from "@mui/material/Avatar";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import { LoadingButton } from "@mui/lab";
-import { useState } from "react";
-import { SignInProps } from "./SignIn.types";
+import Avatar from '@mui/material/Avatar';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import { LoadingButton } from '@mui/lab';
+import { useState } from 'react';
+import { SignInProps } from './SignIn.types';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function SignIn({ handleOnSubmit }: SignInProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,8 +22,9 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
     const data = new FormData(event.currentTarget);
 
     await handleOnSubmit({
-      email: data.get("email") as string,
-      password: data.get("password") as string,
+      email: data.get('email') as string,
+      password: data.get('password') as string,
+      persist: data.get('remember') === 'on',
     });
 
     setIsLoading(false);
@@ -32,12 +34,12 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
     <Box
       sx={{
         marginTop: 8,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
-      <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+      <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
         <LockOutlinedIcon />
       </Avatar>
       <Typography component="h1" variant="h5">
@@ -65,7 +67,7 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
           autoComplete="current-password"
         />
         <FormControlLabel
-          control={<Checkbox value="remember" color="primary" />}
+          control={<Checkbox name="remember" color="primary" />}
           label="Remember me"
         />
         <LoadingButton
@@ -79,12 +81,12 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
         </LoadingButton>
         <Grid container>
           <Grid item xs>
-            <Link href="#" variant="body2">
+            <Link component={RouterLink} to="/forgot-password" variant="body2">
               Forgot password?
             </Link>
           </Grid>
           <Grid item>
-            <Link href="#" variant="body2">
+            <Link component={RouterLink} to="/sign-up" variant="body2">
               {"Don't have an account? Sign Up"}
             </Link>
           </Grid>
