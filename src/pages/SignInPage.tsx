@@ -1,22 +1,38 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import SignIn, { SignInForm } from '../components/signin';
+import {
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+} from 'firebase/auth';
 import { auth } from '../firebase';
-
-async function handleOnSubmit(form: SignInForm) {
-  await createUserWithEmailAndPassword(auth, form.email, form.password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      console.log(user);
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(errorCode, errorMessage);
-    });
-}
+import { AutoLogRoute } from 'src/components/common';
+import SignIn, { SignInForm } from 'src/components/pages/sign-in';
+import { useNavigate } from 'react-router-dom';
 
 const SignInPage = () => {
-  return <SignIn handleOnSubmit={handleOnSubmit} />;
+  const navigate = useNavigate();
+
+  async function handleOnSubmit(form: SignInForm) {
+    try {
+      await setPersistence(
+        auth,
+        form.persist ? browserLocalPersistence : browserSessionPersistence
+      );
+      await signInWithEmailAndPassword(auth, form.email, form.password).then(
+        () => {
+          navigate('/client/dashboard');
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return (
+    <AutoLogRoute>
+      <SignIn handleOnSubmit={handleOnSubmit} />
+    </AutoLogRoute>
+  );
 };
 
 export default SignInPage;
