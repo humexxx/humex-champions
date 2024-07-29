@@ -1,13 +1,14 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import { AutoLogRoute } from 'src/components/common';
-import SignIn, { SignInForm } from 'src/components/pages/signin';
+import ForgotPassword, {
+  ForgotPasswordForm,
+} from 'src/components/pages/forgot-password';
 
-async function handleOnSubmit(form: SignInForm) {
-  await createUserWithEmailAndPassword(auth, form.email, form.password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      console.log(user);
+async function handleOnSubmit(form: ForgotPasswordForm) {
+  await sendPasswordResetEmail(auth, form.email)
+    .then(() => {
+      console.log('Password reset email sent');
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -19,7 +20,7 @@ async function handleOnSubmit(form: SignInForm) {
 const ForgotPasswordPage = () => {
   return (
     <AutoLogRoute>
-      <SignIn handleOnSubmit={handleOnSubmit} />
+      <ForgotPassword handleOnSubmit={handleOnSubmit} />
     </AutoLogRoute>
   );
 };

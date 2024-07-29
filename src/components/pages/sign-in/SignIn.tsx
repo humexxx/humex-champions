@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import { LoadingButton } from '@mui/lab';
 import { useState } from 'react';
 import { SignInProps } from './SignIn.types';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function SignIn({ handleOnSubmit }: SignInProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -80,12 +81,12 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
         </LoadingButton>
         <Grid container>
           <Grid item xs>
-            <Link href="#" variant="body2">
+            <Link component={RouterLink} to="/forgot-password" variant="body2">
               Forgot password?
             </Link>
           </Grid>
           <Grid item>
-            <Link href="#" variant="body2">
+            <Link component={RouterLink} to="/sign-up" variant="body2">
               {"Don't have an account? Sign Up"}
             </Link>
           </Grid>

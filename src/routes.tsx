@@ -1,6 +1,12 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import ClientLayout from './layouts/ClientLayout';
-import { LandingPage, ErrorPage, SignInPage, SignUpPage } from './pages';
+import {
+  LandingPage,
+  ErrorPage,
+  SignInPage,
+  SignUpPage,
+  ForgotPasswordPage,
+} from './pages';
 import { DashboardPage } from './pages/client';
 
 export const router = createBrowserRouter([
@@ -20,6 +26,10 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <SignInPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPasswordPage />,
   },
   {
     path: '/client',

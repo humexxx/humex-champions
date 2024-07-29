@@ -1,4 +1,10 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  browserSessionPersistence,
+  createUserWithEmailAndPassword,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { auth } from '../firebase';
 import SignUp, { SignUpForm } from 'src/components/pages/sign-up';
 import { useNavigate } from 'react-router-dom';
@@ -8,17 +14,21 @@ const SignUpPage = () => {
   const navigate = useNavigate();
 
   async function handleOnSubmit(form: SignUpForm) {
-    await createUserWithEmailAndPassword(auth, form.email, form.password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.info(user);
+    try {
+      await setPersistence(
+        auth,
+        form.persist ? browserLocalPersistence : browserSessionPersistence
+      );
+      await createUserWithEmailAndPassword(
+        auth,
+        form.email,
+        form.password
+      ).then(() => {
         navigate('/client/dashboard');
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error(errorCode, errorMessage);
       });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (

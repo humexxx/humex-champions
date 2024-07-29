@@ -8,10 +8,11 @@ import Typography from '@mui/material/Typography';
 import { LoadingButton } from '@mui/lab';
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { SignUpProps } from './SignUp.types';
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { ForgotPasswordProps } from './ForgotPassword.types';
 
-export default function SignUp({ handleOnSubmit }: SignUpProps) {
+export default function ForgotPassword({
+  handleOnSubmit,
+}: ForgotPasswordProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -22,9 +23,6 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
 
     await handleOnSubmit({
       email: data.get('email') as string,
-      password: data.get('password') as string,
-      confirmPassword: data.get('confirmPassword') as string,
-      persist: data.get('remember') === 'on',
     });
 
     setIsLoading(false);
@@ -43,7 +41,7 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
         <LockOutlinedIcon />
       </Avatar>
       <Typography component="h1" variant="h5">
-        Sign Up
+        Forgot Password
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
         <TextField
@@ -56,30 +54,6 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
           autoComplete="email"
           autoFocus
         />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          name="password"
-          label="Password"
-          type="password"
-          id="password"
-          autoComplete="new-password"
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          name="confirmPassword"
-          label="Confirm Password"
-          type="password"
-          id="confirmPassword"
-          autoComplete="new-password"
-        />
-        <FormControlLabel
-          control={<Checkbox name="remember" color="primary" />}
-          label="Remember me"
-        />
         <LoadingButton
           type="submit"
           fullWidth
@@ -87,12 +61,17 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
           sx={{ mt: 3, mb: 2 }}
           loading={isLoading}
         >
-          Sign Up
+          Send Reset Link
         </LoadingButton>
         <Grid container>
           <Grid item xs>
             <Link component={RouterLink} to="/sign-in" variant="body2">
-              {'Already have an account? Sign In'}
+              Back to Sign In
+            </Link>
+          </Grid>
+          <Grid item>
+            <Link component={RouterLink} to="/sign-up" variant="body2">
+              {"Don't have an account? Sign Up"}
             </Link>
           </Grid>
         </Grid>
