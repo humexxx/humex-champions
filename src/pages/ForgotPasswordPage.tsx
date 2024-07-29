@@ -1,7 +1,7 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import SignIn, { SignInForm } from '../components/pages/sign-in';
 import { auth } from '../firebase';
 import { AutoLogRoute } from 'src/components/common';
+import SignIn, { SignInForm } from 'src/components/pages/signin';
 
 async function handleOnSubmit(form: SignInForm) {
   await createUserWithEmailAndPassword(auth, form.email, form.password)
