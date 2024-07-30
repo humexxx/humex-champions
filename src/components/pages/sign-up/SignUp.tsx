@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -6,32 +7,61 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { LoadingButton } from '@mui/lab';
-import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { SignUpProps } from './SignUp.types';
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { SignUpProps, SignUpFormInputs } from './SignUp.types';
+import { Checkbox, Container, FormControlLabel } from '@mui/material';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+// Define the validation schema
+const schema = yup.object().shape({
+  email: yup
+    .string()
+    .email('Invalid email format')
+    .required('Email is required'),
+  password: yup.string().required('Password is required'),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('password')], 'Passwords must match')
+    .required('Confirm Password is required'),
+  persist: yup.boolean().default(false),
+});
 
 export default function SignUp({ handleOnSubmit }: SignUpProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<SignUpFormInputs>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      persist: false,
+    },
+  });
+
+  const onSubmit: SubmitHandler<SignUpFormInputs> = async (data) => {
     setIsLoading(true);
+    setError(null);
 
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
-    await handleOnSubmit({
-      email: data.get('email') as string,
-      password: data.get('password') as string,
-      confirmPassword: data.get('confirmPassword') as string,
-      persist: data.get('remember') === 'on',
-    });
-
-    setIsLoading(false);
+    try {
+      await handleOnSubmit(data);
+    } catch (error) {
+      setError((error as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Box
+    <Container
+      maxWidth="sm"
       sx={{
         marginTop: 8,
         display: 'flex',
@@ -45,41 +75,77 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
       <Typography component="h1" variant="h5">
         Sign Up
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="email"
-          label="Email Address"
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        sx={{ mt: 2 }}
+      >
+        <Controller
           name="email"
-          autoComplete="email"
-          autoFocus
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              margin="dense"
+              fullWidth
+              label="Email Address"
+              autoComplete="email"
+              autoFocus
+              error={!!errors.email}
+              helperText={errors.email ? errors.email.message : ' '}
+            />
+          )}
         />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
+        <Controller
           name="password"
-          label="Password"
-          type="password"
-          id="password"
-          autoComplete="new-password"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              margin="dense"
+              fullWidth
+              label="Password"
+              type="password"
+              autoComplete="new-password"
+              error={!!errors.password}
+              helperText={errors.password ? errors.password.message : ' '}
+            />
+          )}
         />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
+        <Controller
           name="confirmPassword"
-          label="Confirm Password"
-          type="password"
-          id="confirmPassword"
-          autoComplete="new-password"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              margin="dense"
+              fullWidth
+              label="Confirm Password"
+              type="password"
+              autoComplete="new-password"
+              error={!!errors.confirmPassword}
+              helperText={
+                errors.confirmPassword ? errors.confirmPassword.message : ' '
+              }
+            />
+          )}
         />
-        <FormControlLabel
-          control={<Checkbox name="remember" color="primary" />}
-          label="Remember me"
+        <Controller
+          name="persist"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              control={<Checkbox {...field} color="primary" />}
+              label="Remember me"
+            />
+          )}
         />
+        {error && (
+          <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
         <LoadingButton
           type="submit"
           fullWidth
@@ -97,6 +163,6 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
           </Grid>
         </Grid>
       </Box>
-    </Box>
+    </Container>
   );
 }

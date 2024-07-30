@@ -1,9 +1,9 @@
-export interface SignInForm {
+export interface SignInFormInputs {
   email: string;
   password: string;
   persist: boolean;
 }
 
 export interface SignInProps {
-  handleOnSubmit: (form: SignInForm) => Promise<void>;
+  handleOnSubmit: (form: SignInFormInputs) => Promise<void>;
 }

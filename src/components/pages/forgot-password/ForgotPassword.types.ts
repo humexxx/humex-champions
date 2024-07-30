@@ -1,7 +1,7 @@
-export interface ForgotPasswordForm {
+export interface ForgotPasswordFormInputs {
   email: string;
 }
 
 export interface ForgotPasswordProps {
-  handleOnSubmit: (form: ForgotPasswordForm) => Promise<void>;
+  handleOnSubmit: (form: ForgotPasswordFormInputs) => Promise<void>;
 }

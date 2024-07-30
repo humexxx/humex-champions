@@ -1,4 +1,4 @@
-export interface SignUpForm {
+export interface SignUpFormInputs {
   email: string;
   password: string;
   confirmPassword: string;
@@ -6,5 +6,5 @@ export interface SignUpForm {
 }
 
 export interface SignUpProps {
-  handleOnSubmit: (form: SignUpForm) => Promise<void>;
+  handleOnSubmit: (form: SignUpFormInputs) => Promise<void>;
 }
