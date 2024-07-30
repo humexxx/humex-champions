@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -6,30 +7,57 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { LoadingButton } from '@mui/lab';
-import { useState } from 'react';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import {
+  ForgotPasswordProps,
+  ForgotPasswordFormInputs,
+} from './ForgotPassword.types';
 import { Link as RouterLink } from 'react-router-dom';
-import { ForgotPasswordProps } from './ForgotPassword.types';
+import { Container } from '@mui/material';
+
+// Define the validation schema
+const schema = yup.object().shape({
+  email: yup
+    .string()
+    .email('Invalid email format')
+    .required('Email is required'),
+});
 
 export default function ForgotPassword({
   handleOnSubmit,
 }: ForgotPasswordProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<ForgotPasswordFormInputs>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      email: '',
+    },
+  });
+
+  const onSubmit: SubmitHandler<ForgotPasswordFormInputs> = async (data) => {
     setIsLoading(true);
+    setError(null);
 
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
-    await handleOnSubmit({
-      email: data.get('email') as string,
-    });
-
-    setIsLoading(false);
+    try {
+      await handleOnSubmit(data);
+    } catch (error) {
+      setError((error as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Box
+    <Container
+      maxWidth="sm"
       sx={{
         marginTop: 8,
         display: 'flex',
@@ -43,17 +71,34 @@ export default function ForgotPassword({
       <Typography component="h1" variant="h5">
         Forgot Password
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="email"
-          label="Email Address"
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        sx={{ mt: 1 }}
+      >
+        <Controller
           name="email"
-          autoComplete="email"
-          autoFocus
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              margin="dense"
+              required
+              fullWidth
+              label="Email Address"
+              autoComplete="email"
+              autoFocus
+              error={!!errors.email}
+              helperText={errors.email ? errors.email.message : ' '}
+            />
+          )}
         />
+        {error && (
+          <Typography color="error" variant="body2" sx={{ mt: 2, mb: 1 }}>
+            {error}
+          </Typography>
+        )}
         <LoadingButton
           type="submit"
           fullWidth
@@ -76,6 +121,6 @@ export default function ForgotPassword({
           </Grid>
         </Grid>
       </Box>
-    </Box>
+    </Container>
   );
 }

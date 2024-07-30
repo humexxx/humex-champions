@@ -14,6 +14,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { SignInProps, SignInFormInputs } from './SignIn.types';
 import { Link as RouterLink } from 'react-router-dom';
+import { Container } from '@mui/material';
 
 const schema = yup.object().shape({
   email: yup
@@ -55,7 +56,8 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
   };
 
   return (
-    <Box
+    <Container
+      maxWidth="sm"
       sx={{
         marginTop: 8,
         display: 'flex',
@@ -146,6 +148,6 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
           </Grid>
         </Grid>
       </Box>
-    </Box>
+    </Container>
   );
 }
