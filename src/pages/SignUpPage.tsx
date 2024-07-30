@@ -6,7 +6,7 @@ import {
   AuthErrorCodes,
 } from 'firebase/auth';
 import { auth } from '../firebase';
-import SignUp, { SignUpForm } from 'src/components/pages/sign-up';
+import SignUp, { SignUpFormInputs } from 'src/components/pages/sign-up';
 import { useNavigate } from 'react-router-dom';
 import { AutoLogRoute } from 'src/components/common';
 import { FirebaseError } from 'firebase/app';
@@ -14,7 +14,7 @@ import { FirebaseError } from 'firebase/app';
 const SignUpPage = () => {
   const navigate = useNavigate();
 
-  async function handleOnSubmit(form: SignUpForm) {
+  async function handleOnSubmit(form: SignUpFormInputs) {
     try {
       await setPersistence(
         auth,
@@ -31,18 +31,16 @@ const SignUpPage = () => {
       if (error instanceof FirebaseError) {
         switch (error.code) {
           case AuthErrorCodes.EMAIL_EXISTS:
-            alert('Email already exists');
-            break;
+            throw new Error('Email already exists');
           case AuthErrorCodes.INVALID_EMAIL:
-            alert('Invalid email');
-            break;
+            throw new Error('Invalid email');
           case AuthErrorCodes.WEAK_PASSWORD:
-            alert('Weak password');
-            break;
+            throw new Error('Weak password');
           default:
-            alert('An error occurred');
+            throw new Error('An error occurred');
         }
       }
+      throw error;
     }
   }
 
