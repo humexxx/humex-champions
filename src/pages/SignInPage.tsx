@@ -8,6 +8,7 @@ import { auth } from '../firebase';
 import { AutoLogRoute } from 'src/components/common';
 import SignIn, { SignInFormInputs } from 'src/components/pages/sign-in';
 import { useNavigate } from 'react-router-dom';
+import { handleAuthError } from 'src/utils/auth';
 
 const SignInPage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const SignInPage = () => {
         }
       );
     } catch (error) {
-      console.error(error);
+      handleAuthError(error);
     }
   }
 
