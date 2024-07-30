@@ -75,7 +75,7 @@ export default function ForgotPassword({
         component="form"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        sx={{ mt: 1 }}
+        sx={{ mt: 2, width: '100%' }}
       >
         <Controller
           name="email"

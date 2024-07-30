@@ -142,7 +142,7 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
           )}
         />
         {error && (
-          <Typography color="error" variant="body2" sx={{ mt: 2, mb: 1 }}>
+          <Typography color="error" variant="body2" sx={{ mt: 2 }}>
             {error}
           </Typography>
         )}
@@ -150,7 +150,7 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{ mb: 2 }}
+          sx={{ mt: 3, mb: 2 }}
           loading={isLoading}
         >
           Sign Up

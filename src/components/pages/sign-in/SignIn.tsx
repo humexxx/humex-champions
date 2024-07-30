@@ -75,7 +75,7 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
         component="form"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        sx={{ mt: 1 }}
+        sx={{ mt: 2 }}
       >
         <Controller
           name="email"
@@ -122,7 +122,7 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
           )}
         />
         {error && (
-          <Typography color="error" variant="body2" sx={{ mt: 2, mb: 1 }}>
+          <Typography color="error" variant="body2" sx={{ mt: 2 }}>
             {error}
           </Typography>
         )}
