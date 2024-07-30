@@ -88,9 +88,7 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
             <TextField
               {...field}
               margin="dense"
-              required
               fullWidth
-              id="email"
               label="Email Address"
               autoComplete="email"
               autoFocus
@@ -106,12 +104,9 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
             <TextField
               {...field}
               margin="dense"
-              required
               fullWidth
-              name="password"
               label="Password"
               type="password"
-              id="password"
               autoComplete="new-password"
               error={!!errors.password}
               helperText={errors.password ? errors.password.message : ' '}
@@ -125,12 +120,9 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
             <TextField
               {...field}
               margin="dense"
-              required
               fullWidth
-              name="confirmPassword"
               label="Confirm Password"
               type="password"
-              id="confirmPassword"
               autoComplete="new-password"
               error={!!errors.confirmPassword}
               helperText={

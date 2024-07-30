@@ -6,13 +6,13 @@ import {
 } from 'firebase/auth';
 import { auth } from '../firebase';
 import { AutoLogRoute } from 'src/components/common';
-import SignIn, { SignInForm } from 'src/components/pages/sign-in';
+import SignIn, { SignInFormInputs } from 'src/components/pages/sign-in';
 import { useNavigate } from 'react-router-dom';
 
 const SignInPage = () => {
   const navigate = useNavigate();
 
-  async function handleOnSubmit(form: SignInForm) {
+  async function handleOnSubmit(form: SignInFormInputs) {
     try {
       await setPersistence(
         auth,
