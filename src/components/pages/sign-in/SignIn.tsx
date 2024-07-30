@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -8,30 +9,55 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { LoadingButton } from '@mui/lab';
-import { useState } from 'react';
-import { SignInProps } from './SignIn.types';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { SignInProps, SignInFormInputs } from './SignIn.types';
 import { Link as RouterLink } from 'react-router-dom';
+import { Container } from '@mui/material';
+
+const schema = yup.object().shape({
+  email: yup
+    .string()
+    .email('Invalid email format')
+    .required('Email is required'),
+  password: yup.string().required('Password is required'),
+  persist: yup.boolean().default(false),
+});
 
 export default function SignIn({ handleOnSubmit }: SignInProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<SignInFormInputs>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      email: '',
+      password: '',
+      persist: false,
+    },
+  });
+
+  const onSubmit: SubmitHandler<SignInFormInputs> = async (data) => {
     setIsLoading(true);
+    setError(null);
 
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
-    await handleOnSubmit({
-      email: data.get('email') as string,
-      password: data.get('password') as string,
-      persist: data.get('remember') === 'on',
-    });
-
-    setIsLoading(false);
+    try {
+      await handleOnSubmit(data);
+    } catch (error) {
+      setError((error as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Box
+    <Container
+      maxWidth="sm"
       sx={{
         marginTop: 8,
         display: 'flex',
@@ -43,33 +69,63 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
         <LockOutlinedIcon />
       </Avatar>
       <Typography component="h1" variant="h5">
-        Sign in
+        Sign In
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="email"
-          label="Email Address"
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        sx={{ mt: 2 }}
+      >
+        <Controller
           name="email"
-          autoComplete="email"
-          autoFocus
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              margin="dense"
+              required
+              fullWidth
+              label="Email Address"
+              autoComplete="email"
+              autoFocus
+              error={!!errors.email}
+              helperText={errors.email ? errors.email.message : ' '}
+            />
+          )}
         />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
+        <Controller
           name="password"
-          label="Password"
-          type="password"
-          id="password"
-          autoComplete="current-password"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              margin="dense"
+              required
+              fullWidth
+              label="Password"
+              type="password"
+              autoComplete="current-password"
+              error={!!errors.password}
+              helperText={errors.password ? errors.password.message : ' '}
+            />
+          )}
         />
-        <FormControlLabel
-          control={<Checkbox name="remember" color="primary" />}
-          label="Remember me"
+        <Controller
+          name="persist"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              control={<Checkbox {...field} color="primary" />}
+              label="Remember me"
+            />
+          )}
         />
+        {error && (
+          <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
         <LoadingButton
           type="submit"
           fullWidth
@@ -92,6 +148,6 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
           </Grid>
         </Grid>
       </Box>
-    </Box>
+    </Container>
   );
 }
