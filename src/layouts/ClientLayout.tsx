@@ -8,8 +8,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { PrivateRoute } from 'src/components/common';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import APP_DRAWER, { DRAWER_WIDTH } from 'src/components/layouts/drawer';
+import { auth } from 'src/firebase';
 
 export default function ResponsiveDrawer() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -29,6 +30,19 @@ export default function ResponsiveDrawer() {
       setMobileOpen(!mobileOpen);
     }
   };
+
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    auth
+      .signOut()
+      .then(() => {
+        navigate('/login');
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   return (
     <PrivateRoute>
@@ -52,13 +66,13 @@ export default function ResponsiveDrawer() {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Responsive drawer
+            <Typography variant="h6" component="div" flexGrow="1">
+              Champions
             </Typography>
             <IconButton
               color="inherit"
               edge="end"
-              onClick={() => console.log('Logout')} // Replace with actual logout function
+              onClick={handleLogout}
               sx={{ mr: 2 }}
             >
               <LogoutIcon />
@@ -70,14 +84,13 @@ export default function ResponsiveDrawer() {
           sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
           aria-label="mailbox folders"
         >
-          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
           <Drawer
             variant="temporary"
             open={mobileOpen}
             onTransitionEnd={handleDrawerTransitionEnd}
             onClose={handleDrawerClose}
             ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
+              keepMounted: true,
             }}
             sx={{
               display: { xs: 'block', sm: 'none' },
@@ -109,6 +122,8 @@ export default function ResponsiveDrawer() {
             flexGrow: 1,
             p: 3,
             width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
+            bgcolor: 'grey.50',
+            minHeight: '100vh',
           }}
         >
           <Toolbar />

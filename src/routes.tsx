@@ -7,7 +7,12 @@ import {
   SignUpPage,
   ForgotPasswordPage,
 } from './pages';
-import { DashboardPage } from './pages/client';
+import {
+  DashboardPage,
+  GoalsPage,
+  HealthPage,
+  FinancesPage,
+} from './pages/client';
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +43,19 @@ export const router = createBrowserRouter([
       {
         path: '/client/dashboard',
         element: <DashboardPage />,
+      },
+      {
+        path: '/client/finances',
+        element: <FinancesPage />,
+        children: [{}],
+      },
+      {
+        path: '/client/health',
+        element: <HealthPage />,
+      },
+      {
+        path: '/client/goals',
+        element: <GoalsPage />,
       },
     ],
   },
