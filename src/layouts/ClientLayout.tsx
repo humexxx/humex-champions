@@ -16,6 +16,7 @@ import { auth } from 'src/firebase';
 
 import { ThemeProvider, useThemeContext } from 'src/context/theme';
 import { useTheme } from '@mui/material/styles';
+import { Container } from '@mui/material';
 
 function ClientLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -144,7 +145,9 @@ function ClientLayout() {
         }}
       >
         <Toolbar />
-        <Outlet />
+        <Container maxWidth="xl">
+          <Outlet />
+        </Container>
       </Box>
     </Box>
   );
