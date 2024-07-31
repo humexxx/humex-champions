@@ -47,7 +47,7 @@ const Drawer = () => {
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
-              selected={location.pathname === path}
+              selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
             >
@@ -63,7 +63,7 @@ const Drawer = () => {
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
-              selected={location.pathname === path}
+              selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
             >

@@ -1,12 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import ThemeContext from './ThemeContext';
 import { ThemeContextType, ThemeProviderProps } from './ThemeContext.types';
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material';
 import { useAuth } from '../auth';
 import { getDesignTokens } from './themes';
+import { useLocalStorage } from 'src/hooks';
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useLocalStorage<'light' | 'dark'>('theme', 'light');
   const { currentUser } = useAuth();
 
   const theme = useMemo(
@@ -30,7 +31,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
         setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
       },
     }),
-    []
+    [setMode]
   );
 
   return (
