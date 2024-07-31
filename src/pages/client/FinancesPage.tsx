@@ -9,7 +9,7 @@ import {
 import BarChartIcon from '@mui/icons-material/BarChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import PieChartIcon from '@mui/icons-material/PieChart';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const FinancesPage = () => {
   return (
@@ -26,12 +26,22 @@ const FinancesPage = () => {
 
       <Grid container spacing={4}>
         <Grid item xs={12} md={4}>
-          <NavLink to="personal-finances" style={{ textDecoration: 'none' }}>
+          <Link
+            unstable_viewTransition
+            to="personal-finances"
+            style={{ textDecoration: 'none' }}
+          >
             <Card>
               <CardActionArea>
                 <CardContent>
                   <BarChartIcon fontSize="large" />
-                  <Typography variant="h5" component="div">
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    style={{
+                      viewTransitionName: 'personal-finances',
+                    }}
+                  >
                     Personal Finances
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -41,16 +51,24 @@ const FinancesPage = () => {
                 </CardContent>
               </CardActionArea>
             </Card>
-          </NavLink>
+          </Link>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <NavLink to="trading-journal" style={{ textDecoration: 'none' }}>
+          <Link
+            unstable_viewTransition
+            to="trading-journal"
+            style={{ textDecoration: 'none' }}
+          >
             <Card>
               <CardActionArea>
                 <CardContent>
                   <TrendingUpIcon fontSize="large" />
-                  <Typography variant="h5" component="div">
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    style={{ viewTransitionName: 'trading-journal' }}
+                  >
                     Trading Journal
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -60,16 +78,24 @@ const FinancesPage = () => {
                 </CardContent>
               </CardActionArea>
             </Card>
-          </NavLink>
+          </Link>
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <NavLink to="portfolio" style={{ textDecoration: 'none' }}>
+          <Link
+            unstable_viewTransition
+            to="portfolio"
+            style={{ textDecoration: 'none' }}
+          >
             <Card>
               <CardActionArea>
                 <CardContent>
                   <PieChartIcon fontSize="large" />
-                  <Typography variant="h5" component="div">
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    style={{ viewTransitionName: 'portfolio' }}
+                  >
                     Portfolio
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -79,7 +105,7 @@ const FinancesPage = () => {
                 </CardContent>
               </CardActionArea>
             </Card>
-          </NavLink>
+          </Link>
         </Grid>
       </Grid>
     </>

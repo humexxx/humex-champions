@@ -13,6 +13,11 @@ import {
   HealthPage,
   FinancesPage,
 } from './pages/client';
+import {
+  PersonalFinancesPage,
+  TradingJournalPage,
+  PortfolioPage,
+} from './pages/client/finances';
 
 export const router = createBrowserRouter([
   {
@@ -47,7 +52,18 @@ export const router = createBrowserRouter([
       {
         path: '/client/finances',
         element: <FinancesPage />,
-        children: [{}],
+      },
+      {
+        path: '/client/finances/personal-finances',
+        element: <PersonalFinancesPage />,
+      },
+      {
+        path: '/client/finances/trading-journal',
+        element: <TradingJournalPage />,
+      },
+      {
+        path: '/client/finances/portfolio',
+        element: <PortfolioPage />,
       },
       {
         path: '/client/health',
