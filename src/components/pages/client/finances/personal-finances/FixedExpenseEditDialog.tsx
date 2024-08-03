@@ -12,8 +12,9 @@ import {
   Grid,
   Box,
   MenuItem,
-  Checkbox,
-  FormControlLabel,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -23,29 +24,34 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { IncomeEditDialogProps, IncomeProps } from './PersonalFinances.types';
+import {
+  FixedExpenseEditDialogProps,
+  FixedExpenseProps,
+} from './PersonalFinances.types';
 import { NumericFormatInput } from 'src/components/common';
 
-const incomeSchema = yup.object().shape({
-  incomes: yup.array().of(
+const expenseSchema = yup.object().shape({
+  expenses: yup.array().of(
     yup.object().shape({
       amount: yup
         .number()
         .required('Amount is required')
-        .positive('Amount must be a > 0')
+        .positive('Amount must be greater than 0')
         .transform((value, originalValue) =>
           String(originalValue).trim() === '' ? undefined : value
         ),
-      period: yup
+      expenseType: yup
         .string()
-        .oneOf(['weekly', 'monthly', 'yearly'], 'Invalid period')
-        .required('Period is required'),
+        .oneOf(['primary', 'secondary'], 'Invalid expense type')
+        .required('Expense type is required'),
     })
   ),
-  useTrading: yup.boolean().default(true),
 });
 
-const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
+const FixedExpenseEditDialog = ({
+  onSubmit,
+  data,
+}: FixedExpenseEditDialogProps) => {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -55,27 +61,25 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(incomeSchema),
+    resolver: yupResolver(expenseSchema),
     defaultValues: {
-      incomes: data,
-      useTrading: true,
+      expenses: data,
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'incomes',
+    name: 'expenses',
   });
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: {
-    incomes?: IncomeProps[];
-    useTrading: boolean;
-  }) {
+  function _handleSubmit(data: { expenses?: FixedExpenseProps[] }) {
+    if (!data.expenses) return;
+
     handleClose();
-    onSubmit(data.incomes!);
+    onSubmit(data.expenses);
   }
 
   return (
@@ -92,22 +96,22 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
       >
-        <DialogTitle>Edit Income</DialogTitle>
+        <DialogTitle>Edit Fixed Expenses</DialogTitle>
         <DialogContent>
           {fields.map((item, index) => (
             <Grid container spacing={2} alignItems="center" key={item.id}>
-              <Grid item xs={5}>
+              <Grid item xs={6}>
                 <Controller
-                  name={`incomes.${index}.amount`}
+                  name={`expenses.${index}.amount`}
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       label="Amount"
                       fullWidth
-                      error={!!errors?.incomes?.[index]?.amount}
+                      error={!!errors?.expenses?.[index]?.amount}
                       helperText={
-                        errors?.incomes?.[index]?.amount?.message || ' '
+                        errors?.expenses?.[index]?.amount?.message || ' '
                       }
                       margin="dense"
                       InputProps={{
@@ -118,25 +122,24 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
                   )}
                 />
               </Grid>
-              <Grid item xs={5}>
+              <Grid item xs={6}>
                 <Controller
-                  name={`incomes.${index}.period`}
+                  name={`expenses.${index}.expenseType`}
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Period"
+                      label="Expense Type"
                       fullWidth
                       select
-                      error={!!errors?.incomes?.[index]?.period}
+                      error={!!errors?.expenses?.[index]?.expenseType}
                       helperText={
-                        errors?.incomes?.[index]?.period?.message || ' '
+                        errors?.expenses?.[index]?.expenseType?.message || ' '
                       }
                       margin="dense"
                     >
-                      <MenuItem value="weekly">Weekly</MenuItem>
-                      <MenuItem value="monthly">Monthly</MenuItem>
-                      <MenuItem value="yearly">Yearly</MenuItem>
+                      <MenuItem value="primary">Primary</MenuItem>
+                      <MenuItem value="secondary">Secondary</MenuItem>
                     </TextField>
                   )}
                 />
@@ -152,26 +155,19 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
               </Grid>
             </Grid>
           ))}
-          <FormControlLabel
-            control={
-              <Controller
-                name="useTrading"
-                control={control}
-                render={({ field }) => (
-                  <Checkbox {...field} checked={field.value} />
-                )}
-              />
-            }
-            label="Add trading data"
-          />
           <Box mt={2}>
             <Button
               type="button"
-              onClick={() => append({ amount: 0, period: 'monthly' })}
+              onClick={() =>
+                append({
+                  amount: 0,
+                  expenseType: 'primary',
+                })
+              }
               startIcon={<AddIcon />}
               disabled={fields.length >= 5}
             >
-              Add Income
+              Add Expense
             </Button>
           </Box>
         </DialogContent>
@@ -186,4 +182,4 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
   );
 };
 
-export default IncomeEditDialog;
+export default FixedExpenseEditDialog;

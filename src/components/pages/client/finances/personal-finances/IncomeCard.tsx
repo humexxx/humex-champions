@@ -6,7 +6,7 @@ const IncomeCard: React.FC = () => {
   const [incomes, setIncomes] = useState<IncomeProps[]>([
     {
       amount: 0,
-      period: 'Monthly',
+      period: 'monthly',
     },
   ]);
 

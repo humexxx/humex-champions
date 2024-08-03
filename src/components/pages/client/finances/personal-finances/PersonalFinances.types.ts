@@ -5,7 +5,7 @@ export interface IncomeEditDialogProps {
 
 export interface IncomeProps {
   amount: number;
-  period: 'Weekly' | 'Monthly' | 'Yearly';
+  period: 'weekly' | 'monthly' | 'yearly';
 }
 
 export interface DebtEditDialogProps {
@@ -17,4 +17,14 @@ export interface DebtProps {
   pendingDebt: number;
   minimumPayment: number;
   annualInterest: number;
+}
+
+export interface FixedExpenseEditDialogProps {
+  onSubmit: (data: FixedExpenseProps[]) => void;
+  data: FixedExpenseProps[];
+}
+
+export interface FixedExpenseProps {
+  amount: number;
+  expenseType: 'primary' | 'secondary';
 }
