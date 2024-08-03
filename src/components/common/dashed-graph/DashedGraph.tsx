@@ -4,8 +4,9 @@ import {
   useChartId,
   AnimatedLine,
 } from '@mui/x-charts';
+import { DashedGraphProps } from './DashedGraph.types';
 
-export default function CustomAnimatedLine(props: CustomAnimatedLineProps) {
+export default function DashedGraph(props: DashedGraphProps) {
   const { limit, sxBefore, sxAfter, ...other } = props;
   const { top, bottom, height, left, width } = useDrawingArea();
   const scale = useXScale();
@@ -15,7 +16,7 @@ export default function CustomAnimatedLine(props: CustomAnimatedLineProps) {
     return <AnimatedLine {...other} />;
   }
 
-  const limitPosition = scale(limit); // Convert value to x coordinate.
+  const limitPosition = scale(limit);
 
   if (limitPosition === undefined) {
     return <AnimatedLine {...other} />;
@@ -25,7 +26,6 @@ export default function CustomAnimatedLine(props: CustomAnimatedLineProps) {
   const clipIdRight = `${chartId}-${props.ownerState.id}-line-limit-${limit}-2`;
   return (
     <>
-      {/* Clip to show the line before the limit */}
       <clipPath id={clipIdleft}>
         <rect
           x={left}
@@ -34,7 +34,6 @@ export default function CustomAnimatedLine(props: CustomAnimatedLineProps) {
           height={top + height + bottom}
         />
       </clipPath>
-      {/* Clip to show the line after the limit */}
       <clipPath id={clipIdRight}>
         <rect
           x={limitPosition}
