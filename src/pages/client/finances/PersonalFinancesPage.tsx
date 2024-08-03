@@ -4,6 +4,7 @@ import {
   DebtCard,
   FixedExpenseCard,
   IncomeCard,
+  PersonalFinancesGraph,
 } from 'src/components/pages/client/finances/personal-finances';
 
 const PersonalFinancesPage = () => {
@@ -36,6 +37,9 @@ const PersonalFinancesPage = () => {
           </Grid>
           <Grid item xs={12} md={4}>
             <FixedExpenseCard />
+          </Grid>
+          <Grid item xs={12}>
+            <PersonalFinancesGraph />
           </Grid>
         </Grid>
       </Box>
