@@ -68,7 +68,7 @@ const FinancesPage = () => {
                     component="div"
                     style={{ viewTransitionName: 'trading-journal' }}
                   >
-                    {t('finances.tradingJournal')}
+                    {t('finances.tradingJournal.title')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {t('finances.tradingJournalDescription')}

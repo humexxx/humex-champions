@@ -1,7 +1,15 @@
-import { Breadcrumbs, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Grid, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import {
+  EditPanel,
+  SummaryPanel,
+} from 'src/components/pages/client/finances/trading-journal';
 
 const TradingJournalPage = () => {
+  const { t } = useTranslation();
+
   return (
     <>
       <Breadcrumbs aria-label="navigator">
@@ -10,7 +18,7 @@ const TradingJournalPage = () => {
           unstable_viewTransition
           style={{ textDecoration: 'none' }}
         >
-          Finances
+          {t('routes.finances')}
         </Link>
         <Typography
           variant="h6"
@@ -18,9 +26,27 @@ const TradingJournalPage = () => {
             viewTransitionName: 'trading-journal',
           }}
         >
-          Trading Journal
+          {t('finances.tradingJournal.title')}
         </Typography>
       </Breadcrumbs>
+      <Box mt={4}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <DateCalendar displayWeekNumber />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <EditPanel />
+          </Grid>
+          <Grid item xs={12} mt={4}>
+            <SummaryPanel
+              amount={10}
+              monthlyGrowth={10}
+              percentage={10}
+              trades={22}
+            />
+          </Grid>
+        </Grid>
+      </Box>
     </>
   );
 };

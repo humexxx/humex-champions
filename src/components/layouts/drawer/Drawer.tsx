@@ -37,6 +37,7 @@ const Drawer = () => {
         text: t('routes.health'),
         icon: <HealthAndSafetyIcon />,
         path: '/client/health',
+        disabled: true,
       },
       { text: t('routes.goals'), icon: <FlagIcon />, path: '/client/goals' },
     ],
@@ -60,7 +61,7 @@ const Drawer = () => {
       <Toolbar />
       <Divider />
       <List>
-        {mainMenuItems.map(({ text, icon, path }) => (
+        {mainMenuItems.map(({ text, icon, path, disabled }) => (
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
@@ -68,6 +69,7 @@ const Drawer = () => {
               component={NavLink}
               to={path}
               unstable_viewTransition
+              disabled={disabled}
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -85,6 +87,7 @@ const Drawer = () => {
               component={NavLink}
               to={path}
               unstable_viewTransition
+              disabled
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
