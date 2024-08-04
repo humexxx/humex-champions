@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -11,30 +11,14 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DebtEditDialog from './DebtEditDialog';
-import { DebtProps } from './PersonalFinances.types';
+import { DebtCardProps, IDebt } from './PersonalFinances.types';
 
-const DebtCard: React.FC = () => {
-  const [debts, setDebts] = useState<DebtProps[]>([
-    {
-      pendingDebt: 25000,
-      minimumPayment: 500,
-      annualInterest: 5,
-    },
-    {
-      pendingDebt: 15000,
-      minimumPayment: 300,
-      annualInterest: 3.5,
-    },
-    {
-      pendingDebt: 10000,
-      minimumPayment: 200,
-      annualInterest: 4.2,
-    },
-  ]);
+const DebtCard = ({ debts: data }: DebtCardProps) => {
+  const [debts, setDebts] = useState<IDebt[]>(data);
 
   const [expanded, setExpanded] = useState(false);
 
-  const handleFormSubmit = (data: DebtProps[]) => {
+  const handleFormSubmit = (data: IDebt[]) => {
     setDebts(data);
   };
 

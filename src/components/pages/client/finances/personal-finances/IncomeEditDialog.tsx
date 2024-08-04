@@ -23,7 +23,7 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { IncomeEditDialogProps, IncomeProps } from './PersonalFinances.types';
+import { IncomeEditDialogProps, IIncome } from './PersonalFinances.types';
 import { NumericFormatInput } from 'src/components/common';
 
 const incomeSchema = yup.object().shape({
@@ -70,10 +70,7 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: {
-    incomes?: IncomeProps[];
-    useTrading: boolean;
-  }) {
+  function _handleSubmit(data: { incomes?: IIncome[]; useTrading: boolean }) {
     handleClose();
     onSubmit(data.incomes!);
   }

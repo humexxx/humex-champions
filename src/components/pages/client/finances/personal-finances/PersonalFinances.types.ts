@@ -1,30 +1,47 @@
-export interface IncomeEditDialogProps {
-  onSubmit: (data: IncomeProps[]) => void;
-  data: IncomeProps[];
+export interface IBasicProps {
+  id?: string;
+  date?: string;
 }
 
-export interface IncomeProps {
+export interface IncomeEditDialogProps {
+  onSubmit: (data: IIncome[]) => void;
+  data: IIncome[];
+}
+
+export interface IIncome {
   amount: number;
   period: 'weekly' | 'monthly' | 'yearly';
 }
 
-export interface DebtEditDialogProps {
-  onSubmit: (data: DebtProps[]) => void;
-  data: DebtProps[];
+export interface IncomeCardProps {
+  incomes: (IIncome & IBasicProps)[];
 }
 
-export interface DebtProps {
+export interface DebtEditDialogProps {
+  onSubmit: (data: IDebt[]) => void;
+  data: IDebt[];
+}
+
+export interface IDebt {
   pendingDebt: number;
   minimumPayment: number;
   annualInterest: number;
 }
 
-export interface FixedExpenseEditDialogProps {
-  onSubmit: (data: FixedExpenseProps[]) => void;
-  data: FixedExpenseProps[];
+export interface DebtCardProps {
+  debts: (IDebt & IBasicProps)[];
 }
 
-export interface FixedExpenseProps {
+export interface FixedExpenseEditDialogProps {
+  onSubmit: (data: IFixedExpense[]) => void;
+  data: IFixedExpense[];
+}
+
+export interface IFixedExpense {
   amount: number;
   expenseType: 'primary' | 'secondary';
+}
+
+export interface FixedExpenseCardProps {
+  expenses: (IFixedExpense & IBasicProps)[];
 }

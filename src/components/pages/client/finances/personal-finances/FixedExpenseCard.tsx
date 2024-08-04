@@ -11,27 +11,14 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FixedExpenseEditDialog from './FixedExpenseEditDialog';
-import { FixedExpenseProps } from './PersonalFinances.types';
+import { FixedExpenseCardProps, IFixedExpense } from './PersonalFinances.types';
 
-const FixedExpenseCard: React.FC = () => {
-  const [expenses, setExpenses] = useState<FixedExpenseProps[]>([
-    {
-      amount: 1200,
-      expenseType: 'primary',
-    },
-    {
-      amount: 300,
-      expenseType: 'secondary',
-    },
-    {
-      amount: 600,
-      expenseType: 'primary',
-    },
-  ]);
+const FixedExpenseCard = ({ expenses: data }: FixedExpenseCardProps) => {
+  const [expenses, setExpenses] = useState<IFixedExpense[]>(data);
 
   const [expanded, setExpanded] = useState(false);
 
-  const handleFormSubmit = (data: FixedExpenseProps[]) => {
+  const handleFormSubmit = (data: IFixedExpense[]) => {
     setExpenses(data);
   };
 

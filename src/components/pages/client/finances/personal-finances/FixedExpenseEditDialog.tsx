@@ -26,7 +26,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {
   FixedExpenseEditDialogProps,
-  FixedExpenseProps,
+  IFixedExpense,
 } from './PersonalFinances.types';
 import { NumericFormatInput } from 'src/components/common';
 
@@ -75,7 +75,7 @@ const FixedExpenseEditDialog = ({
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: { expenses?: FixedExpenseProps[] }) {
+  function _handleSubmit(data: { expenses?: IFixedExpense[] }) {
     if (!data.expenses) return;
 
     handleClose();

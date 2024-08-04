@@ -11,9 +11,9 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import IncomeEditDialog from './IncomeEditDialog';
-import { IncomeProps } from './PersonalFinances.types';
+import { IIncome, IncomeCardProps } from './PersonalFinances.types';
 
-const calculateMonthlyIncome = (income: IncomeProps) => {
+const calculateMonthlyIncome = (income: IIncome) => {
   switch (income.period) {
     case 'monthly':
       return income.amount;
@@ -26,25 +26,12 @@ const calculateMonthlyIncome = (income: IncomeProps) => {
   }
 };
 
-const IncomeCard: FC = () => {
-  const [incomes, setIncomes] = useState<IncomeProps[]>([
-    {
-      amount: 3500,
-      period: 'monthly',
-    },
-    {
-      amount: 4000,
-      period: 'monthly',
-    },
-    {
-      amount: 15000,
-      period: 'yearly',
-    },
-  ]);
+const IncomeCard = ({ incomes: data }: IncomeCardProps) => {
+  const [incomes, setIncomes] = useState<IIncome[]>(data);
 
   const [expanded, setExpanded] = useState(false);
 
-  const handleFormSubmit = (data: IncomeProps[]) => {
+  const handleFormSubmit = (data: IIncome[]) => {
     setIncomes(data);
   };
 

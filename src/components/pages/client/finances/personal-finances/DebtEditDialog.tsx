@@ -20,7 +20,7 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { DebtEditDialogProps, DebtProps } from './PersonalFinances.types';
+import { DebtEditDialogProps, IDebt } from './PersonalFinances.types';
 
 const debtSchema = yup.object().shape({
   debts: yup.array().of(
@@ -74,7 +74,7 @@ const DebtEditDialog = ({ onSubmit, data }: DebtEditDialogProps) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: { debts?: DebtProps[] }) {
+  function _handleSubmit(data: { debts?: IDebt[] }) {
     if (!data.debts) return;
 
     handleClose();
