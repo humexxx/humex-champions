@@ -50,6 +50,7 @@ const Drawer = () => {
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
+              unstable_viewTransition
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -66,6 +67,7 @@ const Drawer = () => {
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
+              unstable_viewTransition
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
