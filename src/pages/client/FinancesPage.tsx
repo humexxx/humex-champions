@@ -10,17 +10,19 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const FinancesPage = () => {
+  const { t } = useTranslation();
+
   return (
     <>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Financial Summary
+          {t('finances.financialSummary')}
         </Typography>
         <Typography variant="body1">
-          Here you could include a brief summary of personal finances, such as
-          current balance, portfolio performance, etc.
+          {t('finances.summaryDescription')}
         </Typography>
       </Box>
 
@@ -38,15 +40,12 @@ const FinancesPage = () => {
                   <Typography
                     variant="h5"
                     component="div"
-                    style={{
-                      viewTransitionName: 'personal-finances',
-                    }}
+                    style={{ viewTransitionName: 'personal-finances' }}
                   >
-                    Personal Finances
+                    {t('finances.personalFinances.title')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Manage your personal finances and keep track of your
-                    expenses and income.
+                    {t('finances.personalFinancesDescription')}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -69,11 +68,10 @@ const FinancesPage = () => {
                     component="div"
                     style={{ viewTransitionName: 'trading-journal' }}
                   >
-                    Trading Journal
+                    {t('finances.tradingJournal')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Keep a record of your trading activities and analyze your
-                    performance.
+                    {t('finances.tradingJournalDescription')}
                   </Typography>
                 </CardContent>
               </CardActionArea>
@@ -96,11 +94,10 @@ const FinancesPage = () => {
                     component="div"
                     style={{ viewTransitionName: 'portfolio' }}
                   >
-                    Portfolio
+                    {t('finances.portfolio')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Manage your investment portfolio and monitor its
-                    performance.
+                    {t('finances.portfolioDescription')}
                   </Typography>
                 </CardContent>
               </CardActionArea>

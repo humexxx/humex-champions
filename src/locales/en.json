@@ -13,5 +13,24 @@
     "totalFatBurn": "Total Fat Burn",
     "totalDailyGoalsStreak": "Total Daily Goals Streak",
     "totalPLTrading": "Total P/L Trading"
+  },
+  "finances": {
+    "financialSummary": "Financial Summary",
+    "summaryDescription": "Here you could include a brief summary of personal finances, such as current balance, portfolio performance, etc.",
+    "personalFinancesDescription": "Manage your personal finances and keep track of your expenses and income.",
+    "tradingJournal": "Trading Journal",
+    "tradingJournalDescription": "Keep a record of your trading activities and analyze your performance.",
+    "portfolio": "Portfolio",
+    "portfolioDescription": "Manage your investment portfolio and monitor its performance.",
+    "personalFinances": {
+      "title": "Personal Finances",
+      "graph": {
+        "estimatedTimeToSavings": "Estimated time to have more savings than debts: {{months}} months.",
+        "moreThanYear": "It will take more than a year to have more savings than debts.",
+        "savings": "Savings",
+        "debts": "Debts",
+        "month": "Month"
+      }
+    }
   }
 }
