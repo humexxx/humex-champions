@@ -7,7 +7,7 @@ const debtsData = [
   90000, 89000, 85000, 82000, 60000, 55000, 41000, 39000, 30000, 25000, 19000,
   11000,
 ];
-const pData = [
+const savingsData = [
   1000, 2500, 5000, 8000, 10000, 15000, 20000, 25000, 30000, 35000, 40000,
   63000,
 ];
@@ -43,7 +43,7 @@ function getLabels() {
 
 const estimateTimeToSavings = () => {
   for (let i = 0; i < debtsData.length; i++) {
-    if (pData[i] > debtsData[i]) {
+    if (savingsData[i] > debtsData[i]) {
       return `Estimated time to have more savings than debts: ${i + 1} months.`;
     }
   }
@@ -58,8 +58,18 @@ const PersonalFinancesGraph = () => {
     <Box width={'100%'} height={500}>
       <LineChart
         series={[
-          { data: pData, label: 'Savings', color: 'green' },
-          { data: debtsData, label: 'Debts', color: 'red' },
+          {
+            data: savingsData,
+            label: 'Savings',
+            color: 'green',
+            valueFormatter: (value) => `$${value}`,
+          },
+          {
+            data: debtsData,
+            label: 'Debts',
+            color: 'red',
+            valueFormatter: (value) => `$${value}`,
+          },
         ]}
         xAxis={[
           {
@@ -81,9 +91,7 @@ const PersonalFinancesGraph = () => {
         }}
       />
       <Box mt={2}>
-        <Typography variant="body1" align="center">
-          {estimatedTimeMessage}
-        </Typography>
+        <Typography variant="body1">{estimatedTimeMessage}</Typography>
       </Box>
     </Box>
   );
