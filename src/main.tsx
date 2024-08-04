@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from './routes.tsx';
 import { AuthProvider } from './context/auth';
 import { CssBaseline } from '@mui/material';
+import './i18n.ts';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>

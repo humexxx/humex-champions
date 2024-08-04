@@ -1,28 +1,15 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import LogoutIcon from '@mui/icons-material/Logout';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import { PrivateRoute } from 'src/components/common';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import APP_DRAWER, { DRAWER_WIDTH } from 'src/components/layouts/drawer';
-import { auth } from 'src/firebase';
 
-import { ThemeProvider, useThemeContext } from 'src/context/theme';
-import { useTheme } from '@mui/material/styles';
-import { Container } from '@mui/material';
+import { ThemeProvider } from 'src/context/theme';
+import { Header } from 'src/components/layouts';
+import { Box, Drawer, Toolbar, Container } from '@mui/material';
 
 function ClientLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
-  const theme = useTheme();
-  const themeContext = useThemeContext();
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -39,64 +26,9 @@ function ClientLayout() {
     }
   };
 
-  const navigate = useNavigate();
-
-  function handleLogout() {
-    auth
-      .signOut()
-      .then(() => {
-        navigate('/login');
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          ml: { sm: `${DRAWER_WIDTH}px` },
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" flexGrow="1">
-            Champions
-          </Typography>
-          <IconButton
-            sx={{ ml: 1 }}
-            onClick={themeContext.toggleColorMode}
-            color="inherit"
-          >
-            {theme.palette.mode === 'dark' ? (
-              <Brightness4Icon />
-            ) : (
-              <Brightness7Icon />
-            )}
-          </IconButton>
-          <IconButton
-            color="inherit"
-            edge="end"
-            onClick={handleLogout}
-            sx={{ mr: 2 }}
-          >
-            <LogoutIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+      <Header handleDrawerToggle={handleDrawerToggle} />
       <Box
         component="nav"
         sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}

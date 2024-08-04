@@ -1,6 +1,7 @@
 import { Box, Breadcrumbs, Grid, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   DebtCard,
   IDebt,
@@ -17,6 +18,7 @@ import {
 } from 'src/mock/finances';
 
 const PersonalFinancesPage = () => {
+  const { t } = useTranslation();
   const [debts, setDebts] = useState<IDebt[][] | null>(null);
   const [incomes, setIncomes] = useState<IIncome[][] | null>(null);
   const [expenses, setExpenses] = useState<IFixedExpense[][] | null>(null);
@@ -35,7 +37,7 @@ const PersonalFinancesPage = () => {
           unstable_viewTransition
           style={{ textDecoration: 'none' }}
         >
-          Finances
+          {t('routes.finances')}
         </Link>
         <Typography
           variant="h6"
@@ -43,7 +45,7 @@ const PersonalFinancesPage = () => {
             viewTransitionName: 'personal-finances',
           }}
         >
-          Personal Finances
+          {t('finances.personalFinances.title')}
         </Typography>
       </Breadcrumbs>
       <Box mt={4}>
