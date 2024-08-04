@@ -8,6 +8,12 @@ interface Resources {
       "goals": "Goals",
       "members": "Members",
       "groups": "Groups"
+    },
+    "dashboard": {
+      "totalSavings": "Total Savings",
+      "totalFatBurn": "Total Fat Burn",
+      "totalDailyGoalsStreak": "Total Daily Goals Streak",
+      "totalPLTrading": "Total P/L Trading"
     }
   },
   "es": {

@@ -4,16 +4,19 @@ import {
   UniqueVisitorCard,
   IncomeOverviewCard,
 } from 'src/components/pages/client/dashboard';
+import { useTranslation } from 'react-i18next';
 
 const DashboardPage = () => {
+  const { t } = useTranslation();
+
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       <Grid item xs={12}>
-        <Typography variant="h5">Dashboard</Typography>
+        <Typography variant="h5">{t('routes.dashboard')}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <DenseAnalyticCard
-          title="Total Savings"
+          title={t('dashboard.totalSavings')}
           count="4,42,236"
           percentage={10.3}
           extra="442,000"
@@ -21,7 +24,7 @@ const DashboardPage = () => {
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <DenseAnalyticCard
-          title="Total Fat Burn"
+          title={t('dashboard.totalFatBurn')}
           count="10,500"
           percentage={70.5}
           extra="8,900"
@@ -29,7 +32,7 @@ const DashboardPage = () => {
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <DenseAnalyticCard
-          title="Total Daily Goals Streak"
+          title={t('dashboard.totalDailyGoalsStreak')}
           count="5"
           percentage={27.4}
           extra="1,943"
@@ -37,7 +40,7 @@ const DashboardPage = () => {
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <DenseAnalyticCard
-          title="Total P/L Trading"
+          title={t('dashboard.totalPLTrading')}
           count="$35,078"
           percentage={27.4}
           isLoss

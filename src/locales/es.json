@@ -1,11 +1,17 @@
 {
-  "lng": "Spanish",
+  "lng": "Español",
   "routes": {
-    "dashboard": "Panel",
+    "dashboard": "Tablero",
     "finances": "Finanzas",
     "health": "Salud",
-    "goals": "Objetivos",
+    "goals": "Metas",
     "members": "Miembros",
     "groups": "Grupos"
+  },
+  "dashboard": {
+    "totalSavings": "Ahorros Totales",
+    "totalFatBurn": "Grasa Quemada Total",
+    "totalDailyGoalsStreak": "Racha Diaria de Metas",
+    "totalPLTrading": "P/L Total en Trading"
   }
 }
