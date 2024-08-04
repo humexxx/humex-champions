@@ -1,0 +1,11 @@
+{
+  "lng": "Spanish",
+  "routes": {
+    "dashboard": "Panel",
+    "finances": "Finanzas",
+    "health": "Salud",
+    "goals": "Objetivos",
+    "members": "Miembros",
+    "groups": "Grupos"
+  }
+}
