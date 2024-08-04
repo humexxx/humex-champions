@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DashedGraph } from 'src/components/common';
 
 const debtsData = [
@@ -40,18 +41,21 @@ function getLabels() {
 
   return result;
 }
-
-const estimateTimeToSavings = () => {
-  for (let i = 0; i < debtsData.length; i++) {
-    if (savingsData[i] > debtsData[i]) {
-      return `Estimated time to have more savings than debts: ${i + 1} months.`;
-    }
-  }
-  return 'It will take more than a year to have more savings than debts.';
-};
-
 const PersonalFinancesGraph = () => {
+  const { t } = useTranslation();
   const xLabels = useMemo(() => getLabels(), []);
+
+  const estimateTimeToSavings = () => {
+    for (let i = 0; i < debtsData.length; i++) {
+      if (savingsData[i] > debtsData[i]) {
+        return t('finances.personalFinances.graph.estimatedTimeToSavings', {
+          months: i + 1,
+        });
+      }
+    }
+    return t('finances.personalFinances.graph.moreThanYear');
+  };
+
   const estimatedTimeMessage = estimateTimeToSavings();
 
   return (
@@ -60,13 +64,13 @@ const PersonalFinancesGraph = () => {
         series={[
           {
             data: savingsData,
-            label: 'Savings',
+            label: t('finances.personalFinances.graph.savings'),
             color: 'green',
             valueFormatter: (value) => `$${value}`,
           },
           {
             data: debtsData,
-            label: 'Debts',
+            label: t('finances.personalFinances.graph.debts'),
             color: 'red',
             valueFormatter: (value) => `$${value}`,
           },
@@ -74,7 +78,7 @@ const PersonalFinancesGraph = () => {
         xAxis={[
           {
             data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-            label: 'Month',
+            label: t('finances.personalFinances.graph.month'),
             scaleType: 'point',
             valueFormatter: (value) => xLabels[value],
           },

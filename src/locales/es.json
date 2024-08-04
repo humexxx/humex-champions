@@ -1,0 +1,36 @@
+{
+  "lng": "Español",
+  "routes": {
+    "dashboard": "Tablero",
+    "finances": "Finanzas",
+    "health": "Salud",
+    "goals": "Metas",
+    "members": "Miembros",
+    "groups": "Grupos"
+  },
+  "dashboard": {
+    "totalSavings": "Ahorros Totales",
+    "totalFatBurn": "Grasa Quemada Total",
+    "totalDailyGoalsStreak": "Racha Diaria de Metas",
+    "totalPLTrading": "P/L Total en Trading"
+  },
+  "finances": {
+    "financialSummary": "Resumen Financiero",
+    "summaryDescription": "Aquí podrías incluir un breve resumen de las finanzas personales, como el saldo actual, el rendimiento del portafolio, etc.",
+    "personalFinancesDescription": "Gestiona tus finanzas personales y realiza un seguimiento de tus gastos e ingresos.",
+    "tradingJournal": "Diario de Trading",
+    "tradingJournalDescription": "Lleva un registro de tus actividades de trading y analiza tu rendimiento.",
+    "portfolio": "Portafolio",
+    "portfolioDescription": "Gestiona tu portafolio de inversiones y monitorea su rendimiento.",
+    "personalFinances": {
+      "title": "Finanzas Personales",
+      "graph": {
+        "estimatedTimeToSavings": "Tiempo estimado para tener más ahorros que deudas: {{months}} meses.",
+        "moreThanYear": "Tomará más de un año tener más ahorros que deudas.",
+        "savings": "Ahorros",
+        "debts": "Deudas",
+        "month": "Mes"
+      }
+    }
+  }
+}

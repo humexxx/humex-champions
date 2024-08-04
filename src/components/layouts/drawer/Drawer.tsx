@@ -14,29 +14,46 @@ import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import FlagIcon from '@mui/icons-material/Flag';
 import GroupIcon from '@mui/icons-material/Group';
 import PeopleIcon from '@mui/icons-material/People';
-
-const mainMenuItems = [
-  {
-    text: 'Dashboard',
-    icon: <DashboardIcon />,
-    path: '/client/dashboard',
-  },
-  {
-    text: 'Finances',
-    icon: <AccountBalanceIcon />,
-    path: '/client/finances',
-  },
-  { text: 'Health', icon: <HealthAndSafetyIcon />, path: '/client/health' },
-  { text: 'Goals', icon: <FlagIcon />, path: '/client/goals' },
-];
-
-const secondaryMenuItems = [
-  { text: 'Miembros', icon: <PeopleIcon />, path: '/client/members' },
-  { text: 'Grupos', icon: <GroupIcon />, path: '/client/groups' },
-];
+import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 
 const Drawer = () => {
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const mainMenuItems = useMemo(
+    () => [
+      {
+        text: t('routes.dashboard'),
+        icon: <DashboardIcon />,
+        path: '/client/dashboard',
+      },
+      {
+        text: t('routes.finances'),
+        icon: <AccountBalanceIcon />,
+        path: '/client/finances',
+      },
+      {
+        text: t('routes.health'),
+        icon: <HealthAndSafetyIcon />,
+        path: '/client/health',
+      },
+      { text: t('routes.goals'), icon: <FlagIcon />, path: '/client/goals' },
+    ],
+    [t]
+  );
+
+  const secondaryMenuItems = useMemo(
+    () => [
+      {
+        text: t('routes.members'),
+        icon: <PeopleIcon />,
+        path: '/client/members',
+      },
+      { text: t('routes.groups'), icon: <GroupIcon />, path: '/client/groups' },
+    ],
+    [t]
+  );
 
   return (
     <div>
