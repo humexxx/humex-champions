@@ -1,27 +1,68 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, IconButton, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Grid, Typography } from '@mui/material';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  DebtCard,
+  IDebt,
+  FixedExpenseCard,
+  IFixedExpense,
+  IncomeCard,
+  IIncome,
+  PersonalFinancesGraph,
+} from 'src/components/pages/client/finances/personal-finances';
+import {
+  fetchDebtData,
+  fetchIncomeData,
+  fetchFixedExpenseData,
+} from 'src/mock/finances';
 
 const PersonalFinancesPage = () => {
+  const [debts, setDebts] = useState<IDebt[][] | null>(null);
+  const [incomes, setIncomes] = useState<IIncome[][] | null>(null);
+  const [expenses, setExpenses] = useState<IFixedExpense[][] | null>(null);
+
+  useEffect(() => {
+    fetchDebtData().then((data) => setDebts(data));
+    fetchIncomeData().then((data) => setIncomes(data));
+    fetchFixedExpenseData().then((data) => setExpenses(data));
+  }, []);
+
   return (
-    <Box display="flex" alignItems="center">
-      <IconButton
-        component={Link}
-        to="/client/finances"
-        unstable_viewTransition
-      >
-        <ArrowBackIcon />
-      </IconButton>
-      <Typography
-        variant="h5"
-        component="div"
-        style={{
-          viewTransitionName: 'personal-finances',
-        }}
-      >
-        Personal Finances
-      </Typography>
-    </Box>
+    <>
+      <Breadcrumbs aria-label="navigator">
+        <Link
+          to="/client/finances"
+          unstable_viewTransition
+          style={{ textDecoration: 'none' }}
+        >
+          Finances
+        </Link>
+        <Typography
+          variant="h6"
+          style={{
+            viewTransitionName: 'personal-finances',
+          }}
+        >
+          Personal Finances
+        </Typography>
+      </Breadcrumbs>
+      <Box mt={4}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={4}>
+            {Boolean(debts) && <DebtCard debts={debts![0]} />}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            {Boolean(incomes) && <IncomeCard incomes={incomes![0]} />}
+          </Grid>
+          <Grid item xs={12} md={4}>
+            {Boolean(expenses) && <FixedExpenseCard expenses={expenses![0]} />}
+          </Grid>
+          <Grid item xs={12}>
+            <PersonalFinancesGraph />
+          </Grid>
+        </Grid>
+      </Box>
+    </>
   );
 };
 
