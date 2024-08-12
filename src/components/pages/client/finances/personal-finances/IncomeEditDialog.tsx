@@ -24,7 +24,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { IncomeEditDialogProps, IIncome } from './PersonalFinances.types';
-import { NumericFormatInput } from 'src/components/common';
+import { CurrencyField } from 'src/components/common';
 
 const incomeSchema = yup.object().shape({
   incomes: yup.array().of(
@@ -98,7 +98,7 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
                   name={`incomes.${index}.amount`}
                   control={control}
                   render={({ field }) => (
-                    <TextField
+                    <CurrencyField
                       {...field}
                       label="Amount"
                       fullWidth
@@ -107,9 +107,6 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
                         errors?.incomes?.[index]?.amount?.message || ' '
                       }
                       margin="dense"
-                      InputProps={{
-                        inputComponent: NumericFormatInput as any,
-                      }}
                       inputProps={{ allowNegative: false }}
                     />
                   )}

@@ -1,3 +1,4 @@
+import { TextFieldProps, TextField } from '@mui/material';
 import { forwardRef } from 'react';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
@@ -31,4 +32,19 @@ const NumericFormatInput = forwardRef<
   );
 });
 
-export default NumericFormatInput;
+const CurrencyField = forwardRef<HTMLInputElement, TextFieldProps>(
+  function CurrencyField(props, ref) {
+    return (
+      <TextField
+        {...props}
+        inputRef={ref}
+        InputProps={{
+          inputComponent: NumericFormatInput as any,
+          ...props.InputProps,
+        }}
+      />
+    );
+  }
+);
+
+export default CurrencyField;

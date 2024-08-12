@@ -1,5 +1,6 @@
 export { default as Copyright } from './copyright';
 export { default as PrivateRoute } from './private-route';
 export { default as AutoLogRoute } from './auto-log-route';
-export { default as NumericFormatInput } from './NumericFormatInput';
+export { default as PhoneField } from './PhoneField';
+export { default as CurrencyField } from './CurrencyField';
 export { default as DashedGraph } from './dashed-graph';
