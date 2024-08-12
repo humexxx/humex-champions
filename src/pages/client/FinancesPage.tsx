@@ -4,6 +4,7 @@ import {
   CardActionArea,
   CardContent,
   Grid,
+  Paper,
   Typography,
 } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -11,99 +12,97 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDocumentMetadata } from 'src/hooks';
+import { useMemo } from 'react';
+import { PageHeader } from 'src/components/common';
 
 const FinancesPage = () => {
   const { t } = useTranslation();
+  useDocumentMetadata(`${t('finances.title')} - Champions`);
+
+  const options = useMemo(
+    () => [
+      {
+        route: 'personal-finances',
+        label: t('finances.personalFinances.title'),
+        description: t('finances.personalFinances.description'),
+        Icon: BarChartIcon,
+      },
+      {
+        route: 'trading-journal',
+        label: t('finances.tradingJournal.title'),
+        description: t('finances.tradingJournal.description'),
+        Icon: TrendingUpIcon,
+      },
+      {
+        route: 'portfolio',
+        label: t('finances.portfolio.title'),
+        description: t('finances.portfolio.description'),
+        Icon: PieChartIcon,
+      },
+    ],
+    [t]
+  );
 
   return (
     <>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          {t('finances.financialSummary')}
+      <PageHeader>
+        <Typography variant="h6" component="h2" gutterBottom>
+          <strong>{t('finances.financialSummary')}</strong>
         </Typography>
         <Typography variant="body1">
           {t('finances.summaryDescription')}
         </Typography>
-      </Box>
+      </PageHeader>
 
       <Grid container spacing={4}>
-        <Grid item xs={12} md={4}>
-          <Link
-            unstable_viewTransition
-            to="personal-finances"
-            style={{ textDecoration: 'none' }}
-          >
-            <Card>
-              <CardActionArea>
-                <CardContent>
-                  <BarChartIcon fontSize="large" />
-                  <Typography
-                    variant="h5"
-                    component="div"
-                    style={{ viewTransitionName: 'personal-finances' }}
+        {options.map(({ route, Icon, description, label }) => (
+          <Grid item xs={12} md={4} key={route}>
+            <Link
+              unstable_viewTransition
+              to={route}
+              style={{ textDecoration: 'none' }}
+            >
+              <Card
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  height: '100%',
+                }}
+              >
+                <CardActionArea sx={{ padding: 2, height: '100%' }}>
+                  <CardContent
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%',
+                    }}
                   >
-                    {t('finances.personalFinances.title')}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('finances.personalFinancesDescription')}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Link>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Link
-            unstable_viewTransition
-            to="trading-journal"
-            style={{ textDecoration: 'none' }}
-          >
-            <Card>
-              <CardActionArea>
-                <CardContent>
-                  <TrendingUpIcon fontSize="large" />
-                  <Typography
-                    variant="h5"
-                    component="div"
-                    style={{ viewTransitionName: 'trading-journal' }}
-                  >
-                    {t('finances.tradingJournal.title')}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('finances.tradingJournalDescription')}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Link>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Link
-            unstable_viewTransition
-            to="portfolio"
-            style={{ textDecoration: 'none' }}
-          >
-            <Card>
-              <CardActionArea>
-                <CardContent>
-                  <PieChartIcon fontSize="large" />
-                  <Typography
-                    variant="h5"
-                    component="div"
-                    style={{ viewTransitionName: 'portfolio' }}
-                  >
-                    {t('finances.portfolio')}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('finances.portfolioDescription')}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Link>
-        </Grid>
+                    <Box>
+                      <Paper sx={{ display: 'inline-block', p: 1, mb: 1 }}>
+                        <Icon color="primary" />
+                      </Paper>
+                      <Typography
+                        variant="body1"
+                        component="h3"
+                        my={2}
+                        sx={{
+                          viewTransitionName: route,
+                        }}
+                      >
+                        <strong>{label}</strong>
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {description}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Link>
+          </Grid>
+        ))}
       </Grid>
     </>
   );
