@@ -12,9 +12,6 @@ import {
   Grid,
   Box,
   MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -28,7 +25,7 @@ import {
   FixedExpenseEditDialogProps,
   IFixedExpense,
 } from './PersonalFinances.types';
-import { NumericFormatInput } from 'src/components/common';
+import { CurrencyField } from 'src/components/common';
 
 const expenseSchema = yup.object().shape({
   expenses: yup.array().of(
@@ -105,7 +102,7 @@ const FixedExpenseEditDialog = ({
                   name={`expenses.${index}.amount`}
                   control={control}
                   render={({ field }) => (
-                    <TextField
+                    <CurrencyField
                       {...field}
                       label="Amount"
                       fullWidth
@@ -114,9 +111,6 @@ const FixedExpenseEditDialog = ({
                         errors?.expenses?.[index]?.amount?.message || ' '
                       }
                       margin="dense"
-                      InputProps={{
-                        inputComponent: NumericFormatInput as any,
-                      }}
                       inputProps={{ allowNegative: false }}
                     />
                   )}
