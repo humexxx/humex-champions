@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
-import { doc, getDoc, Timestamp } from 'firebase/firestore';
+import { useEffect, useState, useCallback } from 'react';
+import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { IDebt } from 'src/types/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
-import { formatDateToYYYYMMDD } from 'src/utils';
+import { dateToTimestamp, formatDateToYYYYMMDD } from 'src/utils';
 
 interface UseDebtsResult {
   debts: IDebt[];
   isLoading: boolean;
   error: Error | null;
+  updateDebts: (newDebts: IDebt[]) => Promise<void>;
 }
 
 export const useDebts = (): UseDebtsResult => {
@@ -48,5 +49,27 @@ export const useDebts = (): UseDebtsResult => {
     fetchDebts();
   }, [user.currentUser]);
 
-  return { debts, isLoading, error };
+  const updateDebts = useCallback(
+    async (newDebts: IDebt[]) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const docRef = doc(firestore, 'debts', user.currentUser!.uid);
+        const formattedDebts = newDebts.map((debt) => ({
+          ...debt,
+          startDate: dateToTimestamp(debt.startDate),
+        }));
+        await setDoc(docRef, { data: formattedDebts });
+        setDebts(newDebts);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [user.currentUser]
+  );
+
+  return { debts, isLoading, error, updateDebts };
 };

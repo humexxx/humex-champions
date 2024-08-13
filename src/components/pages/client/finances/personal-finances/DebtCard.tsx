@@ -1,21 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import DebtEditDialog from './DebtEditDialog';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 import { IDebt } from 'src/types/models/finances';
+import { useDebts } from 'src/pages/client/finances';
 
-interface Props {
-  debts: IDebt[];
-  loading: boolean;
-}
-
-const DebtCard = ({ debts: data, loading }: Props) => {
+const DebtCard = () => {
   const { t } = useTranslation();
-  const [debts, setDebts] = useState<IDebt[]>(data);
+  const { debts, isLoading, updateDebts } = useDebts();
 
   const handleFormSubmit = (data: IDebt[]) => {
-    setDebts(data);
+    updateDebts(data);
   };
 
   const totalDebt = useMemo(
@@ -39,23 +35,19 @@ const DebtCard = ({ debts: data, loading }: Props) => {
     return weightedSum / totalDebt;
   }, [debts, totalDebt]);
 
-  useEffect(() => {
-    setDebts(data);
-  }, [data]);
-
   return (
     <Card sx={{ position: 'relative' }}>
       <DebtEditDialog
         data={debts}
         onSubmit={handleFormSubmit}
         sx={{ position: 'absolute', right: 8, top: 8 }}
-        loading={loading}
+        loading={isLoading}
       />
       <CardContent>
         <Typography variant="body1" component="h3" mb={2}>
           <strong>{t('finances.personalFinances.header.debts.title')}</strong>
         </Typography>
-        {loading ? (
+        {isLoading ? (
           <>
             <Skeleton width="60%" height={32} />
             <Skeleton width="50%" height={24} />

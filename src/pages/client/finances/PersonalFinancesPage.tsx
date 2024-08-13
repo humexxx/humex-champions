@@ -14,12 +14,10 @@ import { fetchIncomeData, fetchFixedExpenseData } from 'src/mock/finances';
 import { PageHeader } from 'src/components/common';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDocumentMetadata } from 'src/hooks';
-import { useDebts } from './PersonalFinances.hooks';
 
 const PersonalFinancesPage = () => {
   const { t } = useTranslation();
   useDocumentMetadata(`${t('finances.personalFinances.title')} - Champions`);
-  const { debts, isLoading: isDebtsLoading } = useDebts();
   const [incomes, setIncomes] = useState<IIncome[][] | null>(null);
   const [expenses, setExpenses] = useState<IFixedExpense[][] | null>(null);
 
@@ -56,7 +54,7 @@ const PersonalFinancesPage = () => {
       </PageHeader>
       <Grid container spacing={4}>
         <Grid item xs={12} md={4}>
-          <DebtCard debts={debts} loading={isDebtsLoading} />
+          <DebtCard />
         </Grid>
         <Grid item xs={12} md={4}>
           {Boolean(incomes) && <IncomeCard incomes={incomes![0]} />}
