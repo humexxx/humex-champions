@@ -1,69 +1,86 @@
-import { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Divider,
-  IconButton,
-  Box,
-  Collapse,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useEffect, useMemo, useState } from 'react';
+import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import DebtEditDialog from './DebtEditDialog';
-import { DebtCardProps, IDebt } from './PersonalFinances.types';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency, formatPercentage } from 'src/utils';
+import { IDebt } from 'src/types/models/finances';
 
-const DebtCard = ({ debts: data }: DebtCardProps) => {
+interface Props {
+  debts: IDebt[];
+  loading: boolean;
+}
+
+const DebtCard = ({ debts: data, loading }: Props) => {
+  const { t } = useTranslation();
   const [debts, setDebts] = useState<IDebt[]>(data);
-
-  const [expanded, setExpanded] = useState(false);
 
   const handleFormSubmit = (data: IDebt[]) => {
     setDebts(data);
   };
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
+  const totalDebt = useMemo(
+    () => debts.reduce((acc, debt) => acc + debt.pendingDebt, 0),
+    [debts]
+  );
 
-  const totalDebt = debts.reduce((acc, debt) => acc + debt.pendingDebt, 0);
+  const totalMinimumPayment = useMemo(
+    () => debts.reduce((acc, debt) => acc + debt.minimumPayment, 0),
+    [debts]
+  );
+
+  const weightedInterest = useMemo(() => {
+    if (totalDebt === 0) return 0;
+
+    const weightedSum = debts.reduce(
+      (acc, debt) => acc + debt.annualInterest * debt.pendingDebt,
+      0
+    );
+
+    return weightedSum / totalDebt;
+  }, [debts, totalDebt]);
+
+  useEffect(() => {
+    setDebts(data);
+  }, [data]);
 
   return (
-    <Card>
+    <Card sx={{ position: 'relative' }}>
+      <DebtEditDialog
+        data={debts}
+        onSubmit={handleFormSubmit}
+        sx={{ position: 'absolute', right: 8, top: 8 }}
+        loading={loading}
+      />
       <CardContent>
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Typography variant="h5">Debts</Typography>
-          <DebtEditDialog data={debts} onSubmit={handleFormSubmit} />
-        </Grid>
-        <Typography variant="h6">${totalDebt}</Typography>
-        <Collapse in={expanded}>
-          <Box mt={2}>
-            {debts.map((debt, index) => (
-              <Box key={index}>
-                <Typography variant="body2">
-                  Debt: ${debt.pendingDebt}
-                </Typography>
-                <Typography variant="body2">
-                  Minimum Payment: ${debt.minimumPayment}
-                </Typography>
-                <Typography variant="body2">
-                  Interest: {debt.annualInterest}%
-                </Typography>
-                {index < debts.length - 1 && <Divider sx={{ my: 2 }} />}
-              </Box>
-            ))}
-          </Box>
-        </Collapse>
-        <Grid container justifyContent="flex-end">
-          <IconButton onClick={handleExpandClick}>
-            <ExpandMoreIcon
-              sx={{
-                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s',
-              }}
-            />
-          </IconButton>
-        </Grid>
+        <Typography variant="body1" component="h3" mb={2}>
+          <strong>{t('finances.personalFinances.header.debts.title')}</strong>
+        </Typography>
+        {loading ? (
+          <>
+            <Skeleton width="60%" height={32} />
+            <Skeleton width="50%" height={24} />
+            <Skeleton width="50%" height={24} />
+          </>
+        ) : debts.length ? (
+          <>
+            <Typography component="h6" variant="body1" gutterBottom>
+              {t('finances.personalFinances.header.debts.total')}:{' '}
+              {formatCurrency(totalDebt)}
+            </Typography>
+            <Typography variant="body2">
+              {t('finances.personalFinances.header.debts.minimumPayment')}:{' '}
+              {formatCurrency(totalMinimumPayment)}
+            </Typography>
+            <Typography variant="body2">
+              {t('finances.personalFinances.header.debts.interest')}:{' '}
+              {formatPercentage(weightedInterest)}
+            </Typography>
+          </>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            {t('finances.personalFinances.header.debts.noDebts')}
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );

@@ -17,21 +17,6 @@ export interface IncomeCardProps {
   incomes: (IIncome & IBasicProps)[];
 }
 
-export interface DebtEditDialogProps {
-  onSubmit: (data: IDebt[]) => void;
-  data: IDebt[];
-}
-
-export interface IDebt {
-  pendingDebt: number;
-  minimumPayment: number;
-  annualInterest: number;
-}
-
-export interface DebtCardProps {
-  debts: (IDebt & IBasicProps)[];
-}
-
 export interface FixedExpenseEditDialogProps {
   onSubmit: (data: IFixedExpense[]) => void;
   data: IFixedExpense[];

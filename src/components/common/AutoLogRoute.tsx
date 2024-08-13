@@ -1,9 +1,12 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { AutoLogRouteProps } from './AutoLogRoute.types';
 import { useAuth } from 'src/context/auth';
 
-const AutoLogRoute: React.FC<AutoLogRouteProps> = ({ children }) => {
+interface Props {
+  children: React.ReactElement;
+}
+
+const AutoLogRoute: React.FC<Props> = ({ children }) => {
   const { currentUser } = useAuth();
 
   if (currentUser) {

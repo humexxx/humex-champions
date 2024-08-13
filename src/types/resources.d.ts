@@ -4,6 +4,10 @@ interface Resources {
       "en": "English",
       "es": "Spanish"
     },
+    "commonValidations": {
+      "required": "Required field",
+      "positiveNumber": "Field must be greater than 0"
+    },
     "dashboard": {
       "title": "Dashboard",
       "totalSavings": "Total Savings",
@@ -18,6 +22,22 @@ interface Resources {
       "personalFinances": {
         "title": "Personal Finances",
         "description": "Manage your personal finances and keep track of your expenses and income.",
+        "header": {
+          "debts": {
+            "title": "Debts",
+            "total": "Total",
+            "minimumPayment": "Min. Payment",
+            "interest": "Weighted Interest",
+            "noDebts": "No debts found.",
+            "dialog": {
+              "title": "Edit monthly debt",
+              "pendingDebt": "Pending Debt",
+              "minPayment": "Min. Payment",
+              "anualInterest": "Anual Interest",
+              "startDate": "Start Date"
+            }
+          }
+        },
         "graph": {
           "estimatedTimeToSavings": "Estimated time to have more savings than debts: {{months}} months.",
           "moreThanYear": "It will take more than a year to have more savings than debts.",

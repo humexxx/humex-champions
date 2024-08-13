@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
-  TextField,
   IconButton,
   useTheme,
   useMediaQuery,
   Grid,
   Box,
+  SxProps,
+  Tooltip,
+  TextField,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -20,37 +22,50 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { DebtEditDialogProps, IDebt } from './PersonalFinances.types';
+import { IDebt } from 'src/types/models/finances';
+import { useTranslation } from 'react-i18next';
+import { CurrencyField, PercentageField } from 'src/components/common/forms';
+import { DatePicker } from '@mui/lab';
 
-const debtSchema = yup.object().shape({
-  debts: yup.array().of(
-    yup.object().shape({
-      pendingDebt: yup
-        .number()
-        .required('Pending debt is required')
-        .positive('Pending debt must be greater than 0')
-        .transform((value, originalValue) =>
-          String(originalValue).trim() === '' ? undefined : value
-        ),
-      minimumPayment: yup
-        .number()
-        .required('Minimum payment is required')
-        .positive('Minimum payment must be greater than 0')
-        .transform((value, originalValue) =>
-          String(originalValue).trim() === '' ? undefined : value
-        ),
-      annualInterest: yup
-        .number()
-        .required('Annual interest is required')
-        .positive('Annual interest must be greater than 0')
-        .transform((value, originalValue) =>
-          String(originalValue).trim() === '' ? undefined : value
-        ),
-    })
-  ),
-});
+interface Props {
+  onSubmit: (data: IDebt[]) => void;
+  data: IDebt[];
+  sx?: SxProps;
+  loading?: boolean;
+}
 
-const DebtEditDialog = ({ onSubmit, data }: DebtEditDialogProps) => {
+const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
+  const { t } = useTranslation();
+  const schema = useMemo(
+    () =>
+      yup.object().shape({
+        debts: yup.array().of(
+          yup.object().shape({
+            pendingDebt: yup
+              .number()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .positive(t('commonValidations.positiveNumber')),
+            minimumPayment: yup
+              .number()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .positive(t('commonValidations.positiveNumber')),
+            annualInterest: yup
+              .number()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .positive(t('commonValidations.positiveNumber')),
+            startDate: yup
+              .string()
+              .nonNullable()
+              .required(t('commonValidations.required')),
+          })
+        ),
+      }),
+    [t]
+  );
+
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -59,8 +74,9 @@ const DebtEditDialog = ({ onSubmit, data }: DebtEditDialogProps) => {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm({
-    resolver: yupResolver(debtSchema),
+    resolver: yupResolver(schema),
     defaultValues: {
       debts: data,
     },
@@ -81,32 +97,44 @@ const DebtEditDialog = ({ onSubmit, data }: DebtEditDialogProps) => {
     onSubmit(data.debts);
   }
 
+  useEffect(() => {
+    setValue('debts', data);
+  }, [data, setValue]);
+
   return (
     <>
-      <IconButton onClick={handleOpen}>
-        <EditIcon />
-      </IconButton>
+      <Tooltip title={t('finances.personalFinances.header.debts.dialog.title')}>
+        <IconButton onClick={handleOpen} sx={sx} disabled={loading}>
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
       <Dialog
         open={open}
         onClose={handleClose}
         fullWidth
-        maxWidth="xs"
+        maxWidth="sm"
         fullScreen={fullScreen}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
       >
-        <DialogTitle>Edit Debt</DialogTitle>
+        <DialogTitle sx={{ textTransform: 'capitalize' }}>
+          {t('finances.personalFinances.header.debts.dialog.title')}
+        </DialogTitle>
         <DialogContent>
           {fields.map((item, index) => (
             <Grid container spacing={2} alignItems="center" key={item.id}>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Controller
                   name={`debts.${index}.pendingDebt`}
                   control={control}
                   render={({ field }) => (
-                    <TextField
+                    <CurrencyField
                       {...field}
-                      label="Pending Debt"
+                      value={field.value.toString()}
+                      size="small"
+                      label={t(
+                        'finances.personalFinances.header.debts.dialog.pendingDebt'
+                      )}
                       fullWidth
                       error={!!errors?.debts?.[index]?.pendingDebt}
                       helperText={
@@ -117,14 +145,18 @@ const DebtEditDialog = ({ onSubmit, data }: DebtEditDialogProps) => {
                   )}
                 />
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Controller
                   name={`debts.${index}.minimumPayment`}
                   control={control}
                   render={({ field }) => (
-                    <TextField
+                    <CurrencyField
                       {...field}
-                      label="Minimum Payment"
+                      value={field.value.toString()}
+                      size="small"
+                      label={t(
+                        'finances.personalFinances.header.debts.dialog.minPayment'
+                      )}
                       fullWidth
                       error={!!errors?.debts?.[index]?.minimumPayment}
                       helperText={
@@ -135,18 +167,44 @@ const DebtEditDialog = ({ onSubmit, data }: DebtEditDialogProps) => {
                   )}
                 />
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <Controller
                   name={`debts.${index}.annualInterest`}
                   control={control}
                   render={({ field }) => (
-                    <TextField
+                    <PercentageField
                       {...field}
-                      label="Annual Interest (%)"
+                      value={field.value.toString()}
+                      size="small"
+                      label={t(
+                        'finances.personalFinances.header.debts.dialog.anualInterest'
+                      )}
                       fullWidth
                       error={!!errors?.debts?.[index]?.annualInterest}
                       helperText={
                         errors?.debts?.[index]?.annualInterest?.message || ' '
+                      }
+                      margin="dense"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <Controller
+                  name={`debts.${index}.startDate`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      type="date"
+                      size="small"
+                      label={t(
+                        'finances.personalFinances.header.debts.dialog.startDate'
+                      )}
+                      fullWidth
+                      error={!!errors?.debts?.[index]?.startDate}
+                      helperText={
+                        errors?.debts?.[index]?.startDate?.message || ' '
                       }
                       margin="dense"
                     />
@@ -172,6 +230,7 @@ const DebtEditDialog = ({ onSubmit, data }: DebtEditDialogProps) => {
                   pendingDebt: 0,
                   minimumPayment: 0,
                   annualInterest: 0,
+                  startDate: new Date().toISOString().split('T')[0],
                 })
               }
               startIcon={<AddIcon />}

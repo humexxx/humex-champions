@@ -25,7 +25,7 @@ import {
   FixedExpenseEditDialogProps,
   IFixedExpense,
 } from './PersonalFinances.types';
-import { CurrencyField } from 'src/components/common';
+import { CurrencyField } from 'src/components/common/forms';
 
 const expenseSchema = yup.object().shape({
   expenses: yup.array().of(

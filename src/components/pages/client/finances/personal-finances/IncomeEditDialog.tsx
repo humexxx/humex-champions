@@ -24,7 +24,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { IncomeEditDialogProps, IIncome } from './PersonalFinances.types';
-import { CurrencyField } from 'src/components/common';
+import { CurrencyField } from 'src/components/common/forms';
 
 const incomeSchema = yup.object().shape({
   incomes: yup.array().of(

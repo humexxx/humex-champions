@@ -4,29 +4,26 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   DebtCard,
-  IDebt,
   FixedExpenseCard,
   IFixedExpense,
   IncomeCard,
   IIncome,
   PersonalFinancesGraph,
 } from 'src/components/pages/client/finances/personal-finances';
-import {
-  fetchDebtData,
-  fetchIncomeData,
-  fetchFixedExpenseData,
-} from 'src/mock/finances';
+import { fetchIncomeData, fetchFixedExpenseData } from 'src/mock/finances';
 import { PageHeader } from 'src/components/common';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useDocumentMetadata } from 'src/hooks';
+import { useDebts } from './PersonalFinances.hooks';
 
 const PersonalFinancesPage = () => {
   const { t } = useTranslation();
-  const [debts, setDebts] = useState<IDebt[][] | null>(null);
+  useDocumentMetadata(`${t('finances.personalFinances.title')} - Champions`);
+  const { debts, isLoading: isDebtsLoading } = useDebts();
   const [incomes, setIncomes] = useState<IIncome[][] | null>(null);
   const [expenses, setExpenses] = useState<IFixedExpense[][] | null>(null);
 
   useEffect(() => {
-    fetchDebtData().then((data) => setDebts(data));
     fetchIncomeData().then((data) => setIncomes(data));
     fetchFixedExpenseData().then((data) => setExpenses(data));
   }, []);
@@ -59,7 +56,7 @@ const PersonalFinancesPage = () => {
       </PageHeader>
       <Grid container spacing={4}>
         <Grid item xs={12} md={4}>
-          {Boolean(debts) && <DebtCard debts={debts![0]} />}
+          <DebtCard debts={debts} loading={isDebtsLoading} />
         </Grid>
         <Grid item xs={12} md={4}>
           {Boolean(incomes) && <IncomeCard incomes={incomes![0]} />}

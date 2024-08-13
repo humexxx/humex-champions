@@ -12,16 +12,21 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
 
   const theme = useMemo(
     () =>
-      createTheme(
-        (currentUser as any)
+      createTheme({
+        ...((currentUser as any)
           .hasCustomTheme /* || true when we want to add a custom theme */
           ? getDesignTokens(mode)
           : {
               palette: {
                 mode,
               },
-            }
-      ),
+            }),
+        components: {
+          MuiCardContent: {
+            styleOverrides: { root: { padding: '32px' } },
+          },
+        },
+      }),
     [currentUser, mode]
   );
 

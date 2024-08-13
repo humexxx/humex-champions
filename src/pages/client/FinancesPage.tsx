@@ -71,7 +71,7 @@ const FinancesPage = () => {
                   height: '100%',
                 }}
               >
-                <CardActionArea sx={{ padding: 2, height: '100%' }}>
+                <CardActionArea sx={{ height: '100%' }}>
                   <CardContent
                     sx={{
                       display: 'flex',
