@@ -4,14 +4,19 @@ import DebtEditDialog from './DebtEditDialog';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 import { IDebt } from 'src/types/models/finances';
-import { useDebts } from 'src/pages/client/finances';
 
-const DebtCard = () => {
+interface Props {
+  personalFinancesId?: string;
+  debts: IDebt[];
+  isLoading: boolean;
+  update: (data: IDebt[], id?: string) => void;
+}
+
+const DebtCard = ({ personalFinancesId, debts, isLoading, update }: Props) => {
   const { t } = useTranslation();
-  const { debts, isLoading, updateDebts } = useDebts();
 
   const handleFormSubmit = (data: IDebt[]) => {
-    updateDebts(data);
+    update(data, personalFinancesId);
   };
 
   const totalDebt = useMemo(
@@ -36,7 +41,7 @@ const DebtCard = () => {
   }, [debts, totalDebt]);
 
   return (
-    <Card sx={{ position: 'relative' }}>
+    <Card sx={{ position: 'relative', height: '100%' }}>
       <DebtEditDialog
         data={debts}
         onSubmit={handleFormSubmit}

@@ -1,30 +1,37 @@
 import { Breadcrumbs, Grid, Typography } from '@mui/material';
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   DebtCard,
   FixedExpenseCard,
-  IFixedExpense,
   IncomeCard,
-  IIncome,
   PersonalFinancesGraph,
 } from 'src/components/pages/client/finances/personal-finances';
-import { fetchIncomeData, fetchFixedExpenseData } from 'src/mock/finances';
 import { PageHeader } from 'src/components/common';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDocumentMetadata } from 'src/hooks';
+import { usePersonalFinances } from 'src/hooks/pages/client/finances';
 
 const PersonalFinancesPage = () => {
   const { t } = useTranslation();
   useDocumentMetadata(`${t('finances.personalFinances.title')} - Champions`);
-  const [incomes, setIncomes] = useState<IIncome[][] | null>(null);
-  const [expenses, setExpenses] = useState<IFixedExpense[][] | null>(null);
 
-  useEffect(() => {
-    fetchIncomeData().then((data) => setIncomes(data));
-    fetchFixedExpenseData().then((data) => setExpenses(data));
-  }, []);
+  const {
+    error,
+    isLoading,
+    personalFinances,
+    updateDebts,
+    updateFixedExpenses,
+    updateIncomes,
+  } = usePersonalFinances();
+
+  //TODO: Implement multiple personal finances
+  const { debts, fixedExpenses, incomes, id } = personalFinances[0] ?? {
+    debts: [],
+    fixedExpenses: [],
+    incomes: [],
+    id: null,
+  };
 
   return (
     <>
@@ -54,13 +61,28 @@ const PersonalFinancesPage = () => {
       </PageHeader>
       <Grid container spacing={4}>
         <Grid item xs={12} md={4}>
-          <DebtCard />
+          <DebtCard
+            debts={debts}
+            isLoading={isLoading}
+            personalFinancesId={id}
+            update={updateDebts}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
-          {Boolean(incomes) && <IncomeCard incomes={incomes![0]} />}
+          <IncomeCard
+            incomes={incomes}
+            isLoading={isLoading}
+            update={updateIncomes}
+            personalFinancesId={id}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
-          {Boolean(expenses) && <FixedExpenseCard expenses={expenses![0]} />}
+          <FixedExpenseCard
+            fixedExpenses={fixedExpenses}
+            isLoading={isLoading}
+            update={updateFixedExpenses}
+            personalFinancesId={id}
+          />
         </Grid>
         <Grid item xs={12}>
           <PersonalFinancesGraph />

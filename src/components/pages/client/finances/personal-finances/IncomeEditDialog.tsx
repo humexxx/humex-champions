@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,6 +14,8 @@ import {
   MenuItem,
   Checkbox,
   FormControlLabel,
+  SxProps,
+  Tooltip,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -23,29 +25,44 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { IncomeEditDialogProps, IIncome } from './PersonalFinances.types';
 import { CurrencyField } from 'src/components/common/forms';
+import { IIncome } from 'src/types/models/finances';
+import { useTranslation } from 'react-i18next';
 
-const incomeSchema = yup.object().shape({
-  incomes: yup.array().of(
-    yup.object().shape({
-      amount: yup
-        .number()
-        .required('Amount is required')
-        .positive('Amount must be a > 0')
-        .transform((value, originalValue) =>
-          String(originalValue).trim() === '' ? undefined : value
+interface Props {
+  onSubmit: (data: IIncome[]) => void;
+  data: IIncome[];
+  sx?: SxProps;
+  loading?: boolean;
+}
+
+const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
+  const { t } = useTranslation();
+  const schema = useMemo(
+    () =>
+      yup.object().shape({
+        incomes: yup.array().of(
+          yup.object().shape({
+            amount: yup
+              .number()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .positive(t('commonValidations.positiveNumber')),
+            period: yup
+              .string()
+              .oneOf(
+                ['weekly', 'monthly', 'yearly'],
+                t('commonValidations.type')
+              )
+              .required(t('commonValidations.required'))
+              .nonNullable(),
+          })
         ),
-      period: yup
-        .string()
-        .oneOf(['weekly', 'monthly', 'yearly'], 'Invalid period')
-        .required('Period is required'),
-    })
-  ),
-  useTrading: yup.boolean().default(true),
-});
+        useTrading: yup.boolean().default(true),
+      }),
+    [t]
+  );
 
-const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -54,8 +71,9 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm({
-    resolver: yupResolver(incomeSchema),
+    resolver: yupResolver(schema),
     defaultValues: {
       incomes: data,
       useTrading: true,
@@ -70,26 +88,38 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: { incomes?: IIncome[]; useTrading: boolean }) {
+  function _handleSubmit(data: { incomes?: IIncome[] }) {
+    if (!data.incomes) return;
+
     handleClose();
-    onSubmit(data.incomes!);
+    onSubmit(data.incomes);
   }
+
+  useEffect(() => {
+    setValue('incomes', data);
+  }, [data, setValue]);
 
   return (
     <>
-      <IconButton onClick={handleOpen}>
-        <EditIcon />
-      </IconButton>
+      <Tooltip
+        title={t('finances.personalFinances.header.incomes.dialog.title')}
+      >
+        <IconButton onClick={handleOpen} sx={sx} disabled={loading}>
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
       <Dialog
         open={open}
         onClose={handleClose}
         fullWidth
-        maxWidth="xs"
+        maxWidth="sm"
         fullScreen={fullScreen}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
       >
-        <DialogTitle>Edit Income</DialogTitle>
+        <DialogTitle sx={{ textTransform: 'capitalize' }}>
+          {t('finances.personalFinances.header.incomes.dialog.title')}
+        </DialogTitle>
         <DialogContent>
           {fields.map((item, index) => (
             <Grid container spacing={2} alignItems="center" key={item.id}>
@@ -100,7 +130,10 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
                   render={({ field }) => (
                     <CurrencyField
                       {...field}
-                      label="Amount"
+                      value={field.value.toString()}
+                      label={t(
+                        'finances.personalFinances.header.incomes.dialog.amount'
+                      )}
                       fullWidth
                       error={!!errors?.incomes?.[index]?.amount}
                       helperText={
@@ -119,7 +152,9 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Period"
+                      label={t(
+                        'finances.personalFinances.header.incomes.dialog.period'
+                      )}
                       fullWidth
                       select
                       error={!!errors?.incomes?.[index]?.period}
@@ -128,19 +163,27 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
                       }
                       margin="dense"
                     >
-                      <MenuItem value="weekly">Weekly</MenuItem>
-                      <MenuItem value="monthly">Monthly</MenuItem>
-                      <MenuItem value="yearly">Yearly</MenuItem>
+                      <MenuItem value="weekly">
+                        {t(
+                          'finances.personalFinances.header.incomes.dialog.periods.weekly'
+                        )}
+                      </MenuItem>
+                      <MenuItem value="monthly">
+                        {t(
+                          'finances.personalFinances.header.incomes.dialog.periods.monthly'
+                        )}
+                      </MenuItem>
+                      <MenuItem value="yearly">
+                        {t(
+                          'finances.personalFinances.header.incomes.dialog.periods.yearly'
+                        )}
+                      </MenuItem>
                     </TextField>
                   )}
                 />
               </Grid>
               <Grid item xs={2} textAlign="center">
-                <IconButton
-                  disabled={!index}
-                  onClick={() => remove(index)}
-                  size="small"
-                >
+                <IconButton onClick={() => remove(index)} size="small">
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Grid>
@@ -152,7 +195,7 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
                 name="useTrading"
                 control={control}
                 render={({ field }) => (
-                  <Checkbox {...field} checked={field.value} />
+                  <Checkbox {...field} checked={field.value} disabled />
                 )}
               />
             }
@@ -163,7 +206,6 @@ const IncomeEditDialog = ({ onSubmit, data }: IncomeEditDialogProps) => {
               type="button"
               onClick={() => append({ amount: 0, period: 'monthly' })}
               startIcon={<AddIcon />}
-              disabled={fields.length >= 5}
             >
               Add Income
             </Button>

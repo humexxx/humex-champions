@@ -5,7 +5,8 @@
   },
   "commonValidations": {
     "required": "Required field",
-    "positiveNumber": "Field must be greater than 0"
+    "positiveNumber": "Field must be greater than 0",
+    "type": "Invalid type"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -34,6 +35,40 @@
             "minPayment": "Min. Payment",
             "anualInterest": "Anual Interest",
             "startDate": "Start Date"
+          }
+        },
+        "incomes": {
+          "title": "Income",
+          "total": "Total",
+          "month": "month",
+          "sources": "Sources",
+          "noIncome": "No income found.",
+          "dialog": {
+            "title": "Edit monthly income",
+            "period": "Period",
+            "amount": "Amount",
+            "startDate": "Start Date",
+            "periods": {
+              "weekly": "Weekly",
+              "monthly": "Monthly",
+              "yearly": "Yearly"
+            }
+          }
+        },
+        "fixedExpenses": {
+          "title": "Fixed Expenses",
+          "total": "Total",
+          "noFixedExpenses": "No fixed expenses found.",
+          "dialog": {
+            "title": "Edit fixed expense",
+            "name": "Name",
+            "expenseType": "Expense Type",
+            "amount": "Amount",
+            "startDate": "Start Date",
+            "expenseTypes": {
+              "primary": "Primary",
+              "secondary": "Secondary"
+            }
           }
         }
       },

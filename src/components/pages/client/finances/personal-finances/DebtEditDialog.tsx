@@ -25,7 +25,6 @@ import * as yup from 'yup';
 import { IDebt } from 'src/types/models/finances';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/common/forms';
-import { DatePicker } from '@mui/lab';
 
 interface Props {
   onSubmit: (data: IDebt[]) => void;
@@ -141,6 +140,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         errors?.debts?.[index]?.pendingDebt?.message || ' '
                       }
                       margin="dense"
+                      inputProps={{ allowNegative: false }}
                     />
                   )}
                 />
@@ -212,11 +212,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                 />
               </Grid>
               <Grid item xs={2} textAlign="center">
-                <IconButton
-                  disabled={!index}
-                  onClick={() => remove(index)}
-                  size="small"
-                >
+                <IconButton onClick={() => remove(index)} size="small">
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Grid>
@@ -234,7 +230,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                 })
               }
               startIcon={<AddIcon />}
-              disabled={fields.length >= 5}
             >
               Add Debt
             </Button>

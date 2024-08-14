@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -12,6 +12,8 @@ import {
   Grid,
   Box,
   MenuItem,
+  SxProps,
+  Tooltip,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -21,34 +23,44 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import {
-  FixedExpenseEditDialogProps,
-  IFixedExpense,
-} from './PersonalFinances.types';
 import { CurrencyField } from 'src/components/common/forms';
+import { IFixedExpense } from 'src/types/models/finances';
+import { useTranslation } from 'react-i18next';
 
-const expenseSchema = yup.object().shape({
-  expenses: yup.array().of(
-    yup.object().shape({
-      amount: yup
-        .number()
-        .required('Amount is required')
-        .positive('Amount must be greater than 0')
-        .transform((value, originalValue) =>
-          String(originalValue).trim() === '' ? undefined : value
+interface Props {
+  onSubmit: (data: IFixedExpense[]) => void;
+  data: IFixedExpense[];
+  sx?: SxProps;
+  loading?: boolean;
+}
+
+const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
+  const { t } = useTranslation();
+  const schema = useMemo(
+    () =>
+      yup.object().shape({
+        expenses: yup.array().of(
+          yup.object().shape({
+            name: yup
+              .string()
+              .nonNullable()
+              .required(t('commonValidations.required')),
+            amount: yup
+              .number()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .positive(t('commonValidations.positiveNumber')),
+            expenseType: yup
+              .string()
+              .nonNullable()
+              .oneOf(['primary', 'secondary'], t('commonValidations.type'))
+              .required(t('commonValidations.required')),
+          })
         ),
-      expenseType: yup
-        .string()
-        .oneOf(['primary', 'secondary'], 'Invalid expense type')
-        .required('Expense type is required'),
-    })
-  ),
-});
+      }),
+    [t]
+  );
 
-const FixedExpenseEditDialog = ({
-  onSubmit,
-  data,
-}: FixedExpenseEditDialogProps) => {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -57,8 +69,9 @@ const FixedExpenseEditDialog = ({
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm({
-    resolver: yupResolver(expenseSchema),
+    resolver: yupResolver(schema),
     defaultValues: {
       expenses: data,
     },
@@ -79,24 +92,66 @@ const FixedExpenseEditDialog = ({
     onSubmit(data.expenses);
   }
 
+  useEffect(() => {
+    setValue('expenses', data);
+  }, [data, setValue]);
+
   return (
     <>
-      <IconButton onClick={handleOpen}>
-        <EditIcon />
-      </IconButton>
+      <Tooltip
+        title={t('finances.personalFinances.header.fixedExpenses.dialog.title')}
+      >
+        <IconButton onClick={handleOpen} sx={sx} disabled={loading}>
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
       <Dialog
         open={open}
         onClose={handleClose}
         fullWidth
-        maxWidth="xs"
+        maxWidth="sm"
         fullScreen={fullScreen}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
       >
-        <DialogTitle>Edit Fixed Expenses</DialogTitle>
+        <DialogTitle sx={{ textTransform: 'capitalize' }}>
+          {t('finances.personalFinances.header.fixedExpenses.dialog.title')}
+        </DialogTitle>
         <DialogContent>
           {fields.map((item, index) => (
             <Grid container spacing={2} alignItems="center" key={item.id}>
+              <Grid item xs={6}>
+                <Controller
+                  name={`expenses.${index}.name`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label={t(
+                        'finances.personalFinances.header.fixedExpenses.dialog.name'
+                      )}
+                      fullWidth
+                      select
+                      error={!!errors?.expenses?.[index]?.expenseType}
+                      helperText={
+                        errors?.expenses?.[index]?.expenseType?.message || ' '
+                      }
+                      margin="dense"
+                    >
+                      <MenuItem value="primary">
+                        {t(
+                          'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.primary'
+                        )}
+                      </MenuItem>
+                      <MenuItem value="secondary">
+                        {t(
+                          'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.secondary'
+                        )}
+                      </MenuItem>
+                    </TextField>
+                  )}
+                />
+              </Grid>
               <Grid item xs={6}>
                 <Controller
                   name={`expenses.${index}.amount`}
@@ -104,7 +159,10 @@ const FixedExpenseEditDialog = ({
                   render={({ field }) => (
                     <CurrencyField
                       {...field}
-                      label="Amount"
+                      value={field.value.toString()}
+                      label={t(
+                        'finances.personalFinances.header.fixedExpenses.dialog.amount'
+                      )}
                       fullWidth
                       error={!!errors?.expenses?.[index]?.amount}
                       helperText={
@@ -123,7 +181,9 @@ const FixedExpenseEditDialog = ({
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label="Expense Type"
+                      label={t(
+                        'finances.personalFinances.header.fixedExpenses.dialog.expenseType'
+                      )}
                       fullWidth
                       select
                       error={!!errors?.expenses?.[index]?.expenseType}
@@ -132,18 +192,22 @@ const FixedExpenseEditDialog = ({
                       }
                       margin="dense"
                     >
-                      <MenuItem value="primary">Primary</MenuItem>
-                      <MenuItem value="secondary">Secondary</MenuItem>
+                      <MenuItem value="primary">
+                        {t(
+                          'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.primary'
+                        )}
+                      </MenuItem>
+                      <MenuItem value="secondary">
+                        {t(
+                          'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.secondary'
+                        )}
+                      </MenuItem>
                     </TextField>
                   )}
                 />
               </Grid>
               <Grid item xs={2} textAlign="center">
-                <IconButton
-                  disabled={!index}
-                  onClick={() => remove(index)}
-                  size="small"
-                >
+                <IconButton onClick={() => remove(index)} size="small">
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Grid>
@@ -156,10 +220,10 @@ const FixedExpenseEditDialog = ({
                 append({
                   amount: 0,
                   expenseType: 'primary',
+                  name: '',
                 })
               }
               startIcon={<AddIcon />}
-              disabled={fields.length >= 5}
             >
               Add Expense
             </Button>
