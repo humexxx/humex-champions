@@ -47,7 +47,7 @@ const IncomeCard = ({
   );
 
   return (
-    <Card sx={{ position: 'relative', height: '100%' }}>
+    <Card sx={{ position: 'relative', height: '100%', minHeight: 170 }}>
       <IncomeEditDialog
         data={incomes}
         onSubmit={handleFormSubmit}

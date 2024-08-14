@@ -31,7 +31,7 @@ const FixedExpenseCard = ({
   );
 
   return (
-    <Card sx={{ position: 'relative', height: '100%' }}>
+    <Card sx={{ position: 'relative', height: '100%', minHeight: 170 }}>
       <FixedExpenseEditDialog
         data={fixedExpenses}
         onSubmit={handleFormSubmit}

@@ -2,20 +2,20 @@ export interface IDebt {
   pendingDebt: number;
   minimumPayment: number;
   annualInterest: number;
-  startDate: string;
+  startDate: Dayjs;
 }
 
 export interface IIncome {
   amount: number;
   period: 'weekly' | 'monthly' | 'yearly';
-  startDate: string;
+  startDate: Dayjs;
 }
 
 export interface IFixedExpense {
   amount: number;
   expenseType: 'primary' | 'secondary';
   name: string;
-  startDate: string;
+  startDate: Dayjs;
 }
 
 export interface IPersonalFinances {

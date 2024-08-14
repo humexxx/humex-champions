@@ -14,7 +14,7 @@ import {
 } from 'src/types/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
-import { dateToTimestamp, formatDateToYYYYMMDD } from 'src/utils';
+import dayjs from 'dayjs';
 
 interface UsePersonalFinancesResult {
   personalFinances: IPersonalFinances[];
@@ -68,21 +68,21 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
             debts:
               data.debts?.map((debt) => ({
                 ...debt,
-                startDate: formatDateToYYYYMMDD(
+                startDate: dayjs(
                   (debt.startDate as unknown as Timestamp).toDate()
                 ),
               })) || [],
             fixedExpenses:
               data.fixedExpenses?.map((expense) => ({
                 ...expense,
-                startDate: formatDateToYYYYMMDD(
+                startDate: dayjs(
                   (expense.startDate as unknown as Timestamp).toDate()
                 ),
               })) || [],
             incomes:
               data.incomes?.map((income) => ({
                 ...income,
-                startDate: formatDateToYYYYMMDD(
+                startDate: dayjs(
                   (income.startDate as unknown as Timestamp).toDate()
                 ),
               })) || [],
@@ -111,6 +111,13 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
       const existingFinances = prevState.find(
         (finances) => finances.id === personalFinancesId
       );
+
+      for (let i = 0; i < newData.length; i++) {
+        newData[i] = {
+          ...newData[i],
+          startDate: dayjs(newData[i].startDate),
+        };
+      }
 
       if (existingFinances) {
         return prevState.map((finances) =>
@@ -160,7 +167,7 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
 
         const formattedDebts = newDebts.map((debt) => ({
           ...debt,
-          startDate: dateToTimestamp(debt.startDate),
+          startDate: Timestamp.fromDate(debt.startDate),
         }));
         await setDoc(docRef, { debts: formattedDebts }, { merge: true });
 
@@ -199,7 +206,7 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
 
         const formattedFixedExpenses = newFixedExpenses.map((expense) => ({
           ...expense,
-          startDate: dateToTimestamp(expense.startDate),
+          startDate: Timestamp.fromDate(expense.startDate),
         }));
         await setDoc(
           docRef,
@@ -242,7 +249,7 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
 
         const formattedIncomes = newIncomes.map((income) => ({
           ...income,
-          startDate: dateToTimestamp(income.startDate),
+          startDate: Timestamp.fromDate(income.startDate),
         }));
         await setDoc(docRef, { incomes: formattedIncomes }, { merge: true });
 

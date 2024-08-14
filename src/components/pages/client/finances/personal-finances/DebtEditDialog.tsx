@@ -12,7 +12,6 @@ import {
   Box,
   SxProps,
   Tooltip,
-  TextField,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -25,6 +24,8 @@ import * as yup from 'yup';
 import { IDebt } from 'src/types/models/finances';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/common/forms';
+import { DatePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 
 interface Props {
   onSubmit: (data: IDebt[]) => void;
@@ -44,19 +45,19 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
-              .positive(t('commonValidations.positiveNumber')),
+              .moreThan(-1),
             minimumPayment: yup
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
-              .positive(t('commonValidations.positiveNumber')),
+              .moreThan(-1),
             annualInterest: yup
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
-              .positive(t('commonValidations.positiveNumber')),
+              .moreThan(-1),
             startDate: yup
-              .string()
+              .date()
               .nonNullable()
               .required(t('commonValidations.required')),
           })
@@ -103,9 +104,11 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
   return (
     <>
       <Tooltip title={t('finances.personalFinances.header.debts.dialog.title')}>
-        <IconButton onClick={handleOpen} sx={sx} disabled={loading}>
-          <EditIcon fontSize="small" />
-        </IconButton>
+        <Box sx={{ display: 'inline-block', ...sx }}>
+          <IconButton onClick={handleOpen} disabled={loading}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Box>
       </Tooltip>
       <Dialog
         open={open}
@@ -115,6 +118,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
         fullScreen={fullScreen}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
+        {...{ autoComplete: 'off' }}
       >
         <DialogTitle sx={{ textTransform: 'capitalize' }}>
           {t('finances.personalFinances.header.debts.dialog.title')}
@@ -129,7 +133,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                   render={({ field }) => (
                     <CurrencyField
                       {...field}
-                      value={field.value.toString()}
                       size="small"
                       label={t(
                         'finances.personalFinances.header.debts.dialog.pendingDebt'
@@ -140,7 +143,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         errors?.debts?.[index]?.pendingDebt?.message || ' '
                       }
                       margin="dense"
-                      inputProps={{ allowNegative: false }}
+                      inputProps={{ min: 0 }}
                     />
                   )}
                 />
@@ -152,7 +155,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                   render={({ field }) => (
                     <CurrencyField
                       {...field}
-                      value={field.value.toString()}
                       size="small"
                       label={t(
                         'finances.personalFinances.header.debts.dialog.minPayment'
@@ -163,6 +165,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         errors?.debts?.[index]?.minimumPayment?.message || ' '
                       }
                       margin="dense"
+                      inputProps={{ min: 0 }}
                     />
                   )}
                 />
@@ -174,7 +177,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                   render={({ field }) => (
                     <PercentageField
                       {...field}
-                      value={field.value.toString()}
                       size="small"
                       label={t(
                         'finances.personalFinances.header.debts.dialog.anualInterest'
@@ -185,6 +187,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         errors?.debts?.[index]?.annualInterest?.message || ' '
                       }
                       margin="dense"
+                      inputProps={{ min: 0 }}
                     />
                   )}
                 />
@@ -194,19 +197,22 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                   name={`debts.${index}.startDate`}
                   control={control}
                   render={({ field }) => (
-                    <TextField
+                    <DatePicker
                       {...field}
-                      type="date"
-                      size="small"
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: 'small',
+                          error: !!errors?.debts?.[index]?.startDate,
+                          helperText:
+                            errors?.debts?.[index]?.startDate?.message || ' ',
+                          margin: 'dense',
+                        },
+                      }}
                       label={t(
                         'finances.personalFinances.header.debts.dialog.startDate'
                       )}
-                      fullWidth
-                      error={!!errors?.debts?.[index]?.startDate}
-                      helperText={
-                        errors?.debts?.[index]?.startDate?.message || ' '
-                      }
-                      margin="dense"
+                      views={['year', 'month', 'day']}
                     />
                   )}
                 />
@@ -226,7 +232,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                   pendingDebt: 0,
                   minimumPayment: 0,
                   annualInterest: 0,
-                  startDate: new Date().toISOString().split('T')[0],
+                  startDate: dayjs() as any,
                 })
               }
               startIcon={<AddIcon />}

@@ -28,17 +28,18 @@ const FinancesPage = () => {
         description: t('finances.personalFinances.description'),
         Icon: BarChartIcon,
       },
-      {
-        route: 'trading-journal',
-        label: t('finances.tradingJournal.title'),
-        description: t('finances.tradingJournal.description'),
-        Icon: TrendingUpIcon,
-      },
+
       {
         route: 'portfolio',
         label: t('finances.portfolio.title'),
         description: t('finances.portfolio.description'),
         Icon: PieChartIcon,
+      },
+      {
+        route: 'trading-journal',
+        label: t('finances.tradingJournal.title'),
+        description: t('finances.tradingJournal.description'),
+        Icon: TrendingUpIcon,
       },
     ],
     [t]
@@ -80,7 +81,14 @@ const FinancesPage = () => {
                     }}
                   >
                     <Box>
-                      <Paper sx={{ display: 'inline-block', p: 1, mb: 1 }}>
+                      <Paper
+                        sx={{
+                          display: 'inline-block',
+                          p: 1,
+                          mb: 1,
+                          border: '1px solid rgba(205, 209, 228, 0.2)',
+                        }}
+                      >
                         <Icon color="primary" />
                       </Paper>
                       <Typography

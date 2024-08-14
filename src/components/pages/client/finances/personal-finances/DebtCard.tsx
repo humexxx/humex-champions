@@ -41,7 +41,7 @@ const DebtCard = ({ personalFinancesId, debts, isLoading, update }: Props) => {
   }, [debts, totalDebt]);
 
   return (
-    <Card sx={{ position: 'relative', height: '100%' }}>
+    <Card sx={{ position: 'relative', height: '100%', minHeight: 170 }}>
       <DebtEditDialog
         data={debts}
         onSubmit={handleFormSubmit}

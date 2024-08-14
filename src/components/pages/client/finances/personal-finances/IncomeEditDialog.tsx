@@ -47,7 +47,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
-              .positive(t('commonValidations.positiveNumber')),
+              .moreThan(-1),
             period: yup
               .string()
               .oneOf(
@@ -88,11 +88,11 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: { incomes?: IIncome[] }) {
+  function _handleSubmit(data: { incomes?: Omit<IIncome, 'startDate'>[] }) {
     if (!data.incomes) return;
 
     handleClose();
-    onSubmit(data.incomes);
+    onSubmit(data.incomes.map((item) => ({ ...item, startDate: new Date() })));
   }
 
   useEffect(() => {
@@ -104,9 +104,11 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
       <Tooltip
         title={t('finances.personalFinances.header.incomes.dialog.title')}
       >
-        <IconButton onClick={handleOpen} sx={sx} disabled={loading}>
-          <EditIcon fontSize="small" />
-        </IconButton>
+        <Box sx={{ display: 'inline-block', ...sx }}>
+          <IconButton onClick={handleOpen} disabled={loading}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Box>
       </Tooltip>
       <Dialog
         open={open}
@@ -116,6 +118,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
         fullScreen={fullScreen}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
+        {...{ autoComplete: 'off' }}
       >
         <DialogTitle sx={{ textTransform: 'capitalize' }}>
           {t('finances.personalFinances.header.incomes.dialog.title')}
@@ -130,7 +133,6 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                   render={({ field }) => (
                     <CurrencyField
                       {...field}
-                      value={field.value.toString()}
                       label={t(
                         'finances.personalFinances.header.incomes.dialog.amount'
                       )}
@@ -140,7 +142,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                         errors?.incomes?.[index]?.amount?.message || ' '
                       }
                       margin="dense"
-                      inputProps={{ allowNegative: false }}
+                      inputProps={{ min: 0 }}
                     />
                   )}
                 />

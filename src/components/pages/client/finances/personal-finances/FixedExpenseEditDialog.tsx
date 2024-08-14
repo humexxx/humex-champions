@@ -26,6 +26,8 @@ import * as yup from 'yup';
 import { CurrencyField } from 'src/components/common/forms';
 import { IFixedExpense } from 'src/types/models/finances';
 import { useTranslation } from 'react-i18next';
+import { DatePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 
 interface Props {
   onSubmit: (data: IFixedExpense[]) => void;
@@ -49,7 +51,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
-              .positive(t('commonValidations.positiveNumber')),
+              .moreThan(-1),
             expenseType: yup
               .string()
               .nonNullable()
@@ -85,11 +87,13 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: { expenses?: IFixedExpense[] }) {
+  function _handleSubmit(data: {
+    expenses?: Omit<IFixedExpense, 'startDate'>[];
+  }) {
     if (!data.expenses) return;
 
     handleClose();
-    onSubmit(data.expenses);
+    onSubmit(data.expenses.map((item) => ({ ...item, startDate: new Date() })));
   }
 
   useEffect(() => {
@@ -101,9 +105,11 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
       <Tooltip
         title={t('finances.personalFinances.header.fixedExpenses.dialog.title')}
       >
-        <IconButton onClick={handleOpen} sx={sx} disabled={loading}>
-          <EditIcon fontSize="small" />
-        </IconButton>
+        <Box sx={{ display: 'inline-block', ...sx }}>
+          <IconButton onClick={handleOpen} disabled={loading}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Box>
       </Tooltip>
       <Dialog
         open={open}
@@ -113,6 +119,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
         fullScreen={fullScreen}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
+        {...{ autoComplete: 'off' }}
       >
         <DialogTitle sx={{ textTransform: 'capitalize' }}>
           {t('finances.personalFinances.header.fixedExpenses.dialog.title')}
@@ -120,7 +127,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
         <DialogContent>
           {fields.map((item, index) => (
             <Grid container spacing={2} alignItems="center" key={item.id}>
-              <Grid item xs={6}>
+              <Grid item xs={3}>
                 <Controller
                   name={`expenses.${index}.name`}
                   control={control}
@@ -131,28 +138,17 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                         'finances.personalFinances.header.fixedExpenses.dialog.name'
                       )}
                       fullWidth
-                      select
                       error={!!errors?.expenses?.[index]?.expenseType}
                       helperText={
                         errors?.expenses?.[index]?.expenseType?.message || ' '
                       }
                       margin="dense"
-                    >
-                      <MenuItem value="primary">
-                        {t(
-                          'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.primary'
-                        )}
-                      </MenuItem>
-                      <MenuItem value="secondary">
-                        {t(
-                          'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.secondary'
-                        )}
-                      </MenuItem>
-                    </TextField>
+                      size="small"
+                    />
                   )}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={3}>
                 <Controller
                   name={`expenses.${index}.amount`}
                   control={control}
@@ -169,12 +165,13 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                         errors?.expenses?.[index]?.amount?.message || ' '
                       }
                       margin="dense"
-                      inputProps={{ allowNegative: false }}
+                      size="small"
+                      inputProps={{ min: 0 }}
                     />
                   )}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={3}>
                 <Controller
                   name={`expenses.${index}.expenseType`}
                   control={control}
@@ -191,6 +188,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                         errors?.expenses?.[index]?.expenseType?.message || ' '
                       }
                       margin="dense"
+                      size="small"
                     >
                       <MenuItem value="primary">
                         {t(
