@@ -6,17 +6,16 @@ import { formatCurrency, formatPercentage } from 'src/utils';
 import { IDebt } from 'src/types/models/finances';
 
 interface Props {
-  personalFinancesId?: string;
   debts: IDebt[];
   isLoading: boolean;
-  update: (data: IDebt[], id?: string) => void;
+  update: (data: IDebt[]) => void;
 }
 
-const DebtCard = ({ personalFinancesId, debts, isLoading, update }: Props) => {
+const DebtCard = ({ debts, isLoading, update }: Props) => {
   const { t } = useTranslation();
 
   const handleFormSubmit = (data: IDebt[]) => {
-    update(data, personalFinancesId);
+    update(data);
   };
 
   const totalDebt = useMemo(

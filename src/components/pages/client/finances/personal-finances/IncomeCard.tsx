@@ -1,27 +1,21 @@
 import { useMemo } from 'react';
-import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
+import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import IncomeEditDialog from './IncomeEditDialog';
 import { IIncome } from 'src/types/models/finances';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
 interface Props {
-  personalFinancesId?: string;
   incomes: IIncome[];
   isLoading: boolean;
-  update: (data: IIncome[], id?: string) => void;
+  update: (data: IIncome[]) => void;
 }
 
-const IncomeCard = ({
-  incomes,
-  isLoading,
-  update,
-  personalFinancesId,
-}: Props) => {
+const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   const { t } = useTranslation();
 
   const handleFormSubmit = (data: IIncome[]) => {
-    update(data, personalFinancesId);
+    update(data);
   };
 
   const total = useMemo(

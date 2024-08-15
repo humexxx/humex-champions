@@ -18,9 +18,15 @@ export interface IFixedExpense {
   startDate: Dayjs;
 }
 
-export interface IPersonalFinance {
-  id: string;
+export interface IFinancialPlan {
+  id?: string | null;
+  name: string;
+  financialSnapshots: IFinancialSnapshot[];
+}
+
+export interface IFinancialSnapshot {
   debts: IDebt[];
   fixedExpenses: IFixedExpense[];
   incomes: IIncome[];
+  date: Dayjs;
 }

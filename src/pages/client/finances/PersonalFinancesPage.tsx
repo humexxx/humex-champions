@@ -23,11 +23,18 @@ import { usePersonalFinances } from 'src/hooks/pages/client/finances';
 import { useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+import {
+  IDebt,
+  IFinancialPlan,
+  IFixedExpense,
+  IIncome,
+} from 'src/types/models/finances';
+import dayjs from 'dayjs';
 
-function getTabProps(index: number) {
+function getTabProps(id: string) {
   return {
-    id: `tab-${index}`,
-    'aria-controls': `tabpanel-${index}`,
+    id: `tab-${id}`,
+    'aria-controls': `tabpanel-${id}`,
   };
 }
 
@@ -35,44 +42,82 @@ const PersonalFinancesPage = () => {
   const { t } = useTranslation();
   useDocumentMetadata(`${t('finances.personalFinances.title')} - Champions`);
 
-  const {
-    error,
-    isLoading,
-    personalFinances,
-    addPersonalFinance,
-    updateDebts,
-    updateFixedExpenses,
-    updateIncomes,
-  } = usePersonalFinances();
+  const { error, isLoading, financialPlans, updateFinancialPlan } =
+    usePersonalFinances();
   const [selectedTab, setSelectedTab] = useState('0');
 
-  const _personalFinances = useMemo(
+  const _financialPlans = useMemo(
     () =>
-      personalFinances.length
-        ? personalFinances
-        : [
+      financialPlans.length
+        ? financialPlans
+        : ([
             {
-              debts: [],
-              fixedExpenses: [],
-              incomes: [],
-              id: '',
+              name: 'Main',
+              financialSnapshots: [
+                {
+                  debts: [],
+                  fixedExpenses: [],
+                  incomes: [],
+                  date: new Date(),
+                },
+              ],
+              id: null,
             },
-          ],
-    [personalFinances]
+          ] as IFinancialPlan[]),
+    [financialPlans]
   );
 
   function handleCreateNewPlan() {
     // clone the first personal finance plan
-    addPersonalFinance(personalFinances[0]);
+    updateFinancialPlan({ ..._financialPlans[0], id: '' });
   }
 
-  const isCreateNewPlanDisabled = useMemo(
-    () =>
-      !_personalFinances[0].debts.length &&
-      !_personalFinances[0].fixedExpenses.length &&
-      !_personalFinances[0].debts.length,
-    [_personalFinances]
-  );
+  const isCreateNewPlanDisabled = useMemo(() => {
+    const lastSnapshotFromMainPlan =
+      _financialPlans[0].financialSnapshots[
+        _financialPlans[0].financialSnapshots.length - 1
+      ];
+    return (
+      !lastSnapshotFromMainPlan.debts.length &&
+      !lastSnapshotFromMainPlan.fixedExpenses.length &&
+      !lastSnapshotFromMainPlan.debts.length
+    );
+  }, [_financialPlans]);
+
+  function _updateFinancialPlan(
+    planId: string | null,
+    data: IDebt[] | IIncome[] | IFixedExpense[],
+    key: 'debts' | 'incomes' | 'fixedExpenses'
+  ) {
+    let plan = financialPlans.find((p) => p.id === planId);
+    if (!plan) {
+      plan = {
+        name: financialPlans.length ? `Plan ${financialPlans.length}` : 'Main',
+        financialSnapshots: [
+          {
+            debts: [],
+            fixedExpenses: [],
+            incomes: [],
+            date: dayjs(),
+          },
+        ],
+        id: null,
+      };
+    }
+    plan = {
+      ...plan,
+      financialSnapshots: plan.financialSnapshots.map((snapshot, i) => {
+        if (i === plan!.financialSnapshots.length - 1) {
+          return {
+            ...snapshot,
+            [key]: data,
+          };
+        }
+        return snapshot;
+      }),
+    };
+    updateFinancialPlan(plan);
+  }
 
   return (
     <>
@@ -121,11 +166,12 @@ const PersonalFinancesPage = () => {
                 },
               }}
             >
-              {_personalFinances.map(({ id }, i) => (
+              {_financialPlans.map(({ id, name }, i) => (
                 <Tab
                   key={`tab-${id}`}
-                  label={!i ? 'Original' : 'Plan ' + i}
+                  label={name}
                   value={i.toString()}
+                  {...getTabProps(id ?? '')}
                 />
               ))}
               <ButtonInTabs
@@ -139,44 +185,56 @@ const PersonalFinancesPage = () => {
               />
             </TabList>
           </Box>
-          {_personalFinances.map(({ id, debts, fixedExpenses, incomes }, i) => (
-            <Grow
-              key={`tab-panel-${id}`}
-              in={selectedTab === i.toString()}
-              timeout={250}
-              mountOnEnter
-              unmountOnExit
-            >
-              <TabPanel value={i.toString()} sx={{ p: 0 }}>
-                <Grid container spacing={4}>
-                  <Grid item xs={12} md={4}>
-                    <DebtCard
-                      debts={debts}
-                      isLoading={isLoading}
-                      personalFinancesId={id}
-                      update={updateDebts}
-                    />
+          {_financialPlans.map(({ id, financialSnapshots }, i) => {
+            const { debts, fixedExpenses, incomes } =
+              financialSnapshots[financialSnapshots.length - 1];
+
+            return (
+              <Grow
+                key={`tab-panel-${id}`}
+                in={selectedTab === i.toString()}
+                timeout={250}
+                mountOnEnter
+                unmountOnExit
+              >
+                <TabPanel value={i.toString()} sx={{ p: 0 }}>
+                  <Grid container spacing={4}>
+                    <Grid item xs={12} md={4}>
+                      <DebtCard
+                        debts={debts}
+                        isLoading={isLoading}
+                        update={(data) =>
+                          _updateFinancialPlan(id ?? null, data, 'debts')
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <IncomeCard
+                        incomes={incomes}
+                        isLoading={isLoading}
+                        update={(data) =>
+                          _updateFinancialPlan(id ?? null, data, 'incomes')
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <FixedExpenseCard
+                        fixedExpenses={fixedExpenses}
+                        isLoading={isLoading}
+                        update={(data) =>
+                          _updateFinancialPlan(
+                            id ?? null,
+                            data,
+                            'fixedExpenses'
+                          )
+                        }
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} md={4}>
-                    <IncomeCard
-                      incomes={incomes}
-                      isLoading={isLoading}
-                      update={updateIncomes}
-                      personalFinancesId={id}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <FixedExpenseCard
-                      fixedExpenses={fixedExpenses}
-                      isLoading={isLoading}
-                      update={updateFixedExpenses}
-                      personalFinancesId={id}
-                    />
-                  </Grid>
-                </Grid>
-              </TabPanel>
-            </Grow>
-          ))}
+                </TabPanel>
+              </Grow>
+            );
+          })}
         </TabContext>
       </Box>
 

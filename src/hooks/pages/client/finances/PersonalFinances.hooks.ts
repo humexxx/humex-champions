@@ -6,39 +6,21 @@ import {
   setDoc,
   Timestamp,
 } from 'firebase/firestore';
-import {
-  IDebt,
-  IFixedExpense,
-  IIncome,
-  IPersonalFinance,
-} from 'src/types/models/finances';
+import { IFinancialPlan } from 'src/types/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
 import dayjs from 'dayjs';
+import { toTimestamp } from 'src/utils';
 
 interface UsePersonalFinancesResult {
-  personalFinances: IPersonalFinance[];
+  financialPlans: IFinancialPlan[];
   isLoading: boolean;
   error: Error | null;
-  updateDebts: (
-    newDebts: IDebt[],
-    personalFinancesId?: string
-  ) => Promise<void>;
-  updateFixedExpenses: (
-    newFixedExpenses: IFixedExpense[],
-    personalFinancesId?: string
-  ) => Promise<void>;
-  updateIncomes: (
-    newIncomes: IIncome[],
-    personalFinancesId?: string
-  ) => Promise<void>;
-  addPersonalFinance: (personalFinance: IPersonalFinance) => Promise<void>;
+  updateFinancialPlan: (financialPlan: IFinancialPlan) => Promise<void>;
 }
 
 export const usePersonalFinances = (): UsePersonalFinancesResult => {
-  const [personalFinances, setPersonalFinances] = useState<IPersonalFinance[]>(
-    []
-  );
+  const [financialPlans, setFinancialPlans] = useState<IFinancialPlan[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const user = useAuth();
@@ -53,44 +35,46 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
           firestore,
           'finances',
           user.currentUser!.uid,
-          'personalFinances'
+          'financialPlans'
         );
         const querySnapshot = await getDocs(collectionRef);
 
-        const finances = querySnapshot.docs.map((docSnap) => {
-          const data = docSnap.data() as {
-            debts: IDebt[];
-            fixedExpenses: IFixedExpense[];
-            incomes: IIncome[];
-          };
+        const plans = querySnapshot.docs.map((docSnap) => {
+          const data = docSnap.data() as IFinancialPlan;
 
           return {
             id: docSnap.id,
-            debts:
-              data.debts?.map((debt) => ({
-                ...debt,
-                startDate: dayjs(
-                  (debt.startDate as unknown as Timestamp).toDate()
-                ),
-              })) || [],
-            fixedExpenses:
-              data.fixedExpenses?.map((expense) => ({
-                ...expense,
-                startDate: dayjs(
-                  (expense.startDate as unknown as Timestamp).toDate()
-                ),
-              })) || [],
-            incomes:
-              data.incomes?.map((income) => ({
-                ...income,
-                startDate: dayjs(
-                  (income.startDate as unknown as Timestamp).toDate()
-                ),
-              })) || [],
+            name: data.name,
+            financialSnapshots: data.financialSnapshots.map(
+              ({ date, debts, fixedExpenses, incomes }) => ({
+                debts:
+                  debts?.map((debt) => ({
+                    ...debt,
+                    startDate: dayjs(
+                      (debt.startDate as unknown as Timestamp).toDate()
+                    ),
+                  })) || [],
+                fixedExpenses:
+                  fixedExpenses?.map((expense) => ({
+                    ...expense,
+                    startDate: dayjs(
+                      (expense.startDate as unknown as Timestamp).toDate()
+                    ),
+                  })) || [],
+                incomes:
+                  incomes?.map((income) => ({
+                    ...income,
+                    startDate: dayjs(
+                      (income.startDate as unknown as Timestamp).toDate()
+                    ),
+                  })) || [],
+                date: dayjs((date as unknown as Timestamp).toDate()),
+              })
+            ),
           };
         });
 
-        setPersonalFinances(finances);
+        setFinancialPlans(plans);
       } catch (err) {
         setError(err as Error);
       } finally {
@@ -103,204 +87,57 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
     }
   }, [user.currentUser]);
 
-  const updateStateAfterUpdate = (
-    updatedField: 'debts' | 'fixedExpenses' | 'incomes',
-    newData: IDebt[] | IFixedExpense[] | IIncome[],
-    personalFinancesId: string
-  ) => {
-    setPersonalFinances((prevState) => {
-      const existingFinances = prevState.find(
-        (finances) => finances.id === personalFinancesId
-      );
-
-      for (let i = 0; i < newData.length; i++) {
-        newData[i] = {
-          ...newData[i],
-          startDate: dayjs(newData[i].startDate),
-        };
-      }
-
-      if (existingFinances) {
-        return prevState.map((finances) =>
-          finances.id === personalFinancesId
-            ? { ...finances, [updatedField]: newData }
-            : finances
-        );
-      } else {
-        return [
-          ...prevState,
-          {
-            id: personalFinancesId,
-            debts: updatedField === 'debts' ? (newData as IDebt[]) : [],
-            fixedExpenses:
-              updatedField === 'fixedExpenses'
-                ? (newData as IFixedExpense[])
-                : [],
-            incomes: updatedField === 'incomes' ? (newData as IIncome[]) : [],
-          },
-        ];
-      }
-    });
-  };
-
-  const addPersonalFinance = useCallback(
-    async (personalFinance: IPersonalFinance) => {
+  const updateFinancialPlan = useCallback(
+    async (financialPlan: IFinancialPlan) => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const docRef = doc(
-          collection(
-            firestore,
-            'finances',
-            user.currentUser!.uid,
-            'personalFinances'
-          )
-        );
+        const docRef = financialPlan.id
+          ? doc(
+              firestore,
+              'finances',
+              user.currentUser!.uid,
+              'financialPlans',
+              financialPlan.id
+            )
+          : doc(
+              collection(
+                firestore,
+                'finances',
+                user.currentUser!.uid,
+                'financialPlans'
+              )
+            );
 
-        const formattedPersonalFinance = {
-          id: null,
-          debts: personalFinance.debts.map((debt) => ({
-            ...debt,
-            startDate: Timestamp.fromDate(debt.startDate.toDate()),
-          })),
-          fixedExpenses: personalFinance.fixedExpenses.map((expense) => ({
-            ...expense,
-            startDate: Timestamp.fromDate(expense.startDate.toDate()),
-          })),
-          incomes: personalFinance.incomes.map((income) => ({
-            ...income,
-            startDate: Timestamp.fromDate(income.startDate.toDate()),
+        const { id, ...rest } = financialPlan;
+
+        const formattedFinancialPlan: IFinancialPlan = {
+          ...rest,
+          financialSnapshots: financialPlan.financialSnapshots.map((x) => ({
+            date: toTimestamp(x.date),
+            debts: x.debts.map((debt) => ({
+              ...debt,
+              startDate: toTimestamp(debt.startDate),
+            })),
+            fixedExpenses: x.fixedExpenses.map((expense) => ({
+              ...expense,
+              startDate: toTimestamp(expense.startDate),
+            })),
+            incomes: x.incomes.map((income) => ({
+              ...income,
+              startDate: toTimestamp(income.startDate),
+            })),
           })),
         };
 
-        await setDoc(docRef, formattedPersonalFinance);
+        await setDoc(docRef, formattedFinancialPlan);
 
-        setPersonalFinances((prevState) => [
-          ...prevState,
-          { ...personalFinance, id: docRef.id },
-        ]);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [user.currentUser]
-  );
-
-  const updateDebts = useCallback(
-    async (newDebts: IDebt[], personalFinancesId?: string) => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const docRef = personalFinancesId
-          ? doc(
-              firestore,
-              'finances',
-              user.currentUser!.uid,
-              'personalFinances',
-              personalFinancesId
-            )
-          : doc(
-              collection(
-                firestore,
-                'finances',
-                user.currentUser!.uid,
-                'personalFinances'
-              )
-            );
-
-        const formattedDebts = newDebts.map((debt) => ({
-          ...debt,
-          startDate: Timestamp.fromDate(debt.startDate),
-        }));
-        await setDoc(docRef, { debts: formattedDebts }, { merge: true });
-
-        updateStateAfterUpdate('debts', newDebts, docRef.id);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [user.currentUser]
-  );
-
-  const updateFixedExpenses = useCallback(
-    async (newFixedExpenses: IFixedExpense[], personalFinancesId?: string) => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const docRef = personalFinancesId
-          ? doc(
-              firestore,
-              'finances',
-              user.currentUser!.uid,
-              'personalFinances',
-              personalFinancesId
-            )
-          : doc(
-              collection(
-                firestore,
-                'finances',
-                user.currentUser!.uid,
-                'personalFinances'
-              )
-            );
-
-        const formattedFixedExpenses = newFixedExpenses.map((expense) => ({
-          ...expense,
-          startDate: Timestamp.fromDate(expense.startDate),
-        }));
-        await setDoc(
-          docRef,
-          { fixedExpenses: formattedFixedExpenses },
-          { merge: true }
+        setFinancialPlans((prevState) =>
+          id
+            ? prevState.map((plan) => (plan.id === id ? financialPlan : plan))
+            : [...prevState, { ...financialPlan, id: docRef.id }]
         );
-
-        updateStateAfterUpdate('fixedExpenses', newFixedExpenses, docRef.id);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [user.currentUser]
-  );
-
-  const updateIncomes = useCallback(
-    async (newIncomes: IIncome[], personalFinancesId?: string) => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const docRef = personalFinancesId
-          ? doc(
-              firestore,
-              'finances',
-              user.currentUser!.uid,
-              'personalFinances',
-              personalFinancesId
-            )
-          : doc(
-              collection(
-                firestore,
-                'finances',
-                user.currentUser!.uid,
-                'personalFinances'
-              )
-            );
-
-        const formattedIncomes = newIncomes.map((income) => ({
-          ...income,
-          startDate: Timestamp.fromDate(income.startDate),
-        }));
-        await setDoc(docRef, { incomes: formattedIncomes }, { merge: true });
-
-        updateStateAfterUpdate('incomes', newIncomes, docRef.id);
       } catch (err) {
         setError(err as Error);
       } finally {
@@ -311,12 +148,9 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
   );
 
   return {
-    personalFinances,
+    financialPlans,
     isLoading,
     error,
-    addPersonalFinance,
-    updateDebts,
-    updateFixedExpenses,
-    updateIncomes,
+    updateFinancialPlan,
   };
 };

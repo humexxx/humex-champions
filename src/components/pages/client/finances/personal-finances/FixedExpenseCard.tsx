@@ -9,19 +9,14 @@ interface Props {
   personalFinancesId?: string;
   fixedExpenses: IFixedExpense[];
   isLoading: boolean;
-  update: (data: IFixedExpense[], id?: string) => void;
+  update: (data: IFixedExpense[]) => void;
 }
 
-const FixedExpenseCard = ({
-  fixedExpenses,
-  isLoading,
-  update,
-  personalFinancesId,
-}: Props) => {
+const FixedExpenseCard = ({ fixedExpenses, isLoading, update }: Props) => {
   const { t } = useTranslation();
 
   const handleFormSubmit = (data: IFixedExpense[]) => {
-    update(data, personalFinancesId);
+    update(data);
   };
 
   const total = useMemo(
