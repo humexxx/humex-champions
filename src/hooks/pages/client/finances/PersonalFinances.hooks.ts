@@ -10,14 +10,14 @@ import {
   IDebt,
   IFixedExpense,
   IIncome,
-  IPersonalFinances,
+  IPersonalFinance,
 } from 'src/types/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
 import dayjs from 'dayjs';
 
 interface UsePersonalFinancesResult {
-  personalFinances: IPersonalFinances[];
+  personalFinances: IPersonalFinance[];
   isLoading: boolean;
   error: Error | null;
   updateDebts: (
@@ -32,10 +32,11 @@ interface UsePersonalFinancesResult {
     newIncomes: IIncome[],
     personalFinancesId?: string
   ) => Promise<void>;
+  addPersonalFinance: (personalFinance: IPersonalFinance) => Promise<void>;
 }
 
 export const usePersonalFinances = (): UsePersonalFinancesResult => {
-  const [personalFinances, setPersonalFinances] = useState<IPersonalFinances[]>(
+  const [personalFinances, setPersonalFinances] = useState<IPersonalFinance[]>(
     []
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -141,6 +142,52 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
       }
     });
   };
+
+  const addPersonalFinance = useCallback(
+    async (personalFinance: IPersonalFinance) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const docRef = doc(
+          collection(
+            firestore,
+            'finances',
+            user.currentUser!.uid,
+            'personalFinances'
+          )
+        );
+
+        const formattedPersonalFinance = {
+          id: null,
+          debts: personalFinance.debts.map((debt) => ({
+            ...debt,
+            startDate: Timestamp.fromDate(debt.startDate.toDate()),
+          })),
+          fixedExpenses: personalFinance.fixedExpenses.map((expense) => ({
+            ...expense,
+            startDate: Timestamp.fromDate(expense.startDate.toDate()),
+          })),
+          incomes: personalFinance.incomes.map((income) => ({
+            ...income,
+            startDate: Timestamp.fromDate(income.startDate.toDate()),
+          })),
+        };
+
+        await setDoc(docRef, formattedPersonalFinance);
+
+        setPersonalFinances((prevState) => [
+          ...prevState,
+          { ...personalFinance, id: docRef.id },
+        ]);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [user.currentUser]
+  );
 
   const updateDebts = useCallback(
     async (newDebts: IDebt[], personalFinancesId?: string) => {
@@ -267,6 +314,7 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
     personalFinances,
     isLoading,
     error,
+    addPersonalFinance,
     updateDebts,
     updateFixedExpenses,
     updateIncomes,

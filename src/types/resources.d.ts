@@ -23,6 +23,8 @@ interface Resources {
       "personalFinances": {
         "title": "Personal Finances",
         "description": "Manage your personal finances and keep track of your expenses and income.",
+        "addPlan": "Add Plan",
+        "addPlanHint": "Main plan should have data first",
         "header": {
           "debts": {
             "title": "Debts",

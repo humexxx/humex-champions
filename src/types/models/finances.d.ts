@@ -18,7 +18,7 @@ export interface IFixedExpense {
   startDate: Dayjs;
 }
 
-export interface IPersonalFinances {
+export interface IPersonalFinance {
   id: string;
   debts: IDebt[];
   fixedExpenses: IFixedExpense[];

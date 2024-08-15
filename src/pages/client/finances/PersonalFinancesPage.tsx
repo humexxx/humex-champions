@@ -1,11 +1,10 @@
 import {
   Box,
   Breadcrumbs,
-  Button,
   Grid,
+  Grow,
   IconButton,
   Tab,
-  Tabs,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -40,6 +39,7 @@ const PersonalFinancesPage = () => {
     error,
     isLoading,
     personalFinances,
+    addPersonalFinance,
     updateDebts,
     updateFixedExpenses,
     updateIncomes,
@@ -61,17 +61,18 @@ const PersonalFinancesPage = () => {
     [personalFinances]
   );
 
-  const ButtonInTabs = ({ onClick }: { onClick: () => void }) => {
-    return (
-      <Box>
-        <Tooltip title="test">
-          <IconButton color="primary" onClick={onClick}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    );
-  };
+  function handleCreateNewPlan() {
+    // clone the first personal finance plan
+    addPersonalFinance(personalFinances[0]);
+  }
+
+  const isCreateNewPlanDisabled = useMemo(
+    () =>
+      !_personalFinances[0].debts.length &&
+      !_personalFinances[0].fixedExpenses.length &&
+      !_personalFinances[0].debts.length,
+    [_personalFinances]
+  );
 
   return (
     <>
@@ -102,52 +103,79 @@ const PersonalFinancesPage = () => {
 
       <Box mb={2}>
         <TabContext value={selectedTab}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
             <TabList
               onChange={(_, tab) => setSelectedTab(tab)}
               aria-label="personal finances ideas"
               scrollButtons="auto"
+              sx={{
+                '& .MuiTab-root:first-of-type': {
+                  color: 'warning.main',
+                },
+                '& .Mui-selected:first-of-type': {
+                  color: 'warning.main',
+                },
+                '& .MuiTabs-indicator': {
+                  backgroundColor:
+                    selectedTab === '0' ? 'warning.main' : 'primary.main',
+                },
+              }}
             >
               {_personalFinances.map(({ id }, i) => (
                 <Tab
                   key={`tab-${id}`}
                   label={!i ? 'Original' : 'Plan ' + i}
                   value={i.toString()}
-                  {...getTabProps(i)}
                 />
               ))}
-              <ButtonInTabs onClick={() => console.log('test')} />
+              <ButtonInTabs
+                tooltipText={
+                  !isCreateNewPlanDisabled
+                    ? t('finances.personalFinances.addPlan')
+                    : t('finances.personalFinances.addPlanHint')
+                }
+                onClick={handleCreateNewPlan}
+                disabled={isCreateNewPlanDisabled || isLoading}
+              />
             </TabList>
           </Box>
           {_personalFinances.map(({ id, debts, fixedExpenses, incomes }, i) => (
-            <TabPanel key={`tab-panel-${id}`} value={i.toString()}>
-              <Grid container spacing={4}>
-                <Grid item xs={12} md={4}>
-                  <DebtCard
-                    debts={debts}
-                    isLoading={isLoading}
-                    personalFinancesId={id}
-                    update={updateDebts}
-                  />
+            <Grow
+              key={`tab-panel-${id}`}
+              in={selectedTab === i.toString()}
+              timeout={250}
+              mountOnEnter
+              unmountOnExit
+            >
+              <TabPanel value={i.toString()} sx={{ p: 0 }}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} md={4}>
+                    <DebtCard
+                      debts={debts}
+                      isLoading={isLoading}
+                      personalFinancesId={id}
+                      update={updateDebts}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <IncomeCard
+                      incomes={incomes}
+                      isLoading={isLoading}
+                      update={updateIncomes}
+                      personalFinancesId={id}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <FixedExpenseCard
+                      fixedExpenses={fixedExpenses}
+                      isLoading={isLoading}
+                      update={updateFixedExpenses}
+                      personalFinancesId={id}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                  <IncomeCard
-                    incomes={incomes}
-                    isLoading={isLoading}
-                    update={updateIncomes}
-                    personalFinancesId={id}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <FixedExpenseCard
-                    fixedExpenses={fixedExpenses}
-                    isLoading={isLoading}
-                    update={updateFixedExpenses}
-                    personalFinancesId={id}
-                  />
-                </Grid>
-              </Grid>
-            </TabPanel>
+              </TabPanel>
+            </Grow>
           ))}
         </TabContext>
       </Box>
@@ -160,5 +188,27 @@ const PersonalFinancesPage = () => {
     </>
   );
 };
+
+function ButtonInTabs({
+  onClick,
+  tooltipText,
+  disabled = false,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  tooltipText: string;
+}) {
+  return (
+    <Box>
+      <Tooltip title={tooltipText}>
+        <Box sx={{ display: 'inline-block' }}>
+          <IconButton color="primary" onClick={onClick} disabled={disabled}>
+            <AddIcon />
+          </IconButton>
+        </Box>
+      </Tooltip>
+    </Box>
+  );
+}
 
 export default PersonalFinancesPage;
