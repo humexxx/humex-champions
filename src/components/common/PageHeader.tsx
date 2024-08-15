@@ -6,7 +6,7 @@ type Props = {
 };
 
 const PageHeader = ({ children }: Props) => {
-  return <Box mb={8}>{children}</Box>;
+  return <Box mb={4}>{children}</Box>;
 };
 
 export default PageHeader;

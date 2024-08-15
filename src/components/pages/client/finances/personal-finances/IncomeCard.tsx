@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Card, CardContent, Typography, Skeleton } from '@mui/material';
+import { Card, CardContent, Typography, Skeleton, Box } from '@mui/material';
 import IncomeEditDialog from './IncomeEditDialog';
 import { IIncome } from 'src/types/models/finances';
 import { useTranslation } from 'react-i18next';
@@ -47,7 +47,7 @@ const IncomeCard = ({
   );
 
   return (
-    <Card sx={{ position: 'relative', height: '100%', minHeight: 170 }}>
+    <Card sx={{ position: 'relative', height: '100%', minHeight: 175 }}>
       <IncomeEditDialog
         data={incomes}
         onSubmit={handleFormSubmit}
