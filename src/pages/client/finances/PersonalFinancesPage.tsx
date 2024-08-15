@@ -69,7 +69,11 @@ const PersonalFinancesPage = () => {
 
   function handleCreateNewPlan() {
     // clone the first personal finance plan
-    updateFinancialPlan({ ..._financialPlans[0], id: '' });
+    updateFinancialPlan({
+      ..._financialPlans[0],
+      id: '',
+      name: `Plan ${financialPlans.length + 1}`,
+    });
   }
 
   const isCreateNewPlanDisabled = useMemo(() => {
@@ -92,7 +96,7 @@ const PersonalFinancesPage = () => {
     let plan = financialPlans.find((p) => p.id === planId);
     if (!plan) {
       plan = {
-        name: financialPlans.length ? `Plan ${financialPlans.length}` : 'Main',
+        name: 'Main',
         financialSnapshots: [
           {
             debts: [],
