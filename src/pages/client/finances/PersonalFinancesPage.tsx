@@ -124,6 +124,15 @@ const PersonalFinancesPage = () => {
     updateFinancialPlan(plan);
   }
 
+  function _updateDebts(planId: string | null, data: IDebt[]) {
+    if (!planId) _updateFinancialPlan(planId, data, 'debts');
+    else {
+      financialPlans.forEach((plan) => {
+        _updateFinancialPlan(plan.id!, data, 'debts');
+      });
+    }
+  }
+
   return (
     <>
       <PageHeader>
@@ -209,9 +218,7 @@ const PersonalFinancesPage = () => {
                         canEdit={i === 0}
                         debts={debts}
                         isLoading={isLoading}
-                        update={(data) =>
-                          _updateFinancialPlan(id ?? null, data, 'debts')
-                        }
+                        update={(data) => _updateDebts(id ?? null, data)}
                       />
                     </Grid>
                     <Grid item xs={12} md={4}>
