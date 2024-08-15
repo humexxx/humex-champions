@@ -9,9 +9,10 @@ interface Props {
   debts: IDebt[];
   isLoading: boolean;
   update: (data: IDebt[]) => void;
+  canEdit?: boolean;
 }
 
-const DebtCard = ({ debts, isLoading, update }: Props) => {
+const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
   const { t } = useTranslation();
 
   const handleFormSubmit = (data: IDebt[]) => {
@@ -40,15 +41,30 @@ const DebtCard = ({ debts, isLoading, update }: Props) => {
   }, [debts, totalDebt]);
 
   return (
-    <Card sx={{ position: 'relative', height: '100%', minHeight: 175 }}>
-      <DebtEditDialog
-        data={debts}
-        onSubmit={handleFormSubmit}
-        sx={{ position: 'absolute', right: 8, top: 8 }}
-        loading={isLoading}
-      />
+    <Card
+      sx={{
+        position: 'relative',
+        height: '100%',
+        minHeight: 175,
+        bgcolor: canEdit ? 'inherit' : 'action.disabledBackground',
+      }}
+      elevation={canEdit ? 2 : 0}
+    >
+      {canEdit && (
+        <DebtEditDialog
+          data={debts}
+          onSubmit={handleFormSubmit}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+          loading={isLoading}
+        />
+      )}
       <CardContent>
-        <Typography variant="body1" component="h3" mb={2}>
+        <Typography
+          variant="body1"
+          component="h3"
+          mb={2}
+          color={canEdit ? 'primary.default' : 'text.disabled'}
+        >
           <strong>{t('finances.personalFinances.header.debts.title')}</strong>
         </Typography>
         {isLoading ? (
@@ -59,21 +75,35 @@ const DebtCard = ({ debts, isLoading, update }: Props) => {
           </>
         ) : debts.length ? (
           <>
-            <Typography component="h6" variant="body1" gutterBottom>
+            <Typography
+              component="h6"
+              variant="body1"
+              gutterBottom
+              color={canEdit ? 'text.primary' : 'text.disabled'}
+            >
               {t('finances.personalFinances.header.debts.total')}:{' '}
               {formatCurrency(totalDebt)}
             </Typography>
-            <Typography variant="body2">
+            <Typography
+              variant="body2"
+              color={canEdit ? 'text.primary' : 'text.disabled'}
+            >
               {t('finances.personalFinances.header.debts.minimumPayment')}:{' '}
               {formatCurrency(totalMinimumPayment)}
             </Typography>
-            <Typography variant="body2">
+            <Typography
+              variant="body2"
+              color={canEdit ? 'text.primary' : 'text.disabled'}
+            >
               {t('finances.personalFinances.header.debts.interest')}:{' '}
               {formatPercentage(weightedInterest)}
             </Typography>
           </>
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color={canEdit ? 'text.secondary' : 'text.disabled'}
+          >
             {t('finances.personalFinances.header.debts.noDebts')}
           </Typography>
         )}
