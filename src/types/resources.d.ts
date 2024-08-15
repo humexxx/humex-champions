@@ -1,5 +1,6 @@
 interface Resources {
   "en": {
+    "lang": "en-US",
     "languages": {
       "en": "English",
       "es": "Spanish"
@@ -24,7 +25,7 @@ interface Resources {
         "title": "Personal Finances",
         "description": "Manage your personal finances and keep track of your expenses and income.",
         "addPlan": "Add Plan",
-        "addPlanHint": "Main plan should have data first",
+        "addPlanHint": "Main plan should have data",
         "header": {
           "debts": {
             "title": "Debts",
@@ -61,6 +62,8 @@ interface Resources {
           "fixedExpenses": {
             "title": "Fixed Expenses",
             "total": "Total",
+            "fixedMonthlyDebt": "Fixed Debt",
+            "fixedMonthlyDebtHint": "Monthly minimun payment of debts you have to pay to avoid penalties.",
             "noFixedExpenses": "No fixed expenses found.",
             "dialog": {
               "title": "Edit fixed expense",

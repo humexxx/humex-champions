@@ -69,6 +69,7 @@ const PersonalFinancesPage = () => {
 
   function handleCreateNewPlan() {
     // clone the first personal finance plan
+    // maybe open a modal later
     updateFinancialPlan({
       ..._financialPlans[0],
       id: '',
@@ -224,6 +225,7 @@ const PersonalFinancesPage = () => {
                     <Grid item xs={12} md={4}>
                       <FixedExpenseCard
                         fixedExpenses={fixedExpenses}
+                        debts={debts}
                         isLoading={isLoading}
                         update={(data) =>
                           _updateFinancialPlan(
@@ -244,7 +246,7 @@ const PersonalFinancesPage = () => {
 
       <Grid container>
         <Grid item xs={12}>
-          <PersonalFinancesGraph />
+          <PersonalFinancesGraph financialPlans={financialPlans} />
         </Grid>
       </Grid>
     </>

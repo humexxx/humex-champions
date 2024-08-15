@@ -1,28 +1,48 @@
 import { useMemo } from 'react';
-import { Card, CardContent, Skeleton, Typography } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Skeleton,
+  Typography,
+  Tooltip,
+} from '@mui/material';
 import FixedExpenseEditDialog from './FixedExpenseEditDialog';
 import { useTranslation } from 'react-i18next';
-import { IFixedExpense } from 'src/types/models/finances';
+import { IDebt, IFixedExpense } from 'src/types/models/finances';
 import { formatCurrency } from 'src/utils';
 
 interface Props {
   personalFinancesId?: string;
   fixedExpenses: IFixedExpense[];
+  debts: IDebt[];
   isLoading: boolean;
   update: (data: IFixedExpense[]) => void;
 }
 
-const FixedExpenseCard = ({ fixedExpenses, isLoading, update }: Props) => {
+const FixedExpenseCard = ({
+  fixedExpenses,
+  debts,
+  isLoading,
+  update,
+}: Props) => {
   const { t } = useTranslation();
 
   const handleFormSubmit = (data: IFixedExpense[]) => {
     update(data);
   };
 
+  const monthlyFixedDebt = useMemo(
+    () => debts.reduce((acc, debt) => acc + debt.minimumPayment, 0),
+    [debts]
+  );
+
   const total = useMemo(
     () =>
-      fixedExpenses.reduce((acc, fixedExpense) => acc + fixedExpense.amount, 0),
-    [fixedExpenses]
+      fixedExpenses.reduce(
+        (acc, fixedExpense) => acc + fixedExpense.amount,
+        0
+      ) + monthlyFixedDebt,
+    [fixedExpenses, monthlyFixedDebt]
   );
 
   return (
@@ -42,7 +62,7 @@ const FixedExpenseCard = ({ fixedExpenses, isLoading, update }: Props) => {
         {isLoading ? (
           <>
             <Skeleton width="60%" height={32} />
-            {/* <Skeleton width="50%" height={24} /> */}
+            <Skeleton width="50%" height={24} />
           </>
         ) : fixedExpenses.length ? (
           <>
@@ -50,6 +70,19 @@ const FixedExpenseCard = ({ fixedExpenses, isLoading, update }: Props) => {
               {t('finances.personalFinances.header.fixedExpenses.total')}:{' '}
               {formatCurrency(total)}
             </Typography>
+
+            <Tooltip
+              title={t(
+                'finances.personalFinances.header.fixedExpenses.fixedMonthlyDebtHint'
+              )}
+            >
+              <Typography variant="body2">
+                {t(
+                  'finances.personalFinances.header.fixedExpenses.fixedMonthlyDebt'
+                )}
+                : {formatCurrency(monthlyFixedDebt)}
+              </Typography>
+            </Tooltip>
           </>
         ) : (
           <Typography variant="body2" color="text.secondary">

@@ -1,4 +1,5 @@
 {
+  "lang": "en-US",
   "languages": {
     "en": "English",
     "es": "Spanish"
@@ -60,6 +61,8 @@
         "fixedExpenses": {
           "title": "Fixed Expenses",
           "total": "Total",
+          "fixedMonthlyDebt": "Fixed Debt",
+          "fixedMonthlyDebtHint": "Monthly minimum payment of debts required to avoid penalties.",
           "noFixedExpenses": "No fixed expenses found.",
           "dialog": {
             "title": "Edit fixed expense",
