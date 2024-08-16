@@ -64,7 +64,7 @@ const FixedExpenseCard = ({
             <Skeleton width="60%" height={32} />
             <Skeleton width="50%" height={24} />
           </>
-        ) : fixedExpenses.length ? (
+        ) : fixedExpenses.length || debts.length ? (
           <>
             <Typography component="h6" variant="body1" gutterBottom>
               {t('finances.personalFinances.header.fixedExpenses.total')}:{' '}

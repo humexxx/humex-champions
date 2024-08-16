@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase-admin/firestore';
-import { IDebt, IFinancialSnapshot } from './types';
+import { IDebt, IFinancialSnapshot, IFixedExpense, IIncome } from './types';
 
 // Función para aplicar el método Avalanche
 export function applyAvalancheMethod(
@@ -25,9 +25,11 @@ export function applyAvalancheMethod(
 }
 
 export function generateSingleSnapshot(
-  lastSnapshot: IFinancialSnapshot
+  lastSnapshot: IFinancialSnapshot,
+  fixedExpenses: IFixedExpense[],
+  incomes: IIncome[]
 ): IFinancialSnapshot {
-  const totalIncome = lastSnapshot.incomes.reduce((sum, income) => {
+  const totalIncome = incomes.reduce((sum, income) => {
     switch (income.period) {
       case 'weekly':
         return sum + income.amount * 4;
@@ -38,7 +40,7 @@ export function generateSingleSnapshot(
     }
   }, 0);
 
-  const totalFixedExpenses = lastSnapshot.fixedExpenses.reduce(
+  const totalFixedExpenses = fixedExpenses.reduce(
     (sum, expense) => sum + expense.amount,
     0
   );
@@ -52,9 +54,8 @@ export function generateSingleSnapshot(
   const newDebts = applyAvalancheMethod(lastSnapshot.debts, remaining);
 
   return {
+    reviewed: false,
     debts: newDebts,
-    fixedExpenses: lastSnapshot.fixedExpenses,
-    incomes: lastSnapshot.incomes,
     date: Timestamp.now() as any,
   };
 }

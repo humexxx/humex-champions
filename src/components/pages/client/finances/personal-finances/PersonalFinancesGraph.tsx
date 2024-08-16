@@ -7,6 +7,8 @@ import {
   IDebt,
   IFinancialPlan,
   IFinancialSnapshot,
+  IFixedExpense,
+  IIncome,
 } from 'src/types/models/finances';
 import { SeriesValueFormatter } from '@mui/x-charts/internals';
 
@@ -65,14 +67,17 @@ function applySnowballMethod(
 }
 
 function generatePredictions(
-  historicalSnapshots: IFinancialSnapshot[]
+  historicalSnapshots: IFinancialSnapshot[],
+  fixedExpenses: IFixedExpense[],
+  incomes: IIncome[],
+  method = 'avalanche'
 ): IFinancialSnapshot[] {
   const snapshots = [...historicalSnapshots];
 
   for (let i = historicalSnapshots.length; i < 12; i++) {
     const previousSnapshot = snapshots[i - 1];
 
-    const totalIncome = previousSnapshot.incomes.reduce((sum, income) => {
+    const totalIncome = incomes.reduce((sum, income) => {
       switch (income.period) {
         case 'weekly':
           return sum + income.amount * 4; // Aproximando semanas por mes
@@ -83,7 +88,7 @@ function generatePredictions(
       }
     }, 0);
 
-    const totalFixedExpenses = previousSnapshot.fixedExpenses.reduce(
+    const totalFixedExpenses = fixedExpenses.reduce(
       (sum, expense) => sum + expense.amount,
       0
     );
@@ -97,17 +102,15 @@ function generatePredictions(
     const remaining = totalIncome - totalFixedExpenses - totalMinimumPayments;
 
     let newDebts: IDebtWithExtraPayment[];
-    // if (method === 'avalanche') {
-    if (true) {
+    if (method === 'avalanche') {
       newDebts = applyAvalancheMethod(previousSnapshot.debts, remaining);
     } else {
       newDebts = applySnowballMethod(previousSnapshot.debts, remaining);
     }
 
     snapshots.push({
+      reviewed: false,
       debts: newDebts.map(({ extraPayment, ...debt }) => debt),
-      fixedExpenses: previousSnapshot.fixedExpenses,
-      incomes: previousSnapshot.incomes,
       date: previousSnapshot.date.add(1, 'month'),
     });
   }
@@ -153,9 +156,10 @@ function getColorForPlan(index: number, total: number, baseColor: string) {
 
 interface Props {
   financialPlans: IFinancialPlan[];
+  loading: boolean;
 }
 
-const PersonalFinancesGraph = ({ financialPlans }: Props) => {
+const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -163,7 +167,9 @@ const PersonalFinancesGraph = ({ financialPlans }: Props) => {
     () =>
       financialPlans.map((plan) => {
         const snapshots = generatePredictions(
-          generateMissingHistoricalSnapshots(plan.financialSnapshots)
+          generateMissingHistoricalSnapshots(plan.financialSnapshots),
+          plan.fixedExpenses,
+          plan.incomes
         );
         return { ...plan, financialSnapshots: snapshots };
       }),
@@ -199,7 +205,7 @@ const PersonalFinancesGraph = ({ financialPlans }: Props) => {
   return (
     <Box width={'100%'} height={500}>
       <LineChart
-        loading={!_financialPlans.length}
+        loading={loading}
         series={datasets}
         xAxis={[
           {

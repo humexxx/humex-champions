@@ -45,28 +45,28 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
           return {
             id: docSnap.id,
             name: data.name,
+            fixedExpenses:
+              data.fixedExpenses?.map((expense) => ({
+                ...expense,
+                startDate: dayjs(
+                  (expense.startDate as unknown as Timestamp).toDate()
+                ),
+              })) || [],
+            incomes:
+              data.incomes?.map((income) => ({
+                ...income,
+                startDate: dayjs(
+                  (income.startDate as unknown as Timestamp).toDate()
+                ),
+              })) || [],
             financialSnapshots: data.financialSnapshots.map(
-              ({ date, debts, fixedExpenses, incomes, ...x }) => ({
+              ({ date, debts, ...x }) => ({
                 ...x,
                 debts:
                   debts?.map((debt) => ({
                     ...debt,
                     startDate: dayjs(
                       (debt.startDate as unknown as Timestamp).toDate()
-                    ),
-                  })) || [],
-                fixedExpenses:
-                  fixedExpenses?.map((expense) => ({
-                    ...expense,
-                    startDate: dayjs(
-                      (expense.startDate as unknown as Timestamp).toDate()
-                    ),
-                  })) || [],
-                incomes:
-                  incomes?.map((income) => ({
-                    ...income,
-                    startDate: dayjs(
-                      (income.startDate as unknown as Timestamp).toDate()
                     ),
                   })) || [],
                 date: dayjs((date as unknown as Timestamp).toDate()),
@@ -111,24 +111,24 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
               )
             );
 
-        const { id, ...rest } = financialPlan;
+        const { id, fixedExpenses, incomes, ...rest } = financialPlan;
 
         const formattedFinancialPlan: IFinancialPlan = {
           ...rest,
+          fixedExpenses: fixedExpenses.map((expense) => ({
+            ...expense,
+            startDate: toTimestamp(expense.startDate),
+          })),
+          incomes: incomes.map((income) => ({
+            ...income,
+            startDate: toTimestamp(income.startDate),
+          })),
           financialSnapshots: financialPlan.financialSnapshots.map((x) => ({
             ...x,
             date: toTimestamp(x.date),
             debts: x.debts.map((debt) => ({
               ...debt,
               startDate: toTimestamp(debt.startDate),
-            })),
-            fixedExpenses: x.fixedExpenses.map((expense) => ({
-              ...expense,
-              startDate: toTimestamp(expense.startDate),
-            })),
-            incomes: x.incomes.map((income) => ({
-              ...income,
-              startDate: toTimestamp(income.startDate),
             })),
           })),
         };

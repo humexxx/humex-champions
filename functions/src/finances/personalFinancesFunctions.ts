@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { generateSingleSnapshot } from './utils';
+import { IFinancialPlan } from './types';
 
 const db = admin.firestore();
 
@@ -12,19 +13,20 @@ async function generateAndSaveSingleSnapshot() {
   const batch = db.batch();
 
   plansSnapshot.forEach((planDoc) => {
-    const planData = planDoc.data();
+    const planData = planDoc.data() as IFinancialPlan;
 
     if (planData && planData.financialSnapshots) {
       const lastSnapshot =
         planData.financialSnapshots[planData.financialSnapshots.length - 1];
-      const newSnapshot = generateSingleSnapshot(lastSnapshot);
+      const newSnapshot = generateSingleSnapshot(
+        lastSnapshot,
+        planData.fixedExpenses,
+        planData.incomes
+      );
       const planRef = planDoc.ref;
 
       batch.update(planRef, {
-        financialSnapshots: FieldValue.arrayUnion({
-          ...newSnapshot,
-          reviewed: false,
-        }),
+        financialSnapshots: FieldValue.arrayUnion(newSnapshot),
       });
     }
   });

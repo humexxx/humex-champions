@@ -54,11 +54,11 @@ const PersonalFinancesPage = () => {
         : ([
             {
               name: 'Main',
+              fixedExpenses: [],
+              incomes: [],
               financialSnapshots: [
                 {
                   debts: [],
-                  fixedExpenses: [],
-                  incomes: [],
                   date: new Date(),
                   reviewed: true,
                 },
@@ -79,17 +79,15 @@ const PersonalFinancesPage = () => {
     });
   }
 
-  const isCreateNewPlanDisabled = useMemo(() => {
-    const lastSnapshotFromMainPlan =
-      _financialPlans[0].financialSnapshots[
+  const isCreateNewPlanDisabled = useMemo(
+    () =>
+      !_financialPlans[0].financialSnapshots[
         _financialPlans[0].financialSnapshots.length - 1
-      ];
-    return (
-      !lastSnapshotFromMainPlan.debts.length &&
-      !lastSnapshotFromMainPlan.fixedExpenses.length &&
-      !lastSnapshotFromMainPlan.debts.length
-    );
-  }, [_financialPlans]);
+      ].debts.length &&
+      !_financialPlans[0].fixedExpenses.length &&
+      !_financialPlans[0].incomes.length,
+    [_financialPlans]
+  );
 
   function _updateFinancialPlan(
     planId: string | null,
@@ -100,11 +98,11 @@ const PersonalFinancesPage = () => {
     if (!plan) {
       plan = {
         name: 'Main',
+        fixedExpenses: [],
+        incomes: [],
         financialSnapshots: [
           {
             debts: [],
-            fixedExpenses: [],
-            incomes: [],
             date: dayjs(),
             reviewed: true,
           },
@@ -114,11 +112,12 @@ const PersonalFinancesPage = () => {
     }
     plan = {
       ...plan,
+      ...(key === 'incomes' || key === 'fixedExpenses' ? { [key]: data } : {}),
       financialSnapshots: plan.financialSnapshots.map((snapshot, i) => {
         if (i === plan!.financialSnapshots.length - 1) {
           return {
             ...snapshot,
-            [key]: data,
+            ...(key === 'debts' ? { debts: data as IDebt[] } : {}),
             reviewed: true,
           };
         }
@@ -207,62 +206,67 @@ const PersonalFinancesPage = () => {
               />
             </TabList>
           </Box>
-          {_financialPlans.map(({ id, financialSnapshots }, i) => {
-            const { debts, fixedExpenses, incomes } =
-              financialSnapshots[financialSnapshots.length - 1];
+          {_financialPlans.map(
+            ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
+              const { debts } =
+                financialSnapshots[financialSnapshots.length - 1];
 
-            return (
-              <Grow
-                key={`tab-panel-${id}`}
-                in={selectedTab === i.toString()}
-                timeout={250}
-                mountOnEnter
-                unmountOnExit
-              >
-                <TabPanel value={i.toString()} sx={{ p: 0 }}>
-                  <Grid container spacing={4}>
-                    <Grid item xs={12} md={4}>
-                      <DebtCard
-                        canEdit={i === 0}
-                        debts={debts}
-                        isLoading={isLoading}
-                        update={(data) => _updateDebts(id ?? null, data)}
-                      />
+              return (
+                <Grow
+                  key={`tab-panel-${id}`}
+                  in={selectedTab === i.toString()}
+                  timeout={250}
+                  mountOnEnter
+                  unmountOnExit
+                >
+                  <TabPanel value={i.toString()} sx={{ p: 0 }}>
+                    <Grid container spacing={4}>
+                      <Grid item xs={12} md={4}>
+                        <DebtCard
+                          canEdit={i === 0}
+                          debts={debts}
+                          isLoading={isLoading}
+                          update={(data) => _updateDebts(id ?? null, data)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <IncomeCard
+                          incomes={incomes}
+                          isLoading={isLoading}
+                          update={(data) =>
+                            _updateFinancialPlan(id ?? null, data, 'incomes')
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <FixedExpenseCard
+                          fixedExpenses={fixedExpenses}
+                          debts={debts}
+                          isLoading={isLoading}
+                          update={(data) =>
+                            _updateFinancialPlan(
+                              id ?? null,
+                              data,
+                              'fixedExpenses'
+                            )
+                          }
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={12} md={4}>
-                      <IncomeCard
-                        incomes={incomes}
-                        isLoading={isLoading}
-                        update={(data) =>
-                          _updateFinancialPlan(id ?? null, data, 'incomes')
-                        }
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                      <FixedExpenseCard
-                        fixedExpenses={fixedExpenses}
-                        debts={debts}
-                        isLoading={isLoading}
-                        update={(data) =>
-                          _updateFinancialPlan(
-                            id ?? null,
-                            data,
-                            'fixedExpenses'
-                          )
-                        }
-                      />
-                    </Grid>
-                  </Grid>
-                </TabPanel>
-              </Grow>
-            );
-          })}
+                  </TabPanel>
+                </Grow>
+              );
+            }
+          )}
         </TabContext>
       </Box>
 
       <Grid container>
         <Grid item xs={12}>
-          <PersonalFinancesGraph financialPlans={financialPlans} />
+          <PersonalFinancesGraph
+            loading={isLoading}
+            financialPlans={financialPlans}
+          />
         </Grid>
       </Grid>
     </>

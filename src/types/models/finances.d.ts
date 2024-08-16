@@ -22,12 +22,12 @@ export interface IFinancialPlan {
   id?: string | null;
   name: string;
   financialSnapshots: IFinancialSnapshot[];
+  fixedExpenses: IFixedExpense[];
+  incomes: IIncome[];
 }
 
 export interface IFinancialSnapshot {
   debts: IDebt[];
-  fixedExpenses: IFixedExpense[];
-  incomes: IIncome[];
   date: Dayjs;
   reviewed: boolean;
 }

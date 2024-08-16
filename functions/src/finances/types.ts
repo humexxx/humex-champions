@@ -1,3 +1,11 @@
+export interface IFinancialPlan {
+  id?: string | null;
+  name: string;
+  financialSnapshots: IFinancialSnapshot[];
+  fixedExpenses: IFixedExpense[];
+  incomes: IIncome[];
+}
+
 export interface IDebt {
   pendingDebt: number;
   minimumPayment: number;
@@ -20,8 +28,6 @@ export interface IFixedExpense {
 
 export interface IFinancialSnapshot {
   debts: IDebt[];
-  incomes: IIncome[];
-  fixedExpenses: IFixedExpense[];
   date: any;
   reviewed?: boolean;
 }
