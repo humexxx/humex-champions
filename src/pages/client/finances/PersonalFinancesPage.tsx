@@ -148,11 +148,17 @@ const PersonalFinancesPage = () => {
             component={Link}
             to="/client/finances"
             unstable_viewTransition
-            style={{ textDecoration: 'none' }}
-            color={'inherit'}
-            sx={{ display: 'flex', alignItems: 'center' }}
+            color={'info.main'}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+              '&:hover': {
+                textDecoration: 'underline',
+              },
+            }}
           >
-            <ArrowBackIcon fontSize="small" sx={{ mr: 1 }} />
+            <ArrowBackIcon fontSize="small" sx={{ mr: 1 }} color="inherit" />
             {t('finances.title')}
           </Typography>
           <Typography
