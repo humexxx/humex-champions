@@ -29,4 +29,5 @@ export interface IFinancialSnapshot {
   fixedExpenses: IFixedExpense[];
   incomes: IIncome[];
   date: Dayjs;
+  reviewed: boolean;
 }

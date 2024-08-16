@@ -15,6 +15,7 @@ import {
   FixedExpenseCard,
   IncomeCard,
   PersonalFinancesGraph,
+  ValidateMainFinantialSnapshotDialog,
 } from 'src/components/pages/client/finances/personal-finances';
 import { PageHeader } from 'src/components/common';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -59,6 +60,7 @@ const PersonalFinancesPage = () => {
                   fixedExpenses: [],
                   incomes: [],
                   date: new Date(),
+                  reviewed: true,
                 },
               ],
               id: null,
@@ -104,6 +106,7 @@ const PersonalFinancesPage = () => {
             fixedExpenses: [],
             incomes: [],
             date: dayjs(),
+            reviewed: true,
           },
         ],
         id: null,
@@ -116,6 +119,7 @@ const PersonalFinancesPage = () => {
           return {
             ...snapshot,
             [key]: data,
+            reviewed: true,
           };
         }
         return snapshot;
@@ -135,6 +139,10 @@ const PersonalFinancesPage = () => {
 
   return (
     <>
+      <ValidateMainFinantialSnapshotDialog
+        financialPlan={financialPlans[0]}
+        onSubmit={(data) => _updateDebts(financialPlans[0].id!, data)}
+      />
       <PageHeader>
         <Breadcrumbs aria-label="navigator">
           <Typography

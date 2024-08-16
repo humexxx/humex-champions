@@ -26,8 +26,6 @@ import * as yup from 'yup';
 import { CurrencyField } from 'src/components/common/forms';
 import { IFixedExpense } from 'src/types/models/finances';
 import { useTranslation } from 'react-i18next';
-import { DatePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
 
 interface Props {
   onSubmit: (data: IFixedExpense[]) => void;

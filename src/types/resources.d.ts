@@ -63,7 +63,7 @@ interface Resources {
             "title": "Fixed Expenses",
             "total": "Total",
             "fixedMonthlyDebt": "Fixed Debt",
-            "fixedMonthlyDebtHint": "Monthly minimun payment of debts you have to pay to avoid penalties.",
+            "fixedMonthlyDebtHint": "Monthly minimum payment of debts required to avoid penalties.",
             "noFixedExpenses": "No fixed expenses found.",
             "dialog": {
               "title": "Edit fixed expense",
@@ -84,6 +84,15 @@ interface Resources {
           "savings": "Savings",
           "debts": "Debts",
           "month": "Month"
+        },
+        "debtConfirmationDialog": {
+          "title": "Debt Confirmation",
+          "totalPreviousDebt": "Total Previous Debt",
+          "totalNewDebt": "Total New Debt",
+          "newDebt": "New Debt",
+          "previousDebt": "Previous Debt",
+          "confirm": "Confirm",
+          "description": "A new debts estimate has been calculated based on the anual interest rates, the minimum payments, the incomes, the fixed expenses and the payment strategy. Please confirm the new debts."
         }
       },
       "tradingJournal": {

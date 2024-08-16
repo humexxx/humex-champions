@@ -46,7 +46,8 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
             id: docSnap.id,
             name: data.name,
             financialSnapshots: data.financialSnapshots.map(
-              ({ date, debts, fixedExpenses, incomes }) => ({
+              ({ date, debts, fixedExpenses, incomes, ...x }) => ({
+                ...x,
                 debts:
                   debts?.map((debt) => ({
                     ...debt,
@@ -115,6 +116,7 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
         const formattedFinancialPlan: IFinancialPlan = {
           ...rest,
           financialSnapshots: financialPlan.financialSnapshots.map((x) => ({
+            ...x,
             date: toTimestamp(x.date),
             debts: x.debts.map((debt) => ({
               ...debt,

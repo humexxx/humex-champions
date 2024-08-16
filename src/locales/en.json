@@ -83,6 +83,14 @@
         "savings": "Savings",
         "debts": "Debts",
         "month": "Month"
+      },
+      "debtConfirmationDialog": {
+        "title": "Debt Confirmation",
+        "totalPreviousDebt": "Total Previous Debt",
+        "totalNewDebt": "Total New Debt",
+        "newDebt": "New Debt",
+        "confirm": "Confirm",
+        "description": "A new debts estimate has been calculated based on the anual interest rates, the minimum payments, the incomes, the fixed expenses and the payment strategy. Please confirm the new debts."
       }
     },
     "tradingJournal": {
