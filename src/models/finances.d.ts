@@ -3,19 +3,21 @@ export interface IDebt {
   minimumPayment: number;
   annualInterest: number;
   startDate: Dayjs;
+  name: string;
 }
 
 export interface IIncome {
   amount: number;
-  period: 'weekly' | 'monthly' | 'yearly';
-  startDate: Dayjs;
+  period: 'single' | 'weekly' | 'monthly' | 'yearly';
+  name: string;
+  singleDate?: Dayjs;
 }
 
 export interface IFixedExpense {
   amount: number;
-  expenseType: 'primary' | 'secondary';
+  expenseType: 'single' | 'primary' | 'secondary';
   name: string;
-  startDate: Dayjs;
+  singleDate?: Dayjs;
 }
 
 export interface IFinancialPlan {

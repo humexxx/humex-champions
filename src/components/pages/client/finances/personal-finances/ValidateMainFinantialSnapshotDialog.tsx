@@ -195,7 +195,7 @@ const ValidateMainFinantialSnapshotDialog = ({
               {t(
                 'finances.personalFinances.debtConfirmationDialog.totalNewDebt'
               )}
-              : <strong>{formatCurrency(Number(totalNewDebt ?? 0))}</strong>
+              : <strong>{formatCurrency(totalNewDebt ?? 0)}</strong>
             </Typography>
           </Grid>
         </Grid>

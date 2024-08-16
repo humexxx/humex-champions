@@ -12,6 +12,11 @@ import {
   Box,
   SxProps,
   Tooltip,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Typography,
+  TextField,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -26,6 +31,8 @@ import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/common/forms';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { formatCurrency, formatPercentage } from 'src/utils';
 
 interface Props {
   onSubmit: (data: IDebt[]) => void;
@@ -41,20 +48,28 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
       yup.object().shape({
         debts: yup.array().of(
           yup.object().shape({
+            name: yup
+              .string()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .max(64),
             pendingDebt: yup
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
+              .typeError(t('commonValidations.required'))
               .moreThan(-1),
             minimumPayment: yup
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
+              .typeError(t('commonValidations.required'))
               .moreThan(-1),
             annualInterest: yup
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
+              .typeError(t('commonValidations.required'))
               .moreThan(-1),
             startDate: yup
               .date()
@@ -67,6 +82,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
   );
 
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string>('panel0');
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -75,6 +91,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -98,8 +115,23 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
   }
 
   useEffect(() => {
-    setValue('debts', data);
+    setValue('debts', data.sort((x) => x.pendingDebt).reverse());
   }, [data, setValue]);
+
+  const debts = watch('debts');
+
+  const handleOnNewDebt = () => {
+    append({
+      name: `${t('finances.personalFinances.header.debts.dialog.debt')} ${
+        fields.length + 1
+      }`,
+      pendingDebt: 0,
+      minimumPayment: 0,
+      annualInterest: 0,
+      startDate: dayjs() as any,
+    });
+    setExpanded(`panel${fields.length}`);
+  };
 
   return (
     <>
@@ -120,132 +152,220 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
         onSubmit={handleSubmit(_handleSubmit)}
         {...{ autoComplete: 'off' }}
       >
-        <DialogTitle sx={{ textTransform: 'capitalize' }}>
+        <DialogTitle
+          sx={{
+            textTransform: 'capitalize',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           {t('finances.personalFinances.header.debts.dialog.title')}
+          <Button
+            type="button"
+            onClick={handleOnNewDebt}
+            startIcon={<AddIcon />}
+          >
+            {t('finances.personalFinances.header.debts.dialog.addDebt')}
+          </Button>
         </DialogTitle>
         <DialogContent>
-          {fields.map((item, index) => (
-            <Grid container spacing={2} alignItems="center" key={item.id}>
-              <Grid item xs={3}>
-                <Controller
-                  name={`debts.${index}.pendingDebt`}
-                  control={control}
-                  render={({ field }) => (
-                    <CurrencyField
-                      {...field}
-                      size="small"
-                      label={t(
-                        'finances.personalFinances.header.debts.dialog.pendingDebt'
-                      )}
-                      fullWidth
-                      error={!!errors?.debts?.[index]?.pendingDebt}
-                      helperText={
-                        errors?.debts?.[index]?.pendingDebt?.message || ' '
-                      }
-                      margin="dense"
-                      inputProps={{ min: 0 }}
-                    />
+          <Box p={4}>
+            {fields.map((item, index) => (
+              <Accordion
+                key={item.id}
+                expanded={expanded === `panel${index}`}
+                onChange={() => setExpanded(`panel${index}`)}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls={`panel${index}bh-content`}
+                  id={`panel${index}bh-header`}
+                  sx={{
+                    alignItems: 'center',
+                  }}
+                >
+                  {expanded !== `panel${index}` ? (
+                    <>
+                      <Box sx={{ width: '75%' }} mr={1}>
+                        <Typography
+                          color={
+                            Object.values(errors?.debts?.[index] ?? {})
+                              .length && expanded !== `panel${index}`
+                              ? 'error.main'
+                              : 'inherit'
+                          }
+                        >
+                          {debts![index].name}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color={
+                            Object.values(errors?.debts?.[index] ?? {})
+                              .length && expanded !== `panel${index}`
+                              ? 'error.main'
+                              : 'text.secondary'
+                          }
+                        >
+                          {formatPercentage(debts![index].annualInterest)}
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center">
+                        <Typography
+                          color={
+                            Object.values(errors?.debts?.[index] ?? {})
+                              .length && expanded !== `panel${index}`
+                              ? 'error.main'
+                              : 'text.secondary'
+                          }
+                        >
+                          {formatCurrency(debts![index].pendingDebt)}
+                        </Typography>
+                      </Box>
+                    </>
+                  ) : (
+                    <IconButton onClick={() => remove(index)} size="small">
+                      <DeleteIcon fontSize="small" color="error" />
+                    </IconButton>
                   )}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <Controller
-                  name={`debts.${index}.minimumPayment`}
-                  control={control}
-                  render={({ field }) => (
-                    <CurrencyField
-                      {...field}
-                      size="small"
-                      label={t(
-                        'finances.personalFinances.header.debts.dialog.minPayment'
-                      )}
-                      fullWidth
-                      error={!!errors?.debts?.[index]?.minimumPayment}
-                      helperText={
-                        errors?.debts?.[index]?.minimumPayment?.message || ' '
-                      }
-                      margin="dense"
-                      inputProps={{ min: 0 }}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <Controller
-                  name={`debts.${index}.annualInterest`}
-                  control={control}
-                  render={({ field }) => (
-                    <PercentageField
-                      {...field}
-                      size="small"
-                      label={t(
-                        'finances.personalFinances.header.debts.dialog.anualInterest'
-                      )}
-                      fullWidth
-                      error={!!errors?.debts?.[index]?.annualInterest}
-                      helperText={
-                        errors?.debts?.[index]?.annualInterest?.message || ' '
-                      }
-                      margin="dense"
-                      inputProps={{ min: 0 }}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <Controller
-                  name={`debts.${index}.startDate`}
-                  control={control}
-                  render={({ field }) => (
-                    <DatePicker
-                      {...field}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          size: 'small',
-                          error: !!errors?.debts?.[index]?.startDate,
-                          helperText:
-                            errors?.debts?.[index]?.startDate?.message || ' ',
-                          margin: 'dense',
-                        },
-                      }}
-                      label={t(
-                        'finances.personalFinances.header.debts.dialog.startDate'
-                      )}
-                      views={['year', 'month', 'day']}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={2} textAlign="center">
-                <IconButton onClick={() => remove(index)} size="small">
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Grid>
-            </Grid>
-          ))}
-          <Box mt={2}>
-            <Button
-              type="button"
-              onClick={() =>
-                append({
-                  pendingDebt: 0,
-                  minimumPayment: 0,
-                  annualInterest: 0,
-                  startDate: dayjs() as any,
-                })
-              }
-              startIcon={<AddIcon />}
-            >
-              Add Debt
-            </Button>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={8}>
+                      <Controller
+                        name={`debts.${index}.name`}
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            size="small"
+                            label={t(
+                              'finances.personalFinances.header.debts.dialog.name'
+                            )}
+                            fullWidth
+                            error={!!errors?.debts?.[index]?.name}
+                            helperText={
+                              errors?.debts?.[index]?.name?.message || ' '
+                            }
+                            margin="dense"
+                            variant="filled"
+                            inputProps={{ maxLength: 64 }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Controller
+                        name={`debts.${index}.startDate`}
+                        control={control}
+                        render={({ field }) => (
+                          <DatePicker
+                            {...field}
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                size: 'small',
+                                error: !!errors?.debts?.[index]?.startDate,
+                                helperText:
+                                  errors?.debts?.[index]?.startDate?.message ||
+                                  ' ',
+                                margin: 'dense',
+                                variant: 'filled',
+                              },
+                            }}
+                            label={t(
+                              'finances.personalFinances.header.debts.dialog.startDate'
+                            )}
+                            views={['year', 'month', 'day']}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Controller
+                        name={`debts.${index}.pendingDebt`}
+                        control={control}
+                        render={({ field }) => (
+                          <CurrencyField
+                            {...field}
+                            size="small"
+                            label={t(
+                              'finances.personalFinances.header.debts.dialog.pendingDebt'
+                            )}
+                            fullWidth
+                            error={!!errors?.debts?.[index]?.pendingDebt}
+                            helperText={
+                              errors?.debts?.[index]?.pendingDebt?.message ||
+                              ' '
+                            }
+                            margin="dense"
+                            inputProps={{ min: 0 }}
+                            variant="filled"
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Controller
+                        name={`debts.${index}.minimumPayment`}
+                        control={control}
+                        render={({ field }) => (
+                          <CurrencyField
+                            {...field}
+                            size="small"
+                            label={t(
+                              'finances.personalFinances.header.debts.dialog.minPayment'
+                            )}
+                            fullWidth
+                            error={!!errors?.debts?.[index]?.minimumPayment}
+                            helperText={
+                              errors?.debts?.[index]?.minimumPayment?.message ||
+                              ' '
+                            }
+                            margin="dense"
+                            inputProps={{ min: 0 }}
+                            variant="filled"
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Controller
+                        name={`debts.${index}.annualInterest`}
+                        control={control}
+                        render={({ field }) => (
+                          <PercentageField
+                            {...field}
+                            size="small"
+                            label={t(
+                              'finances.personalFinances.header.debts.dialog.anualInterest'
+                            )}
+                            fullWidth
+                            error={!!errors?.debts?.[index]?.annualInterest}
+                            helperText={
+                              errors?.debts?.[index]?.annualInterest?.message ||
+                              ' '
+                            }
+                            margin="dense"
+                            inputProps={{ min: 0 }}
+                            variant="filled"
+                          />
+                        )}
+                      />
+                    </Grid>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            ))}
           </Box>
         </DialogContent>
         <DialogActions>
           <Button type="button" onClick={handleClose}>
-            Cancel
+            {t('finances.personalFinances.header.debts.dialog.cancel')}
           </Button>
-          <Button type="submit">Save</Button>
+          <Button type="submit">
+            {t('finances.personalFinances.header.debts.dialog.save')}
+          </Button>
         </DialogActions>
       </Dialog>
     </>

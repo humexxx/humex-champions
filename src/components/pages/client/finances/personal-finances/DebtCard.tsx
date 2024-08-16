@@ -15,10 +15,6 @@ interface Props {
 const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
   const { t } = useTranslation();
 
-  const handleFormSubmit = (data: IDebt[]) => {
-    update(data);
-  };
-
   const totalDebt = useMemo(
     () => debts.reduce((acc, debt) => acc + debt.pendingDebt, 0),
     [debts]
@@ -53,7 +49,7 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
       {canEdit && (
         <DebtEditDialog
           data={debts}
-          onSubmit={handleFormSubmit}
+          onSubmit={update}
           sx={{ position: 'absolute', right: 8, top: 8 }}
           loading={isLoading}
         />

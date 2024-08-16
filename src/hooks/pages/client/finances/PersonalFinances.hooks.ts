@@ -1,22 +1,59 @@
 import { useEffect, useState, useCallback } from 'react';
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  Timestamp,
-} from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { IFinancialPlan } from 'src/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
-import dayjs from 'dayjs';
-import { toTimestamp } from 'src/utils';
+import { toDayjs, toTimestamp } from 'src/utils';
 
 interface UsePersonalFinancesResult {
   financialPlans: IFinancialPlan[];
   isLoading: boolean;
   error: Error | null;
   updateFinancialPlan: (financialPlan: IFinancialPlan) => Promise<void>;
+}
+
+function formatPlanToTimestamp(plan: IFinancialPlan): IFinancialPlan {
+  return {
+    ...plan,
+    fixedExpenses: plan.fixedExpenses.map((expense) => ({
+      ...expense,
+      singleDate: toTimestamp(expense.singleDate),
+    })),
+    incomes: plan.incomes.map((income) => ({
+      ...income,
+      singleDate: toTimestamp(income.singleDate),
+    })),
+    financialSnapshots: plan.financialSnapshots.map((x) => ({
+      ...x,
+      date: toTimestamp(x.date),
+      debts: x.debts.map((debt) => ({
+        ...debt,
+        startDate: toTimestamp(debt.startDate),
+      })),
+    })),
+  };
+}
+
+function formatPlanToDayjs(plan: IFinancialPlan): IFinancialPlan {
+  return {
+    ...plan,
+    fixedExpenses: plan.fixedExpenses.map((expense) => ({
+      ...expense,
+      singleDate: toDayjs(expense.singleDate),
+    })),
+    incomes: plan.incomes.map((income) => ({
+      ...income,
+      singleDate: toDayjs(income.singleDate),
+    })),
+    financialSnapshots: plan.financialSnapshots.map((x) => ({
+      ...x,
+      date: toDayjs(x.date),
+      debts: x.debts.map((debt) => ({
+        ...debt,
+        startDate: toDayjs(debt.startDate),
+      })),
+    })),
+  };
 }
 
 export const usePersonalFinances = (): UsePersonalFinancesResult => {
@@ -42,41 +79,12 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
         const plans = querySnapshot.docs.map((docSnap) => {
           const data = docSnap.data() as IFinancialPlan;
 
-          return {
-            id: docSnap.id,
-            name: data.name,
-            fixedExpenses:
-              data.fixedExpenses?.map((expense) => ({
-                ...expense,
-                startDate: dayjs(
-                  (expense.startDate as unknown as Timestamp).toDate()
-                ),
-              })) || [],
-            incomes:
-              data.incomes?.map((income) => ({
-                ...income,
-                startDate: dayjs(
-                  (income.startDate as unknown as Timestamp).toDate()
-                ),
-              })) || [],
-            financialSnapshots: data.financialSnapshots.map(
-              ({ date, debts, ...x }) => ({
-                ...x,
-                debts:
-                  debts?.map((debt) => ({
-                    ...debt,
-                    startDate: dayjs(
-                      (debt.startDate as unknown as Timestamp).toDate()
-                    ),
-                  })) || [],
-                date: dayjs((date as unknown as Timestamp).toDate()),
-              })
-            ),
-          };
+          return formatPlanToDayjs({ id: docSnap.id, ...data });
         });
 
         setFinancialPlans(plans);
       } catch (err) {
+        console.error(err);
         setError(err as Error);
       } finally {
         setIsLoading(false);
@@ -111,36 +119,34 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
               )
             );
 
-        const { id, fixedExpenses, incomes, ...rest } = financialPlan;
+        const { id, ...formattedFinancialPlan } =
+          formatPlanToTimestamp(financialPlan);
 
-        const formattedFinancialPlan: IFinancialPlan = {
-          ...rest,
-          fixedExpenses: fixedExpenses.map((expense) => ({
-            ...expense,
-            startDate: toTimestamp(expense.startDate),
-          })),
-          incomes: incomes.map((income) => ({
-            ...income,
-            startDate: toTimestamp(income.startDate),
-          })),
-          financialSnapshots: financialPlan.financialSnapshots.map((x) => ({
-            ...x,
-            date: toTimestamp(x.date),
-            debts: x.debts.map((debt) => ({
-              ...debt,
-              startDate: toTimestamp(debt.startDate),
-            })),
-          })),
-        };
+        formattedFinancialPlan.incomes.forEach((income, index, arr) => {
+          if (income.period !== 'single') {
+            delete arr[index].singleDate;
+          }
+        });
+
+        formattedFinancialPlan.fixedExpenses.forEach((expense, index, arr) => {
+          if (expense.expenseType !== 'single') {
+            delete arr[index].singleDate;
+          }
+        });
 
         await setDoc(docRef, formattedFinancialPlan);
 
+        const formattedFinancialPlanDayjs = formatPlanToDayjs(financialPlan);
+
         setFinancialPlans((prevState) =>
           id
-            ? prevState.map((plan) => (plan.id === id ? financialPlan : plan))
-            : [...prevState, { ...financialPlan, id: docRef.id }]
+            ? prevState.map((plan) =>
+                plan.id === id ? formattedFinancialPlanDayjs : plan
+              )
+            : [...prevState, { ...formattedFinancialPlanDayjs, id: docRef.id }]
         );
       } catch (err) {
+        console.error(err);
         setError(err as Error);
       } finally {
         setIsLoading(false);

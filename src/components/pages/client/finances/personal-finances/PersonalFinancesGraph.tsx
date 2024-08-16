@@ -85,6 +85,8 @@ function generatePredictions(
           return sum + income.amount;
         case 'yearly':
           return sum + income.amount / 12;
+        case 'single':
+          return sum + income.amount;
       }
     }, 0);
 

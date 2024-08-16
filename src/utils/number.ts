@@ -1,4 +1,7 @@
-export function formatCurrency(amount: number) {
+export function formatCurrency(amount: number | string) {
+  if (typeof amount === 'string') {
+    amount = parseFloat(amount);
+  }
   return (
     '$' +
     amount
@@ -8,6 +11,9 @@ export function formatCurrency(amount: number) {
   );
 }
 
-export function formatPercentage(amount: number) {
+export function formatPercentage(amount: number | string) {
+  if (typeof amount === 'string') {
+    amount = parseFloat(amount);
+  }
   return amount.toFixed(2) + '%';
 }

@@ -4,6 +4,7 @@ import IncomeEditDialog from './IncomeEditDialog';
 import { IIncome } from 'src/models/finances';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
+import dayjs from 'dayjs';
 
 interface Props {
   incomes: IIncome[];
@@ -13,10 +14,6 @@ interface Props {
 
 const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   const { t } = useTranslation();
-
-  const handleFormSubmit = (data: IIncome[]) => {
-    update(data);
-  };
 
   const total = useMemo(
     () =>
@@ -31,6 +28,10 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
                 return income.amount * 4;
               case 'yearly':
                 return income.amount / 12;
+              case 'single':
+                return dayjs(income.singleDate).month() === dayjs().month()
+                  ? income.amount
+                  : 0;
               default:
                 return 0;
             }
@@ -44,7 +45,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
     <Card sx={{ position: 'relative', height: '100%', minHeight: 175 }}>
       <IncomeEditDialog
         data={incomes}
-        onSubmit={handleFormSubmit}
+        onSubmit={update}
         sx={{ position: 'absolute', right: 8, top: 8 }}
         loading={isLoading}
       />

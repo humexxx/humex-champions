@@ -34,11 +34,16 @@ interface Resources {
             "interest": "Weighted Interest",
             "noDebts": "No debts found.",
             "dialog": {
+              "debt": "Debt",
+              "name": "Name",
               "title": "Edit monthly debt",
               "pendingDebt": "Pending Debt",
               "minPayment": "Min. Payment",
               "anualInterest": "Anual Interest",
-              "startDate": "Start Date"
+              "startDate": "Start Date",
+              "addDebt": "Add Debt",
+              "save": "Save",
+              "cancel": "Cancel"
             }
           },
           "incomes": {
@@ -53,10 +58,19 @@ interface Resources {
               "amount": "Amount",
               "startDate": "Start Date",
               "periods": {
+                "single": "Single",
                 "weekly": "Weekly",
                 "monthly": "Monthly",
                 "yearly": "Yearly"
-              }
+              },
+              "name": "Name",
+              "date": "Date",
+              "addIncome": "Add Income",
+              "save": "Save",
+              "cancel": "Cancel",
+              "useTrading": "Use Trading",
+              "useTradingHint": "Use the total P/L from the trading journal as income at the end of the month.",
+              "income": "Income"
             }
           },
           "fixedExpenses": {
@@ -70,11 +84,16 @@ interface Resources {
               "name": "Name",
               "expenseType": "Expense Type",
               "amount": "Amount",
-              "startDate": "Start Date",
+              "date": "Date",
               "expenseTypes": {
                 "primary": "Primary",
-                "secondary": "Secondary"
-              }
+                "secondary": "Secondary",
+                "single": "Single"
+              },
+              "addFixedExpense": "Add Fixed Expense",
+              "save": "Save",
+              "cancel": "Cancel",
+              "fixedExpense": "Fixed Expense"
             }
           }
         },
@@ -90,7 +109,6 @@ interface Resources {
           "totalPreviousDebt": "Total Previous Debt",
           "totalNewDebt": "Total New Debt",
           "newDebt": "New Debt",
-          "previousDebt": "Previous Debt",
           "confirm": "Confirm",
           "description": "A new debts estimate has been calculated based on the anual interest rates, the minimum payments, the incomes, the fixed expenses and the payment strategy. Please confirm the new debts."
         }

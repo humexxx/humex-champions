@@ -10,6 +10,7 @@ import FixedExpenseEditDialog from './FixedExpenseEditDialog';
 import { useTranslation } from 'react-i18next';
 import { IDebt, IFixedExpense } from 'src/models/finances';
 import { formatCurrency } from 'src/utils';
+import dayjs from 'dayjs';
 
 interface Props {
   personalFinancesId?: string;
@@ -27,10 +28,6 @@ const FixedExpenseCard = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const handleFormSubmit = (data: IFixedExpense[]) => {
-    update(data);
-  };
-
   const monthlyFixedDebt = useMemo(
     () => debts.reduce((acc, debt) => acc + debt.minimumPayment, 0),
     [debts]
@@ -38,10 +35,13 @@ const FixedExpenseCard = ({
 
   const total = useMemo(
     () =>
-      fixedExpenses.reduce(
-        (acc, fixedExpense) => acc + fixedExpense.amount,
-        0
-      ) + monthlyFixedDebt,
+      fixedExpenses.reduce((acc, fixedExpense) => {
+        if (fixedExpense.expenseType === 'single') {
+          return dayjs(fixedExpense.singleDate).month() === dayjs().month()
+            ? acc + fixedExpense.amount
+            : acc;
+        } else return acc + fixedExpense.amount;
+      }, 0) + monthlyFixedDebt,
     [fixedExpenses, monthlyFixedDebt]
   );
 
@@ -49,7 +49,7 @@ const FixedExpenseCard = ({
     <Card sx={{ position: 'relative', height: '100%', minHeight: 175 }}>
       <FixedExpenseEditDialog
         data={fixedExpenses}
-        onSubmit={handleFormSubmit}
+        onSubmit={update}
         sx={{ position: 'absolute', right: 8, top: 8 }}
         loading={isLoading}
       />
