@@ -9,7 +9,7 @@ import {
   IFinancialSnapshot,
   IFixedExpense,
   IIncome,
-} from 'src/types/models/finances';
+} from 'src/models/finances';
 import { SeriesValueFormatter } from '@mui/x-charts/internals';
 
 interface IDebtWithExtraPayment extends IDebt {

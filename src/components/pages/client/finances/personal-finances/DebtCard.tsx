@@ -3,7 +3,7 @@ import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import DebtEditDialog from './DebtEditDialog';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
-import { IDebt } from 'src/types/models/finances';
+import { IDebt } from 'src/models/finances';
 
 interface Props {
   debts: IDebt[];

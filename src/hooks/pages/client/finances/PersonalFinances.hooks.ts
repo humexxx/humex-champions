@@ -6,7 +6,7 @@ import {
   setDoc,
   Timestamp,
 } from 'firebase/firestore';
-import { IFinancialPlan } from 'src/types/models/finances';
+import { IFinancialPlan } from 'src/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
 import dayjs from 'dayjs';

@@ -2,7 +2,6 @@ import {
   Box,
   Breadcrumbs,
   Grid,
-  Grow,
   IconButton,
   Tab,
   Tooltip,
@@ -29,8 +28,9 @@ import {
   IFinancialPlan,
   IFixedExpense,
   IIncome,
-} from 'src/types/models/finances';
+} from 'src/models/finances';
 import dayjs from 'dayjs';
+import SwipeableViews from 'react-swipeable-views-react-18-fix';
 
 function getTabProps(id: string) {
   return {
@@ -206,20 +206,24 @@ const PersonalFinancesPage = () => {
               />
             </TabList>
           </Box>
-          {_financialPlans.map(
-            ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
-              const { debts } =
-                financialSnapshots[financialSnapshots.length - 1];
+          <SwipeableViews
+            index={Number(selectedTab)}
+            onChangeIndex={(i: number) => setSelectedTab(i.toString())}
+            containerStyle={{
+              transition: 'transform 0.35s cubic-bezier(0.15, 0.3, 0.25, 1) 0s',
+            }}
+          >
+            {_financialPlans.map(
+              ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
+                const { debts } =
+                  financialSnapshots[financialSnapshots.length - 1];
 
-              return (
-                <Grow
-                  key={`tab-panel-${id}`}
-                  in={selectedTab === i.toString()}
-                  timeout={250}
-                  mountOnEnter
-                  unmountOnExit
-                >
-                  <TabPanel value={i.toString()} sx={{ p: 0 }}>
+                return (
+                  <TabPanel
+                    key={`tab-panel-${id}`}
+                    value={i.toString()}
+                    sx={{ p: 2 }}
+                  >
                     <Grid container spacing={4}>
                       <Grid item xs={12} md={4}>
                         <DebtCard
@@ -254,10 +258,10 @@ const PersonalFinancesPage = () => {
                       </Grid>
                     </Grid>
                   </TabPanel>
-                </Grow>
-              );
-            }
-          )}
+                );
+              }
+            )}
+          </SwipeableViews>
         </TabContext>
       </Box>
 

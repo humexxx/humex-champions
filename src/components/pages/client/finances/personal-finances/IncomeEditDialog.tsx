@@ -26,7 +26,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { CurrencyField } from 'src/components/common/forms';
-import { IIncome } from 'src/types/models/finances';
+import { IIncome } from 'src/models/finances';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
