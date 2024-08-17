@@ -1,4 +1,4 @@
-import { alpha, Box, Typography, useTheme } from '@mui/material';
+import { alpha, Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,14 @@ import {
 } from 'src/models/finances';
 import { SeriesValueFormatter } from '@mui/x-charts/internals';
 import dayjs from 'dayjs';
+import { AVG_WEEKS_IN_MONTH } from 'src/consts';
+
+const NUMBER_OF_MONTHS_PAST_TO_SHOW = 2;
+const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
+  sm: 6,
+  md: 9,
+  lg: 12,
+};
 
 interface IDebtWithExtraPayment extends IDebt {
   extraPayment: number;
@@ -28,7 +36,7 @@ function applyAvalancheMethod(
     const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
 
     const payment =
-      surplus > 0
+      surplus >= 0
         ? Math.min(debt.minimumPayment + surplus, debt.pendingDebt + interest)
         : debt.minimumPayment;
 
@@ -54,7 +62,7 @@ function applySnowballMethod(
     const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
 
     const payment =
-      surplus > 0
+      surplus >= 0
         ? Math.min(debt.minimumPayment + surplus, debt.pendingDebt + interest)
         : debt.minimumPayment;
 
@@ -73,26 +81,33 @@ function generatePredictions(
   historicalSnapshots: IFinancialSnapshot[],
   fixedExpenses: IFixedExpense[],
   incomes: IIncome[],
+  viewSize: 'sm' | 'md' | 'lg',
   method = 'avalanche'
 ): IFinancialSnapshot[] {
   const snapshots = [...historicalSnapshots];
   let deficitCarryover = 0;
 
-  for (let i = historicalSnapshots.length; i < 12; i++) {
+  for (
+    let i = historicalSnapshots.length;
+    i <
+    NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize] + NUMBER_OF_MONTHS_PAST_TO_SHOW;
+    i++
+  ) {
     const previousSnapshot = snapshots[i - 1];
 
     const totalIncome = incomes.reduce((sum, income) => {
       switch (income.period) {
         case 'weekly':
-          return sum + income.amount * 4; // Aproximando semanas por mes
+          return sum + income.amount * AVG_WEEKS_IN_MONTH;
         case 'monthly':
           return sum + income.amount;
         case 'yearly':
-          return sum + income.amount / 12;
+          return dayjs(income.date).month() === previousSnapshot.date.month()
+            ? sum + income.amount
+            : sum;
         case 'single':
-          return dayjs(income.singleDate).month() ===
-            previousSnapshot.date.month() &&
-            dayjs(income.singleDate).year() === previousSnapshot.date.year()
+          return dayjs(income.date).month() === previousSnapshot.date.month() &&
+            dayjs(income.date).year() === previousSnapshot.date.year()
             ? sum + income.amount
             : sum;
       }
@@ -119,7 +134,7 @@ function generatePredictions(
     );
 
     // Restamos tanto los gastos fijos como los pagos mínimos de las deudas del total de ingresos
-    const surplus =
+    let surplus =
       totalIncome -
       totalFixedExpenses -
       totalMinimumPayments +
@@ -131,11 +146,38 @@ function generatePredictions(
     } else {
       newDebts = applySnowballMethod(previousSnapshot.debts, surplus);
     }
+
+    const totalBalanceInFavorForDebts = newDebts.reduce(
+      (sum, debt) => (debt.pendingDebt < 0 ? sum + debt.pendingDebt : sum),
+      0
+    );
+
+    surplus += totalBalanceInFavorForDebts * -1;
+
     deficitCarryover = surplus < 0 ? surplus : 0;
+
+    // Logs for debugging
+    // console.log(
+    //   'Iteration',
+    //   previousSnapshot.date.add(1, 'month').format('MMM-YYYY')
+    // );
+    // console.log('Total Income', totalIncome);
+    // console.log('Total Fixed Expenses', totalFixedExpenses);
+    // console.log('Total Minimum Payments', totalMinimumPayments);
+    // console.log('Surplus', surplus);
+    // console.log('Deficit Carryover', deficitCarryover);
+    // console.log(
+    //   'Total Balance in Favor for Debts',
+    //   totalBalanceInFavorForDebts
+    // );
+    // console.log('New Debts', newDebts);
+    // console.log('----------------------');
 
     snapshots.push({
       reviewed: false,
-      debts: newDebts.map(({ extraPayment, ...debt }) => debt),
+      debts: newDebts
+        .filter((x) => x.pendingDebt > 0)
+        .map(({ extraPayment, ...debt }) => debt),
       date: previousSnapshot.date.add(1, 'month'),
       surplus,
     });
@@ -149,9 +191,9 @@ function generateMissingHistoricalSnapshots(
 ): IFinancialSnapshot[] {
   const historicalSnapshots = [...snapshots];
 
-  if (snapshots.length < 4) {
+  if (snapshots.length < NUMBER_OF_MONTHS_PAST_TO_SHOW + 1) {
     const firstSnapshot = snapshots[0];
-    for (let i = snapshots.length; i < 4; i++) {
+    for (let i = snapshots.length; i < NUMBER_OF_MONTHS_PAST_TO_SHOW + 1; i++) {
       const newDate = firstSnapshot.date.subtract(
         i - snapshots.length + 1,
         'month'
@@ -189,24 +231,32 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
+  const isLg = useMediaQuery(theme.breakpoints.up('lg'));
+  const isMd = useMediaQuery(theme.breakpoints.up('md'));
+
+  const viewSize = isLg ? 'lg' : isMd ? 'md' : 'sm';
+
   const _financialPlans = useMemo(
     () =>
       financialPlans.map((plan) => {
         const snapshots = generatePredictions(
           generateMissingHistoricalSnapshots(plan.financialSnapshots),
           plan.fixedExpenses,
-          plan.incomes
+          plan.incomes,
+          viewSize
         );
         return { ...plan, financialSnapshots: snapshots };
       }),
-    [financialPlans]
+    [financialPlans, viewSize]
   );
 
   const datasets = useMemo(
     () =>
       _financialPlans.map((plan, index) => {
-        const debtsTotal = plan.financialSnapshots.map((snapshot) =>
-          snapshot.debts.reduce((sum, debt) => sum + debt.pendingDebt, 0)
+        const debtsTotal = plan.financialSnapshots.map(
+          (snapshot) =>
+            snapshot.debts.reduce((sum, debt) => sum + debt.pendingDebt, 0) +
+            (snapshot.surplus < 0 ? snapshot.surplus * -1 : 0)
         );
 
         return {
@@ -252,7 +302,10 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
         ]}
         slots={{ line: DashedGraph }}
         slotProps={{
-          line: { limit: 3, sxAfter: { strokeDasharray: '5 5' } } as any,
+          line: {
+            limit: NUMBER_OF_MONTHS_PAST_TO_SHOW,
+            sxAfter: { strokeDasharray: '5 5' },
+          } as any,
         }}
       />
       <Box mt={2}>

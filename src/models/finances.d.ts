@@ -10,7 +10,7 @@ export interface IIncome {
   amount: number;
   period: 'single' | 'weekly' | 'monthly' | 'yearly';
   name: string;
-  singleDate?: Dayjs;
+  date?: Dayjs;
 }
 
 export interface IFixedExpense {

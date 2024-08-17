@@ -1,5 +1,6 @@
 import { Timestamp } from 'firebase-admin/firestore';
 import { IDebt, IFinancialSnapshot, IFixedExpense, IIncome } from './types';
+import { AVG_WEEKS_IN_MONTH } from '../consts';
 
 // Función para aplicar el método Avalanche
 export function applyAvalancheMethod(debts: IDebt[], surplus: number): IDebt[] {
@@ -29,15 +30,16 @@ export function generateSingleSnapshot(
   const totalIncome = incomes.reduce((sum, income) => {
     switch (income.period) {
       case 'weekly':
-        return sum + income.amount * 4;
+        return sum + income.amount * AVG_WEEKS_IN_MONTH;
       case 'monthly':
         return sum + income.amount;
       case 'yearly':
-        return sum + income.amount / 12;
+        return income.date?.toDate().getMonth() === new Date().getMonth()
+          ? sum + income.amount
+          : sum;
       case 'single':
-        return income.singleDate?.toDate().getMonth() ===
-          new Date().getMonth() &&
-          income.singleDate?.toDate().getFullYear() === new Date().getFullYear()
+        return income.date?.toDate().getMonth() === new Date().getMonth() &&
+          income.date?.toDate().getFullYear() === new Date().getFullYear()
           ? sum + income.amount
           : sum;
     }

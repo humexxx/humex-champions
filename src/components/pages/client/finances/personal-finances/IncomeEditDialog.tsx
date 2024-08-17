@@ -70,7 +70,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
               )
               .required(t('commonValidations.required'))
               .nonNullable(),
-            singleDate: yup.date().nullable(),
+            date: yup.date().nullable(),
           })
         ),
         useTrading: yup.boolean().default(true),
@@ -203,18 +203,20 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                               : 'text.secondary'
                           }
                         >
-                          {
+                          {incomes![index].period === 'single' ? (
+                            dayjs(incomes![index].date).format('DD MMM YYYY')
+                          ) : incomes![index].period === 'yearly' ? (
+                            `${t('finances.personalFinances.header.incomes.dialog.yearlyOn')} ${dayjs(
+                              incomes![index].date
+                            ).format('DD MMM')}`
+                          ) : (
                             <Box
                               component="span"
                               sx={{ textTransform: 'capitalize' }}
                             >
-                              {incomes![index].period !== 'single'
-                                ? incomes![index].period
-                                : dayjs(incomes![index].singleDate).format(
-                                    'DD MMM YYYY'
-                                  )}
+                              {incomes![index].period}
                             </Box>
-                          }
+                          )}
                         </Typography>
                       </Box>
                       <Box display="flex" alignItems="center">
@@ -328,22 +330,26 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                         )}
                       />
                     </Grid>
-                    {Boolean(incomes![index].period === 'single') && (
+                    {Boolean(
+                      incomes![index].period === 'single' ||
+                        incomes![index].period === 'yearly'
+                    ) && (
                       <Grid item xs={4}>
                         <Controller
-                          name={`incomes.${index}.singleDate`}
+                          name={`incomes.${index}.date`}
                           control={control}
                           render={({ field }) => (
                             <DatePicker
                               {...field}
+                              value={field.value ?? null}
                               slotProps={{
                                 textField: {
                                   fullWidth: true,
                                   size: 'small',
-                                  error: !!errors?.incomes?.[index]?.singleDate,
+                                  error: !!errors?.incomes?.[index]?.date,
                                   helperText:
-                                    errors?.incomes?.[index]?.singleDate
-                                      ?.message || ' ',
+                                    errors?.incomes?.[index]?.date?.message ||
+                                    ' ',
                                   margin: 'dense',
                                   variant: 'filled',
                                 },

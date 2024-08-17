@@ -30,8 +30,8 @@ interface Resources {
           "debts": {
             "title": "Debts",
             "total": "Total",
-            "minimumPayment": "Min. Payment",
-            "interest": "Weighted Interest",
+            "minimumPayment": "Min. payment",
+            "interest": "Weighted interest",
             "noDebts": "No debts found.",
             "dialog": {
               "debt": "Debt",
@@ -50,7 +50,7 @@ interface Resources {
             "title": "Income",
             "total": "Total",
             "month": "month",
-            "sources": "Sources",
+            "nextExtraordinaryPayment": "Next extraordinary payment",
             "noIncome": "No income found.",
             "dialog": {
               "title": "Edit monthly income",
@@ -70,13 +70,14 @@ interface Resources {
               "cancel": "Cancel",
               "useTrading": "Use Trading",
               "useTradingHint": "Use the total P/L from the trading journal as income at the end of the month.",
-              "income": "Income"
+              "income": "Income",
+              "yearlyOn": "Yearly on"
             }
           },
           "fixedExpenses": {
             "title": "Fixed Expenses",
             "total": "Total",
-            "fixedMonthlyDebt": "Fixed Debt",
+            "fixedMonthlyDebt": "Fixed debt",
             "fixedMonthlyDebtHint": "Monthly minimum payment of debts required to avoid penalties.",
             "noFixedExpenses": "No fixed expenses found.",
             "dialog": {

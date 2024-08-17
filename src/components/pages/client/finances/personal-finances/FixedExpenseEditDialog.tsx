@@ -334,6 +334,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                           render={({ field }) => (
                             <DatePicker
                               {...field}
+                              value={field.value ?? null}
                               slotProps={{
                                 textField: {
                                   fullWidth: true,

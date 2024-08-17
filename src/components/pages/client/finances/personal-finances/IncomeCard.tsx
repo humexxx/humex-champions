@@ -5,6 +5,7 @@ import { IIncome } from 'src/models/finances';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 import dayjs from 'dayjs';
+import { AVG_WEEKS_IN_MONTH } from 'src/consts';
 
 interface Props {
   incomes: IIncome[];
@@ -25,12 +26,14 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
               case 'monthly':
                 return income.amount;
               case 'weekly':
-                return income.amount * 4;
+                return income.amount * AVG_WEEKS_IN_MONTH;
               case 'yearly':
-                return income.amount / 12;
+                return dayjs(income.date).month() === dayjs().month()
+                  ? income.amount
+                  : 0;
               case 'single':
-                return dayjs(income.singleDate).month() === dayjs().month() &&
-                  dayjs(income.singleDate).year() === dayjs().year()
+                return dayjs(income.date).month() === dayjs().month() &&
+                  dayjs(income.date).year() === dayjs().year()
                   ? income.amount
                   : 0;
               default:
@@ -39,6 +42,14 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
           })(income),
         0
       ),
+    [incomes]
+  );
+
+  const nextExtraordinaryIncome: IIncome | null = useMemo(
+    () =>
+      incomes
+        .filter((income) => income.date)
+        .sort((a, b) => a.date.diff(b.date))[0],
     [incomes]
   );
 
@@ -65,10 +76,16 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
               {t('finances.personalFinances.header.incomes.total')}:{' '}
               {formatCurrency(total)}
             </Typography>
-            <Typography variant="body2">
-              {t('finances.personalFinances.header.incomes.sources')}:{' '}
-              {incomes.length}
-            </Typography>
+            {Boolean(nextExtraordinaryIncome) && (
+              <Typography variant="body2">
+                {t(
+                  'finances.personalFinances.header.incomes.nextExtraordinaryPayment'
+                )}
+                : {formatCurrency(nextExtraordinaryIncome!.amount)}
+                {' - '}
+                {dayjs(nextExtraordinaryIncome!.date).format('DD MMM YYYY')}
+              </Typography>
+            )}
           </>
         ) : (
           <Typography variant="body2" color="text.secondary">

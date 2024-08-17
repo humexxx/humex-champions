@@ -20,7 +20,7 @@ export interface IIncome {
   name: string;
   amount: number;
   period: 'single' | 'weekly' | 'monthly' | 'yearly';
-  singleDate?: Timestamp;
+  date?: Timestamp;
 }
 
 export interface IFixedExpense {

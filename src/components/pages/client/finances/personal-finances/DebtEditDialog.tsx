@@ -261,6 +261,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         render={({ field }) => (
                           <DatePicker
                             {...field}
+                            value={field.value ?? null}
                             slotProps={{
                               textField: {
                                 fullWidth: true,
