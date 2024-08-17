@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase-admin/firestore';
+
 export interface IFinancialPlan {
   id?: string | null;
   name: string;
@@ -7,27 +9,29 @@ export interface IFinancialPlan {
 }
 
 export interface IDebt {
+  name: string;
   pendingDebt: number;
   minimumPayment: number;
   annualInterest: number;
-  startDate: any;
+  startDate: Timestamp;
 }
 
 export interface IIncome {
+  name: string;
   amount: number;
-  period: 'weekly' | 'monthly' | 'yearly';
-  startDate: any;
+  period: 'single' | 'weekly' | 'monthly' | 'yearly';
+  singleDate?: Timestamp;
 }
 
 export interface IFixedExpense {
   amount: number;
-  expenseType: 'primary' | 'secondary';
+  expenseType: 'single' | 'primary' | 'secondary';
   name: string;
-  startDate: any;
+  singleDate?: Timestamp;
 }
 
 export interface IFinancialSnapshot {
   debts: IDebt[];
-  date: any;
+  date: Timestamp;
   reviewed?: boolean;
 }

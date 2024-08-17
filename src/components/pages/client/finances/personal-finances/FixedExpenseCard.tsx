@@ -36,11 +36,18 @@ const FixedExpenseCard = ({
   const total = useMemo(
     () =>
       fixedExpenses.reduce((acc, fixedExpense) => {
-        if (fixedExpense.expenseType === 'single') {
-          return dayjs(fixedExpense.singleDate).month() === dayjs().month()
-            ? acc + fixedExpense.amount
-            : acc;
-        } else return acc + fixedExpense.amount;
+        switch (fixedExpense.expenseType) {
+          case 'single':
+            return dayjs(fixedExpense.singleDate).get('month') ===
+              dayjs().get('month') &&
+              dayjs(fixedExpense.singleDate).get('year') === dayjs().get('year')
+              ? acc + fixedExpense.amount
+              : acc;
+          case 'primary':
+            return acc + fixedExpense.amount;
+          case 'secondary':
+            return acc + fixedExpense.amount;
+        }
       }, 0) + monthlyFixedDebt,
     [fixedExpenses, monthlyFixedDebt]
   );

@@ -37,13 +37,30 @@ export function generateSingleSnapshot(
         return sum + income.amount;
       case 'yearly':
         return sum + income.amount / 12;
+      case 'single':
+        return income.singleDate?.toDate().getMonth() ===
+          new Date().getMonth() &&
+          income.singleDate?.toDate().getFullYear() === new Date().getFullYear()
+          ? sum + income.amount
+          : sum;
     }
   }, 0);
 
-  const totalFixedExpenses = fixedExpenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0
-  );
+  const totalFixedExpenses = fixedExpenses.reduce((sum, expense) => {
+    switch (expense.expenseType) {
+      case 'single':
+        return expense.singleDate?.toDate().getMonth() ===
+          new Date().getMonth() &&
+          expense.singleDate?.toDate().getFullYear() ===
+            new Date().getFullYear()
+          ? sum + expense.amount
+          : sum;
+      case 'primary':
+        return sum + expense.amount;
+      case 'secondary':
+        return sum + expense.amount;
+    }
+  }, 0);
 
   const totalMinimumPayments = lastSnapshot.debts.reduce(
     (sum, debt) => sum + debt.minimumPayment,

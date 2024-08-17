@@ -29,7 +29,8 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
               case 'yearly':
                 return income.amount / 12;
               case 'single':
-                return dayjs(income.singleDate).month() === dayjs().month()
+                return dayjs(income.singleDate).month() === dayjs().month() &&
+                  dayjs(income.singleDate).year() === dayjs().year()
                   ? income.amount
                   : 0;
               default:

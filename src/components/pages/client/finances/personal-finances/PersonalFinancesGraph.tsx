@@ -11,6 +11,7 @@ import {
   IIncome,
 } from 'src/models/finances';
 import { SeriesValueFormatter } from '@mui/x-charts/internals';
+import dayjs from 'dayjs';
 
 interface IDebtWithExtraPayment extends IDebt {
   extraPayment: number;
@@ -86,14 +87,26 @@ function generatePredictions(
         case 'yearly':
           return sum + income.amount / 12;
         case 'single':
-          return sum + income.amount;
+          return dayjs(income.singleDate).month() === dayjs().month() &&
+            dayjs(income.singleDate).year() === dayjs().year()
+            ? sum + income.amount
+            : sum;
       }
     }, 0);
 
-    const totalFixedExpenses = fixedExpenses.reduce(
-      (sum, expense) => sum + expense.amount,
-      0
-    );
+    const totalFixedExpenses = fixedExpenses.reduce((sum, expense) => {
+      switch (expense.expenseType) {
+        case 'single':
+          return dayjs(expense.singleDate).month() === dayjs().month() &&
+            dayjs(expense.singleDate).year() === dayjs().year()
+            ? sum + expense.amount
+            : sum;
+        case 'primary':
+          return sum + expense.amount;
+        case 'secondary':
+          return sum + expense.amount;
+      }
+    }, 0);
 
     const totalMinimumPayments = previousSnapshot.debts.reduce(
       (sum, debt) => sum + debt.minimumPayment,
