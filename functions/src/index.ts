@@ -4,3 +4,5 @@ admin.initializeApp();
 
 export * from './adminFunctions';
 export * from './userFunctions';
+
+export * from './finances';

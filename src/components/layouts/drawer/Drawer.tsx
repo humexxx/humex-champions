@@ -11,6 +11,7 @@ import {
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
 import FlagIcon from '@mui/icons-material/Flag';
 import GroupIcon from '@mui/icons-material/Group';
 import PeopleIcon from '@mui/icons-material/People';
@@ -24,22 +25,28 @@ const Drawer = () => {
   const mainMenuItems = useMemo(
     () => [
       {
-        text: t('routes.dashboard'),
+        text: t('dashboard.title'),
         icon: <DashboardIcon />,
         path: '/client/dashboard',
       },
       {
-        text: t('routes.finances'),
+        text: t('finances.title'),
         icon: <AccountBalanceIcon />,
         path: '/client/finances',
       },
       {
-        text: t('routes.health'),
+        text: t('health.title'),
         icon: <HealthAndSafetyIcon />,
         path: '/client/health',
         disabled: true,
       },
-      { text: t('routes.goals'), icon: <FlagIcon />, path: '/client/goals' },
+      { text: t('goals.title'), icon: <FlagIcon />, path: '/client/goals' },
+      {
+        text: t('entretaiment.title'),
+        icon: <AddReactionIcon />,
+        path: '/client/entretainment',
+        disabled: true,
+      },
     ],
     [t]
   );
@@ -47,11 +54,11 @@ const Drawer = () => {
   const secondaryMenuItems = useMemo(
     () => [
       {
-        text: t('routes.members'),
+        text: t('members.title'),
         icon: <PeopleIcon />,
         path: '/client/members',
       },
-      { text: t('routes.groups'), icon: <GroupIcon />, path: '/client/groups' },
+      { text: t('groups.title'), icon: <GroupIcon />, path: '/client/groups' },
     ],
     [t]
   );

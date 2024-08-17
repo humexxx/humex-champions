@@ -18,7 +18,7 @@ const TradingJournalPage = () => {
           unstable_viewTransition
           style={{ textDecoration: 'none' }}
         >
-          {t('routes.finances')}
+          {t('finances.title')}
         </Link>
         <Typography
           variant="h6"

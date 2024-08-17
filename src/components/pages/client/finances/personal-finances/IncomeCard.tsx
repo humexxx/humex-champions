@@ -1,85 +1,80 @@
-import { FC, useMemo, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Divider,
-  IconButton,
-  Box,
-  Collapse,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useMemo } from 'react';
+import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import IncomeEditDialog from './IncomeEditDialog';
-import { IIncome, IncomeCardProps } from './PersonalFinances.types';
+import { IIncome } from 'src/models/finances';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency } from 'src/utils';
+import dayjs from 'dayjs';
 
-const calculateMonthlyIncome = (income: IIncome) => {
-  switch (income.period) {
-    case 'monthly':
-      return income.amount;
-    case 'weekly':
-      return income.amount * 4;
-    case 'yearly':
-      return income.amount / 12;
-    default:
-      return 0;
-  }
-};
+interface Props {
+  incomes: IIncome[];
+  isLoading: boolean;
+  update: (data: IIncome[]) => void;
+}
 
-const IncomeCard = ({ incomes: data }: IncomeCardProps) => {
-  const [incomes, setIncomes] = useState<IIncome[]>(data);
+const IncomeCard = ({ incomes, isLoading, update }: Props) => {
+  const { t } = useTranslation();
 
-  const [expanded, setExpanded] = useState(false);
-
-  const handleFormSubmit = (data: IIncome[]) => {
-    setIncomes(data);
-  };
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
-  const totalIncome = useMemo(
+  const total = useMemo(
     () =>
-      incomes.reduce((acc, income) => acc + calculateMonthlyIncome(income), 0),
+      incomes.reduce(
+        (acc, income) =>
+          acc +
+          ((income: IIncome) => {
+            switch (income.period) {
+              case 'monthly':
+                return income.amount;
+              case 'weekly':
+                return income.amount * 4;
+              case 'yearly':
+                return income.amount / 12;
+              case 'single':
+                return dayjs(income.singleDate).month() === dayjs().month() &&
+                  dayjs(income.singleDate).year() === dayjs().year()
+                  ? income.amount
+                  : 0;
+              default:
+                return 0;
+            }
+          })(income),
+        0
+      ),
     [incomes]
   );
 
   return (
-    <Card>
+    <Card sx={{ position: 'relative', height: '100%', minHeight: 175 }}>
+      <IncomeEditDialog
+        data={incomes}
+        onSubmit={update}
+        sx={{ position: 'absolute', right: 8, top: 8 }}
+        loading={isLoading}
+      />
       <CardContent>
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Typography variant="h5">Incomes</Typography>
-          <IncomeEditDialog data={incomes} onSubmit={handleFormSubmit} />
-        </Grid>
-        <Typography variant="h6">~${totalIncome.toFixed(2)}/month</Typography>
-        <Collapse in={expanded}>
-          <Box mt={2}>
-            {incomes.map((income, index) => (
-              <Box key={index}>
-                <Typography variant="body2">
-                  Amount: ${income.amount}
-                </Typography>
-                <Typography variant="body2">
-                  Period:{' '}
-                  {income.period.charAt(0).toUpperCase() +
-                    income.period.slice(1)}
-                </Typography>
-                {index < incomes.length - 1 && <Divider sx={{ my: 2 }} />}
-              </Box>
-            ))}
-          </Box>
-        </Collapse>
-        <Grid container justifyContent="flex-end">
-          <IconButton onClick={handleExpandClick}>
-            <ExpandMoreIcon
-              sx={{
-                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.3s',
-              }}
-            />
-          </IconButton>
-        </Grid>
+        <Typography variant="body1" component="h3" mb={2}>
+          <strong>{t('finances.personalFinances.header.incomes.title')}</strong>
+        </Typography>
+        {isLoading ? (
+          <>
+            <Skeleton width="60%" height={32} />
+            <Skeleton width="50%" height={24} />
+          </>
+        ) : incomes.length ? (
+          <>
+            <Typography component="h6" variant="body1" gutterBottom>
+              {t('finances.personalFinances.header.incomes.total')}:{' '}
+              {formatCurrency(total)}
+            </Typography>
+            <Typography variant="body2">
+              {t('finances.personalFinances.header.incomes.sources')}:{' '}
+              {incomes.length}
+            </Typography>
+          </>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            {t('finances.personalFinances.header.incomes.noIncome')}
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );
