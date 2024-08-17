@@ -34,4 +34,5 @@ export interface IFinancialSnapshot {
   debts: IDebt[];
   date: Timestamp;
   reviewed?: boolean;
+  surplus: number;
 }

@@ -31,5 +31,6 @@ export interface IFinancialPlan {
 export interface IFinancialSnapshot {
   debts: IDebt[];
   date: Dayjs;
+  surplus: number;
   reviewed: boolean;
 }

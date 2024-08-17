@@ -27,6 +27,7 @@ function formatPlanToTimestamp(plan: IFinancialPlan): IFinancialPlan {
     })),
     financialSnapshots: plan.financialSnapshots.map((x) => ({
       ...x,
+      surplus: Number(x.surplus),
       date: toTimestamp(x.date),
       debts: x.debts.map((debt) => ({
         ...debt,
@@ -54,6 +55,7 @@ function formatPlanToDayjs(plan: IFinancialPlan): IFinancialPlan {
     })),
     financialSnapshots: plan.financialSnapshots.map((x) => ({
       ...x,
+      surplus: Number(x.surplus),
       date: toDayjs(x.date),
       debts: x.debts.map((debt) => ({
         ...debt,

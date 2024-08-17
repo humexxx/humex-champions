@@ -19,20 +19,21 @@ interface IDebtWithExtraPayment extends IDebt {
 
 function applyAvalancheMethod(
   debts: IDebt[],
-  remaining: number
+  surplus: number
 ): IDebtWithExtraPayment[] {
   // Ordenar las deudas por el interés anual más alto primero
   const sortedDebts = debts.sort((a, b) => b.annualInterest - a.annualInterest);
 
   return sortedDebts.map((debt) => {
     const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
-    const payment = Math.min(
-      debt.minimumPayment + remaining,
-      debt.pendingDebt + interest
-    );
+
+    const payment =
+      surplus > 0
+        ? Math.min(debt.minimumPayment + surplus, debt.pendingDebt + interest)
+        : debt.minimumPayment;
 
     const extraPayment = Math.max(payment - debt.minimumPayment, 0);
-    remaining -= extraPayment;
+    surplus -= extraPayment;
 
     return {
       ...debt,
@@ -44,20 +45,21 @@ function applyAvalancheMethod(
 
 function applySnowballMethod(
   debts: IDebt[],
-  remaining: number
+  surplus: number
 ): IDebtWithExtraPayment[] {
   // Ordenar las deudas por el saldo pendiente más bajo primero
   const sortedDebts = debts.sort((a, b) => a.pendingDebt - b.pendingDebt);
 
   return sortedDebts.map((debt) => {
     const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
-    const payment = Math.min(
-      debt.minimumPayment + remaining,
-      debt.pendingDebt + interest
-    );
+
+    const payment =
+      surplus > 0
+        ? Math.min(debt.minimumPayment + surplus, debt.pendingDebt + interest)
+        : debt.minimumPayment;
 
     const extraPayment = Math.max(payment - debt.minimumPayment, 0);
-    remaining -= extraPayment;
+    surplus -= extraPayment;
 
     return {
       ...debt,
@@ -74,6 +76,7 @@ function generatePredictions(
   method = 'avalanche'
 ): IFinancialSnapshot[] {
   const snapshots = [...historicalSnapshots];
+  let deficitCarryover = 0;
 
   for (let i = historicalSnapshots.length; i < 12; i++) {
     const previousSnapshot = snapshots[i - 1];
@@ -116,19 +119,25 @@ function generatePredictions(
     );
 
     // Restamos tanto los gastos fijos como los pagos mínimos de las deudas del total de ingresos
-    const remaining = totalIncome - totalFixedExpenses - totalMinimumPayments;
+    const surplus =
+      totalIncome -
+      totalFixedExpenses -
+      totalMinimumPayments +
+      deficitCarryover;
 
     let newDebts: IDebtWithExtraPayment[];
     if (method === 'avalanche') {
-      newDebts = applyAvalancheMethod(previousSnapshot.debts, remaining);
+      newDebts = applyAvalancheMethod(previousSnapshot.debts, surplus);
     } else {
-      newDebts = applySnowballMethod(previousSnapshot.debts, remaining);
+      newDebts = applySnowballMethod(previousSnapshot.debts, surplus);
     }
+    deficitCarryover = surplus < 0 ? surplus : 0;
 
     snapshots.push({
       reviewed: false,
       debts: newDebts.map(({ extraPayment, ...debt }) => debt),
       date: previousSnapshot.date.add(1, 'month'),
+      surplus,
     });
   }
 

@@ -2,20 +2,17 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { IDebt, IFinancialSnapshot, IFixedExpense, IIncome } from './types';
 
 // Función para aplicar el método Avalanche
-export function applyAvalancheMethod(
-  debts: IDebt[],
-  remaining: number
-): IDebt[] {
+export function applyAvalancheMethod(debts: IDebt[], surplus: number): IDebt[] {
   const sortedDebts = debts.sort((a, b) => b.annualInterest - a.annualInterest);
 
   return sortedDebts.map((debt) => {
     const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
-    const payment = Math.min(
-      debt.minimumPayment + remaining,
-      debt.pendingDebt + interest
-    );
+    const payment =
+      surplus > 0
+        ? Math.min(debt.minimumPayment + surplus, debt.pendingDebt + interest)
+        : debt.minimumPayment;
 
-    remaining -= Math.max(payment - debt.minimumPayment, 0);
+    surplus -= Math.max(payment - debt.minimumPayment, 0);
 
     return {
       ...debt,
@@ -67,12 +64,16 @@ export function generateSingleSnapshot(
     0
   );
 
-  const remaining = totalIncome - totalFixedExpenses - totalMinimumPayments;
-  const newDebts = applyAvalancheMethod(lastSnapshot.debts, remaining);
+  const carryover = lastSnapshot.surplus < 0 ? lastSnapshot.surplus : 0;
+
+  const surplus =
+    totalIncome - totalFixedExpenses - totalMinimumPayments + carryover;
+  const newDebts = applyAvalancheMethod(lastSnapshot.debts, surplus);
 
   return {
     reviewed: false,
     debts: newDebts,
     date: Timestamp.now() as any,
+    surplus,
   };
 }
