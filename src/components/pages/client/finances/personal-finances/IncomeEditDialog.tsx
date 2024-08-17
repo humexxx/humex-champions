@@ -113,7 +113,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   }
 
   useEffect(() => {
-    setValue('incomes', data);
+    setValue('incomes', data.sort((x) => x.amount).reverse());
   }, [data, setValue]);
 
   const incomes = watch('incomes');

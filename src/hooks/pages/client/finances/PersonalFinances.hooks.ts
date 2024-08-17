@@ -17,10 +17,12 @@ function formatPlanToTimestamp(plan: IFinancialPlan): IFinancialPlan {
     ...plan,
     fixedExpenses: plan.fixedExpenses.map((expense) => ({
       ...expense,
+      amount: Number(expense.amount),
       singleDate: toTimestamp(expense.singleDate),
     })),
     incomes: plan.incomes.map((income) => ({
       ...income,
+      amount: Number(income.amount),
       singleDate: toTimestamp(income.singleDate),
     })),
     financialSnapshots: plan.financialSnapshots.map((x) => ({
@@ -28,6 +30,9 @@ function formatPlanToTimestamp(plan: IFinancialPlan): IFinancialPlan {
       date: toTimestamp(x.date),
       debts: x.debts.map((debt) => ({
         ...debt,
+        pendingDebt: Number(debt.pendingDebt),
+        annualInterest: Number(debt.annualInterest),
+        minimumPayment: Number(debt.minimumPayment),
         startDate: toTimestamp(debt.startDate),
       })),
     })),
@@ -39,10 +44,12 @@ function formatPlanToDayjs(plan: IFinancialPlan): IFinancialPlan {
     ...plan,
     fixedExpenses: plan.fixedExpenses.map((expense) => ({
       ...expense,
+      amount: Number(expense.amount),
       singleDate: toDayjs(expense.singleDate),
     })),
     incomes: plan.incomes.map((income) => ({
       ...income,
+      amount: Number(income.amount),
       singleDate: toDayjs(income.singleDate),
     })),
     financialSnapshots: plan.financialSnapshots.map((x) => ({
@@ -50,6 +57,9 @@ function formatPlanToDayjs(plan: IFinancialPlan): IFinancialPlan {
       date: toDayjs(x.date),
       debts: x.debts.map((debt) => ({
         ...debt,
+        pendingDebt: Number(debt.pendingDebt),
+        annualInterest: Number(debt.annualInterest),
+        minimumPayment: Number(debt.minimumPayment),
         startDate: toDayjs(debt.startDate),
       })),
     })),

@@ -87,8 +87,9 @@ function generatePredictions(
         case 'yearly':
           return sum + income.amount / 12;
         case 'single':
-          return dayjs(income.singleDate).month() === dayjs().month() &&
-            dayjs(income.singleDate).year() === dayjs().year()
+          return dayjs(income.singleDate).month() ===
+            previousSnapshot.date.month() &&
+            dayjs(income.singleDate).year() === previousSnapshot.date.year()
             ? sum + income.amount
             : sum;
       }
@@ -97,8 +98,9 @@ function generatePredictions(
     const totalFixedExpenses = fixedExpenses.reduce((sum, expense) => {
       switch (expense.expenseType) {
         case 'single':
-          return dayjs(expense.singleDate).month() === dayjs().month() &&
-            dayjs(expense.singleDate).year() === dayjs().year()
+          return dayjs(expense.singleDate).month() ===
+            previousSnapshot.date.month() &&
+            dayjs(expense.singleDate).year() === previousSnapshot.date.year()
             ? sum + expense.amount
             : sum;
         case 'primary':
