@@ -5,6 +5,10 @@ interface Resources {
       "en": "English",
       "es": "Spanish"
     },
+    "common": {
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    },
     "commonValidations": {
       "required": "Required field",
       "positiveNumber": "Field must be greater than 0",
@@ -120,6 +124,8 @@ interface Resources {
         "day": "Day",
         "week": "Week",
         "month": "Month",
+        "formIsDirtyTitle": "Unsaved changes",
+        "formIsDirtyDescription": "You have unsaved changes. Are you sure you want to proceed?",
         "editPanel": {
           "pl": "P/L",
           "instrument": "Instrument",

@@ -21,9 +21,10 @@ import { ITrade } from 'src/models/finances';
 type Props = {
   trades: ITrade[];
   onSubmit: (trades: ITrade[]) => void;
+  formIsDirtyOnChange: (isDirty: boolean) => void;
 };
 
-const EditPanel = ({ trades, onSubmit }: Props) => {
+const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(() => {
     return yup.object().shape({
@@ -49,8 +50,9 @@ const EditPanel = ({ trades, onSubmit }: Props) => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     setValue,
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -86,10 +88,16 @@ const EditPanel = ({ trades, onSubmit }: Props) => {
   }, [totalPages]);
 
   useEffect(() => {
+    reset();
     const _trades = [...trades];
     if (!_trades.length) _trades.push({ pl: 0, instrument: '' });
     setValue('trades', _trades);
-  }, [trades, setValue]);
+  }, [trades, setValue, reset]);
+
+  useEffect(() => {
+    formIsDirtyOnChange(isDirty);
+    return () => formIsDirtyOnChange(false);
+  }, [isDirty, formIsDirtyOnChange]);
 
   return (
     <Box component="form" onSubmit={handleSubmit(_onSubmit)}>

@@ -7,9 +7,10 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { ConfirmDialog } from 'src/components/common';
 import {
   Calendar,
   EditPanel,
@@ -24,11 +25,14 @@ const TradingJournalPage = () => {
   const { t } = useTranslation();
   useDocumentMetadata(`${t('finances.tradingJournal.title')} - Champions`);
   const [filter, setFilter] = useState<'day' | 'week' | 'month'>('day');
+  const pendingFilter = useRef<'day' | 'week' | 'month'>('day');
   const [day, setDay] = useState<Dayjs>(dayjs());
   const [prevMonth, setPrevMonth] = useState<string | null>(null);
   const { loading, journal, getTradingJournalByMonth, addTradesForDay } =
     useTradingJournal();
   const [trades, setTrades] = useState<ITrade[]>([]);
+  const [formIsDirty, setFormIsDirty] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const currentMonth = day.format('YYYY-MM');
@@ -60,8 +64,27 @@ const TradingJournalPage = () => {
     [trades]
   );
 
+  const handleFilterChange = (filter: 'day' | 'week' | 'month') => () => {
+    if (formIsDirty) {
+      pendingFilter.current = filter;
+      setDialogOpen(true);
+    } else {
+      setFilter(filter);
+    }
+  };
+
   return (
     <>
+      <ConfirmDialog
+        title={t('finances.tradingJournal.formIsDirtyTitle')}
+        description={t('finances.tradingJournal.formIsDirtyDescription')}
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onConfirm={() => {
+          setFilter(pendingFilter.current);
+          setDialogOpen(false);
+        }}
+      />
       <Breadcrumbs aria-label="navigator">
         <Link
           to="/client/finances"
@@ -85,19 +108,19 @@ const TradingJournalPage = () => {
             <ButtonGroup aria-label="filter" disableElevation>
               <Button
                 variant={filter === 'day' ? 'contained' : 'outlined'}
-                onClick={() => setFilter('day')}
+                onClick={handleFilterChange('day')}
               >
                 {t('finances.tradingJournal.day')}
               </Button>
               <Button
                 variant={filter === 'week' ? 'contained' : 'outlined'}
-                onClick={() => setFilter('week')}
+                onClick={handleFilterChange('week')}
               >
                 {t('finances.tradingJournal.week')}
               </Button>
               <Button
                 variant={filter === 'month' ? 'contained' : 'outlined'}
-                onClick={() => setFilter('month')}
+                onClick={handleFilterChange('month')}
               >
                 {t('finances.tradingJournal.month')}
               </Button>
@@ -117,6 +140,7 @@ const TradingJournalPage = () => {
           <Grid item xs={12} md={6}>
             {Boolean(filter === 'day') && (
               <EditPanel
+                formIsDirtyOnChange={setFormIsDirty}
                 trades={trades}
                 onSubmit={(data) =>
                   addTradesForDay(journal, {

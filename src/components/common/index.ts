@@ -3,3 +3,4 @@ export { default as PrivateRoute } from './PrivateRoute';
 export { default as AutoLogRoute } from './AutoLogRoute';
 export { default as DashedGraph } from './dashed-graph';
 export { default as PageHeader } from './PageHeader';
+export { default as ConfirmDialog } from './ConfirmDialog';
