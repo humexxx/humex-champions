@@ -94,8 +94,6 @@ export const useTradingJournal = () => {
             newOperation,
           ];
 
-          console.log(objectDateConverter(updatedOperations, toTimestamp));
-
           await updateDoc(docRef, {
             operations: objectDateConverter(updatedOperations, toTimestamp),
           });

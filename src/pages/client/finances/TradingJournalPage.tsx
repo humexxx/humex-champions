@@ -115,12 +115,18 @@ const TradingJournalPage = () => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <EditPanel
-              trades={trades}
-              onSubmit={(data) =>
-                addTradesForDay(journal, { date: day, trades: data, notes: '' })
-              }
-            />
+            {Boolean(filter === 'day') && (
+              <EditPanel
+                trades={trades}
+                onSubmit={(data) =>
+                  addTradesForDay(journal, {
+                    date: day,
+                    trades: data,
+                    notes: '',
+                  })
+                }
+              />
+            )}
           </Grid>
           <Grid item xs={12} mt={4}>
             <SummaryPanel
