@@ -126,7 +126,8 @@ interface Resources {
           "delete": "Delete",
           "addTrade": "Add Trade",
           "submit": "Submit",
-          "summary": "Some summary data for the month / week"
+          "summary": "Some summary data for the month / week",
+          "hint": "You can add a trade by clicking the button below."
         },
         "summaryPanel": {
           "title": "Weekly Summary",

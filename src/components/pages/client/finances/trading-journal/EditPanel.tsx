@@ -7,6 +7,7 @@ import {
   Box,
   IconButton,
   Pagination,
+  Typography,
 } from '@mui/material';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -94,6 +95,19 @@ const EditPanel = ({ trades, onSubmit }: Props) => {
     <Box component="form" onSubmit={handleSubmit(_onSubmit)}>
       <Box sx={{ height: 228 }}>
         <Grid container spacing={2} alignItems="center">
+          {Boolean(!fields.length) && (
+            <Grid item xs={12}>
+              <Typography
+                component="p"
+                variant="caption"
+                color="text.secondary"
+                textAlign="center"
+                mt={2}
+              >
+                {t('finances.tradingJournal.editPanel.hint')}
+              </Typography>
+            </Grid>
+          )}
           {currentFields.map((field, index) => (
             <Fragment key={field.id}>
               <Grid item xs={5}>
