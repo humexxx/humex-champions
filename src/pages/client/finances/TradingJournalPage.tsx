@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
@@ -54,6 +54,11 @@ const TradingJournalPage = () => {
       setTrades(trades);
     }
   }, [journal, day, filter]);
+
+  const totalPL = useMemo(
+    () => trades.reduce((acc, trade) => acc + trade.pl, 0),
+    [trades]
+  );
 
   return (
     <>
@@ -102,7 +107,12 @@ const TradingJournalPage = () => {
             ALgun selectoro
           </Grid>
           <Grid item xs={12} md={6}>
-            <Calendar day={day} onChange={setDay} filter={filter} />
+            <Calendar
+              day={day}
+              onChange={setDay}
+              filter={filter}
+              isNegative={totalPL < 0}
+            />
           </Grid>
           <Grid item xs={12} md={6}>
             <EditPanel

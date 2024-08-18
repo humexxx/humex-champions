@@ -26,19 +26,22 @@ const EditPanel = ({ trades, onSubmit }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(() => {
     return yup.object().shape({
-      trades: yup.array().of(
-        yup.object().shape({
-          pl: yup
-            .number()
-            .nonNullable()
-            .required(t('commonValidations.required'))
-            .typeError(t('commonValidations.required')),
-          instrument: yup
-            .string()
-            .required(t('commonValidations.required'))
-            .oneOf(['stock', 'forex', 'crypto']),
-        })
-      ),
+      trades: yup
+        .array()
+        .of(
+          yup.object().shape({
+            pl: yup
+              .number()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .typeError(t('commonValidations.required')),
+            instrument: yup
+              .string()
+              .required(t('commonValidations.required'))
+              .oneOf(['stock', 'forex', 'crypto']),
+          })
+        )
+        .min(1),
     });
   }, [t]);
 
@@ -83,7 +86,7 @@ const EditPanel = ({ trades, onSubmit }: Props) => {
 
   useEffect(() => {
     const _trades = [...trades];
-    _trades.push({ pl: 0, instrument: '' });
+    if (!_trades.length) _trades.push({ pl: 0, instrument: '' });
     setValue('trades', _trades);
   }, [trades, setValue]);
 

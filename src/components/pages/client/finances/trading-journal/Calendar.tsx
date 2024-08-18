@@ -15,9 +15,10 @@ type Props = {
   filter: 'day' | 'week' | 'month';
   day: Dayjs;
   onChange: (day: Dayjs) => void;
+  isNegative: boolean;
 };
 
-const Calendar = ({ filter, day, onChange }: Props) => {
+const Calendar = ({ filter, day, onChange, isNegative }: Props) => {
   const [hoveredDay, setHoveredDay] = useState<Dayjs | null>(null);
   return (
     <DateCalendar
@@ -27,7 +28,11 @@ const Calendar = ({ filter, day, onChange }: Props) => {
       value={day}
       onChange={onChange}
       {...(filter !== 'day' && {
-        slots: { day: (props) => <Day {...props} filter={filter} /> },
+        slots: {
+          day: (props) => (
+            <Day {...props} filter={filter} isNegative={isNegative} />
+          ),
+        },
         slotProps: {
           day: (ownerState) =>
             ({
@@ -47,9 +52,10 @@ function Day(
     selectedDay?: Dayjs | null;
     hoveredDay?: Dayjs | null;
     filter: 'week' | 'month';
+    isNegative: boolean;
   }
 ) {
-  const { day, selectedDay, hoveredDay, filter, ...other } = props;
+  const { day, selectedDay, hoveredDay, filter, isNegative, ...other } = props;
 
   return filter === 'week' ? (
     <CustomPickersDay
@@ -62,6 +68,7 @@ function Day(
       isHovered={isInSameWeek(day, hoveredDay)}
       isFirstFromGroup={isFirstDayOfWeek(day)}
       isLastFromGroup={isLastDayOfWeek(day)}
+      isNegative={isNegative}
     />
   ) : (
     <CustomPickersDay
@@ -74,6 +81,7 @@ function Day(
       isHovered={isInSameMonth(day, hoveredDay)}
       isFirstFromGroup={isFirstDayOfMonth(day) || isFirstDayOfWeek(day)}
       isLastFromGroup={isLastDayOfMonth(day) || isLastDayOfWeek(day)}
+      isNegative={isNegative}
     />
   );
 }
@@ -83,7 +91,7 @@ interface CustomPickerDayProps extends PickersDayProps<Dayjs> {
   isHovered: boolean;
   isFirstFromGroup: boolean;
   isLastFromGroup: boolean;
-  isNegative?: boolean;
+  isNegative: boolean;
 }
 
 const CustomPickersDay = styled(PickersDay, {

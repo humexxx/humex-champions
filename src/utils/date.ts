@@ -87,8 +87,3 @@ export function objectDateConverter(
     return obj;
   }
 }
-
-function isValidDate(dateString: string): boolean {
-  const date = new Date(dateString);
-  return !isNaN(date.getTime()) && !/^\d{4}-\d{2}$/.test(dateString); // Validates date and excludes 'YYYY-MM' format
-}
