@@ -1,30 +1,52 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Grid, TextField, MenuItem, Button, Box } from '@mui/material';
+import {
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+  Box,
+  IconButton,
+  Pagination,
+} from '@mui/material';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
-import { Trade } from '.';
+import { CurrencyField } from 'src/components/common/forms';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { ITrade } from 'src/models/finances';
 
-const schema = yup.object().shape({
-  trades: yup
-    .array()
-    .of(
-      yup.object().shape({
-        pl: yup.number().required('P/L is required'),
-        instrument: yup.string().required('Instrument is required'),
-      })
-    )
-    .min(1, 'You must add at least one trade'),
-});
+type Props = {
+  trades: ITrade[];
+  onSubmit: (trades: ITrade[]) => void;
+};
 
-const EditPanel = () => {
+const EditPanel = ({ trades, onSubmit }: Props) => {
   const { t } = useTranslation();
+  const schema = useMemo(() => {
+    return yup.object().shape({
+      trades: yup.array().of(
+        yup.object().shape({
+          pl: yup
+            .number()
+            .nonNullable()
+            .required(t('commonValidations.required'))
+            .typeError(t('commonValidations.required')),
+          instrument: yup
+            .string()
+            .required(t('commonValidations.required'))
+            .oneOf(['stock', 'forex', 'crypto']),
+        })
+      ),
+    });
+  }, [t]);
 
   const {
     control,
     handleSubmit,
-    register,
     formState: { errors },
+    setValue,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -37,70 +59,121 @@ const EditPanel = () => {
     name: 'trades',
   });
 
-  const onSubmit = (data: { trades?: Trade[] }) => {
-    console.log('Submitted data:', data);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 3;
+
+  const _onSubmit = (data: { trades?: ITrade[] }) => {
+    onSubmit(data.trades || []);
   };
 
+  const totalPages = Math.ceil(fields.length / itemsPerPage);
+
+  const currentFields = fields.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  function handleAddOnClick() {
+    append({ pl: 0, instrument: '' });
+  }
+
+  useEffect(() => {
+    setPage(totalPages);
+  }, [totalPages]);
+
+  useEffect(() => {
+    const _trades = [...trades];
+    _trades.push({ pl: 0, instrument: '' });
+    setValue('trades', _trades);
+  }, [trades, setValue]);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {fields.map((field, index) => (
-        <Grid container spacing={2} key={field.id} alignItems="center">
-          <Grid item xs={5}>
-            <TextField
-              label={t('finances.tradingJournal.editPanel.pl')}
-              {...register(`trades.${index}.pl`)}
-              error={!!errors.trades?.[index]?.pl}
-              helperText={errors.trades?.[index]?.pl?.message}
-              fullWidth
-              margin="dense"
-            />
-          </Grid>
-          <Grid item xs={5}>
-            <Controller
-              name={`trades.${index}.instrument`}
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  select
-                  label={t('finances.tradingJournal.editPanel.instrument')}
-                  {...field}
-                  fullWidth
-                  error={!!errors.trades?.[index]?.instrument}
-                  helperText={errors.trades?.[index]?.instrument?.message}
-                  margin="dense"
-                >
-                  <MenuItem value="stock">Stock</MenuItem>
-                  <MenuItem value="forex">Forex</MenuItem>
-                  <MenuItem value="crypto">Crypto</MenuItem>
-                </TextField>
-              )}
-            />
-          </Grid>
-          <Grid item xs={2}>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={() => remove(index)}
-            >
-              {t('finances.tradingJournal.editPanel.delete')}
-            </Button>
-          </Grid>
+    <Box component="form" onSubmit={handleSubmit(_onSubmit)}>
+      <Box sx={{ height: 228 }}>
+        <Grid container spacing={2} alignItems="center">
+          {currentFields.map((field, index) => (
+            <Fragment key={field.id}>
+              <Grid item xs={5}>
+                <Controller
+                  name={`trades.${index}.pl`}
+                  control={control}
+                  render={({ field }) => (
+                    <CurrencyField
+                      {...field}
+                      label={t('finances.tradingJournal.editPanel.pl')}
+                      error={!!errors.trades?.[index]?.pl}
+                      helperText={errors.trades?.[index]?.pl?.message}
+                      fullWidth
+                      margin="dense"
+                      size="small"
+                      variant="filled"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={5}>
+                <Controller
+                  name={`trades.${index}.instrument`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      select
+                      label={t('finances.tradingJournal.editPanel.instrument')}
+                      {...field}
+                      fullWidth
+                      error={!!errors.trades?.[index]?.instrument}
+                      helperText={errors.trades?.[index]?.instrument?.message}
+                      margin="dense"
+                      size="small"
+                      variant="filled"
+                    >
+                      <MenuItem value="stock">Stock</MenuItem>
+                      <MenuItem value="forex">Forex</MenuItem>
+                      <MenuItem value="crypto">Crypto</MenuItem>
+                    </TextField>
+                  )}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <IconButton color="error" onClick={() => remove(index)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+            </Fragment>
+          ))}
         </Grid>
-      ))}
-      <Box mt={2}>
-        <Button
-          variant="contained"
-          onClick={() => append({ pl: 0, instrument: '' })}
-        >
-          {t('finances.tradingJournal.editPanel.addTrade')}
-        </Button>
       </Box>
-      <Box mt={2}>
-        <Button type="submit" variant="contained" color="primary">
-          {t('finances.tradingJournal.editPanel.submit')}
-        </Button>
-      </Box>
-    </form>
+      <Grid container mt={4}>
+        <Grid item xs={4}>
+          <Button onClick={handleAddOnClick} startIcon={<AddIcon />}>
+            {t('finances.tradingJournal.editPanel.addTrade')}
+          </Button>
+        </Grid>
+        <Grid item xs={8} textAlign="right" flexDirection="column">
+          {fields.length > itemsPerPage - 1 && (
+            <Pagination
+              sx={{ display: 'flex', justifyContent: 'flex-end' }}
+              count={totalPages}
+              page={page}
+              onChange={(_, value) => setPage(value)}
+              siblingCount={0}
+              boundaryCount={1}
+            />
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{
+              mt: fields.length > itemsPerPage - 1 ? 2 : 0,
+              mr: 2,
+            }}
+          >
+            {t('finances.tradingJournal.editPanel.submit')}
+          </Button>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

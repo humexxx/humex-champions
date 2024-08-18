@@ -117,6 +117,9 @@ interface Resources {
       "tradingJournal": {
         "title": "Trading Journal",
         "description": "Keep a record of your trading activities and analyze your performance.",
+        "day": "Day",
+        "week": "Week",
+        "month": "Month",
         "editPanel": {
           "pl": "P/L",
           "instrument": "Instrument",
