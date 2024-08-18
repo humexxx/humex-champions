@@ -153,7 +153,6 @@ function generatePredictions(
     );
 
     surplus += totalBalanceInFavorForDebts * -1;
-
     deficitCarryover = surplus < 0 ? surplus : 0;
 
     // Logs for debugging

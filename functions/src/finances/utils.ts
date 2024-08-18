@@ -68,9 +68,16 @@ export function generateSingleSnapshot(
 
   const carryover = lastSnapshot.surplus < 0 ? lastSnapshot.surplus : 0;
 
-  const surplus =
+  let surplus =
     totalIncome - totalFixedExpenses - totalMinimumPayments + carryover;
   const newDebts = applyAvalancheMethod(lastSnapshot.debts, surplus);
+
+  const totalBalanceInFavorForDebts = newDebts.reduce(
+    (sum, debt) => (debt.pendingDebt < 0 ? sum + debt.pendingDebt : sum),
+    0
+  );
+
+  surplus += totalBalanceInFavorForDebts * -1;
 
   return {
     reviewed: false,
