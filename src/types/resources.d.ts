@@ -155,6 +155,13 @@ interface Resources {
             },
             "type": "Type"
           }
+        },
+        "operationsHistory": {
+          "columns": {
+            "operation": "Operation",
+            "amount": "Amount",
+            "date": "Date"
+          }
         }
       },
       "portfolio": {

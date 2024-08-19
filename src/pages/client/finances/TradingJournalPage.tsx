@@ -16,6 +16,7 @@ import {
   Calendar,
   EditPanel,
   SummaryPanel,
+  OperationsHistory,
 } from 'src/components/pages/client/finances/trading-journal';
 import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
@@ -151,7 +152,7 @@ const TradingJournalPage = () => {
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            {Boolean(filter === 'day') && (
+            {filter === 'day' ? (
               <EditPanel
                 formIsDirtyOnChange={setFormIsDirty}
                 trades={trades}
@@ -164,6 +165,8 @@ const TradingJournalPage = () => {
                   })
                 }
               />
+            ) : (
+              <OperationsHistory operations={operations} />
             )}
           </Grid>
           <Grid item xs={12} mt={4}>
