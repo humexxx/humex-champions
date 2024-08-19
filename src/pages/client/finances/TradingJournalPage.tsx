@@ -12,13 +12,14 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ConfirmDialog } from 'src/components/common';
 import {
+  BalanceTracker,
   Calendar,
   EditPanel,
   SummaryPanel,
 } from 'src/components/pages/client/finances/trading-journal';
 import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
-import { ITrade } from 'src/models/finances';
+import { IOperation, ITrade } from 'src/models/finances';
 import { isInSameMonth, isInSameWeek } from 'src/utils';
 
 const TradingJournalPage = () => {
@@ -28,8 +29,9 @@ const TradingJournalPage = () => {
   const pendingFilter = useRef<'day' | 'week' | 'month'>('day');
   const [day, setDay] = useState<Dayjs>(dayjs());
   const [prevMonth, setPrevMonth] = useState<string | null>(null);
-  const { loading, journal, getTradingJournalByMonth, addTradesForDay } =
+  const { loading, journal, getTradingJournalByMonth, updateTradingJournal } =
     useTradingJournal();
+  const [operations, setOperations] = useState<IOperation[]>([]);
   const [trades, setTrades] = useState<ITrade[]>([]);
   const [formIsDirty, setFormIsDirty] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -45,8 +47,8 @@ const TradingJournalPage = () => {
 
   useEffect(() => {
     if (journal) {
-      const trades = journal.operations
-        .filter((operation) => {
+      setOperations(
+        journal.operations.filter((operation) => {
           const tradeDay = operation.date;
           return filter === 'day'
             ? tradeDay.isSame(day, 'day')
@@ -54,10 +56,15 @@ const TradingJournalPage = () => {
               ? isInSameWeek(tradeDay, day)
               : isInSameMonth(tradeDay, day);
         })
-        .flatMap((operation) => operation.trades);
-      setTrades(trades);
+      );
+    } else {
+      setOperations([]);
     }
   }, [journal, day, filter]);
+
+  useEffect(() => {
+    setTrades(operations.flatMap((operation) => operation.trades));
+  }, [operations]);
 
   const totalPL = useMemo(
     () => trades.reduce((acc, trade) => acc + trade.pl, 0),
@@ -127,7 +134,12 @@ const TradingJournalPage = () => {
             </ButtonGroup>
           </Grid>
           <Grid item xs={6}>
-            ALgun selectoro
+            <BalanceTracker
+              operations={operations}
+              onUpdate={(operation) => updateTradingJournal(journal, operation)}
+              filter={filter}
+              day={day}
+            />
           </Grid>
           <Grid item xs={12} md={6}>
             <Calendar
@@ -144,7 +156,8 @@ const TradingJournalPage = () => {
                 formIsDirtyOnChange={setFormIsDirty}
                 trades={trades}
                 onSubmit={(data) =>
-                  addTradesForDay(journal, {
+                  updateTradingJournal(journal, {
+                    ...(operations[0] ?? { balanceStart: 0, balanceEnd: 0 }),
                     date: day,
                     trades: data,
                     notes: '',

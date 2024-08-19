@@ -9,6 +9,15 @@ export interface IOperation {
   date: Dayjs;
   notes: string;
   trades: Trade[];
+  balanceStart: number;
+  balanceEnd: number;
+  transactions?: ITransaction[];
+}
+
+export interface ITransaction {
+  amount: number;
+  type: 'deposit' | 'withdrawal';
+  notes?: string;
 }
 
 export interface ITradingJournal {

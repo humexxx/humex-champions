@@ -140,6 +140,21 @@ interface Resources {
           "trades": "Number of Trades",
           "amount": "Amount in USD",
           "monthlyGrowth": "Monthly Growth"
+        },
+        "balanceTracker": {
+          "balanceStart": "Balance Start",
+          "balanceEnd": "Balance End",
+          "transactionDialog": {
+            "title": "Transaction",
+            "description": "Add a transaction to your balance tracker.",
+            "amount": "Amount",
+            "notes": "Notes",
+            "types": {
+              "deposit": "Deposit",
+              "withdrawal": "Withdrawal"
+            },
+            "type": "Type"
+          }
         }
       },
       "portfolio": {

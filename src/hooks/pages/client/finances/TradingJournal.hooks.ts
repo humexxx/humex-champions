@@ -4,6 +4,8 @@ import {
   collection,
   doc,
   getDocs,
+  limit,
+  orderBy,
   query,
   Timestamp,
   updateDoc,
@@ -14,6 +16,37 @@ import { useAuth } from 'src/context/auth';
 import { firestore } from 'src/firebase';
 import { IOperation, ITradingJournal } from 'src/models/finances';
 import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
+
+function injectEndBalance(operation: IOperation) {
+  operation.balanceEnd =
+    operation.balanceStart +
+    operation.trades.reduce((acc, trade) => acc + trade.pl, 0) +
+    (operation.transactions?.reduce(
+      (acc, transaction) =>
+        acc + transaction.amount * (transaction.type === 'deposit' ? 1 : -1),
+      0
+    ) ?? 0);
+  return operation;
+}
+
+const createNextDayOperationFromOperation = (
+  operation: IOperation
+): IOperation | null => {
+  const nextDay = operation.date.add(1, 'day');
+
+  if (nextDay.isSame(operation.date, 'month')) {
+    return {
+      date: nextDay,
+      balanceStart: operation.balanceEnd,
+      trades: [],
+      transactions: [],
+      balanceEnd: operation.balanceEnd,
+      notes: '',
+    };
+  }
+
+  return null;
+};
 
 export const useTradingJournal = () => {
   const [journal, setJournal] = useState<ITradingJournal | null>(null);
@@ -40,12 +73,22 @@ export const useTradingJournal = () => {
         const startTimestamp = Timestamp.fromDate(startOfMonth);
         const endTimestamp = Timestamp.fromDate(endOfMonth);
 
-        const journalQuery = query(
+        let journalQuery = query(
           journalRef,
           where('date', '>=', startTimestamp),
           where('date', '<=', endTimestamp)
         );
-        const snapshot = await getDocs(journalQuery);
+        let snapshot = await getDocs(journalQuery);
+
+        // If the document doesn't exist, try to get the last one
+        if (snapshot.empty) {
+          journalQuery = query(
+            journalRef,
+            orderBy('timestamp', 'desc'),
+            limit(1)
+          );
+          snapshot = await getDocs(journalQuery);
+        }
 
         if (!snapshot.empty) {
           const doc = snapshot.docs[0];
@@ -68,15 +111,48 @@ export const useTradingJournal = () => {
     [user.currentUser]
   );
 
-  const addTradesForDay = useCallback(
-    async (
-      tradingJournal: ITradingJournal | null,
-      newOperation: IOperation
-    ) => {
+  const updateTradingJournal = useCallback(
+    async (tradingJournal: ITradingJournal | null, operation: IOperation) => {
       setLoading(true);
       setError(null);
 
       try {
+        operation = injectEndBalance(operation);
+        const nextDayOperation = createNextDayOperationFromOperation(operation);
+
+        const operations = [
+          operation,
+          ...(nextDayOperation ? [nextDayOperation] : []),
+        ];
+
+        if (!nextDayOperation) {
+          const nextDay = operation.date.add(1, 'day');
+          const nextJournal: ITradingJournal = {
+            date: nextDay.startOf('month'),
+            operations: [
+              {
+                date: nextDay,
+                balanceStart: operation.balanceEnd,
+                trades: [],
+                transactions: [],
+                balanceEnd: operation.balanceEnd,
+                notes: '',
+              },
+            ],
+          };
+
+          const journalRef = collection(
+            firestore,
+            'finances',
+            user.currentUser!.uid,
+            'tradingJournal'
+          );
+          await addDoc(
+            journalRef,
+            objectDateConverter(nextJournal, toTimestamp)
+          );
+        }
+
         if (tradingJournal) {
           // Si el documento ya existe, simplemente agrega la nueva operación
           const docRef = doc(
@@ -89,19 +165,20 @@ export const useTradingJournal = () => {
 
           const updatedOperations = [
             ...tradingJournal.operations.filter(
-              (x) => !x.date.isSame(newOperation.date, 'day')
+              (x) => !x.date.isSame(operation.date, 'day')
             ),
-            newOperation,
+            ...operations,
           ];
 
           await updateDoc(docRef, {
             operations: objectDateConverter(updatedOperations, toTimestamp),
           });
+
           setJournal({ ...tradingJournal, operations: updatedOperations });
         } else {
           const newJournal: ITradingJournal = {
-            date: newOperation.date.startOf('month'),
-            operations: [newOperation],
+            date: operation.date.startOf('month'),
+            operations: [...operations],
           };
 
           const journalRef = collection(
@@ -131,6 +208,6 @@ export const useTradingJournal = () => {
     loading,
     error,
     getTradingJournalByMonth,
-    addTradesForDay,
+    updateTradingJournal,
   };
 };

@@ -166,7 +166,7 @@ const CustomPickersDay = styled(PickersDay, {
       }),
     ...(isSelected && {
       backgroundColor: hasNoTrades
-        ? alpha(theme.palette.primary.light, 0.2)
+        ? alpha(theme.palette.action.disabled, 0.05)
         : isNegative
           ? alpha(theme.palette.error.light, 0.2)
           : alpha(theme.palette.success.light, 0.2),
@@ -174,7 +174,7 @@ const CustomPickersDay = styled(PickersDay, {
       color: theme.palette.text.primary,
       '&:focus, &:hover': {
         backgroundColor: hasNoTrades
-          ? alpha(theme.palette.primary.light, 0.2)
+          ? alpha(theme.palette.action.disabled, 0.05)
           : isNegative
             ? alpha(theme.palette.error.light, 0.2)
             : alpha(theme.palette.success.light, 0.2),
