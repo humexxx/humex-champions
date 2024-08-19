@@ -135,6 +135,7 @@ const TradingJournalPage = () => {
               onChange={setDay}
               filter={filter}
               isNegative={totalPL < 0}
+              hasNoTrades={!trades.length}
             />
           </Grid>
           <Grid item xs={12} md={6}>

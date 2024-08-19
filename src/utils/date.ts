@@ -44,6 +44,14 @@ export function isInSameWeek(dayA: Dayjs, dayB: Dayjs | null | undefined) {
   return dayA.isSame(dayB, 'week');
 }
 
+export function isSameDay(dayA: Dayjs, dayB: Dayjs | null | undefined) {
+  if (dayB == null) {
+    return false;
+  }
+
+  return dayA.isSame(dayB, 'day');
+}
+
 export function isFirstDayOfWeek(date: Dayjs) {
   return date.day() === 0;
 }

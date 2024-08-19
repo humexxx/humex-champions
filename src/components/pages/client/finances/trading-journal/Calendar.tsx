@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import { alpha, styled } from '@mui/material';
 import { DateCalendar, PickersDay, PickersDayProps } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import { useState } from 'react';
@@ -9,6 +9,7 @@ import {
   isInSameWeek,
   isLastDayOfMonth,
   isLastDayOfWeek,
+  isSameDay,
 } from 'src/utils';
 
 type Props = {
@@ -16,9 +17,16 @@ type Props = {
   day: Dayjs;
   onChange: (day: Dayjs) => void;
   isNegative: boolean;
+  hasNoTrades: boolean;
 };
 
-const Calendar = ({ filter, day, onChange, isNegative }: Props) => {
+const Calendar = ({
+  filter,
+  day,
+  onChange,
+  isNegative,
+  hasNoTrades,
+}: Props) => {
   const [hoveredDay, setHoveredDay] = useState<Dayjs | null>(null);
   return (
     <DateCalendar
@@ -27,22 +35,30 @@ const Calendar = ({ filter, day, onChange, isNegative }: Props) => {
       disableFuture
       value={day}
       onChange={onChange}
-      {...(filter !== 'day' && {
-        slots: {
-          day: (props) => (
-            <Day {...props} filter={filter} isNegative={isNegative} />
-          ),
+      slots={{
+        day: (props) => (
+          <Day
+            {...props}
+            filter={filter}
+            isNegative={isNegative}
+            hasNoTrades={hasNoTrades}
+          />
+        ),
+      }}
+      slotProps={{
+        day: (ownerState) =>
+          ({
+            selectedDay: day,
+            hoveredDay,
+            onPointerEnter: () => setHoveredDay(ownerState.day),
+            onPointerLeave: () => setHoveredDay(null),
+          }) as any,
+      }}
+      sx={{
+        '& .MuiDayCalendar-header span': {
+          width: 33,
         },
-        slotProps: {
-          day: (ownerState) =>
-            ({
-              selectedDay: day,
-              hoveredDay,
-              onPointerEnter: () => setHoveredDay(ownerState.day),
-              onPointerLeave: () => setHoveredDay(null),
-            }) as any,
-        },
-      })}
+      }}
     />
   );
 };
@@ -51,13 +67,36 @@ function Day(
   props: PickersDayProps<Dayjs> & {
     selectedDay?: Dayjs | null;
     hoveredDay?: Dayjs | null;
-    filter: 'week' | 'month';
+    filter: 'day' | 'week' | 'month';
     isNegative: boolean;
+    hasNoTrades: boolean;
   }
 ) {
-  const { day, selectedDay, hoveredDay, filter, isNegative, ...other } = props;
+  const {
+    day,
+    selectedDay,
+    hoveredDay,
+    filter,
+    isNegative,
+    hasNoTrades,
+    ...other
+  } = props;
 
-  return filter === 'week' ? (
+  return filter === 'day' ? (
+    <CustomPickersDay
+      {...other}
+      day={day}
+      sx={{ px: 2.5 }}
+      disableMargin
+      selected={false}
+      isSelected={isSameDay(day, selectedDay)}
+      isHovered={isSameDay(day, hoveredDay)}
+      isFirstFromGroup
+      isLastFromGroup
+      isNegative={isNegative}
+      hasNoTrades={hasNoTrades}
+    />
+  ) : filter === 'week' ? (
     <CustomPickersDay
       {...other}
       day={day}
@@ -69,6 +108,7 @@ function Day(
       isFirstFromGroup={isFirstDayOfWeek(day)}
       isLastFromGroup={isLastDayOfWeek(day)}
       isNegative={isNegative}
+      hasNoTrades={hasNoTrades}
     />
   ) : (
     <CustomPickersDay
@@ -82,6 +122,7 @@ function Day(
       isFirstFromGroup={isFirstDayOfMonth(day) || isFirstDayOfWeek(day)}
       isLastFromGroup={isLastDayOfMonth(day) || isLastDayOfWeek(day)}
       isNegative={isNegative}
+      hasNoTrades={hasNoTrades}
     />
   );
 }
@@ -92,6 +133,7 @@ interface CustomPickerDayProps extends PickersDayProps<Dayjs> {
   isFirstFromGroup: boolean;
   isLastFromGroup: boolean;
   isNegative: boolean;
+  hasNoTrades: boolean;
 }
 
 const CustomPickersDay = styled(PickersDay, {
@@ -100,7 +142,8 @@ const CustomPickersDay = styled(PickersDay, {
     prop !== 'isHovered' &&
     prop !== 'isFirstFromGroup' &&
     prop !== 'isLastFromGroup' &&
-    prop !== 'isNegative',
+    prop !== 'isNegative' &&
+    prop !== 'hasNoTrades',
 })<CustomPickerDayProps>(
   ({
     theme,
@@ -110,6 +153,7 @@ const CustomPickersDay = styled(PickersDay, {
     isFirstFromGroup,
     isLastFromGroup,
     isNegative,
+    hasNoTrades,
   }) => ({
     borderRadius: 0,
 
@@ -121,15 +165,19 @@ const CustomPickersDay = styled(PickersDay, {
         },
       }),
     ...(isSelected && {
-      backgroundColor: isNegative
-        ? theme.palette.error.light
-        : theme.palette.success.light,
+      backgroundColor: hasNoTrades
+        ? alpha(theme.palette.primary.light, 0.2)
+        : isNegative
+          ? alpha(theme.palette.error.light, 0.2)
+          : alpha(theme.palette.success.light, 0.2),
 
-      color: theme.palette.primary.contrastText,
+      color: theme.palette.text.primary,
       '&:focus, &:hover': {
-        backgroundColor: isNegative
-          ? theme.palette.error.light
-          : theme.palette.success.light,
+        backgroundColor: hasNoTrades
+          ? alpha(theme.palette.primary.light, 0.2)
+          : isNegative
+            ? alpha(theme.palette.error.light, 0.2)
+            : alpha(theme.palette.success.light, 0.2),
       },
     }),
     ...(isFirstFromGroup && {
@@ -146,8 +194,18 @@ const CustomPickersDay = styled(PickersDay, {
         borderRadius: '50%',
       }),
     ...(dayjs().isSame(day, 'date') && {
-      padding: '0 !important',
+      border: '0 !important',
+      position: 'relative',
+      '&:before': {
+        borderRadius: '50%',
+        border: '1px solid rgba(0, 0, 0, 0.6)',
+        content: '""',
+        position: 'absolute',
+        width: 'calc(100% - 1px)',
+        height: 'calc(100% - 1px)',
+      },
     }),
+    padding: '0 !important',
   })
 ) as React.ComponentType<CustomPickerDayProps>;
 
