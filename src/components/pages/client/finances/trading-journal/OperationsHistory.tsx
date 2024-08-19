@@ -86,7 +86,7 @@ const TradingHistory = ({ operations }: Props) => {
   );
 
   return (
-    <Box height="278px">
+    <Box height="286px">
       <DataGrid
         density="compact"
         rows={rows}
