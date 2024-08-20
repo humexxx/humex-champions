@@ -18,6 +18,7 @@ import {
   SummaryPanel,
   OperationsHistory,
   OperationsHistoryChart,
+  Timeline,
 } from 'src/components/pages/client/finances/trading-journal';
 import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
@@ -112,7 +113,7 @@ const TradingJournalPage = () => {
         </Typography>
       </Breadcrumbs>
       <Box mt={4}>
-        <Grid container spacing={4}>
+        <Grid container columnSpacing={4}>
           <Grid item xs={6} textAlign="center">
             <ButtonGroup aria-label="filter" disableElevation>
               <Button
@@ -175,6 +176,9 @@ const TradingJournalPage = () => {
               operations={operations}
               periodFilter={filter}
             />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Timeline operations={operations} />
           </Grid>
           <Grid item xs={12} mt={4}>
             <SummaryPanel
