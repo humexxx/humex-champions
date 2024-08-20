@@ -162,6 +162,12 @@ interface Resources {
             "amount": "Amount",
             "date": "Date"
           }
+        },
+        "operationsHistoryChart": {
+          "filters": {
+            "profit": "Profit",
+            "balance": "Balance"
+          }
         }
       },
       "portfolio": {

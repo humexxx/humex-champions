@@ -17,6 +17,7 @@ import {
   EditPanel,
   SummaryPanel,
   OperationsHistory,
+  OperationsHistoryChart,
 } from 'src/components/pages/client/finances/trading-journal';
 import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
@@ -168,6 +169,12 @@ const TradingJournalPage = () => {
             ) : (
               <OperationsHistory operations={operations} />
             )}
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <OperationsHistoryChart
+              operations={operations}
+              periodFilter={filter}
+            />
           </Grid>
           <Grid item xs={12} mt={4}>
             <SummaryPanel
