@@ -1,9 +1,7 @@
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth } from '../../firebase';
 import { AutoLogRoute } from 'src/components';
-import ForgotPassword, {
-  ForgotPasswordFormInputs,
-} from 'src/components/pages/forgot-password';
+import ForgotPassword, { ForgotPasswordFormInputs } from './components';
 
 async function handleOnSubmit(form: ForgotPasswordFormInputs) {
   await sendPasswordResetEmail(auth, form.email)
@@ -17,7 +15,7 @@ async function handleOnSubmit(form: ForgotPasswordFormInputs) {
     });
 }
 
-const ForgotPasswordPage = () => {
+const Page = () => {
   return (
     <AutoLogRoute>
       <ForgotPassword handleOnSubmit={handleOnSubmit} />
@@ -25,4 +23,4 @@ const ForgotPasswordPage = () => {
   );
 };
 
-export default ForgotPasswordPage;
+export default Page;

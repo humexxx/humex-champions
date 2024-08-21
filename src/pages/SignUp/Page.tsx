@@ -3,15 +3,14 @@ import {
   browserSessionPersistence,
   createUserWithEmailAndPassword,
   setPersistence,
-  AuthErrorCodes,
 } from 'firebase/auth';
-import { auth } from '../firebase';
-import SignUp, { SignUpFormInputs } from 'src/components/pages/sign-up';
+import SignUp, { SignUpFormInputs } from './components';
 import { useNavigate } from 'react-router-dom';
 import { AutoLogRoute } from 'src/components';
 import { handleAuthError } from 'src/utils/auth';
+import { auth } from 'src/firebase';
 
-const SignUpPage = () => {
+const Page = () => {
   const navigate = useNavigate();
 
   async function handleOnSubmit(form: SignUpFormInputs) {
@@ -39,4 +38,4 @@ const SignUpPage = () => {
   );
 };
 
-export default SignUpPage;
+export default Page;

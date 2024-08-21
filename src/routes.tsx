@@ -31,6 +31,29 @@ const upliftRoutes = [
   },
 ];
 
+const financeRoutes = [
+  {
+    path: '/client/finances',
+    element: <FinancesPage />,
+  },
+  {
+    path: '/client/finances/personal-finances',
+    element: <PersonalFinancesPage />,
+  },
+  {
+    path: '/client/finances/trading-journal',
+    element: <TradingJournalPage />,
+  },
+  {
+    path: '/client/finances/portfolio',
+    element: <PortfolioPage />,
+  },
+  {
+    path: '/client/finances/compound-calculator',
+    element: <CompoundCalculatorPage />,
+  },
+];
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -61,30 +84,12 @@ export const router = createBrowserRouter([
         path: '/client/dashboard',
         element: <DashboardPage />,
       },
-      {
-        path: '/client/finances',
-        element: <FinancesPage />,
-      },
-      {
-        path: '/client/finances/personal-finances',
-        element: <PersonalFinancesPage />,
-      },
-      {
-        path: '/client/finances/trading-journal',
-        element: <TradingJournalPage />,
-      },
-      {
-        path: '/client/finances/portfolio',
-        element: <PortfolioPage />,
-      },
-      {
-        path: '/client/finances/compound-calculator',
-        element: <CompoundCalculatorPage />,
-      },
+
       {
         path: '/client/health',
         element: <HealthPage />,
       },
+      ...financeRoutes,
       ...upliftRoutes,
     ],
   },

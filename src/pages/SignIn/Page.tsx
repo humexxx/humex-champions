@@ -4,13 +4,13 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
 } from 'firebase/auth';
-import { auth } from '../firebase';
 import { AutoLogRoute } from 'src/components';
-import SignIn, { SignInFormInputs } from 'src/components/pages/sign-in';
+import SignIn, { SignInFormInputs } from './components';
 import { useNavigate } from 'react-router-dom';
 import { handleAuthError } from 'src/utils/auth';
+import { auth } from 'src/firebase';
 
-const SignInPage = () => {
+const Page = () => {
   const navigate = useNavigate();
 
   async function handleOnSubmit(form: SignInFormInputs) {
@@ -36,4 +36,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default Page;
