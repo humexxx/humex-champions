@@ -172,13 +172,25 @@
     "portfolio": {
       "title": "Portfolio",
       "description": "Manage your investment portfolio and monitor its performance."
+    },
+    "compound-calculator": {
+      "title": "Compound Interest Calculator",
+      "description": "Calculate the future value of an investment based on the compound interest formula."
     }
   },
   "health": {
     "title": "Health"
   },
-  "goals": {
-    "title": "Goals"
+  "uplift": {
+    "title": "Uplift",
+    "checklist": {
+      "title": "Checklist",
+      "description": "Create a checklist to keep track of your daily goals."
+    },
+    "pathway": {
+      "title": "Pathway",
+      "description": "Create a pathway to keep track of your long-term goals."
+    }
   },
   "entretaiment": {
     "title": "Entretaiment"

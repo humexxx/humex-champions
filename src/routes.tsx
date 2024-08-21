@@ -17,7 +17,23 @@ import {
   PersonalFinancesPage,
   TradingJournalPage,
   PortfolioPage,
+  CompoundCalculatorPage,
 } from './pages/client/finances';
+
+const upliftRoutes = [
+  {
+    path: '/client/uplift',
+    element: <GoalsPage />,
+  },
+  {
+    path: '/client/uplift/pathway',
+    element: <GoalsPage />,
+  },
+  {
+    path: '/client/uplift/checklist',
+    element: <GoalsPage />,
+  },
+];
 
 export const router = createBrowserRouter([
   {
@@ -66,13 +82,14 @@ export const router = createBrowserRouter([
         element: <PortfolioPage />,
       },
       {
+        path: '/client/finances/compound-calculator',
+        element: <CompoundCalculatorPage />,
+      },
+      {
         path: '/client/health',
         element: <HealthPage />,
       },
-      {
-        path: '/client/goals',
-        element: <GoalsPage />,
-      },
+      ...upliftRoutes,
     ],
   },
 ]);

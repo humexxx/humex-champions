@@ -4,3 +4,4 @@ export { default as AutoLogRoute } from './AutoLogRoute';
 export { default as DashedGraph } from './dashed-graph';
 export { default as PageHeader } from './PageHeader';
 export { default as ConfirmDialog } from './ConfirmDialog';
+export { default as ButtonOptionCard } from '../ButtonOptionCard';

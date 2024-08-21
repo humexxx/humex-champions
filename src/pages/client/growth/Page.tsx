@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import { ButtonOptionCard, PageHeader } from 'src/components/common';
 import CalculateIcon from '@mui/icons-material/Calculate';
 
-const FinancesPage = () => {
+const Page = () => {
   const { t } = useTranslation();
   useDocumentMetadata(`${t('finances.title')} - Champions`);
 
@@ -70,4 +70,4 @@ const FinancesPage = () => {
   );
 };
 
-export default FinancesPage;
+export default Page;
