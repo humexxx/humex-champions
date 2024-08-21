@@ -7,31 +7,27 @@ import {
   SignUpPage,
   ForgotPasswordPage,
 } from './pages';
-import {
-  DashboardPage,
-  GoalsPage,
-  HealthPage,
-  FinancesPage,
-} from './pages/client';
+import { DashboardPage, HealthPage, FinancesPage } from './pages/client';
 import {
   PersonalFinancesPage,
   TradingJournalPage,
   PortfolioPage,
   CompoundCalculatorPage,
 } from './pages/client/finances';
+import { ChecklistPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
 
 const upliftRoutes = [
   {
     path: '/client/uplift',
-    element: <GoalsPage />,
+    element: <UpliftPage />,
   },
   {
     path: '/client/uplift/pathway',
-    element: <GoalsPage />,
+    element: <PathwayPage />,
   },
   {
     path: '/client/uplift/checklist',
-    element: <GoalsPage />,
+    element: <ChecklistPage />,
   },
 ];
 

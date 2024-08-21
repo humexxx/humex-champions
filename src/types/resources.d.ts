@@ -184,6 +184,8 @@ interface Resources {
     },
     "uplift": {
       "title": "Uplift",
+      "summary": "Uplift Summary",
+      "description": "Uplift is a tool to help you keep track of your daily goals and long-term goals.",
       "checklist": {
         "title": "Checklist",
         "description": "Create a checklist to keep track of your daily goals."

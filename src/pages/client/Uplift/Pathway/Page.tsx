@@ -33,7 +33,7 @@ const taskSchema = yup.object().shape({
   frequency: yup.string().required('Frequency is required'),
 });
 
-const GoalsPage: React.FC = () => {
+const Page: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [tabValue, setTabValue] = useState(0);
 
@@ -181,4 +181,4 @@ const GoalsPage: React.FC = () => {
   );
 };
 
-export default GoalsPage;
+export default Page;
