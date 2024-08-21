@@ -13,7 +13,7 @@ import {
   TradingJournalPage,
   PortfolioPage,
   CompoundCalculatorPage,
-} from './pages/client/finances';
+} from './pages/client/_finances';
 import { ChecklistPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
 
 const upliftRoutes = [

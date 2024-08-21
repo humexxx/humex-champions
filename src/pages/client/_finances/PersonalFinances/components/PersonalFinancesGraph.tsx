@@ -2,7 +2,7 @@ import { alpha, Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DashedGraph } from 'src/components/common';
+import { DashedGraph } from 'src/components';
 import {
   IDebt,
   IFinancialPlan,

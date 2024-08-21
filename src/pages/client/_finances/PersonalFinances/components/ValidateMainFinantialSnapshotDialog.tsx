@@ -16,7 +16,7 @@ import * as yup from 'yup';
 import { IDebt, IFinancialPlan } from 'src/models/finances';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
-import { CurrencyField } from 'src/components/common/forms';
+import { CurrencyField } from 'src/components/forms';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 
 interface Props {

@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ConfirmDialog } from 'src/components/common';
+import { ConfirmDialog } from 'src/components';
 import {
   BalanceTracker,
   Calendar,
@@ -19,7 +19,7 @@ import {
   OperationsHistory,
   OperationsHistoryChart,
   Timeline,
-} from 'src/components/pages/client/finances/trading-journal';
+} from './components';
 import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
 import { IOperation, ITrade } from 'src/models/finances';

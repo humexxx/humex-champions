@@ -5,7 +5,7 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import { useTranslation } from 'react-i18next';
 import { useDocumentMetadata } from 'src/hooks';
 import { useMemo } from 'react';
-import { ButtonOptionCard, PageHeader } from 'src/components/common';
+import { ButtonOptionCard, PageHeader } from 'src/components';
 import CalculateIcon from '@mui/icons-material/Calculate';
 
 const FinancesPage = () => {

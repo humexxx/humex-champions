@@ -8,7 +8,7 @@ import {
 import { auth } from '../firebase';
 import SignUp, { SignUpFormInputs } from 'src/components/pages/sign-up';
 import { useNavigate } from 'react-router-dom';
-import { AutoLogRoute } from 'src/components/common';
+import { AutoLogRoute } from 'src/components';
 import { handleAuthError } from 'src/utils/auth';
 
 const SignUpPage = () => {

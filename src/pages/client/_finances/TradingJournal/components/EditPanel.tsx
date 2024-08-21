@@ -12,7 +12,7 @@ import {
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
-import { CurrencyField } from 'src/components/common/forms';
+import { CurrencyField } from 'src/components/forms';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { Fragment, useEffect, useMemo, useState } from 'react';

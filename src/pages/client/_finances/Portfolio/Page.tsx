@@ -7,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Page = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('uplift.title')} - Champions`);
+  useDocumentMetadata(`${t('finances.portfolio.title')} - Champions`);
 
   return (
     <>
@@ -15,7 +15,7 @@ const Page = () => {
         <Breadcrumbs aria-label="navigator">
           <Typography
             component={Link}
-            to="/client/uplift"
+            to="/client/finances"
             unstable_viewTransition
             color={'info.main'}
             sx={{
@@ -28,16 +28,16 @@ const Page = () => {
             }}
           >
             <ArrowBackIcon fontSize="small" sx={{ mr: 1 }} color="inherit" />
-            {t('uplift.title')}
+            {t('finances.title')}
           </Typography>
           <Typography
             variant="body1"
             style={{
-              viewTransitionName: 'checklist',
+              viewTransitionName: 'portfolio',
             }}
             color="text.primary"
           >
-            <strong>{t('uplift.checklist.title')}</strong>
+            <strong>{t('finances.portfolio.title')}</strong>
           </Typography>
         </Breadcrumbs>
       </PageHeader>

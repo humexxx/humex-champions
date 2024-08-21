@@ -15,8 +15,8 @@ import {
   IncomeCard,
   PersonalFinancesGraph,
   ValidateMainFinantialSnapshotDialog,
-} from 'src/components/pages/client/finances/personal-finances';
-import { PageHeader } from 'src/components/common';
+} from './components';
+import { PageHeader } from 'src/components';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDocumentMetadata } from 'src/hooks';
 import { usePersonalFinances } from 'src/hooks/pages/client/finances';

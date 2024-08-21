@@ -3,7 +3,7 @@ import InsightsIcon from '@mui/icons-material/Insights';
 import { useTranslation } from 'react-i18next';
 import { useDocumentMetadata } from 'src/hooks';
 import { useMemo } from 'react';
-import { ButtonOptionCard, PageHeader } from 'src/components/common';
+import { ButtonOptionCard, PageHeader } from 'src/components';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 
 const Page = () => {

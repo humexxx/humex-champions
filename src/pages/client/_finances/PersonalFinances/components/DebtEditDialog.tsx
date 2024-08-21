@@ -5,19 +5,18 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
   IconButton,
   useTheme,
   useMediaQuery,
   Grid,
   Box,
-  MenuItem,
   SxProps,
   Tooltip,
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Typography,
+  TextField,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -27,48 +26,55 @@ import {
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { CurrencyField } from 'src/components/common/forms';
-import { IFixedExpense } from 'src/models/finances';
+import { IDebt } from 'src/models/finances';
 import { useTranslation } from 'react-i18next';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import dayjs from 'dayjs';
-import { formatCurrency } from 'src/utils';
+import { CurrencyField, PercentageField } from 'src/components/forms';
 import { DatePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { formatCurrency, formatPercentage } from 'src/utils';
 
 interface Props {
-  onSubmit: (data: IFixedExpense[]) => void;
-  data: IFixedExpense[];
+  onSubmit: (data: IDebt[]) => void;
+  data: IDebt[];
   sx?: SxProps;
   loading?: boolean;
 }
 
-const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
+const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
       yup.object().shape({
-        expenses: yup.array().of(
+        debts: yup.array().of(
           yup.object().shape({
             name: yup
               .string()
               .nonNullable()
               .required(t('commonValidations.required'))
               .max(64),
-            amount: yup
+            pendingDebt: yup
               .number()
               .nonNullable()
               .required(t('commonValidations.required'))
               .typeError(t('commonValidations.required'))
               .moreThan(-1),
-            expenseType: yup
-              .string()
+            minimumPayment: yup
+              .number()
               .nonNullable()
-              .oneOf(
-                ['primary', 'secondary', 'single'],
-                t('commonValidations.type')
-              )
+              .required(t('commonValidations.required'))
+              .typeError(t('commonValidations.required'))
+              .moreThan(-1),
+            annualInterest: yup
+              .number()
+              .nonNullable()
+              .required(t('commonValidations.required'))
+              .typeError(t('commonValidations.required'))
+              .moreThan(-1),
+            startDate: yup
+              .date()
+              .nonNullable()
               .required(t('commonValidations.required')),
-            singleDate: yup.date().nullable(),
           })
         ),
       }),
@@ -89,47 +95,47 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      expenses: data,
+      debts: data,
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'expenses',
+    name: 'debts',
   });
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  function _handleSubmit(data: {
-    expenses?: Omit<IFixedExpense, 'startDate'>[];
-  }) {
-    if (!data.expenses) return;
+  function _handleSubmit(data: { debts?: IDebt[] }) {
+    if (!data.debts) return;
 
     handleClose();
-    onSubmit(data.expenses.map((item) => ({ ...item, startDate: new Date() })));
+    onSubmit(data.debts);
   }
 
   useEffect(() => {
-    setValue('expenses', data);
+    setValue('debts', data.sort((x) => x.pendingDebt).reverse());
   }, [data, setValue]);
 
-  const expenses = watch('expenses');
+  const debts = watch('debts');
 
-  function handleOnNewExpense() {
+  const handleOnNewDebt = () => {
     append({
-      amount: 0,
-      expenseType: 'primary',
-      name: `${t('finances.personalFinances.header.fixedExpenses.dialog.fixedExpense')} ${fields.length + 1}`,
+      name: `${t('finances.personalFinances.header.debts.dialog.debt')} ${
+        fields.length + 1
+      }`,
+      pendingDebt: 0,
+      minimumPayment: 0,
+      annualInterest: 0,
+      startDate: dayjs() as any,
     });
     setExpanded(`panel${fields.length}`);
-  }
+  };
 
   return (
     <>
-      <Tooltip
-        title={t('finances.personalFinances.header.fixedExpenses.dialog.title')}
-      >
+      <Tooltip title={t('finances.personalFinances.header.debts.dialog.title')}>
         <Box sx={{ display: 'inline-block', ...sx }}>
           <IconButton onClick={handleOpen} disabled={loading}>
             <EditIcon fontSize="small" />
@@ -154,15 +160,13 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
             justifyContent: 'space-between',
           }}
         >
-          {t('finances.personalFinances.header.fixedExpenses.dialog.title')}
+          {t('finances.personalFinances.header.debts.dialog.title')}
           <Button
             type="button"
-            onClick={handleOnNewExpense}
+            onClick={handleOnNewDebt}
             startIcon={<AddIcon />}
           >
-            {t(
-              'finances.personalFinances.header.fixedExpenses.dialog.addFixedExpense'
-            )}
+            {t('finances.personalFinances.header.debts.dialog.addDebt')}
           </Button>
         </DialogTitle>
         <DialogContent>
@@ -186,47 +190,36 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                       <Box sx={{ width: '75%' }} mr={1}>
                         <Typography
                           color={
-                            Object.values(errors?.expenses?.[index] ?? {})
+                            Object.values(errors?.debts?.[index] ?? {})
                               .length && expanded !== `panel${index}`
                               ? 'error.main'
                               : 'inherit'
                           }
                         >
-                          {expenses![index].name}
+                          {debts![index].name}
                         </Typography>
                         <Typography
                           variant="caption"
                           color={
-                            Object.values(errors?.expenses?.[index] ?? {})
+                            Object.values(errors?.debts?.[index] ?? {})
                               .length && expanded !== `panel${index}`
                               ? 'error.main'
                               : 'text.secondary'
                           }
                         >
-                          {
-                            <Box
-                              component="span"
-                              sx={{ textTransform: 'capitalize' }}
-                            >
-                              {expenses![index].expenseType !== 'single'
-                                ? expenses![index].expenseType
-                                : dayjs(expenses![index].singleDate).format(
-                                    'DD MMM YYYY'
-                                  )}
-                            </Box>
-                          }
+                          {formatPercentage(debts![index].annualInterest)}
                         </Typography>
                       </Box>
                       <Box display="flex" alignItems="center">
                         <Typography
                           color={
-                            Object.values(errors?.expenses?.[index] ?? {})
+                            Object.values(errors?.debts?.[index] ?? {})
                               .length && expanded !== `panel${index}`
                               ? 'error.main'
                               : 'text.secondary'
                           }
                         >
-                          {formatCurrency(expenses![index].amount)}
+                          {formatCurrency(debts![index].pendingDebt)}
                         </Typography>
                       </Box>
                     </>
@@ -237,49 +230,76 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                   )}
                 </AccordionSummary>
                 <AccordionDetails>
-                  <Grid container spacing={2} alignItems="center" key={item.id}>
+                  <Grid container spacing={2} alignItems="center">
                     <Grid item xs={8}>
                       <Controller
-                        name={`expenses.${index}.name`}
+                        name={`debts.${index}.name`}
                         control={control}
                         render={({ field }) => (
                           <TextField
                             {...field}
+                            size="small"
                             label={t(
-                              'finances.personalFinances.header.fixedExpenses.dialog.name'
+                              'finances.personalFinances.header.debts.dialog.name'
                             )}
                             fullWidth
-                            error={!!errors?.expenses?.[index]?.expenseType}
+                            error={!!errors?.debts?.[index]?.name}
                             helperText={
-                              errors?.expenses?.[index]?.expenseType?.message ||
-                              ' '
+                              errors?.debts?.[index]?.name?.message || ' '
                             }
                             margin="dense"
-                            size="small"
-                            inputProps={{ maxLength: 64 }}
                             variant="filled"
+                            inputProps={{ maxLength: 64 }}
                           />
                         )}
                       />
                     </Grid>
                     <Grid item xs={4}>
                       <Controller
-                        name={`expenses.${index}.amount`}
+                        name={`debts.${index}.startDate`}
+                        control={control}
+                        render={({ field }) => (
+                          <DatePicker
+                            {...field}
+                            value={field.value ?? null}
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                size: 'small',
+                                error: !!errors?.debts?.[index]?.startDate,
+                                helperText:
+                                  errors?.debts?.[index]?.startDate?.message ||
+                                  ' ',
+                                margin: 'dense',
+                                variant: 'filled',
+                              },
+                            }}
+                            label={t(
+                              'finances.personalFinances.header.debts.dialog.startDate'
+                            )}
+                            views={['year', 'month', 'day']}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Controller
+                        name={`debts.${index}.pendingDebt`}
                         control={control}
                         render={({ field }) => (
                           <CurrencyField
                             {...field}
-                            value={field.value.toString()}
+                            size="small"
                             label={t(
-                              'finances.personalFinances.header.fixedExpenses.dialog.amount'
+                              'finances.personalFinances.header.debts.dialog.pendingDebt'
                             )}
                             fullWidth
-                            error={!!errors?.expenses?.[index]?.amount}
+                            error={!!errors?.debts?.[index]?.pendingDebt}
                             helperText={
-                              errors?.expenses?.[index]?.amount?.message || ' '
+                              errors?.debts?.[index]?.pendingDebt?.message ||
+                              ' '
                             }
                             margin="dense"
-                            size="small"
                             inputProps={{ min: 0 }}
                             variant="filled"
                           />
@@ -288,75 +308,52 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                     </Grid>
                     <Grid item xs={4}>
                       <Controller
-                        name={`expenses.${index}.expenseType`}
+                        name={`debts.${index}.minimumPayment`}
                         control={control}
                         render={({ field }) => (
-                          <TextField
+                          <CurrencyField
                             {...field}
+                            size="small"
                             label={t(
-                              'finances.personalFinances.header.fixedExpenses.dialog.expenseType'
+                              'finances.personalFinances.header.debts.dialog.minPayment'
                             )}
                             fullWidth
-                            select
-                            error={!!errors?.expenses?.[index]?.expenseType}
+                            error={!!errors?.debts?.[index]?.minimumPayment}
                             helperText={
-                              errors?.expenses?.[index]?.expenseType?.message ||
+                              errors?.debts?.[index]?.minimumPayment?.message ||
                               ' '
                             }
                             margin="dense"
-                            size="small"
+                            inputProps={{ min: 0 }}
                             variant="filled"
-                          >
-                            <MenuItem value="single">
-                              {t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.single'
-                              )}
-                            </MenuItem>
-                            <MenuItem value="primary">
-                              {t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.primary'
-                              )}
-                            </MenuItem>
-                            <MenuItem value="secondary">
-                              {t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.secondary'
-                              )}
-                            </MenuItem>
-                          </TextField>
+                          />
                         )}
                       />
                     </Grid>
-                    {Boolean(expenses![index].expenseType === 'single') && (
-                      <Grid item xs={4}>
-                        <Controller
-                          name={`expenses.${index}.singleDate`}
-                          control={control}
-                          render={({ field }) => (
-                            <DatePicker
-                              {...field}
-                              value={field.value ?? null}
-                              slotProps={{
-                                textField: {
-                                  fullWidth: true,
-                                  size: 'small',
-                                  error:
-                                    !!errors?.expenses?.[index]?.singleDate,
-                                  helperText:
-                                    errors?.expenses?.[index]?.singleDate
-                                      ?.message || ' ',
-                                  margin: 'dense',
-                                  variant: 'filled',
-                                },
-                              }}
-                              label={t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.date'
-                              )}
-                              views={['year', 'month', 'day']}
-                            />
-                          )}
-                        />
-                      </Grid>
-                    )}
+                    <Grid item xs={4}>
+                      <Controller
+                        name={`debts.${index}.annualInterest`}
+                        control={control}
+                        render={({ field }) => (
+                          <PercentageField
+                            {...field}
+                            size="small"
+                            label={t(
+                              'finances.personalFinances.header.debts.dialog.anualInterest'
+                            )}
+                            fullWidth
+                            error={!!errors?.debts?.[index]?.annualInterest}
+                            helperText={
+                              errors?.debts?.[index]?.annualInterest?.message ||
+                              ' '
+                            }
+                            margin="dense"
+                            inputProps={{ min: 0 }}
+                            variant="filled"
+                          />
+                        )}
+                      />
+                    </Grid>
                   </Grid>
                 </AccordionDetails>
               </Accordion>
@@ -365,10 +362,10 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
         </DialogContent>
         <DialogActions>
           <Button type="button" onClick={handleClose}>
-            {t('finances.personalFinances.header.fixedExpenses.dialog.cancel')}
+            {t('finances.personalFinances.header.debts.dialog.cancel')}
           </Button>
           <Button type="submit">
-            {t('finances.personalFinances.header.fixedExpenses.dialog.save')}
+            {t('finances.personalFinances.header.debts.dialog.save')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -376,4 +373,4 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   );
 };
 
-export default FixedExpenseEditDialog;
+export default DebtEditDialog;
