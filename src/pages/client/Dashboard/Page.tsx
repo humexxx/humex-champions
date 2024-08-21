@@ -3,16 +3,16 @@ import {
   DenseAnalyticCard,
   UniqueVisitorCard,
   IncomeOverviewCard,
-} from 'src/components/pages/client/dashboard';
+} from './components';
 import { useTranslation } from 'react-i18next';
 
-const DashboardPage = () => {
+const Page = () => {
   const { t } = useTranslation();
 
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       <Grid item xs={12}>
-        <Typography variant="h5">{t('routes.dashboard')}</Typography>
+        <Typography variant="h5">{t('dashboard.title')}</Typography>
       </Grid>
       <Grid item xs={12} sm={6} md={4} lg={3}>
         <DenseAnalyticCard
@@ -64,4 +64,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default Page;
