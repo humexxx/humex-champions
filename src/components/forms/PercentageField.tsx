@@ -16,6 +16,9 @@ const PercentageField = forwardRef<HTMLInputElement, TextFieldProps>(
           ...props.inputProps,
           step: '0.01',
         }}
+        onFocus={(event) => {
+          event.target.select();
+        }}
       />
     );
   }

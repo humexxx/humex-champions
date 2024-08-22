@@ -1,12 +1,4 @@
-import {
-  Box,
-  Breadcrumbs,
-  Grid,
-  IconButton,
-  Tab,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Breadcrumbs, Grid, Tab, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -31,6 +23,7 @@ import {
 } from 'src/models/finances';
 import dayjs from 'dayjs';
 import SwipeableViews from 'react-swipeable-views-react-18-fix';
+import ButtonInTabs from 'src/components/ButtonInTabs';
 
 function getTabProps(id: string) {
   return {
@@ -211,6 +204,7 @@ const PersonalFinancesPage = () => {
                 }
                 onClick={handleCreateNewPlan}
                 disabled={isCreateNewPlanDisabled || isLoading}
+                icon={<AddIcon />}
               />
             </TabList>
           </Box>
@@ -284,27 +278,5 @@ const PersonalFinancesPage = () => {
     </>
   );
 };
-
-function ButtonInTabs({
-  onClick,
-  tooltipText,
-  disabled = false,
-}: {
-  onClick: () => void;
-  disabled?: boolean;
-  tooltipText: string;
-}) {
-  return (
-    <Box>
-      <Tooltip title={tooltipText}>
-        <Box sx={{ display: 'inline-block' }}>
-          <IconButton color="primary" onClick={onClick} disabled={disabled}>
-            <AddIcon />
-          </IconButton>
-        </Box>
-      </Tooltip>
-    </Box>
-  );
-}
 
 export default PersonalFinancesPage;

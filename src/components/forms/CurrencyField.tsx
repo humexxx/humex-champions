@@ -33,6 +33,9 @@ const CurrencyField = forwardRef<HTMLInputElement, TextFieldProps & Props>(
           ...props.inputProps,
           step: 'any',
         }}
+        onFocus={(event) => {
+          event.target.select();
+        }}
       />
     );
   }

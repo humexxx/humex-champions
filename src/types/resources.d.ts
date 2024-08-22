@@ -7,7 +7,9 @@ interface Resources {
     },
     "common": {
       "confirm": "Confirm",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "infinite": "Infinite",
+      "years": "Years"
     },
     "commonValidations": {
       "required": "Required field",
@@ -176,7 +178,15 @@ interface Resources {
       },
       "compound-calculator": {
         "title": "Compound Interest Calculator",
-        "description": "Calculate the future value of an investment based on the compound interest formula."
+        "description": "Calculate the future value of an investment based on the compound interest formula.",
+        "inputs": {
+          "initialInvestment": "Initial Investment",
+          "monthlyContribution": "Monthly Contribution",
+          "interestRate": "Interest Rate"
+        },
+        "investment": "Investment",
+        "addInvestment": "Add Investment",
+        "maxInvestments": "Maximum number of investments reached."
       }
     },
     "health": {
