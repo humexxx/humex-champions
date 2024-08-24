@@ -19,11 +19,13 @@ import {
   OperationsHistory,
   OperationsHistoryChart,
   Timeline,
+  Quote,
 } from './components';
 import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
 import { IOperation, ITrade } from 'src/models/finances';
 import { isInSameMonth, isInSameWeek } from 'src/utils';
+import { getTradingQuoteOfTheDay } from 'src/services/tradingQuotes';
 
 const TradingJournalPage = () => {
   const { t } = useTranslation();
@@ -172,10 +174,14 @@ const TradingJournalPage = () => {
             )}
           </Grid>
           <Grid item xs={12} md={6}>
-            <OperationsHistoryChart
-              operations={operations}
-              periodFilter={filter}
-            />
+            {filter === 'day' ? (
+              <Quote />
+            ) : (
+              <OperationsHistoryChart
+                operations={operations}
+                periodFilter={filter}
+              />
+            )}
           </Grid>
           <Grid item xs={12} md={6}>
             <Timeline operations={operations} />

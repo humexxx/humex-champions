@@ -127,8 +127,6 @@ const CompoundInterestCalculatorPage = () => {
                   {...getTabProps(i.toString())}
                   sx={{
                     color: `${MULTIPLE_GRAPH_COLORS[i]} !important`,
-                    textTransform: 'none',
-                    fontWeight: 'bold',
                   }}
                 />
               ))}
