@@ -6,6 +6,7 @@ export interface IChecklistItem {
 }
 
 export interface IChecklist {
+  id?: string;
   date: Timestamp;
   items: ChecklistItem[];
 }
