@@ -81,7 +81,9 @@ const List = () => {
               onChange={() => toggleItemCompletion(index)}
               size="large"
             />
-            <ListItemText primary={item.name} />
+            <ListItemText
+              primary={`${item.name}${Boolean(item.movedFromYesterday) && ' ' + t('uplift.checklist.list.fromYesterday')}`}
+            />
           </ListItem>
         ))}
       </MuiList>

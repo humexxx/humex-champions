@@ -202,7 +202,8 @@ interface Resources {
         "title": "Checklist",
         "description": "Create a checklist to keep track of your daily goals.",
         "list": {
-          "newItem": "New Item"
+          "newItem": "New Item",
+          "fromYesterday": "from Yesterday"
         }
       },
       "pathway": {
