@@ -4,6 +4,13 @@
     "en": "English",
     "es": "Spanish"
   },
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "infinite": "Infinite",
+    "years": "Years",
+    "add": "Add"
+  },
   "commonValidations": {
     "required": "Required field",
     "positiveNumber": "Field must be greater than 0",
@@ -29,8 +36,8 @@
         "debts": {
           "title": "Debts",
           "total": "Total",
-          "minimumPayment": "Min. Payment",
-          "interest": "Weighted Interest",
+          "minimumPayment": "Min. payment",
+          "interest": "Weighted interest",
           "noDebts": "No debts found.",
           "dialog": {
             "debt": "Debt",
@@ -49,7 +56,7 @@
           "title": "Income",
           "total": "Total",
           "month": "month",
-          "sources": "Sources",
+          "nextExtraordinaryPayment": "Next extraordinary payment",
           "noIncome": "No income found.",
           "dialog": {
             "title": "Edit monthly income",
@@ -69,13 +76,14 @@
             "cancel": "Cancel",
             "useTrading": "Use Trading",
             "useTradingHint": "Use the total P/L from the trading journal as income at the end of the month.",
-            "income": "Income"
+            "income": "Income",
+            "yearlyOn": "Yearly on"
           }
         },
         "fixedExpenses": {
           "title": "Fixed Expenses",
           "total": "Total",
-          "fixedMonthlyDebt": "Fixed Debt",
+          "fixedMonthlyDebt": "Fixed debt",
           "fixedMonthlyDebtHint": "Monthly minimum payment of debts required to avoid penalties.",
           "noFixedExpenses": "No fixed expenses found.",
           "dialog": {
@@ -115,31 +123,90 @@
     "tradingJournal": {
       "title": "Trading Journal",
       "description": "Keep a record of your trading activities and analyze your performance.",
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "formIsDirtyTitle": "Unsaved changes",
+      "formIsDirtyDescription": "You have unsaved changes. Are you sure you want to proceed?",
       "editPanel": {
         "pl": "P/L",
         "instrument": "Instrument",
         "delete": "Delete",
         "addTrade": "Add Trade",
         "submit": "Submit",
-        "summary": "Some summary data for the month / week"
+        "summary": "Some summary data for the month / week",
+        "hint": "You can add a trade by clicking the button below."
       },
       "summaryPanel": {
         "title": "Weekly Summary",
         "trades": "Number of Trades",
         "amount": "Amount in USD",
         "monthlyGrowth": "Monthly Growth"
+      },
+      "balanceTracker": {
+        "balanceStart": "Balance Start",
+        "balanceEnd": "Balance End",
+        "transactionDialog": {
+          "title": "Transaction",
+          "description": "Add a transaction to your balance tracker.",
+          "amount": "Amount",
+          "notes": "Notes",
+          "types": {
+            "deposit": "Deposit",
+            "withdrawal": "Withdrawal"
+          },
+          "type": "Type"
+        }
+      },
+      "operationsHistory": {
+        "columns": {
+          "operation": "Operation",
+          "amount": "Amount",
+          "date": "Date"
+        }
+      },
+      "operationsHistoryChart": {
+        "filters": {
+          "profit": "Profit",
+          "balance": "Balance"
+        }
       }
     },
     "portfolio": {
       "title": "Portfolio",
       "description": "Manage your investment portfolio and monitor its performance."
+    },
+    "compound-calculator": {
+      "title": "Compound Interest Calculator",
+      "description": "Calculate the future value of an investment based on the compound interest formula.",
+      "inputs": {
+        "initialInvestment": "Initial Investment",
+        "monthlyContribution": "Monthly Contribution",
+        "interestRate": "Interest Rate"
+      },
+      "investment": "Investment",
+      "addInvestment": "Add investment plan",
+      "maxInvestments": "Maximum number of investments reached."
     }
   },
   "health": {
     "title": "Health"
   },
-  "goals": {
-    "title": "Goals"
+  "uplift": {
+    "title": "Uplift",
+    "summary": "Uplift Summary",
+    "description": "Uplift is a tool to help you keep track of your daily goals and long-term goals.",
+    "checklist": {
+      "title": "Checklist",
+      "description": "Create a checklist to keep track of your daily goals.",
+      "list": {
+        "newItem": "New Item"
+      }
+    },
+    "pathway": {
+      "title": "Pathway",
+      "description": "Create a pathway to keep track of your long-term goals."
+    }
   },
   "entretaiment": {
     "title": "Entretaiment"

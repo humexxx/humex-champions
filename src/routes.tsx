@@ -7,17 +7,52 @@ import {
   SignUpPage,
   ForgotPasswordPage,
 } from './pages';
-import {
-  DashboardPage,
-  GoalsPage,
-  HealthPage,
-  FinancesPage,
-} from './pages/client';
+import { DashboardPage, HealthPage, FinancesPage } from './pages/client';
 import {
   PersonalFinancesPage,
   TradingJournalPage,
   PortfolioPage,
-} from './pages/client/finances';
+  CompoundCalculatorPage,
+} from './pages/client/Finances';
+import { ChecklistPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
+
+const upliftRoutes = [
+  {
+    path: '/client/uplift',
+    element: <UpliftPage />,
+  },
+  {
+    path: '/client/uplift/pathway',
+    element: <PathwayPage />,
+  },
+  {
+    path: '/client/uplift/checklist',
+    element: <ChecklistPage />,
+  },
+];
+
+const financeRoutes = [
+  {
+    path: '/client/finances',
+    element: <FinancesPage />,
+  },
+  {
+    path: '/client/finances/personal-finances',
+    element: <PersonalFinancesPage />,
+  },
+  {
+    path: '/client/finances/trading-journal',
+    element: <TradingJournalPage />,
+  },
+  {
+    path: '/client/finances/portfolio',
+    element: <PortfolioPage />,
+  },
+  {
+    path: '/client/finances/compound-calculator',
+    element: <CompoundCalculatorPage />,
+  },
+];
 
 export const router = createBrowserRouter([
   {
@@ -49,30 +84,13 @@ export const router = createBrowserRouter([
         path: '/client/dashboard',
         element: <DashboardPage />,
       },
-      {
-        path: '/client/finances',
-        element: <FinancesPage />,
-      },
-      {
-        path: '/client/finances/personal-finances',
-        element: <PersonalFinancesPage />,
-      },
-      {
-        path: '/client/finances/trading-journal',
-        element: <TradingJournalPage />,
-      },
-      {
-        path: '/client/finances/portfolio',
-        element: <PortfolioPage />,
-      },
+
       {
         path: '/client/health',
         element: <HealthPage />,
       },
-      {
-        path: '/client/goals',
-        element: <GoalsPage />,
-      },
+      ...financeRoutes,
+      ...upliftRoutes,
     ],
   },
 ]);

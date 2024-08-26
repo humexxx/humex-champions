@@ -25,6 +25,13 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
           MuiCardContent: {
             styleOverrides: { root: { padding: '32px' } },
           },
+          MuiTab: {
+            styleOverrides: {
+              root: {
+                textTransform: 'none',
+              },
+            },
+          },
         },
       }),
     [currentUser, mode]
