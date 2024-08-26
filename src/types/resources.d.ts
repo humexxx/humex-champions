@@ -9,7 +9,8 @@ interface Resources {
       "confirm": "Confirm",
       "cancel": "Cancel",
       "infinite": "Infinite",
-      "years": "Years"
+      "years": "Years",
+      "add": "Add"
     },
     "commonValidations": {
       "required": "Required field",
@@ -185,7 +186,7 @@ interface Resources {
           "interestRate": "Interest Rate"
         },
         "investment": "Investment",
-        "addInvestment": "Add Investment",
+        "addInvestment": "Add investment plan",
         "maxInvestments": "Maximum number of investments reached."
       }
     },
@@ -198,7 +199,10 @@ interface Resources {
       "description": "Uplift is a tool to help you keep track of your daily goals and long-term goals.",
       "checklist": {
         "title": "Checklist",
-        "description": "Create a checklist to keep track of your daily goals."
+        "description": "Create a checklist to keep track of your daily goals.",
+        "list": {
+          "newItem": "New Item"
+        }
       },
       "pathway": {
         "title": "Pathway",

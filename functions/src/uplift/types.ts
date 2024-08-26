@@ -1,4 +1,4 @@
-import { Timestamp } from '@firebase/firestore-types';
+import * as admin from 'firebase-admin';
 
 export interface IChecklistItem {
   name: string;
@@ -8,7 +8,7 @@ export interface IChecklistItem {
 
 export interface IChecklist {
   id?: string;
-  date: Timestamp;
+  date: admin.firestore.Timestamp;
   items: IChecklistItem[];
   completionPercentage?: number;
 }
