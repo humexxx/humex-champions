@@ -52,9 +52,9 @@ const Page = () => {
     <>
       <PageHeader>
         <Typography variant="h6" component="h2" gutterBottom>
-          <strong>{t('uplift.summary')}</strong>
+          <strong>{t('settings.title')}</strong>
         </Typography>
-        <Typography variant="body1">{t('uplift.description')}</Typography>
+        <Typography variant="body1">{t('settings.description')}</Typography>
       </PageHeader>
 
       <PageContent>
