@@ -95,3 +95,11 @@ export function objectDateConverter(
     return obj;
   }
 }
+
+export function getFullTimezone() {
+  const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const offsetInMinutes = -new Date().getTimezoneOffset();
+  const offsetInHours = (offsetInMinutes / 60).toFixed(2);
+  const offsetDisplay = `UTC${Number(offsetInHours) >= 0 ? '+' : ''}${offsetInHours}`;
+  return `${currentTimeZone} (${offsetDisplay})`;
+}

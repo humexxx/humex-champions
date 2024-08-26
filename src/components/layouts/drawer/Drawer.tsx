@@ -7,6 +7,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Box,
 } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -17,6 +18,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import PeopleIcon from '@mui/icons-material/People';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const Drawer = () => {
   const { t } = useTranslation();
@@ -64,7 +66,7 @@ const Drawer = () => {
   );
 
   return (
-    <div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar />
       <Divider />
       <List>
@@ -85,7 +87,7 @@ const Drawer = () => {
         ))}
       </List>
       <Divider />
-      <List>
+      <List sx={{ flexGrow: 1 }}>
         {secondaryMenuItems.map(({ text, icon, path }) => (
           <ListItem key={text}>
             <ListItemButton
@@ -102,7 +104,23 @@ const Drawer = () => {
           </ListItem>
         ))}
       </List>
-    </div>
+      <List>
+        <ListItem>
+          <ListItemButton
+            sx={{ borderRadius: 2 }}
+            selected={location.pathname.includes('/client/settings')}
+            component={NavLink}
+            to="/client/settings"
+            unstable_viewTransition
+          >
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Box>
   );
 };
 

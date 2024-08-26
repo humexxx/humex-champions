@@ -7,7 +7,12 @@ import {
   SignUpPage,
   ForgotPasswordPage,
 } from './pages';
-import { DashboardPage, HealthPage, FinancesPage } from './pages/client';
+import {
+  DashboardPage,
+  HealthPage,
+  FinancesPage,
+  SettingsPage,
+} from './pages/client';
 import {
   PersonalFinancesPage,
   TradingJournalPage,
@@ -84,7 +89,10 @@ export const router = createBrowserRouter([
         path: '/client/dashboard',
         element: <DashboardPage />,
       },
-
+      {
+        path: '/client/settings',
+        element: <SettingsPage />,
+      },
       {
         path: '/client/health',
         element: <HealthPage />,

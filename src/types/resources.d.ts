@@ -10,7 +10,8 @@ interface Resources {
       "cancel": "Cancel",
       "infinite": "Infinite",
       "years": "Years",
-      "add": "Add"
+      "add": "Add",
+      "save": "Save"
     },
     "commonValidations": {
       "required": "Required field",
@@ -217,6 +218,10 @@ interface Resources {
     },
     "groups": {
       "title": "Groups"
+    },
+    "settings": {
+      "title": "Settings",
+      "selectTimezone": "Select Timezone"
     }
   }
 }

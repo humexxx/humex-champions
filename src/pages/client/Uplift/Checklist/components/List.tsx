@@ -98,7 +98,6 @@ const List = () => {
             {...register('name')}
             error={!!errors.name}
             helperText={errors.name?.message ?? ' '}
-            size="small"
             multiline
             fullWidth
             onKeyDown={handleKeyDown}

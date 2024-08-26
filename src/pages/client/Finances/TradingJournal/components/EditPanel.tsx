@@ -130,7 +130,6 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
                       helperText={errors.trades?.[index]?.pl?.message}
                       fullWidth
                       margin="dense"
-                      size="small"
                       variant="filled"
                     />
                   )}
@@ -149,7 +148,6 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
                       error={!!errors.trades?.[index]?.instrument}
                       helperText={errors.trades?.[index]?.instrument?.message}
                       margin="dense"
-                      size="small"
                       variant="filled"
                     >
                       <MenuItem value="stock">Stock</MenuItem>
