@@ -1,21 +1,19 @@
 import { Timestamp } from 'firebase-admin/firestore';
 import { IDebt, IFinancialSnapshot, IFixedExpense, IIncome } from './types';
+import { AVG_WEEKS_IN_MONTH } from '../consts';
 
 // Función para aplicar el método Avalanche
-export function applyAvalancheMethod(
-  debts: IDebt[],
-  remaining: number
-): IDebt[] {
+export function applyAvalancheMethod(debts: IDebt[], surplus: number): IDebt[] {
   const sortedDebts = debts.sort((a, b) => b.annualInterest - a.annualInterest);
 
   return sortedDebts.map((debt) => {
     const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
-    const payment = Math.min(
-      debt.minimumPayment + remaining,
-      debt.pendingDebt + interest
-    );
+    const payment =
+      surplus > 0
+        ? Math.min(debt.minimumPayment + surplus, debt.pendingDebt + interest)
+        : debt.minimumPayment;
 
-    remaining -= Math.max(payment - debt.minimumPayment, 0);
+    surplus -= Math.max(payment - debt.minimumPayment, 0);
 
     return {
       ...debt,
@@ -32,15 +30,16 @@ export function generateSingleSnapshot(
   const totalIncome = incomes.reduce((sum, income) => {
     switch (income.period) {
       case 'weekly':
-        return sum + income.amount * 4;
+        return sum + income.amount * AVG_WEEKS_IN_MONTH;
       case 'monthly':
         return sum + income.amount;
       case 'yearly':
-        return sum + income.amount / 12;
+        return income.date?.toDate().getMonth() === new Date().getMonth()
+          ? sum + income.amount
+          : sum;
       case 'single':
-        return income.singleDate?.toDate().getMonth() ===
-          new Date().getMonth() &&
-          income.singleDate?.toDate().getFullYear() === new Date().getFullYear()
+        return income.date?.toDate().getMonth() === new Date().getMonth() &&
+          income.date?.toDate().getFullYear() === new Date().getFullYear()
           ? sum + income.amount
           : sum;
     }
@@ -67,12 +66,23 @@ export function generateSingleSnapshot(
     0
   );
 
-  const remaining = totalIncome - totalFixedExpenses - totalMinimumPayments;
-  const newDebts = applyAvalancheMethod(lastSnapshot.debts, remaining);
+  const carryover = lastSnapshot.surplus < 0 ? lastSnapshot.surplus : 0;
+
+  let surplus =
+    totalIncome - totalFixedExpenses - totalMinimumPayments + carryover;
+  const newDebts = applyAvalancheMethod(lastSnapshot.debts, surplus);
+
+  const totalBalanceInFavorForDebts = newDebts.reduce(
+    (sum, debt) => (debt.pendingDebt < 0 ? sum + debt.pendingDebt : sum),
+    0
+  );
+
+  surplus += totalBalanceInFavorForDebts * -1;
 
   return {
     reviewed: false,
     debts: newDebts,
     date: Timestamp.now() as any,
+    surplus,
   };
 }

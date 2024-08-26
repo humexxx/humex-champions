@@ -20,7 +20,7 @@ export interface IIncome {
   name: string;
   amount: number;
   period: 'single' | 'weekly' | 'monthly' | 'yearly';
-  singleDate?: Timestamp;
+  date?: Timestamp;
 }
 
 export interface IFixedExpense {
@@ -34,4 +34,5 @@ export interface IFinancialSnapshot {
   debts: IDebt[];
   date: Timestamp;
   reviewed?: boolean;
+  surplus: number;
 }

@@ -23,10 +23,11 @@ function formatPlanToTimestamp(plan: IFinancialPlan): IFinancialPlan {
     incomes: plan.incomes.map((income) => ({
       ...income,
       amount: Number(income.amount),
-      singleDate: toTimestamp(income.singleDate),
+      date: toTimestamp(income.date),
     })),
     financialSnapshots: plan.financialSnapshots.map((x) => ({
       ...x,
+      surplus: Number(x.surplus),
       date: toTimestamp(x.date),
       debts: x.debts.map((debt) => ({
         ...debt,
@@ -50,10 +51,11 @@ function formatPlanToDayjs(plan: IFinancialPlan): IFinancialPlan {
     incomes: plan.incomes.map((income) => ({
       ...income,
       amount: Number(income.amount),
-      singleDate: toDayjs(income.singleDate),
+      date: toDayjs(income.date),
     })),
     financialSnapshots: plan.financialSnapshots.map((x) => ({
       ...x,
+      surplus: Number(x.surplus),
       date: toDayjs(x.date),
       debts: x.debts.map((debt) => ({
         ...debt,
@@ -133,8 +135,8 @@ export const usePersonalFinances = (): UsePersonalFinancesResult => {
           formatPlanToTimestamp(financialPlan);
 
         formattedFinancialPlan.incomes.forEach((income, index, arr) => {
-          if (income.period !== 'single') {
-            delete arr[index].singleDate;
+          if (income.period !== 'single' && income.period !== 'yearly') {
+            delete arr[index].date;
           }
         });
 

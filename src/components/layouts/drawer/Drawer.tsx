@@ -40,7 +40,7 @@ const Drawer = () => {
         path: '/client/health',
         disabled: true,
       },
-      { text: t('goals.title'), icon: <FlagIcon />, path: '/client/goals' },
+      { text: t('uplift.title'), icon: <FlagIcon />, path: '/client/uplift' },
       {
         text: t('entretaiment.title'),
         icon: <AddReactionIcon />,
