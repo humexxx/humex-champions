@@ -192,7 +192,21 @@ interface Resources {
       }
     },
     "health": {
-      "title": "Health"
+      "title": "Health",
+      "summary": "Health Summary",
+      "description": "Health is a tool to help you keep track of your health goals and habits.",
+      "trainingProgram": {
+        "title": "Training Program",
+        "description": "Create a training program to keep track of your workouts."
+      },
+      "nutrition": {
+        "title": "Nutrition",
+        "description": "Create a nutrition plan to keep track of your meals."
+      },
+      "calculator": {
+        "title": "Calculator",
+        "description": "Calculate your BMI, BMR, TDEE and more."
+      }
     },
     "uplift": {
       "title": "Uplift",
@@ -211,8 +225,18 @@ interface Resources {
         "description": "Create a pathway to keep track of your long-term goals."
       }
     },
-    "entretaiment": {
-      "title": "Entretaiment"
+    "entertainment": {
+      "title": "Entretaiment",
+      "summary": "Entretaiment Summary",
+      "description": "Entretaiment is a tool to help you keep track of your favorite movies, series, books, etc.",
+      "youtube": {
+        "title": "YouTube",
+        "description": "Create a list of your favorite YouTube channels."
+      },
+      "trips": {
+        "title": "Trips",
+        "description": "Create a list of your favorite trips."
+      }
     },
     "members": {
       "title": "Members"

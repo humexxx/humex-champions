@@ -40,14 +40,12 @@ const Drawer = () => {
         text: t('health.title'),
         icon: <HealthAndSafetyIcon />,
         path: '/client/health',
-        disabled: true,
       },
       { text: t('uplift.title'), icon: <FlagIcon />, path: '/client/uplift' },
       {
-        text: t('entretaiment.title'),
+        text: t('entertainment.title'),
         icon: <AddReactionIcon />,
         path: '/client/entretainment',
-        disabled: true,
       },
     ],
     [t]
@@ -70,7 +68,7 @@ const Drawer = () => {
       <Toolbar />
       <Divider />
       <List>
-        {mainMenuItems.map(({ text, icon, path, disabled }) => (
+        {mainMenuItems.map(({ text, icon, path }) => (
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
@@ -78,7 +76,6 @@ const Drawer = () => {
               component={NavLink}
               to={path}
               unstable_viewTransition
-              disabled={disabled}
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
