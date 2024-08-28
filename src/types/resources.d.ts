@@ -11,7 +11,8 @@ interface Resources {
       "infinite": "Infinite",
       "years": "Years",
       "add": "Add",
-      "save": "Save"
+      "save": "Save",
+      "submit": "Submit"
     },
     "commonValidations": {
       "required": "Required field",
@@ -176,7 +177,15 @@ interface Resources {
       },
       "portfolio": {
         "title": "Portfolio",
-        "description": "Manage your investment portfolio and monitor its performance."
+        "description": "Manage your investment portfolio and monitor its performance.",
+        "createPortfolio": {
+          "title": "Create Portfolio",
+          "description": "Create a new portfolio to keep track of your investments.",
+          "amount": "Amount",
+          "instrument": "Instrument",
+          "instrumentPlaceholder": "Select an instrument",
+          "allocation": "Allocation"
+        }
       },
       "compound-calculator": {
         "title": "Compound Interest Calculator",

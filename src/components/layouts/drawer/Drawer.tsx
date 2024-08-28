@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import FlagIcon from '@mui/icons-material/Flag';
 import GroupIcon from '@mui/icons-material/Group';
@@ -19,6 +18,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import SettingsIcon from '@mui/icons-material/Settings';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 
 const Drawer = () => {
   const { t } = useTranslation();
@@ -38,7 +38,7 @@ const Drawer = () => {
       },
       {
         text: t('health.title'),
-        icon: <HealthAndSafetyIcon />,
+        icon: <DirectionsRunIcon />,
         path: '/client/health',
       },
       { text: t('uplift.title'), icon: <FlagIcon />, path: '/client/uplift' },

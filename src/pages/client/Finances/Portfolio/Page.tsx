@@ -1,13 +1,21 @@
-import { Breadcrumbs, Typography } from '@mui/material';
+import { Alert, Breadcrumbs, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDocumentMetadata } from 'src/hooks';
-import { PageHeader } from 'src/components';
+import { GlobalLoader, PageContent, PageHeader } from 'src/components';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { usePortfolio } from './hooks';
+import { CreatePortfolio, PortfolioView } from './components';
 
 const Page = () => {
   const { t } = useTranslation();
+  const { error, isLoading, portfolioSnapshots, initPortfolio } =
+    usePortfolio();
   useDocumentMetadata(`${t('finances.portfolio.title')} - Champions`);
+
+  if (error) {
+    return <Alert severity="error">{error.message}</Alert>;
+  }
 
   return (
     <>
@@ -42,7 +50,15 @@ const Page = () => {
         </Breadcrumbs>
       </PageHeader>
 
-      <>Some content here</>
+      <PageContent>
+        {isLoading ? (
+          <GlobalLoader />
+        ) : portfolioSnapshots.length ? (
+          <PortfolioView portfolioSnapshots={portfolioSnapshots} />
+        ) : (
+          <CreatePortfolio onSubmit={initPortfolio} pageLoading={isLoading} />
+        )}
+      </PageContent>
     </>
   );
 };

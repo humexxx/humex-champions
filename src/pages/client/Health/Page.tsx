@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { ButtonOptionCard, PageContent, PageHeader } from 'src/components';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import LocalDiningIcon from '@mui/icons-material/LocalDining';
-import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
 const Page = () => {
   const { t } = useTranslation();
@@ -17,7 +17,7 @@ const Page = () => {
         route: 'training-program',
         label: t('health.trainingProgram.title'),
         description: t('health.trainingProgram.description'),
-        Icon: DirectionsWalkIcon,
+        Icon: FitnessCenterIcon,
       },
 
       {
