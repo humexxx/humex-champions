@@ -11,6 +11,7 @@ import { IPortfolioSnapshot } from 'src/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
 import { IInstrument } from 'src/models/instruments';
+import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
 
 interface UserPortfolioResult {
   portfolioSnapshots: IPortfolioSnapshot[];
@@ -59,7 +60,7 @@ export const usePortfolio = (): UserPortfolioResult => {
           })
         );
 
-        setPortfolioSnapshots(portfolioSnapshots);
+        setPortfolioSnapshots(objectDateConverter(portfolioSnapshots, toDayjs));
       } catch (err) {
         console.error(err);
         setError(err as Error);
@@ -78,8 +79,9 @@ export const usePortfolio = (): UserPortfolioResult => {
       setIsLoading(true);
       delete portfolioSnapshot.id;
       try {
-        const response = await addDoc(collectionRef, portfolioSnapshot);
-        setPortfolioSnapshots([{ id: response.id, ...portfolioSnapshot }]);
+        const doc = objectDateConverter(portfolioSnapshot, toTimestamp);
+        const response = await addDoc(collectionRef, doc);
+        setPortfolioSnapshots([{ id: response.id, ...doc }]);
       } catch (err) {
         console.error(err);
         setError(err as Error);

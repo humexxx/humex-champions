@@ -7,7 +7,7 @@ interface Props {
   selectedFilter: string;
 }
 
-const SelectFilter = ({
+const SelectInstrumentFilter = ({
   portfolioSnapshot,
   selectedFilter,
   setSelectedFilter,
@@ -45,4 +45,4 @@ const SelectFilter = ({
   );
 };
 
-export default SelectFilter;
+export default SelectInstrumentFilter;

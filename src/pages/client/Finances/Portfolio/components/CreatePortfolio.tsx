@@ -10,7 +10,7 @@ import { CurrencyField, PercentageField } from 'src/components/forms';
 import { LoadingButton } from '@mui/lab';
 import { PieChart } from '@mui/x-charts';
 import { IPortfolioSnapshot } from 'src/models/finances';
-import { toTimestamp } from 'src/utils';
+import { toDayjs } from 'src/utils';
 
 interface Props {
   onSubmit: (data: IPortfolioSnapshot) => Promise<void>;
@@ -58,7 +58,7 @@ const CreatePortfolio = ({ onSubmit, pageLoading }: Props) => {
   async function _onSubmit(data: yup.InferType<typeof schema>) {
     try {
       await onSubmit({
-        date: toTimestamp(new Date()),
+        date: toDayjs(new Date()),
         totalValue: data.initialAmount,
         instruments: [
           {

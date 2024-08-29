@@ -178,6 +178,7 @@ interface Resources {
       "portfolio": {
         "title": "Portfolio",
         "description": "Manage your investment portfolio and monitor its performance.",
+        "predicted": "Predicted",
         "createPortfolio": {
           "title": "Create Portfolio",
           "description": "Create a new portfolio to keep track of your investments.",
