@@ -12,7 +12,9 @@ interface Resources {
       "years": "Years",
       "add": "Add",
       "save": "Save",
-      "submit": "Submit"
+      "submit": "Submit",
+      "total": "Total",
+      "value": "Value"
     },
     "commonValidations": {
       "required": "Required field",

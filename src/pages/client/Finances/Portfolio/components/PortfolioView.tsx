@@ -29,13 +29,17 @@ const Portfolio = ({ portfolioSnapshots }: Props) => {
     <Box display="flex">
       <Box width={120} minWidth={120}>
         <SelectInstrumentFilter
+          sx={{ marginTop: 10 }}
           portfolioSnapshot={portfolioSnapshots.at(-1)!}
           selectedFilter={selectedFilter}
           setSelectedFilter={setSelectedFilter}
         />
       </Box>
       <Box flex="1">
-        <Graph portfolioSnapshots={filteredSnapshots} />
+        <Graph
+          portfolioSnapshots={filteredSnapshots}
+          isTotalFilter={selectedFilter === 'total'}
+        />
       </Box>
     </Box>
   );

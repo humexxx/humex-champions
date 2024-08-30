@@ -1,14 +1,15 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import dayjs from 'dayjs';
 import { t } from 'i18next';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { DashedGraph } from 'src/components';
 import { IPortfolioSnapshot } from 'src/models/finances';
-import { formatCurrency, getNextQuarterDate } from 'src/utils';
+import { getNextQuarterDate } from 'src/utils';
+import GraphTotalFilter from './GraphTotalFilter';
 
 const DEFAULT_PERCENTAGE_INCREMENT_PER_TRIMESTRE = 0.03;
-const TOTAL_PREDICTIONS = 12;
+const TOTAL_PREDICTIONS = 24;
 
 function predictNextPortafolioSnapshots(
   portfolioSnapshots: IPortfolioSnapshot[]
@@ -39,9 +40,17 @@ function predictNextPortafolioSnapshots(
 
 interface Props {
   portfolioSnapshots: IPortfolioSnapshot[];
+  isTotalFilter: boolean;
 }
 
-const Graph = ({ portfolioSnapshots }: Props) => {
+const stackStrategy = {
+  stack: 'total',
+  area: true,
+  stackOffset: 'none',
+} as const;
+
+const Graph = ({ portfolioSnapshots, isTotalFilter }: Props) => {
+  const [totalFilter, setTotalFilter] = useState<'total' | 'value'>('value');
   const datasets = useMemo(() => {
     const datasets = predictNextPortafolioSnapshots(portfolioSnapshots).map(
       (snapshot) => ({
@@ -69,39 +78,53 @@ const Graph = ({ portfolioSnapshots }: Props) => {
   }, [portfolioSnapshots]);
 
   return (
-    <Box width={'100%'} height={500}>
-      <LineChart
-        dataset={datasets}
-        series={uniqueInstruments.map((instrument) => ({
-          dataKey: instrument,
-          valueFormatter: (value, i) =>
-            `$${value?.toFixed(2)}` +
-            (datasets[i.dataIndex].date > new Date()
-              ? ` (${t('finances.portfolio.predicted')})`
-              : ''),
-        }))}
-        xAxis={[
-          {
-            scaleType: 'utc',
-            data: datasets.map((data) => data.date),
-            valueFormatter: (value) => dayjs(value).format('MMM YYYY'),
-          },
-        ]}
-        yAxis={[
-          {
-            valueFormatter: (value) => `$${value?.toFixed(2)}`,
-          },
-        ]}
-        slots={{ line: DashedGraph }}
-        slotProps={{
-          line: {
-            limit: new Date(),
-            sxAfter: { strokeDasharray: '5 5' },
-          } as any,
-        }}
-        margin={{ left: 80 }}
-      />
-    </Box>
+    <>
+      <Box height={45}>
+        {Boolean(isTotalFilter) && (
+          <GraphTotalFilter
+            sx={{ marginLeft: 2 }}
+            selectedFilter={totalFilter}
+            setSelectedFilter={setTotalFilter}
+          />
+        )}
+      </Box>
+      <Box width={'100%'} height={500}>
+        <LineChart
+          grid={{ vertical: true, horizontal: true }}
+          dataset={datasets}
+          series={uniqueInstruments.map((instrument) => ({
+            dataKey: instrument,
+            valueFormatter: (value, i) =>
+              `$${value?.toFixed(2)}` +
+              (datasets[i.dataIndex].date > new Date()
+                ? ` (${t('finances.portfolio.predicted')})`
+                : ''),
+            showMark: false,
+            ...(totalFilter === 'total' && isTotalFilter ? stackStrategy : {}),
+          }))}
+          xAxis={[
+            {
+              scaleType: 'utc',
+              data: datasets.map((data) => data.date),
+              valueFormatter: (value) => dayjs(value).format('MMM YYYY'),
+            },
+          ]}
+          yAxis={[
+            {
+              valueFormatter: (value) => `$${value?.toFixed(2)}`,
+            },
+          ]}
+          slots={{ line: DashedGraph }}
+          slotProps={{
+            line: {
+              limit: new Date(),
+              sxAfter: { strokeDasharray: '5 5' },
+            } as any,
+          }}
+          margin={{ left: 80 }}
+        />
+      </Box>
+    </>
   );
 };
 
