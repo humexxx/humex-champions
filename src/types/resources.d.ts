@@ -260,6 +260,9 @@ interface Resources {
       "title": "Settings",
       "description": "Manage your account settings.",
       "selectTimezone": "Select Timezone"
+    },
+    "admin": {
+      "title": "Admin"
     }
   }
 }

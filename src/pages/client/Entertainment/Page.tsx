@@ -1,6 +1,5 @@
 import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { useMemo } from 'react';
 import { ButtonOptionCard, PageContent, PageHeader } from 'src/components';
 import YouTubeIcon from '@mui/icons-material/YouTube';
@@ -8,7 +7,6 @@ import ModeOfTravelIcon from '@mui/icons-material/ModeOfTravel';
 
 const Page = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('health.title')} - Champions`);
 
   const options = useMemo(
     () => [

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import { useDocumentMetadata } from 'src/hooks';
 
 type Props = {
   children?: React.ReactNode;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 const PageHeader = ({ children, title, description }: Props) => {
+  useDocumentMetadata(`${title} - Champions`);
   return (
     <Box mb={4}>
       {Boolean(title) && (

@@ -1,6 +1,4 @@
 export { default as Copyright } from './copyright';
-export { default as PrivateRoute } from './PrivateRoute';
-export { default as AutoLogRoute } from './AutoLogRoute';
 export { default as DashedGraph } from './DashedGraph';
 export { default as PageHeader } from './PageHeader';
 export { default as ConfirmDialog } from './ConfirmDialog';

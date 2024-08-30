@@ -3,14 +3,12 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { useMemo } from 'react';
 import { ButtonOptionCard, PageHeader } from 'src/components';
 import CalculateIcon from '@mui/icons-material/Calculate';
 
 const FinancesPage = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('finances.title')} - Champions`);
 
   const options = useMemo(
     () => [

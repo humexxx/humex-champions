@@ -27,6 +27,8 @@ import {
   TripsPage,
   YouTubePage,
 } from './pages/client/Entertainment';
+import { AutoLogRoute } from './components/auth';
+import { AdminPage } from './pages/client/Admin';
 
 const financeRoutes = [
   {
@@ -108,7 +110,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/sign-up',
-    element: <SignUpPage />,
+    element: (
+      <AutoLogRoute>
+        <SignUpPage />
+      </AutoLogRoute>
+    ),
   },
   {
     path: '/sign-in',
@@ -116,11 +122,19 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <SignInPage />,
+    element: (
+      <AutoLogRoute>
+        <SignInPage />
+      </AutoLogRoute>
+    ),
   },
   {
     path: '/forgot-password',
-    element: <ForgotPasswordPage />,
+    element: (
+      <AutoLogRoute>
+        <ForgotPasswordPage />
+      </AutoLogRoute>
+    ),
   },
   {
     path: '/client',
@@ -131,12 +145,12 @@ export const router = createBrowserRouter([
         element: <DashboardPage />,
       },
       {
-        path: '/client/settings',
-        element: <SettingsPage />,
+        path: '/client/admin',
+        element: <AdminPage />,
       },
       {
-        path: '/client/health',
-        element: <HealthPage />,
+        path: '/client/settings',
+        element: <SettingsPage />,
       },
       ...financeRoutes,
       ...healthRoutes,

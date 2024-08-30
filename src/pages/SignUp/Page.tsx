@@ -6,7 +6,6 @@ import {
 } from 'firebase/auth';
 import SignUp, { SignUpFormInputs } from './components';
 import { useNavigate } from 'react-router-dom';
-import { AutoLogRoute } from 'src/components';
 import { handleAuthError } from 'src/utils/auth';
 import { auth } from 'src/firebase';
 
@@ -31,11 +30,7 @@ const Page = () => {
     }
   }
 
-  return (
-    <AutoLogRoute>
-      <SignUp handleOnSubmit={handleOnSubmit} />
-    </AutoLogRoute>
-  );
+  return <SignUp handleOnSubmit={handleOnSubmit} />;
 };
 
 export default Page;

@@ -1,6 +1,5 @@
 import { Box, Breadcrumbs, Slider, Tab, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { PageHeader } from 'src/components';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -30,7 +29,6 @@ function getTabProps(id: string) {
 
 const CompoundInterestCalculatorPage = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('finances.compound-calculator.title')} - Champions`);
 
   const [selectedTab, setSelectedTab] = useState('0');
   const [years, setYears] = useState(10);

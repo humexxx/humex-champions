@@ -1,6 +1,5 @@
 import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { useMemo } from 'react';
 import { ButtonOptionCard, PageContent, PageHeader } from 'src/components';
 import CalculateIcon from '@mui/icons-material/Calculate';
@@ -9,7 +8,6 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
 const Page = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('health.title')} - Champions`);
 
   const options = useMemo(
     () => [
