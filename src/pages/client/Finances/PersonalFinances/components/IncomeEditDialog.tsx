@@ -256,7 +256,6 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                               errors?.incomes?.[index]?.name?.message || ' '
                             }
                             margin="dense"
-                            size="small"
                             variant="filled"
                             inputProps={{ maxLength: 64 }}
                           />
@@ -279,7 +278,6 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                               errors?.incomes?.[index]?.amount?.message || ' '
                             }
                             margin="dense"
-                            size="small"
                             variant="filled"
                             inputProps={{ min: 0 }}
                           />
@@ -303,7 +301,6 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                               errors?.incomes?.[index]?.period?.message || ' '
                             }
                             margin="dense"
-                            size="small"
                             variant="filled"
                           >
                             <MenuItem value="single">

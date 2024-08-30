@@ -13,6 +13,7 @@ export const createUserDocument = functions.auth
       .set({
         email: email || null,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        timezone: 'UTC',
       });
 
     return null;

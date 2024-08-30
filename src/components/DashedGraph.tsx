@@ -1,10 +1,18 @@
+import { Theme } from '@emotion/react';
+import { SxProps } from '@mui/material';
 import {
   useDrawingArea,
   useXScale,
   useChartId,
   AnimatedLine,
+  AnimatedLineProps,
 } from '@mui/x-charts';
-import { DashedGraphProps } from './DashedGraph.types';
+
+interface DashedGraphProps extends AnimatedLineProps {
+  limit?: number;
+  sxBefore?: SxProps<Theme>;
+  sxAfter?: SxProps<Theme>;
+}
 
 export default function DashedGraph(props: DashedGraphProps) {
   const { limit, sxBefore, sxAfter, ...other } = props;
@@ -22,8 +30,8 @@ export default function DashedGraph(props: DashedGraphProps) {
     return <AnimatedLine {...other} />;
   }
 
-  const clipIdleft = `${chartId}-${props.ownerState.id}-line-limit-${limit}-1`;
-  const clipIdRight = `${chartId}-${props.ownerState.id}-line-limit-${limit}-2`;
+  const clipIdleft = `${chartId}-${props.ownerState.id}-line-limit-1`;
+  const clipIdRight = `${chartId}-${props.ownerState.id}-line-limit-2`;
   return (
     <>
       <clipPath id={clipIdleft}>

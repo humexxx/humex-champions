@@ -238,7 +238,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         render={({ field }) => (
                           <TextField
                             {...field}
-                            size="small"
                             label={t(
                               'finances.personalFinances.header.debts.dialog.name'
                             )}
@@ -289,7 +288,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         render={({ field }) => (
                           <CurrencyField
                             {...field}
-                            size="small"
                             label={t(
                               'finances.personalFinances.header.debts.dialog.pendingDebt'
                             )}
@@ -313,7 +311,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         render={({ field }) => (
                           <CurrencyField
                             {...field}
-                            size="small"
                             label={t(
                               'finances.personalFinances.header.debts.dialog.minPayment'
                             )}
@@ -337,7 +334,6 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                         render={({ field }) => (
                           <PercentageField
                             {...field}
-                            size="small"
                             label={t(
                               'finances.personalFinances.header.debts.dialog.anualInterest'
                             )}

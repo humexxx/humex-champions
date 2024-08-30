@@ -132,7 +132,6 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
                     helperText={errors.amount?.message}
                     fullWidth
                     margin="dense"
-                    size="small"
                     variant="filled"
                   />
                 )}
@@ -152,7 +151,6 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
                     helperText={errors.type?.message}
                     fullWidth
                     margin="dense"
-                    size="small"
                     variant="filled"
                     select
                   >
@@ -184,7 +182,6 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
                     helperText={errors.notes?.message}
                     fullWidth
                     margin="dense"
-                    size="small"
                     variant="filled"
                     multiline
                     rows={2}
@@ -209,7 +206,6 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
             label={t('finances.tradingJournal.balanceTracker.balanceStart')}
             value={startOperation?.balanceStart ?? 0}
             disabled
-            size="small"
           />
         </Grid>
         <Grid item xs={5}>
@@ -217,7 +213,6 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
             label={t('finances.tradingJournal.balanceTracker.balanceEnd')}
             value={endOperation?.balanceEnd ?? 0}
             disabled
-            size="small"
           />
         </Grid>
         {Boolean(canAddTransaction) && (

@@ -255,7 +255,6 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                               ' '
                             }
                             margin="dense"
-                            size="small"
                             inputProps={{ maxLength: 64 }}
                             variant="filled"
                           />
@@ -279,7 +278,6 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                               errors?.expenses?.[index]?.amount?.message || ' '
                             }
                             margin="dense"
-                            size="small"
                             inputProps={{ min: 0 }}
                             variant="filled"
                           />
@@ -304,7 +302,6 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                               ' '
                             }
                             margin="dense"
-                            size="small"
                             variant="filled"
                           >
                             <MenuItem value="single">

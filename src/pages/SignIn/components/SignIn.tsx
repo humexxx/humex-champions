@@ -91,6 +91,7 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
               autoFocus
               error={!!errors.email}
               helperText={errors.email ? errors.email.message : ' '}
+              size="medium"
             />
           )}
         />
@@ -108,6 +109,7 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
               autoComplete="current-password"
               error={!!errors.password}
               helperText={errors.password ? errors.password.message : ' '}
+              size="medium"
             />
           )}
         />
