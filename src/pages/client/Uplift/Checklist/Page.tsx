@@ -4,7 +4,7 @@ import { useDocumentMetadata } from 'src/hooks';
 import { PageContent, PageHeader } from 'src/components';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { List } from './components';
+import { Form } from './components';
 
 const Page = () => {
   const { t } = useTranslation();
@@ -44,7 +44,7 @@ const Page = () => {
       </PageHeader>
 
       <PageContent>
-        <List />
+        <Form />
       </PageContent>
     </>
   );

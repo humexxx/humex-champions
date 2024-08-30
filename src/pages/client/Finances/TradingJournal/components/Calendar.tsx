@@ -5,11 +5,8 @@ import { useState } from 'react';
 import {
   isFirstDayOfMonth,
   isFirstDayOfWeek,
-  isInSameMonth,
-  isInSameWeek,
   isLastDayOfMonth,
   isLastDayOfWeek,
-  isSameDay,
 } from 'src/utils';
 
 type Props = {
@@ -89,8 +86,12 @@ function Day(
       sx={{ px: 2.5 }}
       disableMargin
       selected={false}
-      isSelected={isSameDay(day, selectedDay)}
-      isHovered={isSameDay(day, hoveredDay)}
+      isSelected={
+        day.isSame(selectedDay, 'day') && day.isSame(selectedDay, 'month')
+      }
+      isHovered={
+        day.isSame(hoveredDay, 'day') && day.isSame(selectedDay, 'month')
+      }
       isFirstFromGroup
       isLastFromGroup
       isNegative={isNegative}
@@ -103,8 +104,12 @@ function Day(
       sx={{ px: 2.5 }}
       disableMargin
       selected={false}
-      isSelected={isInSameWeek(day, selectedDay)}
-      isHovered={isInSameWeek(day, hoveredDay)}
+      isSelected={
+        day.isSame(selectedDay, 'week') && day.isSame(selectedDay, 'month')
+      }
+      isHovered={
+        day.isSame(hoveredDay, 'week') && day.isSame(selectedDay, 'month')
+      }
       isFirstFromGroup={isFirstDayOfWeek(day)}
       isLastFromGroup={isLastDayOfWeek(day)}
       isNegative={isNegative}
@@ -117,8 +122,12 @@ function Day(
       sx={{ px: 2.5 }}
       disableMargin
       selected={false}
-      isSelected={isInSameMonth(day, selectedDay)}
-      isHovered={isInSameMonth(day, hoveredDay)}
+      isSelected={
+        day.isSame(selectedDay, 'month') && day.isSame(selectedDay, 'year')
+      }
+      isHovered={
+        day.isSame(hoveredDay, 'month') && day.isSame(selectedDay, 'year')
+      }
       isFirstFromGroup={isFirstDayOfMonth(day) || isFirstDayOfWeek(day)}
       isLastFromGroup={isLastDayOfMonth(day) || isLastDayOfWeek(day)}
       isNegative={isNegative}

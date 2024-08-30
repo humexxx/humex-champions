@@ -7,16 +7,18 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Box,
 } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import FlagIcon from '@mui/icons-material/Flag';
 import GroupIcon from '@mui/icons-material/Group';
 import PeopleIcon from '@mui/icons-material/People';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+import SettingsIcon from '@mui/icons-material/Settings';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 
 const Drawer = () => {
   const { t } = useTranslation();
@@ -36,16 +38,14 @@ const Drawer = () => {
       },
       {
         text: t('health.title'),
-        icon: <HealthAndSafetyIcon />,
+        icon: <DirectionsRunIcon />,
         path: '/client/health',
-        disabled: true,
       },
       { text: t('uplift.title'), icon: <FlagIcon />, path: '/client/uplift' },
       {
-        text: t('entretaiment.title'),
+        text: t('entertainment.title'),
         icon: <AddReactionIcon />,
         path: '/client/entretainment',
-        disabled: true,
       },
     ],
     [t]
@@ -64,11 +64,11 @@ const Drawer = () => {
   );
 
   return (
-    <div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Toolbar />
       <Divider />
       <List>
-        {mainMenuItems.map(({ text, icon, path, disabled }) => (
+        {mainMenuItems.map(({ text, icon, path }) => (
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
@@ -76,7 +76,6 @@ const Drawer = () => {
               component={NavLink}
               to={path}
               unstable_viewTransition
-              disabled={disabled}
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -85,7 +84,7 @@ const Drawer = () => {
         ))}
       </List>
       <Divider />
-      <List>
+      <List sx={{ flexGrow: 1 }}>
         {secondaryMenuItems.map(({ text, icon, path }) => (
           <ListItem key={text}>
             <ListItemButton
@@ -102,7 +101,23 @@ const Drawer = () => {
           </ListItem>
         ))}
       </List>
-    </div>
+      <List>
+        <ListItem>
+          <ListItemButton
+            sx={{ borderRadius: 2 }}
+            selected={location.pathname.includes('/client/settings')}
+            component={NavLink}
+            to="/client/settings"
+            unstable_viewTransition
+          >
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Box>
   );
 };
 

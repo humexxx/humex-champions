@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import {
   TextField,
   Checkbox,
-  List as MuiList,
+  List,
   ListItem,
   ListItemText,
   CircularProgress,
@@ -22,7 +22,7 @@ interface ChecklistFormInputs {
   name: string;
 }
 
-const List = () => {
+const Form = () => {
   const { t } = useTranslation();
   const checklistItemSchema = useMemo(
     () =>
@@ -73,7 +73,7 @@ const List = () => {
 
   return (
     <Box>
-      <MuiList>
+      <List>
         {checklist?.items.map((item, index) => (
           <ListItem key={index} sx={{ paddingLeft: 0 }}>
             <Checkbox
@@ -81,10 +81,12 @@ const List = () => {
               onChange={() => toggleItemCompletion(index)}
               size="large"
             />
-            <ListItemText primary={item.name} />
+            <ListItemText
+              primary={`${item.name}${item.movedFromYesterday ? ' ' + t('uplift.checklist.list.fromYesterday') : ''}`}
+            />
           </ListItem>
         ))}
-      </MuiList>
+      </List>
       <Grid
         component="form"
         onSubmit={handleSubmit(onSubmit)}
@@ -98,7 +100,6 @@ const List = () => {
             {...register('name')}
             error={!!errors.name}
             helperText={errors.name?.message ?? ' '}
-            size="small"
             multiline
             fullWidth
             onKeyDown={handleKeyDown}
@@ -120,4 +121,4 @@ const List = () => {
   );
 };
 
-export default List;
+export default Form;

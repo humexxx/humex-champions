@@ -32,6 +32,11 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
               },
             },
           },
+          MuiTextField: {
+            defaultProps: {
+              size: 'small',
+            },
+          },
         },
       }),
     [currentUser, mode]

@@ -9,7 +9,11 @@
     "cancel": "Cancel",
     "infinite": "Infinite",
     "years": "Years",
-    "add": "Add"
+    "add": "Add",
+    "save": "Save",
+    "submit": "Submit",
+    "total": "Total",
+    "value": "Value"
   },
   "commonValidations": {
     "required": "Required field",
@@ -174,7 +178,16 @@
     },
     "portfolio": {
       "title": "Portfolio",
-      "description": "Manage your investment portfolio and monitor its performance."
+      "description": "Manage your investment portfolio and monitor its performance.",
+      "predicted": "Predicted",
+      "createPortfolio": {
+        "title": "Create Portfolio",
+        "description": "Create a new portfolio to keep track of your investments.",
+        "amount": "Amount",
+        "instrument": "Instrument",
+        "instrumentPlaceholder": "Select an instrument",
+        "allocation": "Allocation"
+      }
     },
     "compound-calculator": {
       "title": "Compound Interest Calculator",
@@ -190,7 +203,21 @@
     }
   },
   "health": {
-    "title": "Health"
+    "title": "Health",
+    "summary": "Health Summary",
+    "description": "Health is a tool to help you keep track of your health goals and habits.",
+    "trainingProgram": {
+      "title": "Training Program",
+      "description": "Create a training program to keep track of your workouts."
+    },
+    "nutrition": {
+      "title": "Nutrition",
+      "description": "Create a nutrition plan to keep track of your meals."
+    },
+    "calculator": {
+      "title": "Calculator",
+      "description": "Calculate your BMI, BMR, TDEE and more."
+    }
   },
   "uplift": {
     "title": "Uplift",
@@ -200,7 +227,8 @@
       "title": "Checklist",
       "description": "Create a checklist to keep track of your daily goals.",
       "list": {
-        "newItem": "New Item"
+        "newItem": "New Item",
+        "fromYesterday": "from Yesterday"
       }
     },
     "pathway": {
@@ -208,13 +236,28 @@
       "description": "Create a pathway to keep track of your long-term goals."
     }
   },
-  "entretaiment": {
-    "title": "Entretaiment"
+  "entertainment": {
+    "title": "Entretaiment",
+    "summary": "Entretaiment Summary",
+    "description": "Entretaiment is a tool to help you keep track of your favorite movies, series, books, etc.",
+    "youtube": {
+      "title": "YouTube",
+      "description": "Create a list of your favorite YouTube channels."
+    },
+    "trips": {
+      "title": "Trips",
+      "description": "Create a list of your favorite trips."
+    }
   },
   "members": {
     "title": "Members"
   },
   "groups": {
     "title": "Groups"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account settings.",
+    "selectTimezone": "Select Timezone"
   }
 }

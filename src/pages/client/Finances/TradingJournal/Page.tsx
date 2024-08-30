@@ -24,8 +24,6 @@ import {
 import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
 import { IOperation, ITrade } from 'src/models/finances';
-import { isInSameMonth, isInSameWeek } from 'src/utils';
-import { getTradingQuoteOfTheDay } from 'src/services/tradingQuotes';
 
 const TradingJournalPage = () => {
   const { t } = useTranslation();
@@ -58,8 +56,8 @@ const TradingJournalPage = () => {
           return filter === 'day'
             ? tradeDay.isSame(day, 'day')
             : filter === 'week'
-              ? isInSameWeek(tradeDay, day)
-              : isInSameMonth(tradeDay, day);
+              ? tradeDay.isSame(day, 'week')
+              : tradeDay.isSame(day, 'month');
         })
       );
     } else {

@@ -28,30 +28,6 @@ export function toDayjs(date: any): Dayjs {
   throw new Error('Invalid date type');
 }
 
-export function isInSameMonth(dayA: Dayjs, dayB: Dayjs | null | undefined) {
-  if (dayB == null) {
-    return false;
-  }
-
-  return dayA.isSame(dayB, 'month');
-}
-
-export function isInSameWeek(dayA: Dayjs, dayB: Dayjs | null | undefined) {
-  if (dayB == null) {
-    return false;
-  }
-
-  return dayA.isSame(dayB, 'week');
-}
-
-export function isSameDay(dayA: Dayjs, dayB: Dayjs | null | undefined) {
-  if (dayB == null) {
-    return false;
-  }
-
-  return dayA.isSame(dayB, 'day');
-}
-
 export function isFirstDayOfWeek(date: Dayjs) {
   return date.day() === 0;
 }
@@ -94,4 +70,26 @@ export function objectDateConverter(
   } else {
     return obj;
   }
+}
+
+export function getFullTimezone() {
+  const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const offsetInMinutes = -new Date().getTimezoneOffset();
+  const offsetInHours = (offsetInMinutes / 60).toFixed(2);
+  const offsetDisplay = `UTC${Number(offsetInHours) >= 0 ? '+' : ''}${offsetInHours}`;
+  return `${currentTimeZone} (${offsetDisplay})`;
+}
+
+export function getNextQuarterDate(date: Date): Date {
+  const currentDate = new Date() > date ? new Date() : date;
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+
+  const nextQuarterMonth =
+    currentMonth < 3 ? 3 : currentMonth < 6 ? 6 : currentMonth < 9 ? 9 : 0;
+
+  const nextQuarterYear =
+    nextQuarterMonth === 0 ? currentYear + 1 : currentYear;
+
+  return new Date(nextQuarterYear, nextQuarterMonth, 1);
 }

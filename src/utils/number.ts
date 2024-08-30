@@ -8,13 +8,7 @@ export function formatCurrency(
   if (typeof amount === 'string') {
     amount = parseFloat(amount);
   }
-  return (
-    '$' +
-    amount
-      .toFixed(2)
-      .replace(/\d(?=(\d{3})+\.)/g, '$&,')
-      .replace('.', ',')
-  );
+  return '$' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
 
 export function formatPercentage(amount: number | string) {

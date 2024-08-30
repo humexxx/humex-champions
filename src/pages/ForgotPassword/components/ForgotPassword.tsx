@@ -91,6 +91,7 @@ export default function ForgotPassword({
               autoFocus
               error={!!errors.email}
               helperText={errors.email ? errors.email.message : ' '}
+              size="medium"
             />
           )}
         />
