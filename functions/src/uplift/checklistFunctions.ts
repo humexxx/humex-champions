@@ -4,103 +4,132 @@ import { IChecklist, IChecklistItem } from './types';
 
 const db = admin.firestore();
 
-export const checklistReport = functions.pubsub
+export const checklistReportGeneration = functions.pubsub
   .schedule('every 1 hours') // Se ejecuta cada hora
   .onRun(async () => {
     try {
       const usersSnapshot = await db.collection('users').get();
 
-      usersSnapshot.forEach(async (userDoc) => {
-        const userData = userDoc.data();
-        const userTimezone = userData.timezone;
-        const now = new Date();
-        const userMidnight = new Date(
-          now.toLocaleString('en-US', { timeZone: userTimezone })
-        );
+      await Promise.all(
+        usersSnapshot.docs.map(async (userDoc) => {
+          const userData = userDoc.data();
+          const { timezone } = userData;
+          const now = new Date();
+          const userTime = new Date(
+            now.toLocaleString('en-US', { timeZone: timezone })
+          );
 
-        if (userMidnight.getHours() === 0) {
-          // Verifica si es medianoche en la zona horaria del usuario
-          const yesterday = new Date(userMidnight);
-          yesterday.setDate(yesterday.getDate() - 1);
-          yesterday.setHours(0, 0, 0, 0);
+          if (userTime.getHours() === 0) {
+            const lastChecklistSnapshot = await db
+              .collection(`uplift/${userDoc.id}/checklist`)
+              .orderBy('date', 'desc')
+              .limit(1)
+              .get();
 
-          const today = new Date(userMidnight);
-          today.setHours(0, 0, 0, 0);
+            if (!lastChecklistSnapshot.empty) {
+              const lastDoc = lastChecklistSnapshot.docs[0];
+              const lastData = lastDoc.data() as IChecklist;
 
-          // Obtener y actualizar checklists
-          const checklistsSnapshot = await db
-            .collectionGroup('checklist')
-            .where('userId', '==', userDoc.id)
-            .where('date', '>=', admin.firestore.Timestamp.fromDate(yesterday))
-            .where('date', '<', admin.firestore.Timestamp.fromDate(today))
-            .get();
+              if (lastData.date.toDate().getDate() === now.getDate() - 1) {
+                if (lastData.items && lastData.items.length > 0) {
+                  const completedItems = lastData.items.filter(
+                    (item: IChecklistItem) => item.completed
+                  ).length;
 
-          const updates = checklistsSnapshot.docs.map(async (doc) => {
-            const data = doc.data() as IChecklist;
+                  const totalItems = lastData.items.length;
+                  const completionPercentage =
+                    (completedItems / totalItems) * 100;
 
-            if (data.items && data.items.length > 0) {
-              const completedItems = data.items.filter(
-                (item: IChecklistItem) => item.completed
-              ).length;
-              const totalItems = data.items.length;
-              const completionPercentage = (completedItems / totalItems) * 100;
-
-              await doc.ref.update({
-                completionPercentage: completionPercentage,
-              });
-
-              // Mover ítems no completados al checklist de hoy
-              const uncompletedItems = data.items
-                .filter((item: IChecklistItem) => !item.completed)
-                .map((item) => ({ ...item, movedFromYesterday: true }));
-
-              if (uncompletedItems.length > 0) {
-                // Obtener la referencia al checklist de hoy, si existe
-                const todayChecklistQuery = await db
-                  .collection(doc.ref.parent.path)
-                  .where(
-                    'date',
-                    '==',
-                    admin.firestore.Timestamp.fromDate(today)
-                  )
-                  .limit(1)
-                  .get();
-
-                if (!todayChecklistQuery.empty) {
-                  // Si existe un checklist de hoy, actualízalo
-                  const todayDocRef = todayChecklistQuery.docs[0].ref;
-                  const todayData =
-                    todayChecklistQuery.docs[0].data() as IChecklist;
-                  const updatedItems = [
-                    ...todayData.items,
-                    ...uncompletedItems,
-                  ];
-
-                  await todayDocRef.update({
-                    items: updatedItems,
+                  await lastDoc.ref.update({
+                    completionPercentage: completionPercentage,
                   });
-                } else {
-                  // Si no existe, crea un nuevo checklist con ID aleatorio
-                  const newChecklist: IChecklist = {
-                    date: admin.firestore.Timestamp.fromDate(today),
-                    items: uncompletedItems,
-                  };
-                  await db.collection(doc.ref.parent.path).add(newChecklist);
+
+                  // Mover ítems no completados al checklist de hoy
+                  const uncompletedItems = lastData.items
+                    .filter((item) => !item.completed)
+                    .map((item) => ({ ...item, movedFromYesterday: true }));
+
+                  if (uncompletedItems.length > 0) {
+                    const newDocData: IChecklist = {
+                      date: admin.firestore.Timestamp.fromDate(new Date()),
+                      items: uncompletedItems,
+                    };
+
+                    await db
+                      .collection(`uplift/${userDoc.id}/checklist`)
+                      .add(newDocData);
+                  }
                 }
               }
-            } else {
-              await doc.ref.update({
-                completionPercentage: 0,
-              });
             }
-          });
+          }
+        })
+      );
 
-          await Promise.all(updates);
-        }
-      });
-
-      console.log('Checklist updates executed successfully.');
+      console.log('Checklist reports executed successfully.');
     } catch (error) {
-      console.error('Error executing checklist updates:', error);
+      console.error('Error executing checklist reports:', error);
     }
   });
+
+export const adminChecklistReportGeneration = functions.https.onCall(
+  async (_, context) => {
+    if (!context.auth || !context.auth.token.admin) {
+      return { error: 'Only admins can generate reports.' };
+    }
+
+    try {
+      const lastChecklistSnapshot = await db
+        .collection(`uplift/${context.auth.uid}/checklist`)
+        .orderBy('date', 'desc')
+        .limit(1)
+        .get();
+
+      if (!lastChecklistSnapshot.empty) {
+        const lastDoc = lastChecklistSnapshot.docs[0];
+        const lastData = lastDoc.data() as IChecklist;
+
+        if (lastData.items && lastData.items.length > 0) {
+          const completedItems = lastData.items.filter(
+            (item: IChecklistItem) => item.completed
+          ).length;
+
+          const totalItems = lastData.items.length;
+          const completionPercentage = (completedItems / totalItems) * 100;
+
+          await lastDoc.ref.update({
+            completionPercentage: completionPercentage,
+          });
+
+          // Mover ítems no completados al checklist de hoy
+          const uncompletedItems = lastData.items
+            .filter((item) => !item.completed)
+            .map((item) => ({ ...item, movedFromYesterday: true }));
+
+          if (uncompletedItems.length > 0) {
+            const newDocData: IChecklist = {
+              date: admin.firestore.Timestamp.fromDate(new Date()),
+              items: uncompletedItems,
+            };
+
+            await db
+              .collection(`uplift/${context.auth.uid}/checklist`)
+              .add(newDocData);
+
+            return {
+              message:
+                'Checklist report generated successfully with uncompleted items.',
+              data: newDocData,
+            };
+          }
+          return { message: 'Checklist report generated successfully' };
+        }
+        return { message: 'No items found under the last checklist.' };
+      }
+      return { message: 'No previous snapshot found.' };
+    } catch (error) {
+      console.error(error);
+      return { error: 'Error generating snapshot.' };
+    }
+  }
+);

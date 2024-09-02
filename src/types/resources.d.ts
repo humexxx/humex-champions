@@ -262,7 +262,16 @@ interface Resources {
       "selectTimezone": "Select Timezone"
     },
     "admin": {
-      "title": "Admin"
+      "title": "Admin",
+      "confirmDialog": {
+        "title": "Confirm Action",
+        "description": "Are you sure you want to perform this action?"
+      },
+      "options": {
+        "personalFinancesDescription": "Run a new monthly calculation for the personal finances.",
+        "portfolioDescription": "Run a quarterly calculation for the portfolio.",
+        "checklistDescription": "Run a new daily calculation for the checklist."
+      }
     }
   }
 }

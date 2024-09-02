@@ -4,7 +4,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
-import { ButtonOptionCard, PageHeader } from 'src/components';
+import { LinkOptionCard, PageHeader } from 'src/components';
 import CalculateIcon from '@mui/icons-material/Calculate';
 
 const FinancesPage = () => {
@@ -55,7 +55,7 @@ const FinancesPage = () => {
       <Grid container spacing={4}>
         {options.map(({ route, Icon, description, label }) => (
           <Grid item xs={12} md={4} key={route}>
-            <ButtonOptionCard
+            <LinkOptionCard
               route={route}
               label={label}
               description={description}

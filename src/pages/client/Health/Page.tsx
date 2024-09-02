@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
-import { ButtonOptionCard, PageContent, PageHeader } from 'src/components';
+import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
@@ -44,7 +44,7 @@ const Page = () => {
         <Grid container spacing={4}>
           {options.map(({ route, Icon, description, label }) => (
             <Grid item xs={12} md={4} key={route}>
-              <ButtonOptionCard
+              <LinkOptionCard
                 route={route}
                 label={label}
                 description={description}
