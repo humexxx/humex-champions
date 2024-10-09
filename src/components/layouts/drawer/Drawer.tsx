@@ -19,6 +19,8 @@ import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import AdminGuard from 'src/components/auth/AdminGuard';
 
 const Drawer = () => {
   const { t } = useTranslation();
@@ -102,6 +104,22 @@ const Drawer = () => {
         ))}
       </List>
       <List>
+        <AdminGuard>
+          <ListItem>
+            <ListItemButton
+              sx={{ borderRadius: 2 }}
+              selected={location.pathname.includes('/client/admin')}
+              component={NavLink}
+              to="/client/admin"
+              unstable_viewTransition
+            >
+              <ListItemIcon>
+                <AdminPanelSettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('admin.title')} />
+            </ListItemButton>
+          </ListItem>
+        </AdminGuard>
         <ListItem>
           <ListItemButton
             sx={{ borderRadius: 2 }}
@@ -113,7 +131,7 @@ const Drawer = () => {
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
-            <ListItemText primary="Settings" />
+            <ListItemText primary={t('settings.title')} />
           </ListItemButton>
         </ListItem>
       </List>

@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 export interface AuthContextType {
   currentUser: User | null;
+  isAdmin: boolean;
 }
 
 export interface AuthProviderProps {

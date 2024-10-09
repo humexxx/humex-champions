@@ -1,6 +1,5 @@
 import { Button, Stack, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { PageContent, PageHeader } from 'src/components';
 import { useUserSettings } from './hooks';
 import { useForm, Controller } from 'react-hook-form';
@@ -11,7 +10,6 @@ import { getFullTimezone } from 'src/utils';
 
 const Page = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('settings.title')} - Champions`);
 
   const schema = useMemo(
     () =>

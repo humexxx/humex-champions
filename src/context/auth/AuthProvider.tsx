@@ -7,11 +7,17 @@ import { GlobalLoader } from 'src/components';
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      if (user) {
+        const token = await user.getIdTokenResult();
+        setIsAdmin(Boolean(token.claims.admin));
+      }
+
       // Get claims
       // user
       //   ?.getIdTokenResult()
@@ -27,6 +33,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   const value: AuthContextType = {
     currentUser,
+    isAdmin,
   };
 
   return (

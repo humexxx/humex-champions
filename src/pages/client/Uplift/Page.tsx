@@ -1,14 +1,12 @@
 import { Grid, Typography } from '@mui/material';
 import InsightsIcon from '@mui/icons-material/Insights';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { useMemo } from 'react';
-import { ButtonOptionCard, PageHeader } from 'src/components';
+import { LinkOptionCard, PageHeader } from 'src/components';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 
 const Page = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('uplift.title')} - Champions`);
 
   const options = useMemo(
     () => [
@@ -41,7 +39,7 @@ const Page = () => {
       <Grid container spacing={4}>
         {options.map(({ route, Icon, description, label }) => (
           <Grid item xs={12} md={4} key={route}>
-            <ButtonOptionCard
+            <LinkOptionCard
               route={route}
               label={label}
               description={description}

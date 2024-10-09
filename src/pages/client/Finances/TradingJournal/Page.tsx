@@ -21,13 +21,11 @@ import {
   Timeline,
   Quote,
 } from './components';
-import { useDocumentMetadata } from 'src/hooks';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
 import { IOperation, ITrade } from 'src/models/finances';
 
 const TradingJournalPage = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('finances.tradingJournal.title')} - Champions`);
   const [filter, setFilter] = useState<'day' | 'week' | 'month'>('day');
   const pendingFilter = useRef<'day' | 'week' | 'month'>('day');
   const [day, setDay] = useState<Dayjs>(dayjs());
