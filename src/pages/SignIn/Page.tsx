@@ -4,7 +4,6 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
 } from 'firebase/auth';
-import { AutoLogRoute } from 'src/components';
 import SignIn, { SignInFormInputs } from './components';
 import { useNavigate } from 'react-router-dom';
 import { handleAuthError } from 'src/utils/auth';
@@ -29,11 +28,7 @@ const Page = () => {
     }
   }
 
-  return (
-    <AutoLogRoute>
-      <SignIn handleOnSubmit={handleOnSubmit} />
-    </AutoLogRoute>
-  );
+  return <SignIn handleOnSubmit={handleOnSubmit} />;
 };
 
 export default Page;

@@ -3,53 +3,89 @@ import * as admin from 'firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { generateSingleSnapshot } from './utils';
 import { IFinancialPlan } from './types';
+import { IUser } from '../types';
 
 const db = admin.firestore();
 
-// Función para generar y actualizar un solo snapshot en la base de datos
-async function generateAndSaveSingleSnapshot() {
-  const plansSnapshot = await db.collectionGroup('financialPlans').get();
+export const scheduledSnapshotGeneration = functions.pubsub
+  .schedule('0 * 1 * *') // Se ejecuta cada hora el primer día de cada mes
+  .onRun(async () => {
+    try {
+      const usersSnapshot = await db.collection('users').get();
 
-  const batch = db.batch();
+      await Promise.all(
+        usersSnapshot.docs.map(async (userDoc) => {
+          const { timezone } = userDoc.data() as IUser;
+          const now = new Date();
+          const userTime = new Date(
+            now.toLocaleString('en-US', { timeZone: timezone })
+          );
 
-  plansSnapshot.forEach((planDoc) => {
-    const planData = planDoc.data() as IFinancialPlan;
+          if (userTime.getHours() === 0) {
+            const snapshots = await db
+              .collection(`finances/${userDoc.id}/financialPlans`)
+              .get();
 
-    if (planData && planData.financialSnapshots) {
-      const lastSnapshot =
-        planData.financialSnapshots[planData.financialSnapshots.length - 1];
-      const newSnapshot = generateSingleSnapshot(
-        lastSnapshot,
-        planData.fixedExpenses,
-        planData.incomes
+            const batch = db.batch();
+            snapshots.forEach(async (snapshotDoc) => {
+              const data = snapshotDoc.data() as IFinancialPlan;
+              const lastPortfolioSnapshot =
+                data.financialSnapshots[data.financialSnapshots.length - 1];
+
+              const newSnapshot = generateSingleSnapshot(
+                lastPortfolioSnapshot,
+                data.fixedExpenses,
+                data.incomes
+              );
+
+              batch.update(snapshotDoc.ref, {
+                financialSnapshots: FieldValue.arrayUnion(newSnapshot),
+              });
+            });
+            await batch.commit();
+          }
+        })
       );
-      const planRef = planDoc.ref;
 
-      batch.update(planRef, {
-        financialSnapshots: FieldValue.arrayUnion(newSnapshot),
-      });
+      return { message: 'Snapshots generated successfully.' };
+    } catch (error) {
+      console.error(error);
+      return { error: 'Error generating snapshots.' };
     }
   });
 
-  await batch.commit();
-}
-
-export const scheduledSnapshotGeneration = functions.pubsub
-  .schedule('0 0 1 * *') // Cada primer día del mes a las 00:00
-  .onRun(async () => {
-    await generateAndSaveSingleSnapshot();
-  });
-
-export const httpSnapshotGeneration = functions.https.onRequest(
-  async (req, res) => {
-    res.status(403).send({ error: 'You shall not pass.' });
-    return;
+export const adminPersonalFinanceSnapshotGeneration = functions.https.onCall(
+  async (_, context) => {
+    if (!context.auth || !context.auth.token.admin) {
+      return { error: 'Only admins can generate snapshots.' };
+    }
 
     try {
-      await generateAndSaveSingleSnapshot();
-      res.status(200).send('Snapshot generated successfully.');
-    } catch (error: any) {
-      res.status(500).send(`Error generating snapshot: ${error.message}`);
+      const snapshots = await db
+        .collection(`finances/${context.auth.uid}/financialPlans`)
+        .get();
+
+      const batch = db.batch();
+      snapshots.forEach(async (snapshotDoc) => {
+        const data = snapshotDoc.data() as IFinancialPlan;
+        const lastPortfolioSnapshot =
+          data.financialSnapshots[data.financialSnapshots.length - 1];
+
+        const newSnapshot = generateSingleSnapshot(
+          lastPortfolioSnapshot,
+          data.fixedExpenses,
+          data.incomes
+        );
+
+        batch.update(snapshotDoc.ref, {
+          financialSnapshots: FieldValue.arrayUnion(newSnapshot),
+        });
+      });
+      await batch.commit();
+      return { message: 'Snapshots generated successfully.' };
+    } catch (error) {
+      console.error(error);
+      return { error: 'Error generating snapshots.' };
     }
   }
 );

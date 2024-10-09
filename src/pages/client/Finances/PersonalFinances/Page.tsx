@@ -10,7 +10,6 @@ import {
 } from './components';
 import { PageHeader } from 'src/components';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useDocumentMetadata } from 'src/hooks';
 import { usePersonalFinances } from 'src/hooks/pages/client/finances';
 import { useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
@@ -34,7 +33,6 @@ function getTabProps(id: string) {
 
 const PersonalFinancesPage = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('finances.personalFinances.title')} - Champions`);
 
   const { error, isLoading, financialPlans, updateFinancialPlan } =
     usePersonalFinances();

@@ -1,14 +1,12 @@
 import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { useMemo } from 'react';
-import { ButtonOptionCard, PageContent, PageHeader } from 'src/components';
+import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import ModeOfTravelIcon from '@mui/icons-material/ModeOfTravel';
 
 const Page = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('health.title')} - Champions`);
 
   const options = useMemo(
     () => [
@@ -39,7 +37,7 @@ const Page = () => {
         <Grid container spacing={4}>
           {options.map(({ route, Icon, description, label }) => (
             <Grid item xs={12} md={4} key={route}>
-              <ButtonOptionCard
+              <LinkOptionCard
                 route={route}
                 label={label}
                 description={description}

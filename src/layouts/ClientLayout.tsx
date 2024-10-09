@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PrivateRoute } from 'src/components';
+import { PrivateRoute } from 'src/components/auth';
 import { Outlet } from 'react-router-dom';
 import APP_DRAWER, { DRAWER_WIDTH } from 'src/components/layouts/drawer';
 

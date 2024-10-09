@@ -1,6 +1,5 @@
 import { Breadcrumbs, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { PageContent, PageHeader } from 'src/components';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -8,7 +7,6 @@ import { Form } from './components';
 
 const Page = () => {
   const { t } = useTranslation();
-  useDocumentMetadata(`${t('uplift.title')} - Champions`);
 
   return (
     <>

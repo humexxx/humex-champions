@@ -62,8 +62,60 @@ export const portfolioQuarterlyUpdate = functions.pubsub
         })
       );
 
-      console.log('Portfolio updates executed successfully.');
+      return { message: 'Portfolio snapshot generated successfully.' };
     } catch (error) {
-      console.error('Error executing portfolio updates:', error);
+      console.error(error);
+      return { error: 'Error generating snapshot.' };
     }
   });
+
+export const adminPortfolioSnapshotGeneration = functions.https.onCall(
+  async (_, context) => {
+    if (!context.auth || !context.auth.token.admin) {
+      return { error: 'Only admins can generate snapshots.' };
+    }
+
+    try {
+      const lastPortfolioSnapshot = await db
+        .collection(`finances/${context.auth.uid}/portfolio`)
+        .orderBy('date', 'desc')
+        .limit(1)
+        .get();
+
+      if (!lastPortfolioSnapshot.empty) {
+        const lastDoc = lastPortfolioSnapshot.docs[0];
+        const lastData = lastDoc.data();
+
+        const newInstruments = lastData.instruments.map((instrument: any) => ({
+          ...instrument,
+          value: instrument.value * (1 + DEFAULT_PERCENTAGE_INCREMENT),
+        }));
+
+        const newTotalValue = newInstruments.reduce(
+          (acc: number, instrument: any) => acc + instrument.value,
+          0
+        );
+
+        const newDocData = {
+          date: admin.firestore.Timestamp.fromDate(new Date()),
+          instruments: newInstruments,
+          totalValue: newTotalValue,
+          reviewed: false,
+        };
+
+        await db
+          .collection(`finances/${context.auth.uid}/portfolio`)
+          .add(newDocData);
+
+        return {
+          message: 'Portfolio snapshot generated successfully.',
+          data: newDocData,
+        };
+      }
+      return { message: 'No previous snapshot found.' };
+    } catch (error) {
+      console.error(error);
+      return { error: 'Error generating snapshot.' };
+    }
+  }
+);

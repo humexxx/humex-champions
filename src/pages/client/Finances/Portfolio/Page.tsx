@@ -1,6 +1,5 @@
 import { Alert, Breadcrumbs, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useDocumentMetadata } from 'src/hooks';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -100,7 +99,6 @@ const Page = () => {
   const { t } = useTranslation();
   const { error, isLoading, portfolioSnapshots, initPortfolio } =
     usePortfolio();
-  useDocumentMetadata(`${t('finances.portfolio.title')} - Champions`);
 
   if (error) {
     return <Alert severity="error">{error.message}</Alert>;
