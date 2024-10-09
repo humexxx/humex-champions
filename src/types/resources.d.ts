@@ -273,6 +273,252 @@ interface Resources {
         "checklistDescription": "Run a new daily calculation for the checklist."
       }
     }
+  },
+  "es": {
+    "lang": "es-ES",
+    "languages": {
+      "en": "Inglés",
+      "es": "Español"
+    },
+    "common": {
+      "confirm": "Confirmar",
+      "cancel": "Cancelar",
+      "infinite": "Infinito",
+      "years": "Años",
+      "add": "Agregar",
+      "save": "Guardar",
+      "submit": "Enviar",
+      "total": "Total",
+      "value": "Valor"
+    },
+    "commonValidations": {
+      "required": "Campo requerido",
+      "positiveNumber": "El campo debe ser mayor que 0",
+      "type": "Tipo inválido"
+    },
+    "dashboard": {
+      "title": "Tablero",
+      "totalSavings": "Ahorros Totales",
+      "totalFatBurn": "Quema Total de Grasa",
+      "totalDailyGoalsStreak": "Racha Total de Metas Diarias",
+      "totalPLTrading": "Total P/L del Trading"
+    },
+    "finances": {
+      "title": "Finanzas",
+      "financialSummary": "Resumen Financiero",
+      "summaryDescription": "Aquí puedes incluir un breve resumen de las finanzas personales, como el saldo actual, el rendimiento de la cartera, etc.",
+      "personalFinances": {
+        "title": "Finanzas Personales",
+        "description": "Gestiona tus finanzas personales y realiza un seguimiento de tus gastos e ingresos.",
+        "addPlan": "Agregar Plan",
+        "addPlanHint": "El plan principal debe tener datos",
+        "header": {
+          "debts": {
+            "title": "Deudas",
+            "total": "Total",
+            "minimumPayment": "Pago Mín.",
+            "interest": "Interés Ponderado",
+            "noDebts": "No se encontraron deudas.",
+            "dialog": {
+              "debt": "Deuda",
+              "name": "Nombre",
+              "title": "Editar deuda mensual",
+              "pendingDebt": "Deuda Pendiente",
+              "minPayment": "Pago Mín.",
+              "anualInterest": "Interés Anual",
+              "startDate": "Fecha de Inicio",
+              "addDebt": "Agregar Deuda",
+              "save": "Guardar",
+              "cancel": "Cancelar"
+            }
+          },
+          "incomes": {
+            "title": "Ingresos",
+            "total": "Total",
+            "month": "mes",
+            "nextExtraordinaryPayment": "Próximo pago extraordinario",
+            "noIncome": "No se encontraron ingresos.",
+            "dialog": {
+              "title": "Editar ingreso mensual",
+              "period": "Período",
+              "amount": "Monto",
+              "startDate": "Fecha de Inicio",
+              "periods": {
+                "single": "Único",
+                "weekly": "Semanal",
+                "monthly": "Mensual",
+                "yearly": "Anual"
+              },
+              "name": "Nombre",
+              "date": "Fecha",
+              "addIncome": "Agregar Ingreso",
+              "save": "Guardar",
+              "cancel": "Cancelar",
+              "useTrading": "Usar Trading",
+              "useTradingHint": "Usar el total P/L del diario de trading como ingreso al final del mes.",
+              "income": "Ingreso",
+              "yearlyOn": "Anual en"
+            }
+          },
+          "fixedExpenses": {
+            "title": "Gastos Fijos",
+            "total": "Total",
+            "fixedMonthlyDebt": "Deuda fija",
+            "fixedMonthlyDebtHint": "Pago mínimo mensual de deudas requerido para evitar penalizaciones.",
+            "noFixedExpenses": "No se encontraron gastos fijos.",
+            "dialog": {
+              "title": "Editar gasto fijo",
+              "name": "Nombre",
+              "expenseType": "Tipo de Gasto",
+              "amount": "Monto",
+              "date": "Fecha",
+              "expenseTypes": {
+                "primary": "Primario",
+                "secondary": "Secundario",
+                "single": "Único"
+              },
+              "addFixedExpense": "Agregar Gasto Fijo",
+              "save": "Guardar",
+              "cancel": "Cancelar",
+              "fixedExpense": "Gasto Fijo"
+            }
+          }
+        },
+        "graph": {
+          "estimatedTimeToSavings": "Tiempo estimado para tener más ahorros que deudas: {{months}} meses.",
+          "moreThanYear": "Tomará más de un año tener más ahorros que deudas.",
+          "savings": "Ahorros",
+          "debts": "Deudas",
+          "month": "Mes"
+        },
+        "debtConfirmationDialog": {
+          "title": "Confirmación de Deuda",
+          "totalPreviousDebt": "Total Deuda Anterior",
+          "totalNewDebt": "Total Nueva Deuda",
+          "newDebt": "Nueva Deuda",
+          "confirm": "Confirmar",
+          "description": "Se ha calculado una nueva estimación de deudas basada en las tasas de interés anuales, los pagos mínimos, los ingresos, los gastos fijos y la estrategia de pago. Por favor, confirma las nuevas deudas."
+        }
+      },
+      "tradingJournal": {
+        "title": "Diario de Trading",
+        "description": "Lleva un registro de tus actividades de trading y analiza tu rendimiento.",
+        "day": "Día",
+        "week": "Semana",
+        "month": "Mes",
+        "formIsDirtyTitle": "Cambios no guardados",
+        "formIsDirtyDescription": "Tienes cambios no guardados. ¿Estás seguro de que quieres continuar?",
+        "editPanel": {
+          "pl": "P/L",
+          "instrument": "Instrumento",
+          "delete": "Eliminar",
+          "addTrade": "Agregar Trade",
+          "submit": "Enviar",
+          "summary": "Algunos datos resumen para el mes / semana",
+          "hint": "Puedes agregar un trade haciendo clic en el botón de abajo."
+        },
+        "summaryPanel": {
+          "title": "Resumen Semanal",
+          "trades": "Número de Trades",
+          "amount": "Monto en USD",
+          "monthlyGrowth": "Crecimiento Mensual"
+        },
+        "balanceTracker": {
+          "balanceStart": "Saldo Inicial",
+          "balanceEnd": "Saldo Final",
+          "transactionDialog": {
+            "title": "Transacción",
+            "description": "Agrega una transacción a tu rastreador de saldo.",
+            "amount": "Monto",
+            "notes": "Notas",
+            "types": {
+              "deposit": "Depósito",
+              "withdrawal": "Retiro"
+            },
+            "type": "Tipo"
+          }
+        },
+        "operationsHistory": {
+          "columns": {
+            "operation": "Operación",
+            "amount": "Monto",
+            "date": "Fecha"
+          }
+        },
+        "operationsHistoryChart": {
+          "filters": {
+            "profit": "Beneficio",
+            "balance": "Saldo"
+          }
+        }
+      },
+      "portfolio": {
+        "title": "Cartera",
+        "description": "Gestiona tu cartera de inversiones y monitorea su rendimiento.",
+        "predicted": "Predicho",
+        "createPortfolio": {
+          "title": "Crear Cartera",
+          "description": "Crea una nueva cartera para realizar un seguimiento de tus inversiones.",
+          "amount": "Monto",
+          "instrument": "Instrumento",
+          "instrumentPlaceholder": "Selecciona un instrumento",
+          "allocation": "Asignación"
+        }
+      },
+      "compound-calculator": {
+        "title": "Calculadora de Interés Compuesto",
+        "description": "Calcula el valor futuro de una inversión basada en la fórmula del interés compuesto.",
+        "inputs": {
+          "initialInvestment": "Inversión Inicial",
+          "monthlyContribution": "Contribución Mensual",
+          "interestRate": "Tasa de Interés"
+        },
+        "investment": "Inversión",
+        "addInvestment": "Agregar plan de inversión",
+        "maxInvestments": "Se ha alcanzado el número máximo de inversiones."
+      }
+    },
+    "health": {
+      "title": "Salud",
+      "summary": "Resumen de Salud",
+      "description": "La salud es una herramienta para ayudarte a realizar un seguimiento de tus objetivos y hábitos de salud.",
+      "trainingProgram": {
+        "title": "Programa de Entrenamiento",
+        "description": "Crea un programa de entrenamiento para llevar un seguimiento de tus entrenamientos."
+      },
+      "nutrition": {
+        "title": "Nutrición",
+        "description": "Crea un plan de nutrición para llevar un seguimiento de tus comidas."
+      },
+      "calculator": {
+        "title": "Calculadora",
+        "description": "Calcula tu IMC, BMR, TDEE y más."
+      }
+    },
+    "uplift": {
+      "title": "Uplift",
+      "summary": "Resumen de Uplift",
+      "description": "Uplift es una herramienta para ayudarte a llevar un seguimiento de tus metas diarias y a largo plazo.",
+      "checklist": {
+        "title": "Lista de Verificación",
+        "description": "Crea una lista de verificación para llevar un seguimiento de tus metas diarias.",
+        "list": {
+          "newItem": "Nuevo Ítem",
+          "fromYesterday": "de Ayer"
+        }
+      },
+      "pathway": {
+        "title": "Camino",
+        "description": "Planifica tus metas a largo plazo.",
+        "addGoal": "Agregar Meta",
+        "goal": {
+          "title": "Título de la Meta",
+          "description": "Descripción de la Meta",
+          "dueDate": "Fecha de Vencimiento",
+          "completion": "Porcentaje de Cumplimiento"
+        }
+      }
+    }
   }
 }
 

@@ -42,7 +42,7 @@ const Header = ({ handleDrawerToggle }: Props) => {
       });
   }
 
-  const handleClose = (language: string) => () => {
+  const handleLanguageOnChange = (language: string) => () => {
     setLanguageMenuOpen(false);
     i18n.changeLanguage(language);
   };
@@ -83,8 +83,8 @@ const Header = ({ handleDrawerToggle }: Props) => {
           open={isLanguageMenuOpen}
           onClose={() => setLanguageMenuOpen(false)}
         >
-          <MenuItem onClick={handleClose('en')}>English</MenuItem>
-          <MenuItem onClick={handleClose('es')}>Español</MenuItem>
+          <MenuItem onClick={handleLanguageOnChange('en')}>English</MenuItem>
+          <MenuItem onClick={handleLanguageOnChange('es')}>Español</MenuItem>
         </Menu>
         <IconButton
           sx={{ ml: 2 }}
