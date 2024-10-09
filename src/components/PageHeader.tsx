@@ -8,7 +8,7 @@ type Props = {
   description?: string;
 };
 
-const PageHeader = ({ children, title, description }: Props) => {
+const PageHeader = ({ title, description }: Props) => {
   useDocumentMetadata(`${title} - Champions`);
   return (
     <Box mb={4}>
@@ -20,7 +20,6 @@ const PageHeader = ({ children, title, description }: Props) => {
       {Boolean(description) && (
         <Typography variant="body1">{description}</Typography>
       )}
-      {children}
     </Box>
   );
 };
