@@ -52,7 +52,7 @@ const TradingHistory = ({ operations }: Props) => {
     [operations]
   );
 
-  const columns: GridColDef<(typeof rows)[number]>[] = useMemo(
+  const columns: GridColDef[] = useMemo(
     () => [
       {
         field: 'id',

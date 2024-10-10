@@ -4,7 +4,3 @@ export interface SignUpFormInputs {
   confirmPassword: string;
   persist: boolean;
 }
-
-export interface SignUpProps {
-  handleOnSubmit: (form: SignUpFormInputs) => Promise<void>;
-}

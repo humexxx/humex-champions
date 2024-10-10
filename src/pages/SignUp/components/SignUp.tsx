@@ -8,11 +8,12 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { LoadingButton } from '@mui/lab';
 import { Link as RouterLink } from 'react-router-dom';
-import { SignUpProps, SignUpFormInputs } from './SignUp.types';
-import { Checkbox, Container, FormControlLabel } from '@mui/material';
+import { SignUpFormInputs } from './SignUp.types';
+import { Checkbox, Divider, FormControlLabel } from '@mui/material';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import GoogleIcon from '@mui/icons-material/Google';
 
 // Define the validation schema
 const schema = yup.object().shape({
@@ -28,7 +29,15 @@ const schema = yup.object().shape({
   persist: yup.boolean().default(false),
 });
 
-export default function SignUp({ handleOnSubmit }: SignUpProps) {
+interface Props {
+  handleOnSubmit: (form: SignUpFormInputs) => Promise<void>;
+  signUpWithGoogleOnClick: () => void;
+}
+
+export default function SignUp({
+  handleOnSubmit,
+  signUpWithGoogleOnClick,
+}: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,16 +68,14 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
     }
   };
 
+  function handleGoogleOnClick() {
+    setIsLoading(true);
+    setError(null);
+    signUpWithGoogleOnClick();
+  }
+
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        marginTop: 8,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
+    <>
       <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
         <LockOutlinedIcon />
       </Avatar>
@@ -153,10 +160,22 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{ mt: 3, mb: 2 }}
+          sx={{ mt: 3 }}
           loading={isLoading}
         >
           Sign Up
+        </LoadingButton>
+        <Divider sx={{ my: 4 }}>or</Divider>
+        <LoadingButton
+          startIcon={<GoogleIcon />}
+          fullWidth
+          variant="outlined"
+          type="button"
+          sx={{ mb: 2 }}
+          loading={isLoading}
+          onClick={handleGoogleOnClick}
+        >
+          Sign Up with Google
         </LoadingButton>
         <Grid container>
           <Grid item xs>
@@ -166,6 +185,6 @@ export default function SignUp({ handleOnSubmit }: SignUpProps) {
           </Grid>
         </Grid>
       </Box>
-    </Container>
+    </>
   );
 }
