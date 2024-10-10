@@ -9,7 +9,7 @@ type Props = {
   periodFilter: 'day' | 'week' | 'month';
 };
 
-const OperationsHistoryChart = ({ operations, periodFilter }: Props) => {
+const OperationsHistoryChart = ({ operations }: Props) => {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<'profit' | 'balance'>('profit');
 

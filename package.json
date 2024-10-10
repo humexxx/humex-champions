@@ -32,7 +32,6 @@
     "react-i18next": "^15.0.0",
     "react-imask": "^7.6.1",
     "react-router-dom": "^6.25.1",
-    "react-swipeable-views-react-18-fix": "^0.14.1",
     "yup": "^1.4.0"
   },
   "devDependencies": {

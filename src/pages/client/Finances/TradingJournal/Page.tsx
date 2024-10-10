@@ -30,7 +30,7 @@ const TradingJournalPage = () => {
   const pendingFilter = useRef<'day' | 'week' | 'month'>('day');
   const [day, setDay] = useState<Dayjs>(dayjs());
   const [prevMonth, setPrevMonth] = useState<string | null>(null);
-  const { loading, journal, getTradingJournalByMonth, updateTradingJournal } =
+  const { journal, getTradingJournalByMonth, updateTradingJournal } =
     useTradingJournal();
   const [operations, setOperations] = useState<IOperation[]>([]);
   const [trades, setTrades] = useState<ITrade[]>([]);

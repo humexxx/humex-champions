@@ -21,12 +21,7 @@ const Page = () => {
 
   const { settings, updateTimezone } = useUserSettings();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm({
+  const { control, handleSubmit, setValue } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       timezone: getFullTimezone(),
