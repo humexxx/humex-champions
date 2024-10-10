@@ -1,4 +1,11 @@
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import {
+  Button,
+  Divider,
+  Grid,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import { useUserSettings } from './hooks';
@@ -7,9 +14,12 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useMemo } from 'react';
 import { getFullTimezone } from 'src/utils';
+import { useAuth } from 'src/context/auth';
+import { GoogleLoginButton } from 'src/components/auth';
 
 const Page = () => {
   const { t } = useTranslation();
+  const { hasGoogleProvider } = useAuth();
 
   const schema = useMemo(
     () =>
@@ -61,6 +71,19 @@ const Page = () => {
             {t('common.save')}
           </Button>
         </Stack>
+        <Divider sx={{ my: 4 }} />
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Typography variant="h6" component="h2" gutterBottom>
+              {hasGoogleProvider
+                ? t('settings.googleLoggedIn')
+                : t('settings.googleNotLoggedIn')}
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            {!hasGoogleProvider && <GoogleLoginButton />}
+          </Grid>
+        </Grid>
       </PageContent>
     </>
   );

@@ -14,7 +14,8 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { SignInProps, SignInFormInputs } from './SignIn.types';
 import { Link as RouterLink } from 'react-router-dom';
-import { Container } from '@mui/material';
+import { Container, Divider } from '@mui/material';
+import { GoogleLoginButton } from 'src/components/auth';
 
 const schema = yup.object().shape({
   email: yup
@@ -56,15 +57,7 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
   };
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        marginTop: 8,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
+    <>
       <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
         <LockOutlinedIcon />
       </Avatar>
@@ -137,6 +130,8 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
         >
           Sign In
         </LoadingButton>
+        <Divider sx={{ my: 4 }}>or</Divider>
+        <GoogleLoginButton />
         <Grid container>
           <Grid item xs>
             <Link component={RouterLink} to="/forgot-password" variant="body2">
@@ -150,6 +145,6 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
           </Grid>
         </Grid>
       </Box>
-    </Container>
+    </>
   );
 }

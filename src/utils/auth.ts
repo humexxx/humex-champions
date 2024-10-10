@@ -1,5 +1,11 @@
 import { FirebaseError } from 'firebase/app';
-import { AuthErrorCodes } from 'firebase/auth';
+import {
+  AuthErrorCodes,
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  UserCredential,
+} from 'firebase/auth';
 
 export function handleAuthError(error: unknown) {
   if (error instanceof FirebaseError) {
@@ -15,4 +21,13 @@ export function handleAuthError(error: unknown) {
     }
   }
   throw error;
+}
+
+export async function loginWithGoogle(): Promise<UserCredential> {
+  const provider = new GoogleAuthProvider();
+
+  const auth = getAuth();
+  auth.useDeviceLanguage();
+  // signInWithRedirect(auth, provider);
+  return await signInWithPopup(auth, provider);
 }

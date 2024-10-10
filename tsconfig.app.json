@@ -24,10 +24,11 @@
     "noFallthroughCasesInSwitch": true,
 
     "paths": {
-      "src/*": ["./src/*"]
+      "src/*": ["./src/*"],
+      "@shared/*": ["./shared/*"]
     },
 
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src"]
+  "include": ["src/**/*", "shared/**/*"]
 }

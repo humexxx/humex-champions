@@ -4,6 +4,7 @@ import { auth } from 'src/firebase';
 import AuthContext from './AuthContext';
 import { AuthContextType, AuthProviderProps } from './AuthContext.types';
 import { GlobalLoader } from 'src/components';
+import { EProviderType } from '@shared/enums';
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -34,6 +35,10 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     currentUser,
     isAdmin,
+    hasGoogleProvider:
+      currentUser?.providerData.some(
+        (x) => x.providerId === EProviderType.GOOGLE
+      ) ?? false,
   };
 
   return (
