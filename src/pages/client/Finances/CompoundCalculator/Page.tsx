@@ -4,7 +4,6 @@ import { PageHeader } from 'src/components';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import SwipeableViews from 'react-swipeable-views-react-18-fix';
 import { useCallback, useState } from 'react';
 import { Graph, Inputs } from './components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
@@ -140,27 +139,17 @@ const CompoundInterestCalculatorPage = () => {
               />
             </TabList>
           </Box>
-          <SwipeableViews
-            index={Number(selectedTab)}
-            onChangeIndex={(i) => setSelectedTab(i.toString())}
-            containerStyle={{
-              transition: 'transform 0.35s cubic-bezier(0.15, 0.3, 0.25, 1) 0s',
-            }}
-          >
-            {data.map((_, i) => (
-              <TabPanel key={i} value={i.toString()} sx={{ p: 2 }}>
-                <Inputs
-                  onChange={(data) => OnChange(i, data)}
-                  customData={data[i]}
-                  onRemove={
-                    i
-                      ? () => removeInvestmentPlanOnClick(data[i]?.id)
-                      : undefined
-                  }
-                />
-              </TabPanel>
-            ))}
-          </SwipeableViews>
+          {data.map((_, i) => (
+            <TabPanel key={i} value={i.toString()} sx={{ p: 2 }}>
+              <Inputs
+                onChange={(data) => OnChange(i, data)}
+                customData={data[i]}
+                onRemove={
+                  i ? () => removeInvestmentPlanOnClick(data[i]?.id) : undefined
+                }
+              />
+            </TabPanel>
+          ))}
         </TabContext>
       </Box>
       <Graph data={data} years={years} />

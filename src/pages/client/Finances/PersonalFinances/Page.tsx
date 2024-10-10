@@ -21,7 +21,6 @@ import {
   IIncome,
 } from 'src/models/finances';
 import dayjs from 'dayjs';
-import SwipeableViews from 'react-swipeable-views-react-18-fix';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 
 function getTabProps(id: string) {
@@ -34,7 +33,7 @@ function getTabProps(id: string) {
 const PersonalFinancesPage = () => {
   const { t } = useTranslation();
 
-  const { error, isLoading, financialPlans, updateFinancialPlan } =
+  const { isLoading, financialPlans, updateFinancialPlan } =
     usePersonalFinances();
   const [selectedTab, setSelectedTab] = useState('0');
 
@@ -206,62 +205,55 @@ const PersonalFinancesPage = () => {
               />
             </TabList>
           </Box>
-          <SwipeableViews
-            index={Number(selectedTab)}
-            onChangeIndex={(i: number) => setSelectedTab(i.toString())}
-            containerStyle={{
-              transition: 'transform 0.35s cubic-bezier(0.15, 0.3, 0.25, 1) 0s',
-            }}
-          >
-            {_financialPlans.map(
-              ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
-                const { debts } =
-                  financialSnapshots[financialSnapshots.length - 1];
 
-                return (
-                  <TabPanel
-                    key={`tab-panel-${id}`}
-                    value={i.toString()}
-                    sx={{ p: 2 }}
-                  >
-                    <Grid container spacing={4}>
-                      <Grid item xs={12} md={4}>
-                        <DebtCard
-                          canEdit={i === 0}
-                          debts={debts}
-                          isLoading={isLoading}
-                          update={(data) => _updateDebts(id ?? null, data)}
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <IncomeCard
-                          incomes={incomes}
-                          isLoading={isLoading}
-                          update={(data) =>
-                            _updateFinancialPlan(id ?? null, data, 'incomes')
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <FixedExpenseCard
-                          fixedExpenses={fixedExpenses}
-                          debts={debts}
-                          isLoading={isLoading}
-                          update={(data) =>
-                            _updateFinancialPlan(
-                              id ?? null,
-                              data,
-                              'fixedExpenses'
-                            )
-                          }
-                        />
-                      </Grid>
+          {_financialPlans.map(
+            ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
+              const { debts } =
+                financialSnapshots[financialSnapshots.length - 1];
+
+              return (
+                <TabPanel
+                  key={`tab-panel-${id}`}
+                  value={i.toString()}
+                  sx={{ p: 2 }}
+                >
+                  <Grid container spacing={4}>
+                    <Grid item xs={12} md={4}>
+                      <DebtCard
+                        canEdit={i === 0}
+                        debts={debts}
+                        isLoading={isLoading}
+                        update={(data) => _updateDebts(id ?? null, data)}
+                      />
                     </Grid>
-                  </TabPanel>
-                );
-              }
-            )}
-          </SwipeableViews>
+                    <Grid item xs={12} md={4}>
+                      <IncomeCard
+                        incomes={incomes}
+                        isLoading={isLoading}
+                        update={(data) =>
+                          _updateFinancialPlan(id ?? null, data, 'incomes')
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <FixedExpenseCard
+                        fixedExpenses={fixedExpenses}
+                        debts={debts}
+                        isLoading={isLoading}
+                        update={(data) =>
+                          _updateFinancialPlan(
+                            id ?? null,
+                            data,
+                            'fixedExpenses'
+                          )
+                        }
+                      />
+                    </Grid>
+                  </Grid>
+                </TabPanel>
+              );
+            }
+          )}
         </TabContext>
       </Box>
 

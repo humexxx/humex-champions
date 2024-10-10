@@ -8,12 +8,13 @@ import TimelineOppositeContent, {
   timelineOppositeContentClasses,
 } from '@mui/lab/TimelineOppositeContent';
 import { IOperation } from 'src/models/finances';
+import { FC } from 'react';
 
 type Props = {
   operations: IOperation[];
 };
 
-const Timeline = ({ operations }: Props) => {
+const Timeline: FC<Props> = () => {
   return (
     <MuiTimeline
       sx={{

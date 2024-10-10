@@ -68,7 +68,7 @@ const Page: React.FC = () => {
     <Box sx={{ flexGrow: 1, p: 3 }}>
       <Tabs
         value={tabValue}
-        onChange={(e, newValue) => setTabValue(newValue)}
+        onChange={(_, newValue) => setTabValue(newValue)}
         aria-label="Goals Tabs"
       >
         <Tab label="Tasks" />

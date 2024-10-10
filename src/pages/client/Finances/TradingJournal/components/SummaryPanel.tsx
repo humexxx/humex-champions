@@ -2,14 +2,15 @@ import { Box, Grid, Paper, Typography, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import { SummaryPanelProps } from './TradingJournal.types';
 
-const SummaryPanel = ({
-  trades,
-  percentage,
-  amount,
-  monthlyGrowth,
-}: SummaryPanelProps) => {
+interface Props {
+  trades: number;
+  percentage: number;
+  amount: number;
+  monthlyGrowth: number;
+}
+
+const SummaryPanel = ({ trades, percentage, amount, monthlyGrowth }: Props) => {
   const { t } = useTranslation();
 
   return (
