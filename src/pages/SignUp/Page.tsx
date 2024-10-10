@@ -1,8 +1,6 @@
 import {
   createUserWithEmailAndPassword,
-  GoogleAuthProvider,
   getAuth,
-  signInWithRedirect,
   getRedirectResult,
 } from 'firebase/auth';
 import SignUp, { SignUpFormInputs } from './components';
@@ -11,11 +9,6 @@ import { handleAuthError } from 'src/utils/auth';
 import { auth } from 'src/firebase';
 import { Container } from '@mui/material';
 import { useEffect } from 'react';
-
-const provider = new GoogleAuthProvider();
-provider.addScope(
-  'https://www.googleapis.com/auth/admin.directory.resource.calendar'
-);
 
 const Page = () => {
   const navigate = useNavigate();
@@ -36,12 +29,6 @@ const Page = () => {
     } catch (error) {
       handleAuthError(error);
     }
-  }
-
-  function handleSignUpWithGoogleOnClick() {
-    const auth = getAuth();
-    auth.useDeviceLanguage();
-    signInWithRedirect(auth, provider);
   }
 
   useEffect(() => {
@@ -66,10 +53,7 @@ const Page = () => {
         alignItems: 'center',
       }}
     >
-      <SignUp
-        handleOnSubmit={handleOnSubmit}
-        signUpWithGoogleOnClick={handleSignUpWithGoogleOnClick}
-      />
+      <SignUp handleOnSubmit={handleOnSubmit} />
     </Container>
   );
 };

@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 export interface AuthContextType {
   currentUser: User | null;
   isAdmin: boolean;
+  hasGoogleProvider: boolean;
 }
 
 export interface AuthProviderProps {

@@ -258,7 +258,9 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your account settings.",
-    "selectTimezone": "Select Timezone"
+    "selectTimezone": "Select Timezone",
+    "googleLoggedIn": "Google account has been linked",
+    "googleLoggedOut": "Click the button to link your Google account. This will allow you to update your calendar"
   },
   "admin": {
     "title": "Admin",

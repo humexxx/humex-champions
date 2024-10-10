@@ -14,6 +14,7 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import GoogleIcon from '@mui/icons-material/Google';
+import { GoogleLoginButton } from 'src/components/auth';
 
 // Define the validation schema
 const schema = yup.object().shape({
@@ -31,14 +32,10 @@ const schema = yup.object().shape({
 
 interface Props {
   handleOnSubmit: (form: SignUpFormInputs) => Promise<void>;
-  signUpWithGoogleOnClick: () => void;
 }
 
-export default function SignUp({
-  handleOnSubmit,
-  signUpWithGoogleOnClick,
-}: Props) {
-  const [isLoading, setIsLoading] = useState(false);
+export default function SignUp({ handleOnSubmit }: Props) {
+  const [loading, setLoading] = useState({ google: false, form: false });
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -56,7 +53,7 @@ export default function SignUp({
   });
 
   const onSubmit: SubmitHandler<SignUpFormInputs> = async (data) => {
-    setIsLoading(true);
+    setLoading({ ...loading, form: true });
     setError(null);
 
     try {
@@ -64,15 +61,9 @@ export default function SignUp({
     } catch (error) {
       setError((error as Error).message);
     } finally {
-      setIsLoading(false);
+      setLoading({ ...loading, form: false });
     }
   };
-
-  function handleGoogleOnClick() {
-    setIsLoading(true);
-    setError(null);
-    signUpWithGoogleOnClick();
-  }
 
   return (
     <>
@@ -161,22 +152,12 @@ export default function SignUp({
           fullWidth
           variant="contained"
           sx={{ mt: 3 }}
-          loading={isLoading}
+          loading={loading.form}
         >
           Sign Up
         </LoadingButton>
         <Divider sx={{ my: 4 }}>or</Divider>
-        <LoadingButton
-          startIcon={<GoogleIcon />}
-          fullWidth
-          variant="outlined"
-          type="button"
-          sx={{ mb: 2 }}
-          loading={isLoading}
-          onClick={handleGoogleOnClick}
-        >
-          Sign Up with Google
-        </LoadingButton>
+        <GoogleLoginButton />
         <Grid container>
           <Grid item xs>
             <Link component={RouterLink} to="/sign-in" variant="body2">
