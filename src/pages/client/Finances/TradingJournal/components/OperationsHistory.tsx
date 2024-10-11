@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { IOperation } from 'src/models/finances';
+import { IOperation } from '@shared/models/finances';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { Dayjs } from 'dayjs';

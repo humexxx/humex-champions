@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
-import { IOperation, ITransaction } from 'src/models/finances';
+import { IOperation, ITransaction } from '@shared/models/finances';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import { useDialogFullScreen } from 'src/hooks';
 import * as yup from 'yup';

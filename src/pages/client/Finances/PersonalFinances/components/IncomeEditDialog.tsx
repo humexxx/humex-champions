@@ -30,7 +30,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { CurrencyField } from 'src/components/forms';
-import { IIncome } from 'src/models/finances';
+import { IIncome } from '@shared/models/finances';
 import { useTranslation } from 'react-i18next';
 import { DatePicker } from '@mui/x-date-pickers';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

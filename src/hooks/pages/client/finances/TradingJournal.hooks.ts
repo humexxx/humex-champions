@@ -14,7 +14,7 @@ import {
 import { useState, useCallback } from 'react';
 import { useAuth } from 'src/context/auth';
 import { firestore } from 'src/firebase';
-import { IOperation, ITradingJournal } from 'src/models/finances';
+import { IOperation, ITradingJournal } from '@shared/models/finances';
 import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
 
 function injectEndBalance(operation: IOperation) {

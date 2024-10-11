@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { IChecklist, IChecklistItem } from './types';
+import { IChecklist, IChecklistItem } from '@shared/models/uplift';
+import { Timestamp } from 'firebase-admin/firestore';
 
 const db = admin.firestore();
 
@@ -28,7 +29,7 @@ export const checklistReportGeneration = functions.pubsub
 
             if (!lastChecklistSnapshot.empty) {
               const lastDoc = lastChecklistSnapshot.docs[0];
-              const lastData = lastDoc.data() as IChecklist;
+              const lastData = lastDoc.data() as IChecklist<Timestamp>;
 
               if (lastData.date.toDate().getDate() === now.getDate() - 1) {
                 if (lastData.items && lastData.items.length > 0) {
@@ -50,7 +51,7 @@ export const checklistReportGeneration = functions.pubsub
                     .map((item) => ({ ...item, movedFromYesterday: true }));
 
                   if (uncompletedItems.length > 0) {
-                    const newDocData: IChecklist = {
+                    const newDocData: IChecklist<Timestamp> = {
                       date: admin.firestore.Timestamp.fromDate(new Date()),
                       items: uncompletedItems,
                     };
@@ -107,7 +108,7 @@ export const adminChecklistReportGeneration = functions.https.onCall(
             .map((item) => ({ ...item, movedFromYesterday: true }));
 
           if (uncompletedItems.length > 0) {
-            const newDocData: IChecklist = {
+            const newDocData: IChecklist<Timestamp> = {
               date: admin.firestore.Timestamp.fromDate(new Date()),
               items: uncompletedItems,
             };

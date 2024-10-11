@@ -8,7 +8,7 @@ export interface ITrade {
 export interface IOperation {
   date: Dayjs;
   notes: string;
-  trades: Trade[];
+  trades: ITrade[];
   balanceStart: number;
   balanceEnd: number;
   transactions?: ITransaction[];
@@ -23,5 +23,5 @@ export interface ITransaction {
 export interface ITradingJournal {
   id?: string;
   date: Dayjs;
-  operations: Operation[];
+  operations: IOperation[];
 }

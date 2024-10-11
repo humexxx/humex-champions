@@ -1,11 +1,12 @@
 import { Box } from '@mui/material';
-import { IPortfolioSnapshot } from 'src/models/finances';
+import { IPortfolioSnapshot } from '@shared/models/finances';
 import SelectInstrumentFilter from './SelectInstrumentFilter';
 import { useMemo, useState } from 'react';
 import Graph from './Graph';
+import { Dayjs } from 'dayjs';
 
 interface Props {
-  portfolioSnapshots: IPortfolioSnapshot[];
+  portfolioSnapshots: IPortfolioSnapshot<Dayjs>[];
 }
 
 const Portfolio = ({ portfolioSnapshots }: Props) => {
