@@ -1,4 +1,3 @@
-export const AVG_WEEKS_IN_MONTH = 4.34524;
 export const MULTIPLE_GRAPH_COLORS = [
   '#4e79a7',
   '#f28e2c',

@@ -1,4 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+
+import { IChecklist, IChecklistItem } from '@shared/models/uplift';
+import { Dayjs } from 'dayjs';
 import {
   doc,
   collection,
@@ -10,10 +13,8 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { useAuth } from 'src/context/auth';
-import { IChecklist, IChecklistItem } from '@shared/models/uplift';
 import { firestore } from 'src/firebase';
 import { toTimestamp } from 'src/utils';
-import { Dayjs } from 'dayjs';
 
 export function useChecklist() {
   const { currentUser } = useAuth();

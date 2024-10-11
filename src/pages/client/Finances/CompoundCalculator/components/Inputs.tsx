@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react';
+
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Grid, IconButton } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
-import { useEffect, useState } from 'react';
 import { forceNumberOnInputChange } from 'src/utils';
+
 import { DataSet } from '../Page';
-import DeleteIcon from '@mui/icons-material/Delete';
+
 
 interface Props {
   onChange: (data: DataSet) => void;

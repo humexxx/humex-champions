@@ -1,9 +1,10 @@
-import { Box } from '@mui/material';
-import { IOperation } from '@shared/models/finances';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useTranslation } from 'react-i18next';
-import { Dayjs } from 'dayjs';
 import { useMemo } from 'react';
+
+import { Box } from '@mui/material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { IOperation } from '@shared/models/finances';
+import { Dayjs } from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
 interface HistoryRecord {

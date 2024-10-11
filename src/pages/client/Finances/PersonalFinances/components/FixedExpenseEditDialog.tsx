@@ -1,4 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import {
+  Edit as EditIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Dialog,
   DialogTitle,
@@ -19,21 +27,14 @@ import {
   AccordionSummary,
   Typography,
 } from '@mui/material';
-import {
-  Edit as EditIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { CurrencyField } from 'src/components/forms';
-import { IFixedExpense } from '@shared/models/finances';
-import { useTranslation } from 'react-i18next';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import dayjs from 'dayjs';
-import { formatCurrency } from 'src/utils';
 import { DatePicker } from '@mui/x-date-pickers';
+import { IFixedExpense } from '@shared/models/finances';
+import dayjs from 'dayjs';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { CurrencyField } from 'src/components/forms';
+import { formatCurrency } from 'src/utils';
+import * as yup from 'yup';
 
 interface Props {
   onSubmit: (data: IFixedExpense[]) => void;

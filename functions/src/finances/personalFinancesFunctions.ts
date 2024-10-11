@@ -1,9 +1,11 @@
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
-import { generateSingleSnapshot } from './utils';
 import { IUser } from '@shared/models';
 import { IFinancialPlan } from '@shared/models/finances';
+import * as admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
+import * as functions from 'firebase-functions';
+
+import { generateSingleSnapshot } from './utils';
+
 
 const db = admin.firestore();
 

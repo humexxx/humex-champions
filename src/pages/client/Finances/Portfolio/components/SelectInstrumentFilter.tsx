@@ -1,8 +1,8 @@
 import { Box, Button, ButtonGroup, SxProps, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { IPortfolioSnapshot } from '@shared/models/finances';
-import { formatCurrency, formatPercentage } from 'src/utils';
 import { Dayjs } from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency, formatPercentage } from 'src/utils';
 
 interface Props {
   portfolioSnapshot: IPortfolioSnapshot<Dayjs>;

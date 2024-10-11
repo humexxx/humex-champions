@@ -1,4 +1,8 @@
+import { Fragment, useEffect, useMemo, useState } from 'react';
+
 import { yupResolver } from '@hookform/resolvers/yup';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Grid,
   TextField,
@@ -9,14 +13,11 @@ import {
   Pagination,
   Typography,
 } from '@mui/material';
+import { ITrade } from '@shared/models/finances';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import * as yup from 'yup';
 import { CurrencyField } from 'src/components/forms';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import { ITrade } from '@shared/models/finances';
+import * as yup from 'yup';
 
 type Props = {
   trades: ITrade[];

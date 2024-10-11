@@ -1,4 +1,7 @@
 import { useMemo, useState, useEffect, Fragment } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import {
   Dialog,
   DialogTitle,
@@ -10,14 +13,12 @@ import {
   useMediaQuery,
   DialogActions,
 } from '@mui/material';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { IDebt, IFinancialPlan } from '@shared/models/finances';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { formatCurrency } from 'src/utils';
 import { CurrencyField } from 'src/components/forms';
-import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import { formatCurrency } from 'src/utils';
+import * as yup from 'yup';
 
 interface Props {
   financialPlan: IFinancialPlan;

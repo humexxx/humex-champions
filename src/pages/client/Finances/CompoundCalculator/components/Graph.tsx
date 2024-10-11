@@ -1,11 +1,14 @@
-import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
+
+import { Box } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import dayjs from 'dayjs';
-import { formatCurrency } from 'src/utils';
-import { DataSet } from '../Page';
+import { useTranslation } from 'react-i18next';
 import { MULTIPLE_GRAPH_COLORS } from 'src/consts';
-import { Box } from '@mui/material';
+import { formatCurrency } from 'src/utils';
+
+import { DataSet } from '../Page';
+
 
 const calculateInterest = (
   initial: number,

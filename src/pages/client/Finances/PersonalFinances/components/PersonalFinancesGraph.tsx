@@ -1,8 +1,9 @@
+import { useMemo } from 'react';
+
 import { alpha, Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { DashedGraph } from 'src/components';
+import { SeriesValueFormatter } from '@mui/x-charts/internals';
+import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import {
   IDebt,
   IFinancialPlan,
@@ -10,9 +11,9 @@ import {
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
-import { SeriesValueFormatter } from '@mui/x-charts/internals';
 import dayjs from 'dayjs';
-import { AVG_WEEKS_IN_MONTH } from 'src/consts';
+import { useTranslation } from 'react-i18next';
+import { DashedGraph } from 'src/components';
 
 const NUMBER_OF_MONTHS_PAST_TO_SHOW = 2;
 const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {

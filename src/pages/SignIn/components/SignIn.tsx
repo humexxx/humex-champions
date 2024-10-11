@@ -1,21 +1,24 @@
 import { useState } from 'react';
-import Avatar from '@mui/material/Avatar';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import { LoadingButton } from '@mui/lab';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import * as yup from 'yup';
+
 import { yupResolver } from '@hookform/resolvers/yup';
-import { SignInProps, SignInFormInputs } from './SignIn.types';
-import { Link as RouterLink } from 'react-router-dom';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { LoadingButton } from '@mui/lab';
 import { Divider } from '@mui/material';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
 import { GoogleLoginButton } from 'src/components/auth';
+import * as yup from 'yup';
+
+import { SignInProps, SignInFormInputs } from './SignIn.types';
+
 
 const schema = yup.object().shape({
   email: yup

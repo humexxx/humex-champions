@@ -1,3 +1,10 @@
+import { useRef, useState } from 'react';
+
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import TranslateIcon from '@mui/icons-material/Translate';
 import {
   AppBar,
   Toolbar,
@@ -6,18 +13,13 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { DRAWER_WIDTH } from './drawer';
-import { useThemeContext } from 'src/context/theme';
-import { auth } from 'src/firebase';
-import { useNavigate } from 'react-router-dom';
-import MenuIcon from '@mui/icons-material/Menu';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import LogoutIcon from '@mui/icons-material/Logout';
-import TranslateIcon from '@mui/icons-material/Translate';
-import { useRef, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { useThemeContext } from 'src/context/theme';
+import { auth } from 'src/firebase';
+
+import { DRAWER_WIDTH } from './drawer';
 
 interface Props {
   handleDrawerToggle: () => void;

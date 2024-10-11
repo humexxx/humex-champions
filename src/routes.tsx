@@ -1,4 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+
+import { AutoLogRoute } from './components/auth';
 import ClientLayout from './layouts/ClientLayout';
 import {
   LandingPage,
@@ -8,6 +10,12 @@ import {
   ForgotPasswordPage,
 } from './pages';
 import { DashboardPage, SettingsPage } from './pages/client';
+import { AdminPage } from './pages/client/Admin';
+import {
+  EntertainmentPage,
+  TripsPage,
+  YouTubePage,
+} from './pages/client/Entertainment';
 import {
   PersonalFinancesPage,
   TradingJournalPage,
@@ -15,20 +23,13 @@ import {
   CompoundCalculatorPage,
   FinancesPage,
 } from './pages/client/Finances';
-import { ChecklistPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
 import {
   HealthCalculatorPage,
   HealthPage,
   NutritionPage,
   TrainingProgramPage,
 } from './pages/client/Health';
-import {
-  EntertainmentPage,
-  TripsPage,
-  YouTubePage,
-} from './pages/client/Entertainment';
-import { AutoLogRoute } from './components/auth';
-import { AdminPage } from './pages/client/Admin';
+import { ChecklistPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
 
 const financeRoutes = [
   {

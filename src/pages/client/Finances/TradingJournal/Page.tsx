@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+
 import {
   Box,
   Breadcrumbs,
@@ -6,11 +8,13 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import { IOperation, ITrade } from '@shared/models/finances';
 import dayjs, { Dayjs } from 'dayjs';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ConfirmDialog } from 'src/components';
+import { useTradingJournal } from 'src/hooks/pages/client/finances';
+
 import {
   BalanceTracker,
   Calendar,
@@ -21,8 +25,6 @@ import {
   Timeline,
   Quote,
 } from './components';
-import { useTradingJournal } from 'src/hooks/pages/client/finances';
-import { IOperation, ITrade } from '@shared/models/finances';
 
 const TradingJournalPage = () => {
   const { t } = useTranslation();

@@ -1,7 +1,7 @@
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Box, Grid, Paper, Typography, Divider } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
 interface Props {
   trades: number;

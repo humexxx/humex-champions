@@ -1,4 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import {
+  Edit as EditIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Dialog,
   DialogTitle,
@@ -18,21 +26,14 @@ import {
   Typography,
   TextField,
 } from '@mui/material';
-import {
-  Edit as EditIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { DatePicker } from '@mui/x-date-pickers';
 import { IDebt } from '@shared/models/finances';
+import dayjs from 'dayjs';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
-import { DatePicker } from '@mui/x-date-pickers';
-import dayjs from 'dayjs';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { formatCurrency, formatPercentage } from 'src/utils';
+import * as yup from 'yup';
 
 interface Props {
   onSubmit: (data: IDebt[]) => void;

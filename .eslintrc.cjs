@@ -9,7 +9,7 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', 'import'],
   rules: {
     'react-refresh/only-export-components': [
       'warn',
@@ -19,5 +19,22 @@ module.exports = {
     'no-debugger': 'warn',
     '@typescript-eslint/no-explicit-any': 'warn',
     'no-constant-condition': 'warn',
+
+    'import/order': [
+      'error',
+      {
+        groups: [['builtin', 'external', 'internal']],
+        pathGroups: [
+          {
+            pattern: 'react',
+            group: 'builtin',
+            position: 'before',
+          },
+        ],
+        pathGroupsExcludedImportTypes: ['builtin'],
+        alphabetize: { order: 'asc', caseInsensitive: true },
+        'newlines-between': 'always',
+      },
+    ],
   },
 };

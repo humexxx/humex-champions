@@ -1,3 +1,6 @@
+import { useEffect, useMemo } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Button,
   Divider,
@@ -6,16 +9,16 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
-import { useUserSettings } from './hooks';
-import { useForm, Controller } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useEffect, useMemo } from 'react';
-import { getFullTimezone } from 'src/utils';
-import { useAuth } from 'src/context/auth';
 import { GoogleLoginButton } from 'src/components/auth';
+import { useAuth } from 'src/context/auth';
+import { getFullTimezone } from 'src/utils';
+import * as yup from 'yup';
+
+import { useUserSettings } from './hooks';
+
 
 const Page = () => {
   const { t } = useTranslation();

@@ -1,5 +1,6 @@
-import { Box, Typography } from '@mui/material';
 import { useMemo } from 'react';
+
+import { Box, Typography } from '@mui/material';
 import { getTradingQuoteOfTheDay } from 'src/services/tradingQuotes';
 
 const Quote = () => {
