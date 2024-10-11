@@ -1,8 +1,9 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Breadcrumbs, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { PageContent, PageHeader } from 'src/components';
 import { Link } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { PageContent, PageHeader } from 'src/components';
+
 import { Form } from './components';
 
 const Page = () => {

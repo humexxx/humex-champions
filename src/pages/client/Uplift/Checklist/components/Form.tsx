@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+
 import { yupResolver } from '@hookform/resolvers/yup';
+import AddIcon from '@mui/icons-material/Add';
+import { LoadingButton } from '@mui/lab';
 import {
   TextField,
   Checkbox,
@@ -12,11 +14,11 @@ import {
   Alert,
   Grid,
 } from '@mui/material';
-import { useChecklist } from '../hooks/useChecklist';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
-import AddIcon from '@mui/icons-material/Add';
-import { LoadingButton } from '@mui/lab';
+
+import { useChecklist } from '../hooks/useChecklist';
 
 interface ChecklistFormInputs {
   name: string;

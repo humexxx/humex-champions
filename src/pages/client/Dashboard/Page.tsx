@@ -1,11 +1,12 @@
 import { Grid } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { PageContent, PageHeader } from 'src/components';
+
 import {
   DenseAnalyticCard,
   UniqueVisitorCard,
   IncomeOverviewCard,
 } from './components';
-import { useTranslation } from 'react-i18next';
-import { PageContent, PageHeader } from 'src/components';
 
 const Page = () => {
   const { t } = useTranslation(undefined, { keyPrefix: 'dashboard' });

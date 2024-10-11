@@ -1,7 +1,7 @@
+import { Card, CardContent } from '@mui/material';
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import { Card, CardContent } from '@mui/material';
 import { ScatterChart } from '@mui/x-charts';
 
 const data = [

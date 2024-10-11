@@ -1,14 +1,16 @@
+import { useEffect } from 'react';
+
+import { Container } from '@mui/material';
 import {
   createUserWithEmailAndPassword,
   getAuth,
   getRedirectResult,
 } from 'firebase/auth';
-import SignUp, { SignUpFormInputs } from './components';
 import { useNavigate } from 'react-router-dom';
-import { handleAuthError } from 'src/utils/auth';
 import { auth } from 'src/firebase';
-import { Container } from '@mui/material';
-import { useEffect } from 'react';
+import { handleAuthError } from 'src/utils/auth';
+
+import SignUp, { SignUpFormInputs } from './components';
 
 const Page = () => {
   const navigate = useNavigate();

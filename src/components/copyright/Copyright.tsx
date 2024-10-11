@@ -1,6 +1,7 @@
 import Link from "@mui/material/Link";
-import { CopyrightProps } from "./Copyright.types";
 import Typography from "@mui/material/Typography";
+
+import { CopyrightProps } from "./Copyright.types";
 
 export default function Copyright({
   websiteName,

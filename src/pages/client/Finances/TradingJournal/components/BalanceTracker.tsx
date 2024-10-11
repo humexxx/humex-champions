@@ -1,3 +1,7 @@
+import { useEffect, useMemo, useState } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import {
   Button,
   Dialog,
@@ -10,16 +14,13 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { IOperation, ITransaction } from '@shared/models/finances';
+import dayjs from 'dayjs';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
-import { IOperation, ITransaction } from '@shared/models/finances';
-import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import { useDialogFullScreen } from 'src/hooks';
 import * as yup from 'yup';
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import dayjs from 'dayjs';
 
 type Props = {
   operations: IOperation[];

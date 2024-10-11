@@ -1,9 +1,12 @@
+import { useMemo, useState } from 'react';
+
 import { Box } from '@mui/material';
 import { IPortfolioSnapshot } from '@shared/models/finances';
-import SelectInstrumentFilter from './SelectInstrumentFilter';
-import { useMemo, useState } from 'react';
-import Graph from './Graph';
 import { Dayjs } from 'dayjs';
+
+import Graph from './Graph';
+import SelectInstrumentFilter from './SelectInstrumentFilter';
+
 
 interface Props {
   portfolioSnapshots: IPortfolioSnapshot<Dayjs>[];

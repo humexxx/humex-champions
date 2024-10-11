@@ -1,7 +1,7 @@
-import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin';
 import { IChecklist, IChecklistItem } from '@shared/models/uplift';
+import * as admin from 'firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
+import * as functions from 'firebase-functions';
 
 const db = admin.firestore();
 

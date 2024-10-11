@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
+
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
-import IncomeEditDialog from './IncomeEditDialog';
+import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import { IIncome } from '@shared/models/finances';
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
-import dayjs from 'dayjs';
-import { AVG_WEEKS_IN_MONTH } from 'src/consts';
+
+import IncomeEditDialog from './IncomeEditDialog';
 
 interface Props {
   incomes: IIncome[];

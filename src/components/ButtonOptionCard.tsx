@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import {
   Card,
   CardContent,
@@ -7,7 +9,6 @@ import {
   Button,
   CircularProgress,
 } from '@mui/material';
-import { ReactNode } from 'react';
 
 type Props = {
   label: string;

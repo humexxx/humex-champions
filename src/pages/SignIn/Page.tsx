@@ -1,14 +1,15 @@
+import { Container } from '@mui/material';
 import {
   signInWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
 } from 'firebase/auth';
-import SignIn, { SignInFormInputs } from './components';
 import { useNavigate } from 'react-router-dom';
-import { handleAuthError } from 'src/utils/auth';
 import { auth } from 'src/firebase';
-import { Container } from '@mui/material';
+import { handleAuthError } from 'src/utils/auth';
+
+import SignIn, { SignInFormInputs } from './components';
 
 const Page = () => {
   const navigate = useNavigate();

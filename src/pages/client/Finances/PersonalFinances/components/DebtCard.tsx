@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
+
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
-import DebtEditDialog from './DebtEditDialog';
+import { IDebt } from '@shared/models/finances';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
-import { IDebt } from '@shared/models/finances';
+
+import DebtEditDialog from './DebtEditDialog';
 
 interface Props {
   debts: IDebt[];

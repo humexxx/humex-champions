@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import {
   Card,
   CardActionArea,
@@ -6,7 +8,6 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 type Props = {

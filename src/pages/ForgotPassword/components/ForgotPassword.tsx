@@ -1,21 +1,24 @@
 import { useState } from 'react';
-import Avatar from '@mui/material/Avatar';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import { LoadingButton } from '@mui/lab';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import * as yup from 'yup';
+
 import { yupResolver } from '@hookform/resolvers/yup';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { LoadingButton } from '@mui/lab';
+import { Container } from '@mui/material';
+import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { Link as RouterLink } from 'react-router-dom';
+import * as yup from 'yup';
+
 import {
   ForgotPasswordProps,
   ForgotPasswordFormInputs,
 } from './ForgotPassword.types';
-import { Link as RouterLink } from 'react-router-dom';
-import { Container } from '@mui/material';
+
 
 // Define the validation schema
 const schema = yup.object().shape({

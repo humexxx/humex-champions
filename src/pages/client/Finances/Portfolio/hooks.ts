@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { IPortfolioSnapshot } from '@shared/models/finances';
+import { IInstrument } from '@shared/models/instruments';
+import { Dayjs } from 'dayjs';
 import {
   collection,
   getDocs,
@@ -7,12 +11,9 @@ import {
   limit,
   addDoc,
 } from 'firebase/firestore';
-import { IPortfolioSnapshot } from '@shared/models/finances';
-import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
-import { IInstrument } from '@shared/models/instruments';
+import { firestore } from 'src/firebase';
 import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
-import { Dayjs } from 'dayjs';
 
 interface UserPortfolioResult {
   portfolioSnapshots: IPortfolioSnapshot<Dayjs>[];

@@ -1,5 +1,5 @@
-import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 
 const db = admin.firestore();
 const DEFAULT_PERCENTAGE_INCREMENT = 0.03;

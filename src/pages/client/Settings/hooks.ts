@@ -1,8 +1,9 @@
-import { updateDoc, doc, getDoc } from 'firebase/firestore';
 import { useState, useEffect, useMemo, useCallback } from 'react';
+
+import { ISettings } from '@shared/models/settings';
+import { updateDoc, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from 'src/context/auth';
 import { firestore } from 'src/firebase';
-import { ISettings } from '@shared/models/settings';
 
 export const useUserSettings = () => {
   const user = useAuth();

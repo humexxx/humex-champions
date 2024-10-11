@@ -1,8 +1,9 @@
-import { LoadingButton } from '@mui/lab';
-import GoogleIcon from '@mui/icons-material/Google';
 import { useState } from 'react';
-import { loginWithGoogle } from 'src/utils/auth';
+
+import GoogleIcon from '@mui/icons-material/Google';
+import { LoadingButton } from '@mui/lab';
 import { Typography } from '@mui/material';
+import { loginWithGoogle } from 'src/utils/auth';
 
 const GoogleLoginButton = () => {
   const [loading, setLoading] = useState(false);

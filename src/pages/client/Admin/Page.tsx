@@ -1,5 +1,10 @@
-import { Grid, Typography } from '@mui/material';
 import { useRef, useState } from 'react';
+
+import BarChartIcon from '@mui/icons-material/BarChart';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import { Grid, Typography } from '@mui/material';
+import { httpsCallable } from 'firebase/functions';
 import { useTranslation } from 'react-i18next';
 import {
   ButtonOptionCard,
@@ -7,11 +12,7 @@ import {
   PageContent,
   PageHeader,
 } from 'src/components';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import PieChartIcon from '@mui/icons-material/PieChart';
-import ChecklistIcon from '@mui/icons-material/Checklist';
 import { functions } from 'src/firebase';
-import { httpsCallable } from 'firebase/functions';
 
 const Page = () => {
   const { t } = useTranslation();

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+
+import { EProviderType } from '@shared/enums';
 import { User, onAuthStateChanged } from 'firebase/auth';
+import { GlobalLoader } from 'src/components';
 import { auth } from 'src/firebase';
+
 import AuthContext from './AuthContext';
 import { AuthContextType, AuthProviderProps } from './AuthContext.types';
-import { GlobalLoader } from 'src/components';
-import { EProviderType } from '@shared/enums';
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);

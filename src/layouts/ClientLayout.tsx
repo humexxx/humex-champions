@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { PrivateRoute } from 'src/components/auth';
-import { Outlet } from 'react-router-dom';
-import APP_DRAWER, { DRAWER_WIDTH } from 'src/components/layouts/drawer';
 
-import { ThemeProvider } from 'src/context/theme';
-import { Header } from 'src/components/layouts';
 import { Box, Drawer, Toolbar, Container } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import { PrivateRoute } from 'src/components/auth';
+import { Header } from 'src/components/layouts';
+import APP_DRAWER, { DRAWER_WIDTH } from 'src/components/layouts/drawer';
+import { ThemeProvider } from 'src/context/theme';
 
 function ClientLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);

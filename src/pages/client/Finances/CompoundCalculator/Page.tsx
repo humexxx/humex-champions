@@ -1,14 +1,16 @@
-import { Box, Breadcrumbs, Slider, Tab, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'src/components';
-import { Link } from 'react-router-dom';
+import { useCallback, useState } from 'react';
+
+import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { useCallback, useState } from 'react';
-import { Graph, Inputs } from './components';
+import { Box, Breadcrumbs, Slider, Tab, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
-import AddIcon from '@mui/icons-material/Add';
 import { MULTIPLE_GRAPH_COLORS } from 'src/consts';
+
+import { Graph, Inputs } from './components';
 
 const MAX_INVESTMENTS = 10;
 

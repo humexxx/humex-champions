@@ -1,3 +1,6 @@
+import { useState, useCallback } from 'react';
+
+import { IOperation, ITradingJournal } from '@shared/models/finances';
 import dayjs from 'dayjs';
 import {
   addDoc,
@@ -11,10 +14,8 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { useState, useCallback } from 'react';
 import { useAuth } from 'src/context/auth';
 import { firestore } from 'src/firebase';
-import { IOperation, ITradingJournal } from '@shared/models/finances';
 import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
 
 function injectEndBalance(operation: IOperation) {

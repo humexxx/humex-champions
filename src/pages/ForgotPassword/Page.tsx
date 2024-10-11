@@ -1,6 +1,7 @@
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../../firebase';
+
 import ForgotPassword, { ForgotPasswordFormInputs } from './components';
+import { auth } from '../../firebase';
 
 async function handleOnSubmit(form: ForgotPasswordFormInputs) {
   await sendPasswordResetEmail(auth, form.email)

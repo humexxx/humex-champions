@@ -1,19 +1,9 @@
-import { Box, Breadcrumbs, Grid, Tab, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import {
-  DebtCard,
-  FixedExpenseCard,
-  IncomeCard,
-  PersonalFinancesGraph,
-  ValidateMainFinantialSnapshotDialog,
-} from './components';
-import { PageHeader } from 'src/components';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { usePersonalFinances } from 'src/hooks/pages/client/finances';
 import { useMemo, useState } from 'react';
+
 import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { Box, Breadcrumbs, Grid, Tab, Typography } from '@mui/material';
 import {
   IDebt,
   IFinancialPlan,
@@ -21,7 +11,19 @@ import {
   IIncome,
 } from '@shared/models/finances';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
+import { usePersonalFinances } from 'src/hooks/pages/client/finances';
+
+import {
+  DebtCard,
+  FixedExpenseCard,
+  IncomeCard,
+  PersonalFinancesGraph,
+  ValidateMainFinantialSnapshotDialog,
+} from './components';
 
 function getTabProps(id: string) {
   return {

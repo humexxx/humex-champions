@@ -1,17 +1,19 @@
-import { Alert, Autocomplete, Container, Grid, TextField } from '@mui/material';
-import { useInstruments } from '../hooks';
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import * as yup from 'yup';
-import { Controller, useForm } from 'react-hook-form';
+
 import { yupResolver } from '@hookform/resolvers/yup';
-import { IInstrument } from '@shared/models/instruments';
-import { CurrencyField, PercentageField } from 'src/components/forms';
 import { LoadingButton } from '@mui/lab';
+import { Alert, Autocomplete, Container, Grid, TextField } from '@mui/material';
 import { PieChart } from '@mui/x-charts';
 import { IPortfolioSnapshot } from '@shared/models/finances';
-import { toDayjs } from 'src/utils';
+import { IInstrument } from '@shared/models/instruments';
 import { Dayjs } from 'dayjs';
+import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { CurrencyField, PercentageField } from 'src/components/forms';
+import { toDayjs } from 'src/utils';
+import * as yup from 'yup';
+
+import { useInstruments } from '../hooks';
 
 interface Props {
   onSubmit: (data: IPortfolioSnapshot<Dayjs>) => Promise<void>;

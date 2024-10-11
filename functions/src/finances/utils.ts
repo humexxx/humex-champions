@@ -1,11 +1,11 @@
-import { Timestamp } from 'firebase-admin/firestore';
-import { AVG_WEEKS_IN_MONTH } from '../consts';
+import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import {
   IDebt,
   IFinancialSnapshot,
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
+import { Timestamp } from 'firebase-admin/firestore';
 
 // Función para aplicar el método Avalanche
 export function applyAvalancheMethod(debts: IDebt[], surplus: number): IDebt[] {

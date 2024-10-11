@@ -1,4 +1,14 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { useMemo } from 'react';
+
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import FlagIcon from '@mui/icons-material/Flag';
+import GroupIcon from '@mui/icons-material/Group';
+import PeopleIcon from '@mui/icons-material/People';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Toolbar,
   Divider,
@@ -9,17 +19,8 @@ import {
   ListItemText,
   Box,
 } from '@mui/material';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AddReactionIcon from '@mui/icons-material/AddReaction';
-import FlagIcon from '@mui/icons-material/Flag';
-import GroupIcon from '@mui/icons-material/Group';
-import PeopleIcon from '@mui/icons-material/People';
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
-import SettingsIcon from '@mui/icons-material/Settings';
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
 
 const Drawer = () => {

@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
-import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+
 import { IFinancialPlan } from '@shared/models/finances';
-import { firestore } from 'src/firebase';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { useAuth } from 'src/context/auth';
+import { firestore } from 'src/firebase';
 import { toDayjs, toTimestamp } from 'src/utils';
 
 interface UsePersonalFinancesResult {

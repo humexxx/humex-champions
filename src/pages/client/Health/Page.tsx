@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
+
+import CalculateIcon from '@mui/icons-material/Calculate';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
-import CalculateIcon from '@mui/icons-material/Calculate';
-import LocalDiningIcon from '@mui/icons-material/LocalDining';
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 
 const Page = () => {
   const { t } = useTranslation();

@@ -1,11 +1,13 @@
+import { useMemo, useState } from 'react';
+
 import { Box } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
+import { IPortfolioSnapshot } from '@shared/models/finances';
 import dayjs, { Dayjs } from 'dayjs';
 import { t } from 'i18next';
-import { useMemo, useState } from 'react';
 import { DashedGraph } from 'src/components';
-import { IPortfolioSnapshot } from '@shared/models/finances';
 import { getNextQuarterDate } from 'src/utils';
+
 import GraphTotalFilter from './GraphTotalFilter';
 
 const DEFAULT_PERCENTAGE_INCREMENT_PER_TRIMESTRE = 0.03;

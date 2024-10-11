@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+
 import {
   Card,
   CardContent,
@@ -6,11 +7,12 @@ import {
   Typography,
   Tooltip,
 } from '@mui/material';
-import FixedExpenseEditDialog from './FixedExpenseEditDialog';
-import { useTranslation } from 'react-i18next';
 import { IDebt, IFixedExpense } from '@shared/models/finances';
-import { formatCurrency } from 'src/utils';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency } from 'src/utils';
+
+import FixedExpenseEditDialog from './FixedExpenseEditDialog';
 
 interface Props {
   personalFinancesId?: string;
