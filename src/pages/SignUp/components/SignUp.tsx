@@ -13,7 +13,6 @@ import { Checkbox, Divider, FormControlLabel } from '@mui/material';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import GoogleIcon from '@mui/icons-material/Google';
 import { GoogleLoginButton } from 'src/components/auth';
 
 // Define the validation schema

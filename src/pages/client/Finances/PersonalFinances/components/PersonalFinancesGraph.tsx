@@ -9,7 +9,7 @@ import {
   IFinancialSnapshot,
   IFixedExpense,
   IIncome,
-} from 'src/models/finances';
+} from '@shared/models/finances';
 import { SeriesValueFormatter } from '@mui/x-charts/internals';
 import dayjs from 'dayjs';
 import { AVG_WEEKS_IN_MONTH } from 'src/consts';

@@ -1,9 +1,8 @@
 import { IInstrument } from '../instruments';
-import dayjs from 'dayjs';
 
-export interface IPortfolioSnapshot {
+export interface IPortfolioSnapshot<Timestamp = Date> {
   id?: string;
-  date: dayjs.Dayjs;
+  date: Timestamp;
   totalValue: number;
   totalProfit?: number;
   totalProfitPercentage?: number;

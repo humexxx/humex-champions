@@ -7,15 +7,18 @@ import {
   limit,
   addDoc,
 } from 'firebase/firestore';
-import { IPortfolioSnapshot } from 'src/models/finances';
+import { IPortfolioSnapshot } from '@shared/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
-import { IInstrument } from 'src/models/instruments';
+import { IInstrument } from '@shared/models/instruments';
 import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
+import { Dayjs } from 'dayjs';
 
 interface UserPortfolioResult {
-  portfolioSnapshots: IPortfolioSnapshot[];
-  initPortfolio: (portfolioSnapshot: IPortfolioSnapshot) => Promise<void>;
+  portfolioSnapshots: IPortfolioSnapshot<Dayjs>[];
+  initPortfolio: (
+    portfolioSnapshot: IPortfolioSnapshot<Dayjs>
+  ) => Promise<void>;
   isLoading: boolean;
   error: Error | null;
 }
@@ -28,7 +31,7 @@ interface InstrumentsResult {
 
 export const usePortfolio = (): UserPortfolioResult => {
   const [portfolioSnapshots, setPortfolioSnapshots] = useState<
-    IPortfolioSnapshot[]
+    IPortfolioSnapshot<Dayjs>[]
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -53,12 +56,11 @@ export const usePortfolio = (): UserPortfolioResult => {
           return;
         }
 
-        const portfolioSnapshots: IPortfolioSnapshot[] = querySnapshot.docs.map(
-          (doc) => ({
+        const portfolioSnapshots: IPortfolioSnapshot<Dayjs>[] =
+          querySnapshot.docs.map((doc) => ({
             id: doc.id,
-            ...(doc.data() as IPortfolioSnapshot),
-          })
-        );
+            ...(doc.data() as IPortfolioSnapshot<Dayjs>),
+          }));
 
         setPortfolioSnapshots(objectDateConverter(portfolioSnapshots, toDayjs));
       } catch (err) {
@@ -75,7 +77,7 @@ export const usePortfolio = (): UserPortfolioResult => {
   }, [user.currentUser, collectionRef]);
 
   const initPortfolio = useCallback(
-    async (portfolioSnapshot: IPortfolioSnapshot) => {
+    async (portfolioSnapshot: IPortfolioSnapshot<Dayjs>) => {
       setIsLoading(true);
       delete portfolioSnapshot.id;
       try {

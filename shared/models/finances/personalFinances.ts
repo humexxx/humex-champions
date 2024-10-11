@@ -1,4 +1,24 @@
-import { Timestamp } from 'firebase-admin/firestore';
+export interface IDebt {
+  pendingDebt: number;
+  minimumPayment: number;
+  annualInterest: number;
+  startDate: any;
+  name: string;
+}
+
+export interface IIncome {
+  amount: number;
+  period: 'single' | 'weekly' | 'monthly' | 'yearly';
+  name: string;
+  date?: any;
+}
+
+export interface IFixedExpense {
+  amount: number;
+  expenseType: 'single' | 'primary' | 'secondary';
+  name: string;
+  singleDate?: any;
+}
 
 export interface IFinancialPlan {
   id?: string | null;
@@ -8,31 +28,9 @@ export interface IFinancialPlan {
   incomes: IIncome[];
 }
 
-export interface IDebt {
-  name: string;
-  pendingDebt: number;
-  minimumPayment: number;
-  annualInterest: number;
-  startDate: Timestamp;
-}
-
-export interface IIncome {
-  name: string;
-  amount: number;
-  period: 'single' | 'weekly' | 'monthly' | 'yearly';
-  date?: Timestamp;
-}
-
-export interface IFixedExpense {
-  amount: number;
-  expenseType: 'single' | 'primary' | 'secondary';
-  name: string;
-  singleDate?: Timestamp;
-}
-
 export interface IFinancialSnapshot {
   debts: IDebt[];
-  date: Timestamp;
-  reviewed?: boolean;
+  date: any;
   surplus: number;
+  reviewed: boolean;
 }

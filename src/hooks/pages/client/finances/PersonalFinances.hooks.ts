@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
-import { IFinancialPlan } from 'src/models/finances';
+import { IFinancialPlan } from '@shared/models/finances';
 import { firestore } from 'src/firebase';
 import { useAuth } from 'src/context/auth';
 import { toDayjs, toTimestamp } from 'src/utils';

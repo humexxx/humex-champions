@@ -2,7 +2,7 @@ import { Box, Button, ButtonGroup } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IOperation } from 'src/models/finances';
+import { IOperation } from '@shared/models/finances';
 
 type Props = {
   operations: IOperation[];

@@ -2,8 +2,8 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { generateSingleSnapshot } from './utils';
-import { IFinancialPlan } from './types';
-import { IUser } from '../types';
+import { IUser } from '@shared/models';
+import { IFinancialPlan } from '@shared/models/finances';
 
 const db = admin.firestore();
 
