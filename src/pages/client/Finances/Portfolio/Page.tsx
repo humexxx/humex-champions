@@ -6,9 +6,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { usePortfolio } from './hooks';
 import { CreatePortfolio, PortfolioView } from './components';
 import { toDayjs } from 'src/utils';
-import { IPortfolioSnapshot } from 'src/models/finances';
+import { IPortfolioSnapshot } from '@shared/models/finances';
+import { Dayjs } from 'dayjs';
 
-const mockData: IPortfolioSnapshot[] = [
+const mockData: IPortfolioSnapshot<Dayjs>[] = [
   {
     date: toDayjs(new Date('2021-01-01')),
     id: '1',

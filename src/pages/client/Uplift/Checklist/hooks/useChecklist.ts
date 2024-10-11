@@ -7,15 +7,17 @@ import {
   query,
   where,
   updateDoc,
+  Timestamp,
 } from 'firebase/firestore';
 import { useAuth } from 'src/context/auth';
-import { IChecklist, IChecklistItem } from 'src/models/uplift';
+import { IChecklist, IChecklistItem } from '@shared/models/uplift';
 import { firestore } from 'src/firebase';
 import { toTimestamp } from 'src/utils';
+import { Dayjs } from 'dayjs';
 
 export function useChecklist() {
   const { currentUser } = useAuth();
-  const [checklist, setChecklist] = useState<IChecklist | null>(null);
+  const [checklist, setChecklist] = useState<IChecklist<Dayjs> | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,15 +61,15 @@ export function useChecklist() {
         if (!snapshot.empty) {
           const docData = snapshot.docs[0].data();
           docData.id = snapshot.docs[0].id;
-          setChecklist(docData as IChecklist);
+          setChecklist(docData as IChecklist<Dayjs>);
         } else {
-          const newChecklist: IChecklist = {
+          const newChecklist: IChecklist<Timestamp> = {
             date: toTimestamp(currentDate),
             items: [],
           };
           addDoc(checklistCollection, newChecklist)
             .then((doc) => {
-              setChecklist({ ...newChecklist, id: doc.id });
+              setChecklist({ ...newChecklist, id: doc.id } as any);
             })
             .catch((err) => {
               setError(err.message || 'Error creating new checklist');

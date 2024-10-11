@@ -1,14 +1,12 @@
-import * as admin from 'firebase-admin';
-
 export interface IChecklistItem {
   name: string;
   completed: boolean;
   movedFromYesterday?: boolean;
 }
 
-export interface IChecklist {
+export interface IChecklist<Timestamp = Date> {
   id?: string;
-  date: admin.firestore.Timestamp;
+  date: Timestamp;
   items: IChecklistItem[];
   completionPercentage?: number;
 }

@@ -1,10 +1,10 @@
 import { Box } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { t } from 'i18next';
 import { useMemo, useState } from 'react';
 import { DashedGraph } from 'src/components';
-import { IPortfolioSnapshot } from 'src/models/finances';
+import { IPortfolioSnapshot } from '@shared/models/finances';
 import { getNextQuarterDate } from 'src/utils';
 import GraphTotalFilter from './GraphTotalFilter';
 
@@ -12,12 +12,12 @@ const DEFAULT_PERCENTAGE_INCREMENT_PER_TRIMESTRE = 0.03;
 const TOTAL_PREDICTIONS = 24;
 
 function predictNextPortafolioSnapshots(
-  portfolioSnapshots: IPortfolioSnapshot[]
-): IPortfolioSnapshot[] {
-  const response: IPortfolioSnapshot[] = [...portfolioSnapshots];
+  portfolioSnapshots: IPortfolioSnapshot<Dayjs>[]
+): IPortfolioSnapshot<Dayjs>[] {
+  const response: IPortfolioSnapshot<Dayjs>[] = [...portfolioSnapshots];
   for (let i = portfolioSnapshots.length; i < TOTAL_PREDICTIONS; i++) {
     const lastSnapshot = response[i - 1];
-    const data: Partial<IPortfolioSnapshot> = {
+    const data: Partial<IPortfolioSnapshot<Dayjs>> = {
       date: dayjs(getNextQuarterDate(lastSnapshot.date.toDate())),
       id: i.toString(),
       instruments: lastSnapshot.instruments.map((instrument) => ({
@@ -33,13 +33,13 @@ function predictNextPortafolioSnapshots(
     data.totalProfit = data.totalValue - lastSnapshot.totalValue;
     data.totalProfitPercentage =
       (data.totalProfit / lastSnapshot.totalValue) * 100;
-    response.push(data as IPortfolioSnapshot);
+    response.push(data as IPortfolioSnapshot<Dayjs>);
   }
   return response;
 }
 
 interface Props {
-  portfolioSnapshots: IPortfolioSnapshot[];
+  portfolioSnapshots: IPortfolioSnapshot<Dayjs>[];
   isTotalFilter: boolean;
 }
 

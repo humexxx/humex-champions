@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import IncomeEditDialog from './IncomeEditDialog';
-import { IIncome } from 'src/models/finances';
+import { IIncome } from '@shared/models/finances';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 import dayjs from 'dayjs';

@@ -14,7 +14,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { SignInProps, SignInFormInputs } from './SignIn.types';
 import { Link as RouterLink } from 'react-router-dom';
-import { Container, Divider } from '@mui/material';
+import { Divider } from '@mui/material';
 import { GoogleLoginButton } from 'src/components/auth';
 
 const schema = yup.object().shape({

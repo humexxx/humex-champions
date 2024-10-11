@@ -16,7 +16,7 @@ import { CurrencyField } from 'src/components/forms';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { ITrade } from 'src/models/finances';
+import { ITrade } from '@shared/models/finances';
 
 type Props = {
   trades: ITrade[];

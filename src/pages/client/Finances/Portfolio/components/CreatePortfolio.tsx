@@ -5,15 +5,16 @@ import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { IInstrument } from 'src/models/instruments';
+import { IInstrument } from '@shared/models/instruments';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { LoadingButton } from '@mui/lab';
 import { PieChart } from '@mui/x-charts';
-import { IPortfolioSnapshot } from 'src/models/finances';
+import { IPortfolioSnapshot } from '@shared/models/finances';
 import { toDayjs } from 'src/utils';
+import { Dayjs } from 'dayjs';
 
 interface Props {
-  onSubmit: (data: IPortfolioSnapshot) => Promise<void>;
+  onSubmit: (data: IPortfolioSnapshot<Dayjs>) => Promise<void>;
   pageLoading: boolean;
 }
 

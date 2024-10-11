@@ -19,7 +19,7 @@ import {
   IFinancialPlan,
   IFixedExpense,
   IIncome,
-} from 'src/models/finances';
+} from '@shared/models/finances';
 import dayjs from 'dayjs';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 
@@ -94,7 +94,7 @@ const PersonalFinancesPage = () => {
         financialSnapshots: [
           {
             debts: [],
-            date: dayjs(),
+            date: dayjs() as any,
             reviewed: true,
             surplus: 0,
           },

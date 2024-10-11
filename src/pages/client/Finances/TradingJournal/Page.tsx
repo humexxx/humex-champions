@@ -22,7 +22,7 @@ import {
   Quote,
 } from './components';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
-import { IOperation, ITrade } from 'src/models/finances';
+import { IOperation, ITrade } from '@shared/models/finances';
 
 const TradingJournalPage = () => {
   const { t } = useTranslation();

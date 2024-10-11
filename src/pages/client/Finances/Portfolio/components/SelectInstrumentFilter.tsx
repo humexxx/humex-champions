@@ -1,10 +1,11 @@
 import { Box, Button, ButtonGroup, SxProps, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { IPortfolioSnapshot } from 'src/models/finances';
+import { IPortfolioSnapshot } from '@shared/models/finances';
 import { formatCurrency, formatPercentage } from 'src/utils';
+import { Dayjs } from 'dayjs';
 
 interface Props {
-  portfolioSnapshot: IPortfolioSnapshot;
+  portfolioSnapshot: IPortfolioSnapshot<Dayjs>;
   setSelectedFilter: (instrument: string) => void;
   selectedFilter: string;
   sx?: SxProps;
