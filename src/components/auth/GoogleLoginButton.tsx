@@ -12,7 +12,8 @@ const GoogleLoginButton = () => {
   async function handleGoogleOnClick() {
     setLoading(true);
     try {
-      await loginWithGoogle();
+      const response = (await loginWithGoogle()) as any;
+      localStorage.setItem('token', response._tokenResponse.oauthAccessToken);
     } catch (error) {
       setError((error as Error).message);
     } finally {

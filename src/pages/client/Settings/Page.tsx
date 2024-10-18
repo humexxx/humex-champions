@@ -2,8 +2,11 @@ import { useEffect, useMemo } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
+  Box,
   Button,
-  Divider,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
   Grid,
   Stack,
   TextField,
@@ -19,7 +22,6 @@ import * as yup from 'yup';
 
 import { useUserSettings } from './hooks';
 
-
 const Page = () => {
   const { t } = useTranslation();
   const { hasGoogleProvider } = useAuth();
@@ -28,21 +30,23 @@ const Page = () => {
     () =>
       yup.object().shape({
         timezone: yup.string().required(t('commonValidations.required')),
+        useGoogleCalendar: yup.boolean(),
       }),
     [t]
   );
 
-  const { settings, updateTimezone } = useUserSettings();
+  const { settings, update } = useUserSettings();
 
   const { control, handleSubmit, setValue } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       timezone: getFullTimezone(),
+      useGoogleCalendar: false,
     },
   });
 
   const onSubmit = (data: { timezone: string }) => {
-    updateTimezone({
+    update({
       ...data,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
@@ -50,43 +54,56 @@ const Page = () => {
 
   useEffect(() => {
     if (settings) {
-      //   setValue('timezone', settings.timezone);
+      setValue('timezone', settings.timezone);
+      setValue('useGoogleCalendar', settings.useGoogleCalendar);
     }
   }, [settings, setValue]);
 
   return (
     <>
-      <PageHeader>
-        <Typography variant="h6" component="h2" gutterBottom>
-          <strong>{t('settings.title')}</strong>
-        </Typography>
-        <Typography variant="body1">{t('settings.description')}</Typography>
-      </PageHeader>
+      <PageHeader
+        title={t('settings.title')}
+        description={t('settings.description')}
+      ></PageHeader>
 
       <PageContent>
-        <Stack component="form" onSubmit={handleSubmit(onSubmit)}>
+        <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap={4}>
           <Controller
             name="timezone"
             control={control}
             render={({ field }) => <TextField {...field} disabled />}
           />
-          <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-            {t('common.save')}
-          </Button>
+          <Controller
+            name="useGoogleCalendar"
+            control={control}
+            render={({ field }) => (
+              <FormGroup aria-label="position" row>
+                <FormControlLabel
+                  label="Use Google Calendar"
+                  control={<Checkbox {...field} checked={field.value} />}
+                />
+              </FormGroup>
+            )}
+          />
+
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Typography variant="h6" component="h2" gutterBottom>
+                {hasGoogleProvider
+                  ? t('settings.googleLoggedIn')
+                  : t('settings.googleNotLoggedIn')}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              {!hasGoogleProvider && <GoogleLoginButton />}
+            </Grid>
+          </Grid>
+          <Box>
+            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+              {t('common.save')}
+            </Button>
+          </Box>
         </Stack>
-        <Divider sx={{ my: 4 }} />
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Typography variant="h6" component="h2" gutterBottom>
-              {hasGoogleProvider
-                ? t('settings.googleLoggedIn')
-                : t('settings.googleNotLoggedIn')}
-            </Typography>
-          </Grid>
-          <Grid item xs={6}>
-            {!hasGoogleProvider && <GoogleLoginButton />}
-          </Grid>
-        </Grid>
       </PageContent>
     </>
   );

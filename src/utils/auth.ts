@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   UserCredential,
 } from 'firebase/auth';
+import { GOOGLE_CALENDAR_SCOPE } from 'src/services/calendar';
 
 export function handleAuthError(error: unknown) {
   if (error instanceof FirebaseError) {
@@ -25,6 +26,7 @@ export function handleAuthError(error: unknown) {
 
 export async function loginWithGoogle(): Promise<UserCredential> {
   const provider = new GoogleAuthProvider();
+  provider.addScope(GOOGLE_CALENDAR_SCOPE);
 
   const auth = getAuth();
   auth.useDeviceLanguage();

@@ -1,23 +1,33 @@
 import { useEffect, useState } from 'react';
 
 import { EProviderType } from '@shared/enums';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { IdTokenResult, User, onAuthStateChanged } from 'firebase/auth';
 import { GlobalLoader } from 'src/components';
 import { auth } from 'src/firebase';
 
 import AuthContext from './AuthContext';
-import { AuthContextType, AuthProviderProps } from './AuthContext.types';
+import { AuthProviderProps } from './AuthContext.types';
+
+export interface AuthContextType {
+  currentUser: User | null;
+  token: IdTokenResult | null;
+  isAdmin: boolean;
+  hasGoogleProvider: boolean;
+}
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [token, setToken] = useState<IdTokenResult | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  console.log(currentUser);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
         const token = await user.getIdTokenResult();
+        setToken(token);
         setIsAdmin(Boolean(token.claims.admin));
       }
 
@@ -37,6 +47,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     currentUser,
     isAdmin,
+    token,
     hasGoogleProvider:
       currentUser?.providerData.some(
         (x) => x.providerId === EProviderType.GOOGLE
