@@ -12,7 +12,7 @@ import {
   updateDoc,
   Timestamp,
 } from 'firebase/firestore';
-import { useAuth } from 'src/context/auth';
+import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
 import { toTimestamp } from 'src/utils';
 

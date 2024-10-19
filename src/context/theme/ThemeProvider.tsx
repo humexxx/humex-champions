@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
 
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material';
+import { useAuth } from 'src/context/hooks';
 import { useLocalStorage } from 'src/hooks';
 
 import ThemeContext from './ThemeContext';
 import { ThemeContextType, ThemeProviderProps } from './ThemeContext.types';
 import { getDesignTokens } from './themes';
-import { useAuth } from '../auth';
-
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [mode, setMode] = useLocalStorage<'light' | 'dark'>('theme', 'light');

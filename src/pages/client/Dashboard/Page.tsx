@@ -1,7 +1,7 @@
 import { Button, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
-import { useAuth } from 'src/context/auth';
+import { useAuth } from 'src/context/hooks';
 import { createEvent } from 'src/services/calendar';
 
 import {

@@ -3,8 +3,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
+import { AuthProvider } from 'src/context';
 
-import { AuthProvider } from './context/auth';
 import { router } from './routes.tsx';
 
 import './i18n.ts';

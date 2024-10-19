@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 
 import { IFinancialPlan } from '@shared/models/finances';
 import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
-import { useAuth } from 'src/context/auth';
+import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
 import { toDayjs, toTimestamp } from 'src/utils';
 

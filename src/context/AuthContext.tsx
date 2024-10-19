@@ -1,12 +1,9 @@
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 import { EProviderType } from '@shared/enums';
 import { IdTokenResult, User, onAuthStateChanged } from 'firebase/auth';
 import { GlobalLoader } from 'src/components';
 import { auth } from 'src/firebase';
-
-import AuthContext from './AuthContext';
-import { AuthProviderProps } from './AuthContext.types';
 
 export interface AuthContextType {
   currentUser: User | null;
@@ -15,7 +12,15 @@ export interface AuthContextType {
   hasGoogleProvider: boolean;
 }
 
-export default function AuthProvider({ children }: AuthProviderProps) {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export default AuthContext;
+
+interface Props {
+  children: React.ReactNode;
+}
+
+export function AuthProvider({ children }: Props) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [token, setToken] = useState<IdTokenResult | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);

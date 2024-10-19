@@ -11,7 +11,7 @@ import {
   limit,
   addDoc,
 } from 'firebase/firestore';
-import { useAuth } from 'src/context/auth';
+import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
 import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
 

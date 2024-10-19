@@ -16,7 +16,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import { GoogleLoginButton } from 'src/components/auth';
-import { useAuth } from 'src/context/auth';
+import { useAuth } from 'src/context/hooks';
 import { getFullTimezone } from 'src/utils';
 import * as yup from 'yup';
 

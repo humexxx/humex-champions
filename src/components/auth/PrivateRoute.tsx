@@ -2,7 +2,7 @@
 import React from 'react';
 
 import { Navigate } from 'react-router-dom';
-import { useAuth } from 'src/context/auth';
+import { useAuth } from 'src/context/hooks';
 
 interface Props {
   children: React.ReactElement;
