@@ -10,7 +10,8 @@
     "lint:fix": "eslint --ext .ts,.tsx --fix src/",
     "preview": "vite preview",
     "format": "prettier --write ./src",
-    "gen-lang-types": "i18next-resources-for-ts interface -i ./src/locales -o ./src/types/resources.d.ts"
+    "gen-lang-types": "i18next-resources-for-ts interface -i ./src/locales -o ./src/types/resources.d.ts",
+    "release": "standard-version"
   },
   "dependencies": {
     "@emotion/react": "^11.13.0",
@@ -48,6 +49,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "prettier": "3.3.3",
+    "standard-version": "^9.5.0",
     "typescript": "^5.6.2",
     "vite": "^5.3.4"
   }

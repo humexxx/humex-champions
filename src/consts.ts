@@ -1,3 +1,6 @@
+import packageJson from '../package.json';
+export const VERSION = import.meta.env.VITE_APP_VERSION || packageJson.version;
+
 export const MULTIPLE_GRAPH_COLORS = [
   '#4e79a7',
   '#f28e2c',

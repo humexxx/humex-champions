@@ -18,10 +18,12 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Typography,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
+import { VERSION } from 'src/consts';
 
 const Drawer = () => {
   const { t } = useTranslation();
@@ -68,7 +70,9 @@ const Drawer = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar />
+      <Toolbar>
+        <Typography variant="caption">{VERSION}</Typography>
+      </Toolbar>
       <Divider />
       <List>
         {mainMenuItems.map(({ text, icon, path }) => (
