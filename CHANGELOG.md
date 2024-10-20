@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.2.0 (2024-10-20)
+
+
+### Features
+
+* update how to run workflow ([d352371](https://github.com/humexxx/humex-champions/commit/d352371d8f33ac5fa7d1fb561d7136a7e22f9178))
+
 ## 0.1.0 (2024-10-19)
 
 ### 0.0.1 (2024-10-19)
