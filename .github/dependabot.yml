@@ -3,19 +3,25 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
     open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore: '
     allow:
       - dependency-type: 'all'
+    group:
+      group-name: 'default'
+      group-slug: 'weekly'
 
   - package-ecosystem: 'npm'
     directory: '/functions'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
     open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore(functions): '
     allow:
       - dependency-type: 'all'
+    group:
+      group-name: 'functions'
+      group-slug: 'weekly'
