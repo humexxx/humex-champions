@@ -7,12 +7,21 @@ jobs:
     name: autoupdate
     runs-on: ubuntu-22.04
     steps:
+      - name: Wait for versioning
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        id: wait-for-versioning
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Versioning
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
       - name: Wait for build to succeed
+        if: steps.wait-for-build.outputs.conclusion == 'success'
         uses: fountainhead/action-wait-for-check@v1.2.0
         id: wait-for-build
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: Versioning
+          checkName: Build and Deploy
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Auto-update
