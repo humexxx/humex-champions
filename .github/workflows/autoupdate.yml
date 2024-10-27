@@ -16,7 +16,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Wait for build to succeed
-        if: steps.wait-for-build.outputs.conclusion == 'success'
+        if: steps.wait-for-versioning.outputs.conclusion == 'success'
         uses: fountainhead/action-wait-for-check@v1.2.0
         id: wait-for-build
         with:
