@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   versioning:
+    name: Versioning
     runs-on: ubuntu-latest
 
     steps:
