@@ -1,8 +1,7 @@
 name: autoupdate
 on:
-  push:
-    branches:
-      - main
+  push: {}
+  merge_group: {}
 jobs:
   autoupdate:
     name: autoupdate
