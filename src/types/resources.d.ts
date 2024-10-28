@@ -3,7 +3,8 @@ interface Resources {
     "lang": "en-US",
     "languages": {
       "en": "English",
-      "es": "Spanish"
+      "es": "Spanish",
+      "pt": "Portuguese"
     },
     "common": {
       "confirm": "Confirm",
@@ -224,12 +225,11 @@ interface Resources {
       "title": "Uplift",
       "summary": "Uplift Summary",
       "description": "Uplift is a tool to help you keep track of your daily goals and long-term goals.",
-      "checklist": {
-        "title": "Checklist",
-        "description": "Create a checklist to keep track of your daily goals.",
-        "list": {
-          "newItem": "New Item",
-          "fromYesterday": "from Yesterday"
+      "planner": {
+        "title": "Planner",
+        "description": "Plan your week and keep track of your daily goals.",
+        "form": {
+          "newTask": "New Task"
         }
       },
       "pathway": {
