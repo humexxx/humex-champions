@@ -29,7 +29,7 @@ import {
   NutritionPage,
   TrainingProgramPage,
 } from './pages/client/Health';
-import { ChecklistPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
+import { PlannerPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
 
 const financeRoutes = [
   {
@@ -83,8 +83,8 @@ const upliftRoutes = [
     element: <PathwayPage />,
   },
   {
-    path: '/client/uplift/checklist',
-    element: <ChecklistPage />,
+    path: '/client/uplift/planner',
+    element: <PlannerPage />,
   },
 ];
 
