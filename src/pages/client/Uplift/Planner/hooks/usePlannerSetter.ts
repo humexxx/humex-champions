@@ -35,7 +35,7 @@ export default function usePlanner() {
         } else {
           const checklistDocRef = doc(
             firestore,
-            `${plannerCollection}/${planner.id}`
+            `${plannerCollection.path}/${planner.id}`
           );
           await updateDoc(checklistDocRef, formmatedPlanner);
         }

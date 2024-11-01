@@ -1,1 +1,1 @@
-export { default as DailyChecklist } from './DailyChecklist';
+export { default as WeekDays } from './WeekDays';

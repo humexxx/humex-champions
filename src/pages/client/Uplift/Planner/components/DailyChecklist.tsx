@@ -1,19 +1,25 @@
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
   Card,
   CardContent,
   Checkbox,
+  Chip,
+  Container,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Stack,
   Typography,
 } from '@mui/material';
 import { IPlanner } from '@shared/models/uplift';
 import { Dayjs } from 'dayjs';
 
 import Form from './Form';
+import { usePlannerSetter } from '../hooks';
 
 const DailyChecklist = ({
   day,
@@ -22,40 +28,77 @@ const DailyChecklist = ({
   day: Dayjs;
   data?: IPlanner<Dayjs>;
 }) => {
+  const { set } = usePlannerSetter();
+
+  const handleOnChange = (index: number, checked: boolean) => () => {
+    if (!data) return;
+    data.items[index].completed = !checked;
+    set(data);
+  };
+
+  const handleOnDelete = (index: number) => () => {
+    if (!data) return;
+    data.items.splice(index, 1);
+    set(data);
+  };
+
   return (
     <Card variant={'outlined'} sx={{ minHeight: 500 }}>
       <CardContent sx={{ p: 2 }}>
-        <Typography variant={'h6'}>
-          {day.format('dddd')}
-          <Typography component={'span'} variant={'body2'} sx={{ ml: 1 }}>
-            {day.format('MMM DD')}
+        <Container maxWidth="xs" sx={{ marginLeft: 0 }}>
+          <Typography variant={'h6'}>
+            {day.format('dddd')}
+            <Typography component={'span'} variant={'body2'} sx={{ ml: 1 }}>
+              {day.format('MMM DD')}
+            </Typography>
           </Typography>
-        </Typography>
+          <Box py={2}>
+            <Form planner={data ?? { date: day, items: [] }} />
+          </Box>
+          <List>
+            {data?.items.map((item, index) => (
+              <ListItem
+                key={index}
+                disablePadding
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={handleOnDelete(index)}
+                  >
+                    <DeleteIcon color="error" />
+                  </IconButton>
+                }
+              >
+                <ListItemButton
+                  role="button"
+                  onClick={handleOnChange(index, item.completed)}
+                  dense
+                >
+                  <ListItemIcon>
+                    <Checkbox
+                      edge="start"
+                      checked={item.completed}
+                      tabIndex={-1}
+                      disableRipple
+                      inputProps={{ 'aria-labelledby': '1' }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.title}
+                    secondary={
+                      <Stack direction={'row'} gap={1}>
+                        <Chip label={'test'} />
+                        <Chip label={'test'} />
+                      </Stack>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Container>
       </CardContent>
-      <Box p={2}>
-        <Form planner={data ?? { date: day, items: [] }} />
-      </Box>
-      <List>
-        {data?.items.map((item, index) => (
-          <ListItem key={index} disablePadding>
-            <ListItemButton role={undefined} dense>
-              <ListItemIcon sx={{ minWidth: 'auto' }}>
-                <Checkbox
-                  edge="start"
-                  checked={item.completed}
-                  tabIndex={-1}
-                  disableRipple
-                  inputProps={{ 'aria-labelledby': '1' }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={item.title}
-                primaryTypographyProps={{ fontSize: '0.775rem' }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
     </Card>
   );
 };

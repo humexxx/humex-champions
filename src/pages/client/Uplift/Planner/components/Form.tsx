@@ -26,12 +26,9 @@ function Form({ planner }: { planner: IPlanner<Dayjs> }) {
 
   const { set, error, loading } = usePlannerSetter();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<yup.InferType<typeof schema>>({
+  const { register, handleSubmit, reset, setFocus } = useForm<
+    yup.InferType<typeof schema>
+  >({
     resolver: yupResolver(schema),
     defaultValues: {
       title: '',
@@ -42,6 +39,7 @@ function Form({ planner }: { planner: IPlanner<Dayjs> }) {
     planner.items.push({ title: data.title, completed: false });
     await set(planner);
     reset();
+    setTimeout(() => setFocus('title'), 0);
   };
 
   return (
@@ -49,8 +47,8 @@ function Form({ planner }: { planner: IPlanner<Dayjs> }) {
       <TextField
         label={t('uplift.planner.form.newTask')}
         {...register('title')}
-        error={!!errors.title || !!error}
-        helperText={errors.title?.message || error}
+        error={!!error}
+        helperText={error}
         fullWidth
         disabled={loading}
         size="small"
