@@ -1,3 +1,3 @@
 export { default as UpliftPage } from './Page';
-export { ChecklistPage } from './Checklist';
+export { PlannerPage } from './Planner';
 export { PathwayPage } from './Pathway';
