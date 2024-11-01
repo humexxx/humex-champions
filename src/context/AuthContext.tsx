@@ -25,7 +25,6 @@ export function AuthProvider({ children }: Props) {
   const [token, setToken] = useState<IdTokenResult | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  console.log(currentUser);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

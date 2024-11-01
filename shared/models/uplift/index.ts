@@ -1,1 +1,1 @@
-export * from './checklist';
+export * from './planner';
