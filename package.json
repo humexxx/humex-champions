@@ -1,7 +1,7 @@
 {
   "name": "humex-champions",
   "private": true,
-  "version": "0.20.0",
+  "version": "0.21.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,8 +10,10 @@
     "lint:fix": "eslint --ext .ts,.tsx --fix src/",
     "preview": "vite preview",
     "format": "prettier --write ./src",
+    "release": "standard-version",
     "gen-lang-types": "i18next-resources-for-ts interface -i ./src/locales -o ./src/types/resources.d.ts",
-    "release": "standard-version"
+    "watch-lang": "nodemon --watch src/locales/en.json --exec \"npm run gen-lang-types\"",
+    "dev-all": "npm-run-all --parallel dev watch-lang"
   },
   "dependencies": {
     "@emotion/react": "^11.13.0",
@@ -48,6 +50,8 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "nodemon": "^3.1.7",
+    "npm-run-all": "^4.1.5",
     "prettier": "3.3.3",
     "standard-version": "^9.5.0",
     "typescript": "^5.6.2",
