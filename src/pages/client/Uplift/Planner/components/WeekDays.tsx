@@ -38,7 +38,12 @@ const WeekDays = ({ days }: { days: Dayjs[] }) => {
   return (
     <TabContext value={value}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <TabList onChange={handleChange} aria-label="lab API tabs example">
+        <TabList
+          onChange={handleChange}
+          aria-label="lab API tabs example"
+          allowScrollButtonsMobile
+          variant="scrollable"
+        >
           {days.map((day) => (
             <Tab
               icon={

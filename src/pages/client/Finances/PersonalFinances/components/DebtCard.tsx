@@ -44,25 +44,18 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
         position: 'relative',
         height: '100%',
         minHeight: 175,
-        bgcolor: canEdit ? 'inherit' : 'action.disabledBackground',
       }}
-      elevation={canEdit ? 2 : 0}
+      variant="outlined"
     >
-      {canEdit && (
-        <DebtEditDialog
-          data={debts}
-          onSubmit={update}
-          sx={{ position: 'absolute', right: 8, top: 8 }}
-          loading={isLoading}
-        />
-      )}
+      <DebtEditDialog
+        data={debts}
+        onSubmit={update}
+        sx={{ position: 'absolute', right: 8, top: 8 }}
+        loading={isLoading}
+        disabled={!canEdit}
+      />
       <CardContent>
-        <Typography
-          variant="body1"
-          component="h3"
-          mb={2}
-          color={canEdit ? 'primary.default' : 'text.disabled'}
-        >
+        <Typography variant="body1" component="h3" mb={2}>
           <strong>{t('finances.personalFinances.header.debts.title')}</strong>
         </Typography>
         {isLoading ? (

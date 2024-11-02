@@ -40,9 +40,10 @@ interface Props {
   data: IDebt[];
   sx?: SxProps;
   loading?: boolean;
+  disabled?: boolean;
 }
 
-const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
+const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
@@ -138,7 +139,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
     <>
       <Tooltip title={t('finances.personalFinances.header.debts.dialog.title')}>
         <Box sx={{ display: 'inline-block', ...sx }}>
-          <IconButton onClick={handleOpen} disabled={loading}>
+          <IconButton onClick={handleOpen} disabled={loading || disabled}>
             <EditIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -177,6 +178,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                 key={item.id}
                 expanded={expanded === `panel${index}`}
                 onChange={() => setExpanded(`panel${index}`)}
+                variant="outlined"
               >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}

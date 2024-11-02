@@ -56,7 +56,10 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   );
 
   return (
-    <Card sx={{ position: 'relative', height: '100%', minHeight: 175 }}>
+    <Card
+      sx={{ position: 'relative', height: '100%', minHeight: 175 }}
+      variant="outlined"
+    >
       <IncomeEditDialog
         data={incomes}
         onSubmit={update}

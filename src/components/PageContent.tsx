@@ -5,7 +5,7 @@ type Props = {
 };
 
 const PageContent = ({ children }: Props) => {
-  return <Box>{children}</Box>;
+  return <Box component={'section'}>{children}</Box>;
 };
 
 export default PageContent;

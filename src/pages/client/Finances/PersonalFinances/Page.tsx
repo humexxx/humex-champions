@@ -13,7 +13,7 @@ import {
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'src/components';
+import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 import { usePersonalFinances } from 'src/hooks/pages/client/finances';
 
@@ -136,137 +136,118 @@ const PersonalFinancesPage = () => {
         financialPlan={financialPlans[0]}
         onSubmit={(data) => _updateDebts(financialPlans[0].id!, data)}
       />
-      <PageHeader>
-        <Breadcrumbs aria-label="navigator">
-          <Typography
-            component={Link}
-            to="/client/finances"
-            unstable_viewTransition
-            color={'info.main'}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              textDecoration: 'none',
-              '&:hover': {
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            <ArrowBackIcon fontSize="small" sx={{ mr: 1 }} color="inherit" />
-            {t('finances.title')}
-          </Typography>
-          <Typography
-            variant="body1"
-            style={{
-              viewTransitionName: 'personal-finances',
-            }}
-            color="text.primary"
-          >
-            <strong>{t('finances.personalFinances.title')}</strong>
-          </Typography>
-        </Breadcrumbs>
-      </PageHeader>
-
-      <Box mb={2}>
-        <TabContext value={selectedTab}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
-            <TabList
-              onChange={(_, tab) => setSelectedTab(tab)}
-              aria-label="personal finances ideas"
-              scrollButtons="auto"
-              sx={{
-                '& .MuiTab-root:first-of-type': {
-                  color: 'warning.main',
-                },
-                '& .Mui-selected:first-of-type': {
-                  color: 'warning.main',
-                },
-                '& .MuiTabs-indicator': {
-                  backgroundColor:
-                    selectedTab === '0' ? 'warning.main' : 'primary.main',
-                },
-              }}
-            >
-              {_financialPlans.map(({ id, name }, i) => (
-                <Tab
-                  key={`tab-${id}`}
-                  label={name}
-                  value={i.toString()}
-                  {...getTabProps(id ?? '')}
+      <PageHeader
+        title={t('finances.title')}
+        breadcrumb={[
+          { title: t('finances.title'), route: '/client/finances' },
+          {
+            title: t('finances.personalFinances.title'),
+            route: 'personal-finances',
+          },
+        ]}
+      />
+      <PageContent>
+        <Box mb={2}>
+          <TabContext value={selectedTab}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
+              <TabList
+                onChange={(_, tab) => setSelectedTab(tab)}
+                aria-label="personal finances ideas"
+                scrollButtons="auto"
+                sx={{
+                  '& .MuiTab-root:first-of-type': {
+                    color: 'warning.main',
+                  },
+                  '& .Mui-selected:first-of-type': {
+                    color: 'warning.main',
+                  },
+                  '& .MuiTabs-indicator': {
+                    backgroundColor:
+                      selectedTab === '0' ? 'warning.main' : 'primary.main',
+                  },
+                }}
+              >
+                {_financialPlans.map(({ id, name }, i) => (
+                  <Tab
+                    key={`tab-${id}`}
+                    label={name}
+                    value={i.toString()}
+                    {...getTabProps(id ?? '')}
+                  />
+                ))}
+                <ButtonInTabs
+                  tooltipText={
+                    !isCreateNewPlanDisabled
+                      ? t('finances.personalFinances.addPlan')
+                      : t('finances.personalFinances.addPlanHint')
+                  }
+                  onClick={handleCreateNewPlan}
+                  disabled={isCreateNewPlanDisabled || isLoading}
+                  icon={<AddIcon />}
                 />
-              ))}
-              <ButtonInTabs
-                tooltipText={
-                  !isCreateNewPlanDisabled
-                    ? t('finances.personalFinances.addPlan')
-                    : t('finances.personalFinances.addPlanHint')
-                }
-                onClick={handleCreateNewPlan}
-                disabled={isCreateNewPlanDisabled || isLoading}
-                icon={<AddIcon />}
-              />
-            </TabList>
-          </Box>
+              </TabList>
+            </Box>
 
-          {_financialPlans.map(
-            ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
-              const { debts } =
-                financialSnapshots[financialSnapshots.length - 1];
+            {_financialPlans.map(
+              ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
+                const { debts } =
+                  financialSnapshots[financialSnapshots.length - 1];
 
-              return (
-                <TabPanel
-                  key={`tab-panel-${id}`}
-                  value={i.toString()}
-                  sx={{ p: 2 }}
-                >
-                  <Grid container spacing={4}>
-                    <Grid item xs={12} md={4}>
-                      <DebtCard
-                        canEdit={i === 0}
-                        debts={debts}
-                        isLoading={isLoading}
-                        update={(data) => _updateDebts(id ?? null, data)}
-                      />
+                return (
+                  <TabPanel
+                    key={`tab-panel-${id}`}
+                    value={i.toString()}
+                    sx={{ p: 2 }}
+                  >
+                    <Grid container spacing={4}>
+                      <Grid item xs={12} md={4}>
+                        <DebtCard
+                          canEdit={i === 0}
+                          debts={debts}
+                          isLoading={isLoading}
+                          update={(data) => _updateDebts(id ?? null, data)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <IncomeCard
+                          incomes={incomes}
+                          isLoading={isLoading}
+                          update={(data) =>
+                            _updateFinancialPlan(id ?? null, data, 'incomes')
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <FixedExpenseCard
+                          fixedExpenses={fixedExpenses}
+                          debts={debts}
+                          isLoading={isLoading}
+                          update={(data) =>
+                            _updateFinancialPlan(
+                              id ?? null,
+                              data,
+                              'fixedExpenses'
+                            )
+                          }
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={12} md={4}>
-                      <IncomeCard
-                        incomes={incomes}
-                        isLoading={isLoading}
-                        update={(data) =>
-                          _updateFinancialPlan(id ?? null, data, 'incomes')
-                        }
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                      <FixedExpenseCard
-                        fixedExpenses={fixedExpenses}
-                        debts={debts}
-                        isLoading={isLoading}
-                        update={(data) =>
-                          _updateFinancialPlan(
-                            id ?? null,
-                            data,
-                            'fixedExpenses'
-                          )
-                        }
-                      />
-                    </Grid>
-                  </Grid>
-                </TabPanel>
-              );
-            }
-          )}
-        </TabContext>
-      </Box>
+                  </TabPanel>
+                );
+              }
+            )}
+          </TabContext>
+        </Box>
 
-      <Grid container>
-        <Grid item xs={12}>
-          <PersonalFinancesGraph
-            loading={isLoading}
-            financialPlans={financialPlans}
-          />
+        <Grid container>
+          <Grid item xs={12}>
+            <PersonalFinancesGraph
+              loading={isLoading}
+              financialPlans={financialPlans}
+            />
+          </Grid>
         </Grid>
-      </Grid>
+      </PageContent>
     </>
   );
 };

@@ -87,8 +87,7 @@ const DailyChecklist = ({
                   <ListItemText
                     primary={item.title}
                     secondary={
-                      <Stack direction={'row'} gap={1}>
-                        <Chip label={'test'} />
+                      <Stack direction={'row'} gap={1} mt={0.5}>
                         <Chip label={'test'} />
                       </Stack>
                     }
