@@ -10,7 +10,6 @@ import GroupIcon from '@mui/icons-material/Group';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
-  Toolbar,
   Divider,
   List,
   ListItem,
@@ -18,14 +17,12 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
-  Typography,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
-import { VERSION } from 'src/consts';
 
-const Drawer = () => {
+const Sidebar = () => {
   const { t } = useTranslation();
   const location = useLocation();
 
@@ -70,22 +67,22 @@ const Drawer = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar>
-        <Typography variant="caption">{VERSION}</Typography>
-      </Toolbar>
-      <Divider />
       <List>
         {mainMenuItems.map(({ text, icon, path }) => (
-          <ListItem key={text}>
+          <ListItem key={text} sx={{ paddingY: 0.5 }}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
-              unstable_viewTransition
             >
               <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemText
+                primary={text}
+                primaryTypographyProps={{
+                  fontSize: '0.9rem',
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -99,11 +96,15 @@ const Drawer = () => {
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
-              unstable_viewTransition
               disabled
             >
               <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemText
+                primary={text}
+                primaryTypographyProps={{
+                  fontSize: '0.9rem',
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -116,7 +117,6 @@ const Drawer = () => {
               selected={location.pathname.includes('/client/admin')}
               component={NavLink}
               to="/client/admin"
-              unstable_viewTransition
             >
               <ListItemIcon>
                 <AdminPanelSettingsIcon />
@@ -131,7 +131,6 @@ const Drawer = () => {
             selected={location.pathname.includes('/client/settings')}
             component={NavLink}
             to="/client/settings"
-            unstable_viewTransition
           >
             <ListItemIcon>
               <SettingsIcon />
@@ -144,6 +143,6 @@ const Drawer = () => {
   );
 };
 
-export const DRAWER_WIDTH = 240;
+export const SIDEBAR_WIDTH = 240;
 
-export default Drawer;
+export default Sidebar;

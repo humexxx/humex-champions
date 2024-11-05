@@ -12,14 +12,17 @@ import {
   Typography,
   Menu,
   MenuItem,
+  Box,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import logo from 'src/assets/images/logo.png';
+import { VERSION } from 'src/consts';
 import { useThemeContext } from 'src/context/theme';
 import { auth } from 'src/firebase';
 
-import { DRAWER_WIDTH } from './drawer';
+export const MAIN_HEADER_HEIGHT = 56;
 
 interface Props {
   handleDrawerToggle: () => void;
@@ -52,26 +55,37 @@ const Header = ({ handleDrawerToggle }: Props) => {
   return (
     <AppBar
       position="fixed"
+      elevation={0}
       sx={{
-        width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-        ml: { sm: `${DRAWER_WIDTH}px` },
         display: 'flex',
         justifyContent: 'space-between',
+        height: MAIN_HEADER_HEIGHT,
       }}
     >
-      <Toolbar>
+      <Toolbar
+        sx={{
+          minHeight: `${MAIN_HEADER_HEIGHT}px !important`,
+          height: MAIN_HEADER_HEIGHT,
+        }}
+      >
         <IconButton
           color="inherit"
           aria-label="open drawer"
           edge="start"
           onClick={handleDrawerToggle}
-          sx={{ mr: 2, display: { sm: 'none' } }}
+          sx={{ mr: 2, display: { lg: 'none' } }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" flexGrow="1">
-          Champions
-        </Typography>
+        <Box flexGrow="1" display={'flex'} alignItems={'center'}>
+          {/* <img src={logo} alt="Logo" height={25} /> */}
+          <Typography variant="h6" component="h1">
+            Champions
+          </Typography>
+          <Typography ml={1} variant="caption">
+            ({VERSION})
+          </Typography>
+        </Box>
         <IconButton
           color="inherit"
           ref={menuRef}

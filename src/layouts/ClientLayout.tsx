@@ -1,11 +1,13 @@
 import * as React from 'react';
 
-import { Box, Drawer, Toolbar, Container } from '@mui/material';
+import { Box, Drawer } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { PrivateRoute } from 'src/components/auth';
-import { Header } from 'src/components/layouts';
-import APP_DRAWER, { DRAWER_WIDTH } from 'src/components/layouts/drawer';
 import { ThemeProvider } from 'src/context/theme';
+
+import { Header, Sidebar } from './components';
+import { MAIN_HEADER_HEIGHT } from './components/Header';
+import { SIDEBAR_WIDTH } from './components/Sidebar';
 
 function ClientLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -31,7 +33,7 @@ function ClientLayout() {
       <Header handleDrawerToggle={handleDrawerToggle} />
       <Box
         component="nav"
-        sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
+        sx={{ width: { lg: SIDEBAR_WIDTH }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
         <Drawer
@@ -43,43 +45,42 @@ function ClientLayout() {
             keepMounted: true,
           }}
           sx={{
-            display: { xs: 'block', sm: 'none' },
+            display: { xs: 'block', lg: 'none' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: DRAWER_WIDTH,
+              width: SIDEBAR_WIDTH,
             },
           }}
         >
-          <APP_DRAWER />
+          <Sidebar />
         </Drawer>
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' },
+            display: { xs: 'none', lg: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: DRAWER_WIDTH,
+              width: SIDEBAR_WIDTH,
+              top: MAIN_HEADER_HEIGHT,
+              borderRight: 0,
             },
           }}
           open
         >
-          <APP_DRAWER />
+          <Sidebar />
         </Drawer>
       </Box>
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
+          pt: `${MAIN_HEADER_HEIGHT}px`,
+          width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
           bgcolor: 'background.paper',
           minHeight: '100vh',
         }}
       >
-        <Toolbar />
-        <Container maxWidth="xl">
-          <Outlet />
-        </Container>
+        <Outlet />
       </Box>
     </Box>
   );

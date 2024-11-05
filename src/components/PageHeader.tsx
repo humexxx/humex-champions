@@ -1,26 +1,44 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Breadcrumbs, Typography } from '@mui/material';
+import { Breadcrumbs, Toolbar, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useDocumentMetadata } from 'src/hooks';
+import { MAIN_HEADER_HEIGHT } from 'src/layouts/components/Header';
+
+export const SECONDARY_HEADER_HEIGHT = 62;
 
 type Props = {
   title: string;
   breadcrumb?: { title: string; route: string }[];
   description?: string;
+  hideHeader?: boolean;
 };
 
-const PageHeader = ({ title, breadcrumb, description }: Props) => {
+const PageHeader = ({ title, breadcrumb, description, hideHeader }: Props) => {
   useDocumentMetadata(`${title} - Champions`);
 
+  if (hideHeader) {
+    return null;
+  }
+
   return (
-    <Box mb={4} component={'header'}>
+    <Toolbar
+      sx={{
+        height: SECONDARY_HEADER_HEIGHT,
+        minHeight: `${SECONDARY_HEADER_HEIGHT}px !important`,
+        position: 'fixed',
+        top: `${MAIN_HEADER_HEIGHT}px`,
+        zIndex: 1000,
+        width: '100%',
+        backdropFilter: 'blur(8px)',
+        backgroudColor: 'hsla(0, 0%, 100%, 0.6);',
+      }}
+    >
       {breadcrumb ? (
-        <Breadcrumbs aria-label="navigator" sx={{ mb: 1 }}>
+        <Breadcrumbs aria-label="navigator">
           <Typography
-            variant="h6"
+            variant="body2"
             component={Link}
             to={breadcrumb[0].route}
-            unstable_viewTransition
             color={'info.main'}
             sx={{
               display: 'flex',
@@ -39,25 +57,23 @@ const PageHeader = ({ title, breadcrumb, description }: Props) => {
             .map((item) => (
               <Typography
                 key={item.route}
-                variant="h6"
-                style={{
-                  viewTransitionName: item.route,
-                }}
+                variant="body1"
                 color="text.primary"
+                component={'h1'}
               >
                 <strong>{item.title}</strong>
               </Typography>
             ))}
         </Breadcrumbs>
       ) : (
-        <Typography variant="h6" component="h2" gutterBottom>
+        <Typography variant="h6" component="h1">
           <strong>{title}</strong>
         </Typography>
       )}
-      {Boolean(description) && (
-        <Typography variant="body1">{description}</Typography>
-      )}
-    </Box>
+      {/* {Boolean(description) && (
+          <Typography variant="body1">{description}</Typography>
+        )} */}
+    </Toolbar>
   );
 };
 

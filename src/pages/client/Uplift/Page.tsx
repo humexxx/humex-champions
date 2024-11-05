@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import InsightsIcon from '@mui/icons-material/Insights';
-import { Grid } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { LinkOptionCard, PageHeader } from 'src/components';
+import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 
 const Page = () => {
   const { t } = useTranslation();
@@ -29,23 +29,29 @@ const Page = () => {
   );
 
   return (
-    <PageHeader
-      title={t('uplift.summary')}
-      description={t('uplift.description')}
-    >
-      <Grid container spacing={4}>
-        {options.map(({ route, Icon, description, label }) => (
-          <Grid item xs={12} md={4} key={route}>
-            <LinkOptionCard
-              route={route}
-              label={label}
-              description={description}
-              icon={<Icon color="primary" />}
-            />
+    <>
+      <PageHeader
+        title={t('uplift.summary')}
+        description={t('uplift.description')}
+      />
+      <PageContent>
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+            <Typography variant="body2">{t('uplift.description')}</Typography>
           </Grid>
-        ))}
-      </Grid>
-    </PageHeader>
+          {options.map(({ route, Icon, description, label }) => (
+            <Grid item xs={12} md={4} key={route}>
+              <LinkOptionCard
+                route={route}
+                label={label}
+                description={description}
+                icon={<Icon color="primary" />}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </PageContent>
+    </>
   );
 };
 
