@@ -79,6 +79,8 @@ const Graph = ({ portfolioSnapshots, isTotalFilter }: Props) => {
     return Array.from(instruments);
   }, [portfolioSnapshots]);
 
+  console.log('datasets', datasets);
+
   return (
     <>
       <Box height={45}>
@@ -97,10 +99,11 @@ const Graph = ({ portfolioSnapshots, isTotalFilter }: Props) => {
           series={uniqueInstruments.map((instrument) => ({
             dataKey: instrument,
             valueFormatter: (value, i) =>
-              `$${value?.toFixed(2)}` +
-              (datasets[i.dataIndex].date > new Date()
-                ? ` (${t('finances.portfolio.predicted')})`
-                : ''),
+              `$${value?.toFixed(2)} ${
+                datasets[i.dataIndex].date > new Date()
+                  ? ` (${t('finances.portfolio.predicted')})`
+                  : ''
+              }`,
             showMark: false,
             ...(totalFilter === 'total' && isTotalFilter ? stackStrategy : {}),
           }))}

@@ -63,6 +63,7 @@ function ClientLayout() {
               width: SIDEBAR_WIDTH,
               top: MAIN_HEADER_HEIGHT,
               borderRight: 0,
+              height: `calc(100% - ${MAIN_HEADER_HEIGHT}px)`,
             },
           }}
           open

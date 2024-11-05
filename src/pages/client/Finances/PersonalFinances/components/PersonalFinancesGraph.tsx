@@ -278,11 +278,14 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
     [_financialPlans, theme]
   );
 
+  console.log(datasets);
+
   return (
     <Box width={'100%'} height={500}>
       <LineChart
+        grid={{ vertical: true, horizontal: true }}
         loading={loading}
-        series={datasets}
+        dataset={datasets}
         xAxis={[
           {
             data: _financialPlans.length
@@ -308,9 +311,6 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
           } as any,
         }}
       />
-      <Box mt={2}>
-        <Typography variant="body1">Some information</Typography>
-      </Box>
     </Box>
   );
 };

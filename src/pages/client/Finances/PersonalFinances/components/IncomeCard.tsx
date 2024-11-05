@@ -3,16 +3,16 @@ import { useMemo } from 'react';
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import { IIncome } from '@shared/models/finances';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
 import IncomeEditDialog from './IncomeEditDialog';
 
 interface Props {
-  incomes: IIncome[];
+  incomes: IIncome<Dayjs>[];
   isLoading: boolean;
-  update: (data: IIncome[]) => void;
+  update: (data: IIncome<Dayjs>[]) => void;
 }
 
 const IncomeCard = ({ incomes, isLoading, update }: Props) => {
