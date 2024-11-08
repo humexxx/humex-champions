@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Alert, Box, Tab, Typography } from '@mui/material';
@@ -6,11 +6,13 @@ import dayjs, { Dayjs } from 'dayjs';
 import { OnlineStatus } from 'src/components';
 
 import DailyChecklist from './DailyChecklist';
+import { useUplift } from '../../hooks';
 import { usePlanner } from '../hooks';
 
 const WeekDays = ({ days }: { days: Dayjs[] }) => {
   const [value, setValue] = useState(dayjs().date().toString());
   const { plannerList, error } = usePlanner();
+  const uplift = useUplift();
 
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -68,7 +70,7 @@ const WeekDays = ({ days }: { days: Dayjs[] }) => {
       </Box>
       {days.map((day) => (
         <TabPanel key={day.date()} value={day.date().toString()}>
-          <DailyChecklist day={day} data={planner(day)} />
+          <DailyChecklist day={day} data={planner(day)} uplift={uplift} />
         </TabPanel>
       ))}
     </TabContext>

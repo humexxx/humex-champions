@@ -18,15 +18,18 @@ import {
 import { IPlanner } from '@shared/models/uplift';
 import { Dayjs } from 'dayjs';
 
-import Form from './Form';
+import DailyChecklistForm from './DailyChecklistForm';
+import { UseUplift } from '../../hooks/useUplift';
 import { usePlannerSetter } from '../hooks';
 
 const DailyChecklist = ({
   day,
   data,
+  uplift,
 }: {
   day: Dayjs;
   data?: IPlanner<Dayjs>;
+  uplift: UseUplift;
 }) => {
   const { set } = usePlannerSetter();
 
@@ -53,7 +56,10 @@ const DailyChecklist = ({
             </Typography>
           </Typography>
           <Box py={2}>
-            <Form planner={data ?? { date: day, items: [] }} />
+            <DailyChecklistForm
+              planner={data ?? { date: day, items: [] }}
+              uplift={uplift}
+            />
           </Box>
           <List>
             {data?.items.map((item, index) => (
