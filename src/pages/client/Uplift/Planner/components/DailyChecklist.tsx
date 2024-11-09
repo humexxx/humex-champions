@@ -48,7 +48,7 @@ const DailyChecklist = ({
   return (
     <Card variant={'outlined'} sx={{ minHeight: 500 }}>
       <CardContent sx={{ p: 2 }}>
-        <Container maxWidth="xs" sx={{ marginLeft: 0 }}>
+        <Container maxWidth="xs" sx={{ marginLeft: 2 }}>
           <Typography variant={'h6'}>
             {day.format('dddd')}
             <Typography component={'span'} variant={'body2'} sx={{ ml: 1 }}>
@@ -94,7 +94,14 @@ const DailyChecklist = ({
                     primary={item.title}
                     secondary={
                       <Stack direction={'row'} gap={1} mt={0.5}>
-                        <Chip label={'test'} />
+                        {item.labels.map((label) => (
+                          <Chip
+                            key={label.title}
+                            label={label.title}
+                            size="small"
+                            color={label.color as any}
+                          />
+                        ))}
                       </Stack>
                     }
                   />

@@ -56,12 +56,17 @@ const WeekDays = ({ days }: { days: Dayjs[] }) => {
               iconPosition="top"
               key={day.toString()}
               label={
-                <Typography>
-                  {dayjs().date() === day.date() && (
-                    <OnlineStatus sx={{ mb: 0.5, mr: 1 }} />
-                  )}
-                  {day.format('dddd')}
-                </Typography>
+                <>
+                  <Typography>
+                    {dayjs().date() === day.date() && (
+                      <OnlineStatus sx={{ mb: 0.5, mr: 1 }} />
+                    )}
+                    {day.format('dddd')}{' '}
+                  </Typography>
+                  <Typography variant="caption">
+                    {day.format('MMM DD')}
+                  </Typography>
+                </>
               }
               value={day.date().toString()}
             />

@@ -10,6 +10,7 @@ import {
   Stack,
   Box,
   Skeleton,
+  Chip,
 } from '@mui/material';
 import { IPlanner } from '@shared/models/uplift';
 import { Dayjs } from 'dayjs';
@@ -20,6 +21,9 @@ import * as yup from 'yup';
 import LabelsDialog from './LabelsDialog';
 import { UseUplift } from '../../hooks/useUplift';
 import { usePlannerSetter } from '../hooks';
+import { LoadingButton } from '@mui/lab';
+import AddIcon from '@mui/icons-material/Add';
+import { ELabelColorType } from '@shared/enums/ELabelColorType';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -40,14 +44,25 @@ function DailyChecklistForm({
           .string()
           .nonNullable()
           .required(t('commonValidations.required')),
-        labels: yup.array().of(yup.string()),
+        labels: yup
+          .array()
+          .of(
+            yup.object().shape({
+              title: yup.string().default(''),
+              color: yup
+                .string()
+                .oneOf(Object.values(ELabelColorType))
+                .default(ELabelColorType.PRIMARY),
+            })
+          )
+          .default([]),
       }),
     [t]
   );
 
   const { set, error, loading } = usePlannerSetter();
 
-  const { register, handleSubmit, reset, setFocus } = useForm<
+  const { register, handleSubmit, reset, setFocus, setValue } = useForm<
     yup.InferType<typeof schema>
   >({
     resolver: yupResolver(schema),
@@ -58,7 +73,11 @@ function DailyChecklistForm({
   });
 
   const onSubmit = async (data: yup.InferType<typeof schema>) => {
-    planner.items.push({ title: data.title, completed: false });
+    planner.items.push({
+      title: data.title,
+      completed: false,
+      labels: data.labels,
+    });
     await set(planner);
     reset();
     setTimeout(() => setFocus('title'), 0);
@@ -76,46 +95,79 @@ function DailyChecklistForm({
         size="small"
         variant={'outlined'}
       />
-      <Stack spacing={2} direction="row">
-        <Box sx={{ flex: 1 }}>
-          <Autocomplete
-            multiple
-            options={uplift.data?.labels ?? []}
-            loading={uplift.loading || true}
-            disableCloseOnSelect
-            getOptionLabel={(option) => option.title}
-            renderOption={(props, option, { selected }) => {
-              const { key, ...optionProps } = props;
+      <Box sx={{ flex: 1 }} position={'relative'}>
+        <Autocomplete
+          multiple
+          options={uplift.data?.labels ?? []}
+          loading={uplift.loading || true}
+          disableCloseOnSelect
+          getOptionLabel={(option) => option.title}
+          renderOption={(props, option, { selected }) => {
+            const { key, ...optionProps } = props;
+            return (
+              <li key={key} {...optionProps}>
+                <Checkbox
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                {option.title}
+              </li>
+            );
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Labels"
+              placeholder="Labels"
+              size="small"
+              variant="outlined"
+              fullWidth
+              disabled={uplift.loading}
+            />
+          )}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => {
+              const { key, ...tagProps } = getTagProps({ index });
               return (
-                <li key={key} {...optionProps}>
-                  <Checkbox
-                    icon={icon}
-                    checkedIcon={checkedIcon}
-                    style={{ marginRight: 8 }}
-                    checked={selected}
-                  />
-                  {option.title}
-                </li>
+                <Chip
+                  key={key}
+                  label={option.title}
+                  size="small"
+                  color={option.color as any}
+                  sx={{
+                    py: '14px',
+                    pl: '4px',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '22px',
+                    },
+                  }}
+                  {...tagProps}
+                />
               );
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Labels"
-                placeholder="Labels"
-                size="small"
-                variant="outlined"
-                fullWidth
-                disabled={uplift.loading}
-              />
-            )}
-          />
+            })
+          }
+          onChange={(_, value) => {
+            setValue('labels', value);
+          }}
+        />
+        <Box position={'absolute'} left={-48} top={0}>
+          {uplift.loading ? (
+            <Skeleton variant="circular" width={40} height={40} />
+          ) : (
+            <LabelsDialog uplift={uplift} />
+          )}
         </Box>
-        {uplift.loading ? (
-          <Skeleton variant="circular" width={40} height={40} />
-        ) : (
-          <LabelsDialog uplift={uplift} />
-        )}
+      </Box>
+      <Stack direction="row" spacing={1} justifyContent={'end'}>
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          startIcon={<AddIcon />}
+        >
+          Submit
+        </LoadingButton>
       </Stack>
     </Stack>
   );

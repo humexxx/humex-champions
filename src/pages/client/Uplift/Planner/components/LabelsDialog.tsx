@@ -5,7 +5,6 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LabelIcon from '@mui/icons-material/Label';
 import {
-  Avatar,
   Button,
   Dialog,
   DialogActions,
@@ -16,85 +15,143 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  TextField,
 } from '@mui/material';
 import { ELabelColorType } from '@shared/enums/ELabelColorType';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 
 import { UseUplift } from '../../hooks/useUplift';
+import { ILabel } from '@shared/models/uplift';
+import { LoadingButton } from '@mui/lab';
 
 const LabelsDialog = ({ uplift }: { uplift: UseUplift }) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
       yup.object().shape({
-        labels: yup.array().of(
-          yup.object().shape({
-            title: yup
-              .string()
-              .nonNullable()
-              .required(t('commonValidations.required')),
-            color: yup.string().oneOf(Object.values(ELabelColorType)),
-          })
-        ),
+        title: yup
+          .string()
+          .nonNullable()
+          .required(t('commonValidations.required')),
+        color: yup.string().oneOf(Object.values(ELabelColorType)),
       }),
     [t]
   );
 
+  const [loading, setLoading] = useState(false);
+  const [labels, setLabels] = useState(uplift.data?.labels ?? []);
   const [open, setOpen] = useState(false);
-  const { control } = useForm<yup.InferType<typeof schema>>({
+  const { handleSubmit, watch, setValue, register, reset, setFocus } = useForm<
+    yup.InferType<typeof schema>
+  >({
     resolver: yupResolver(schema),
     defaultValues: {
-      labels: uplift.data?.labels ?? [],
+      title: '',
+      color: ELabelColorType.PRIMARY,
     },
   });
 
-  const fieldArray = useFieldArray({
-    control,
-    name: 'labels',
+  const _handleSubmit = handleSubmit((data) => {
+    setLabels((prev) => [...prev, data as ILabel]);
+    reset();
+    setTimeout(() => setFocus('title'), 10);
   });
 
-  console.log(fieldArray.fields);
+  const color = watch('color');
+
+  function handleColorChange() {
+    if (!color) return;
+    const colors = Object.values(ELabelColorType);
+    const currentIndex = colors.indexOf(color);
+    const nextIndex = (currentIndex + 1) % colors.length;
+    setValue('color', colors[nextIndex]);
+  }
+
+  const handleDelete = (index: number) => () => {
+    setLabels((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  async function handleSaveOnClick() {
+    setLoading(true);
+    try {
+      await uplift.set({ labels });
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <>
       <IconButton onClick={() => setOpen(true)}>
         <AddIcon />
       </IconButton>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        maxWidth="sm"
-        component={'form'}
-      >
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm">
         <DialogTitle>Labels</DialogTitle>
         <DialogContent>
           <List sx={{ minWidth: 300 }}>
-            {fieldArray.fields.map((field) => (
+            {labels.map((label, index) => (
               <ListItem
-                key={field.id}
+                key={label.title + index}
                 secondaryAction={
-                  <IconButton edge="end" aria-label="delete">
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={handleDelete(index)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 }
               >
-                <ListItemAvatar>
-                  <Avatar sx={{ backgroundColor: 'ButtonShadow' }}>
-                    <LabelIcon color={field.color} />
-                  </Avatar>
+                <ListItemAvatar sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LabelIcon color={label.color} />
                 </ListItemAvatar>
-                <ListItemText primary={field.title} />
+                <ListItemText primary={label.title} />
               </ListItem>
             ))}
+            <ListItem
+              component="form"
+              sx={{ pl: 1 }}
+              onSubmit={_handleSubmit}
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete" type="submit">
+                  <AddIcon />
+                </IconButton>
+              }
+            >
+              <ListItemAvatar sx={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton type="button" onClick={handleColorChange}>
+                  <LabelIcon color={color} />
+                </IconButton>
+              </ListItemAvatar>
+              <ListItemText>
+                <TextField
+                  label="Label"
+                  fullWidth
+                  size="small"
+                  variant={'outlined'}
+                  autoFocus
+                  sx={{ pr: 1 }}
+                  {...register('title')}
+                />
+              </ListItemText>
+            </ListItem>
           </List>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button type="submit" color="primary" variant="contained">
+          <LoadingButton
+            color="primary"
+            variant="contained"
+            onClick={handleSaveOnClick}
+            loading={loading}
+          >
             Save
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </Dialog>
     </>
