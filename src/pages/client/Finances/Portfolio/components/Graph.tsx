@@ -5,7 +5,7 @@ import { LineChart } from '@mui/x-charts';
 import { IPortfolioSnapshot } from '@shared/models/finances';
 import dayjs, { Dayjs } from 'dayjs';
 import { t } from 'i18next';
-import { DashedGraph } from 'src/components';
+import { DashedGraph } from 'src/components/graphs';
 import { getNextQuarterDate } from 'src/utils';
 
 import GraphTotalFilter from './GraphTotalFilter';
@@ -78,8 +78,6 @@ const Graph = ({ portfolioSnapshots, isTotalFilter }: Props) => {
     );
     return Array.from(instruments);
   }, [portfolioSnapshots]);
-
-  console.log('datasets', datasets);
 
   return (
     <>

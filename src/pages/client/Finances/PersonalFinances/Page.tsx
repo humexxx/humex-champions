@@ -18,6 +18,7 @@ import {
   DebtCard,
   FixedExpenseCard,
   IncomeCard,
+  PersonalFinancesGraph,
   ValidateMainFinantialSnapshotDialog,
 } from './components';
 import { useFinancialPlans } from './hooks';
@@ -220,14 +221,14 @@ const PersonalFinancesPage = () => {
           </TabContext>
         </Box>
 
-        {/* <Grid container>
+        <Grid container>
           <Grid item xs={12}>
             <PersonalFinancesGraph
-              loading={isLoading}
+              loading={loading}
               financialPlans={financialPlans}
             />
           </Grid>
-        </Grid> */}
+        </Grid>
       </PageContent>
     </>
   );

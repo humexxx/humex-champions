@@ -47,7 +47,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
     [incomes]
   );
 
-  const nextExtraordinaryIncome: IIncome | null = useMemo(
+  const nextExtraordinaryIncome: IIncome<Dayjs> | null = useMemo(
     () =>
       incomes
         .filter((income) => income.date)
