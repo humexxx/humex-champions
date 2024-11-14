@@ -96,19 +96,10 @@ const TradingJournalPage = () => {
         }}
       />
       <Breadcrumbs aria-label="navigator">
-        <Link
-          to="/client/finances"
-          unstable_viewTransition
-          style={{ textDecoration: 'none' }}
-        >
+        <Link to="/client/finances" style={{ textDecoration: 'none' }}>
           {t('finances.title')}
         </Link>
-        <Typography
-          variant="h6"
-          style={{
-            viewTransitionName: 'trading-journal',
-          }}
-        >
+        <Typography variant="h6">
           {t('finances.tradingJournal.title')}
         </Typography>
       </Breadcrumbs>

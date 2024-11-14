@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Alert, Box, Tab, Typography } from '@mui/material';
@@ -6,11 +6,13 @@ import dayjs, { Dayjs } from 'dayjs';
 import { OnlineStatus } from 'src/components';
 
 import DailyChecklist from './DailyChecklist';
+import { useUplift } from '../../hooks';
 import { usePlanner } from '../hooks';
 
 const WeekDays = ({ days }: { days: Dayjs[] }) => {
   const [value, setValue] = useState(dayjs().date().toString());
   const { plannerList, error } = usePlanner();
+  const uplift = useUplift();
 
   const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -38,7 +40,12 @@ const WeekDays = ({ days }: { days: Dayjs[] }) => {
   return (
     <TabContext value={value}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <TabList onChange={handleChange} aria-label="lab API tabs example">
+        <TabList
+          onChange={handleChange}
+          aria-label="lab API tabs example"
+          allowScrollButtonsMobile
+          variant="scrollable"
+        >
           {days.map((day) => (
             <Tab
               icon={
@@ -49,12 +56,17 @@ const WeekDays = ({ days }: { days: Dayjs[] }) => {
               iconPosition="top"
               key={day.toString()}
               label={
-                <Typography>
-                  {dayjs().date() === day.date() && (
-                    <OnlineStatus sx={{ mb: 0.5, mr: 1 }} />
-                  )}
-                  {day.format('dddd')}
-                </Typography>
+                <>
+                  <Typography>
+                    {dayjs().date() === day.date() && (
+                      <OnlineStatus sx={{ mb: 0.5, mr: 1 }} />
+                    )}
+                    {day.format('dddd')}{' '}
+                  </Typography>
+                  <Typography variant="caption">
+                    {day.format('MMM DD')}
+                  </Typography>
+                </>
               }
               value={day.date().toString()}
             />
@@ -63,7 +75,7 @@ const WeekDays = ({ days }: { days: Dayjs[] }) => {
       </Box>
       {days.map((day) => (
         <TabPanel key={day.date()} value={day.date().toString()}>
-          <DailyChecklist day={day} data={planner(day)} />
+          <DailyChecklist day={day} data={planner(day)} uplift={uplift} />
         </TabPanel>
       ))}
     </TabContext>

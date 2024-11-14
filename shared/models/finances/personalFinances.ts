@@ -1,36 +1,35 @@
-export interface IDebt {
-  pendingDebt: number;
-  minimumPayment: number;
-  annualInterest: number;
-  startDate: any;
+export interface IFinancialPlan<T = Date> {
+  id?: string | null;
   name: string;
+  financialSnapshots: IFinancialSnapshot<T>[];
+  fixedExpenses: IFixedExpense<T>[];
+  incomes: IIncome<T>[];
 }
-
-export interface IIncome {
+export interface IIncome<T = Date> {
   amount: number;
   period: 'single' | 'weekly' | 'monthly' | 'yearly';
   name: string;
-  date?: any;
+  date?: T;
 }
 
-export interface IFixedExpense {
+export interface IDebt<T = Date> {
+  pendingDebt: number;
+  minimumPayment: number;
+  annualInterest: number;
+  startDate: T;
+  name: string;
+}
+
+export interface IFixedExpense<T = Date> {
   amount: number;
   expenseType: 'single' | 'primary' | 'secondary';
   name: string;
-  singleDate?: any;
+  singleDate?: T;
 }
 
-export interface IFinancialPlan {
-  id?: string | null;
-  name: string;
-  financialSnapshots: IFinancialSnapshot[];
-  fixedExpenses: IFixedExpense[];
-  incomes: IIncome[];
-}
-
-export interface IFinancialSnapshot {
-  debts: IDebt[];
-  date: any;
+export interface IFinancialSnapshot<T = Date> {
+  debts: IDebt<T>[];
+  date: T;
   surplus: number;
   reviewed: boolean;
 }
