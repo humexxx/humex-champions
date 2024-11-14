@@ -17,7 +17,7 @@ const LoadingText = styled('text')(({ theme }) => ({
 }));
 
 export default function LoadingOverlay() {
-  const xScale = useXScale();
+  const xScale = useXScale<'band'>();
   const yScale = useYScale();
   const { left, width, height } = useDrawingArea();
 

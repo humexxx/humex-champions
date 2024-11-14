@@ -1,4 +1,4 @@
-import { useMemo, version } from 'react';
+import { useMemo } from 'react';
 
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
@@ -23,6 +23,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
+
 import { MAIN_HEADER_HEIGHT } from './Header';
 
 const Sidebar = ({ title, version }: { title: string; version: string }) => {

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import InsightsIcon from '@mui/icons-material/Insights';
-import { Container, Grid, Typography } from '@mui/material';
+import { Container, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 

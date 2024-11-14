@@ -29,16 +29,16 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IFixedExpense } from '@shared/models/finances';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
-import { formatCurrency } from 'src/utils';
+import { formatCurrency, objectDateConverter, toDayjs } from 'src/utils';
 import * as yup from 'yup';
 
 interface Props {
-  onSubmit: (data: IFixedExpense[]) => void;
-  data: IFixedExpense[];
+  onSubmit: (data: IFixedExpense<Dayjs>[]) => void;
+  data: IFixedExpense<Dayjs>[];
   sx?: SxProps;
   loading?: boolean;
 }
@@ -69,7 +69,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                 t('commonValidations.type')
               )
               .required(t('commonValidations.required')),
-            singleDate: yup.date().nullable(),
+            singleDate: yup.date().optional(),
           })
         ),
       }),
@@ -90,7 +90,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      expenses: data,
+      expenses: objectDateConverter(data, (x: Dayjs) => x.toDate()),
     },
   });
 
@@ -108,11 +108,19 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
     if (!data.expenses) return;
 
     handleClose();
-    onSubmit(data.expenses.map((item) => ({ ...item, startDate: new Date() })));
+    onSubmit(
+      objectDateConverter(
+        data.expenses.map((item) => ({ ...item, startDate: dayjs() })),
+        toDayjs
+      )
+    );
   }
 
   useEffect(() => {
-    setValue('expenses', data);
+    setValue(
+      'expenses',
+      objectDateConverter(data, (x: Dayjs) => x.toDate())
+    );
   }, [data, setValue]);
 
   const expenses = watch('expenses');

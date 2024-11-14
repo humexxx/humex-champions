@@ -36,6 +36,7 @@ import {
   formatCurrency,
   formatPercentage,
   objectDateConverter,
+  toDayjs,
 } from 'src/utils';
 import * as yup from 'yup';
 
@@ -117,14 +118,14 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
     if (!data.debts) return;
 
     handleClose();
-    onSubmit(data.debts);
+    onSubmit(objectDateConverter(data.debts, toDayjs));
   }
 
   useEffect(() => {
     setValue(
       'debts',
       objectDateConverter(data, (date: Dayjs) => date.toDate())
-        .sort((x) => x.pendingDebt)
+        .sort((x: any) => x.pendingDebt)
         .reverse()
     );
   }, [data, setValue]);

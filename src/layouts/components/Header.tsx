@@ -9,7 +9,6 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Typography,
   Menu,
   MenuItem,
   Box,
@@ -17,10 +16,9 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import logo from 'src/assets/images/logo.png';
-import { VERSION } from 'src/consts';
 import { useThemeContext } from 'src/context/theme';
 import { auth } from 'src/firebase';
+
 import { SIDEBAR_WIDTH } from './Sidebar';
 
 export const MAIN_HEADER_HEIGHT = 56;

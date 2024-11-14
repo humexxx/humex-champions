@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
+import AddIcon from '@mui/icons-material/Add';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import { LoadingButton } from '@mui/lab';
 import {
   TextField,
   Autocomplete,
@@ -12,6 +14,7 @@ import {
   Skeleton,
   Chip,
 } from '@mui/material';
+import { ELabelColorType } from '@shared/enums/ELabelColorType';
 import { IPlanner } from '@shared/models/uplift';
 import { Dayjs } from 'dayjs';
 import { useForm } from 'react-hook-form';
@@ -21,9 +24,6 @@ import * as yup from 'yup';
 import LabelsDialog from './LabelsDialog';
 import { UseUplift } from '../../hooks/useUplift';
 import { usePlannerSetter } from '../hooks';
-import { LoadingButton } from '@mui/lab';
-import AddIcon from '@mui/icons-material/Add';
-import { ELabelColorType } from '@shared/enums/ELabelColorType';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
