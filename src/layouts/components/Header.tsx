@@ -9,9 +9,9 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Typography,
   Menu,
   MenuItem,
+  Box,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,9 @@ import { useNavigate } from 'react-router-dom';
 import { useThemeContext } from 'src/context/theme';
 import { auth } from 'src/firebase';
 
-import { DRAWER_WIDTH } from './drawer';
+import { SIDEBAR_WIDTH } from './Sidebar';
+
+export const MAIN_HEADER_HEIGHT = 56;
 
 interface Props {
   handleDrawerToggle: () => void;
@@ -52,26 +54,37 @@ const Header = ({ handleDrawerToggle }: Props) => {
   return (
     <AppBar
       position="fixed"
+      color="default"
+      elevation={0}
       sx={{
-        width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-        ml: { sm: `${DRAWER_WIDTH}px` },
+        height: MAIN_HEADER_HEIGHT,
+        width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
+        ml: { lg: `${SIDEBAR_WIDTH}px` },
         display: 'flex',
         justifyContent: 'space-between',
+        bgcolor: 'background.paper',
+        borderBottom: 1,
+        borderBottomColor: 'divider',
+        // bgcolor: "hsla(0, 0%, 100%, 0.6)",
+        // backdropFilter: "blur(50px)",
       }}
     >
-      <Toolbar>
+      <Toolbar
+        sx={{
+          minHeight: `${MAIN_HEADER_HEIGHT}px !important`,
+          height: MAIN_HEADER_HEIGHT,
+        }}
+      >
         <IconButton
           color="inherit"
           aria-label="open drawer"
           edge="start"
           onClick={handleDrawerToggle}
-          sx={{ mr: 2, display: { sm: 'none' } }}
+          sx={{ mr: 2, display: { lg: 'none' } }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" flexGrow="1">
-          Champions
-        </Typography>
+        <Box flexGrow="1" display={'flex'} alignItems={'center'} />
         <IconButton
           color="inherit"
           ref={menuRef}

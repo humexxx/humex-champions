@@ -31,16 +31,16 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IIncome } from '@shared/models/finances';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
-import { formatCurrency } from 'src/utils';
+import { formatCurrency, objectDateConverter, toDayjs } from 'src/utils';
 import * as yup from 'yup';
 
 interface Props {
-  onSubmit: (data: IIncome[]) => void;
-  data: IIncome[];
+  onSubmit: (data: IIncome<Dayjs>[]) => void;
+  data: IIncome<Dayjs>[];
   sx?: SxProps;
   loading?: boolean;
 }
@@ -71,7 +71,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
               )
               .required(t('commonValidations.required'))
               .nonNullable(),
-            date: yup.date().nullable(),
+            date: yup.date().optional(),
           })
         ),
         useTrading: yup.boolean().default(true),
@@ -93,7 +93,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      incomes: data,
+      incomes: objectDateConverter(data, (x: Dayjs) => x.toDate()),
       useTrading: true,
     },
   });
@@ -110,11 +110,16 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
     if (!data.incomes) return;
 
     handleClose();
-    onSubmit(incomes ?? []);
+    onSubmit(incomes ? objectDateConverter(incomes, toDayjs) : []);
   }
 
   useEffect(() => {
-    setValue('incomes', data.sort((x) => x.amount).reverse());
+    setValue(
+      'incomes',
+      objectDateConverter(data.sort((x) => x.amount).reverse(), (x: Dayjs) =>
+        x.toDate()
+      )
+    );
   }, [data, setValue]);
 
   const incomes = watch('incomes');
@@ -173,6 +178,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                 key={item.id}
                 expanded={expanded === `panel${index}`}
                 onChange={() => setExpanded(`panel${index}`)}
+                variant="outlined"
               >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}

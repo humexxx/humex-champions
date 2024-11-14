@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { IDebt, IFixedExpense } from '@shared/models/finances';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
@@ -16,10 +16,10 @@ import FixedExpenseEditDialog from './FixedExpenseEditDialog';
 
 interface Props {
   personalFinancesId?: string;
-  fixedExpenses: IFixedExpense[];
-  debts: IDebt[];
+  fixedExpenses: IFixedExpense<Dayjs>[];
+  debts: IDebt<Dayjs>[];
   isLoading: boolean;
-  update: (data: IFixedExpense[]) => void;
+  update: (data: IFixedExpense<Dayjs>[]) => void;
 }
 
 const FixedExpenseCard = ({
@@ -55,7 +55,10 @@ const FixedExpenseCard = ({
   );
 
   return (
-    <Card sx={{ position: 'relative', height: '100%', minHeight: 175 }}>
+    <Card
+      sx={{ position: 'relative', height: '100%', minHeight: 175 }}
+      variant="outlined"
+    >
       <FixedExpenseEditDialog
         data={fixedExpenses}
         onSubmit={update}
