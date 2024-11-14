@@ -28,21 +28,27 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IDebt } from '@shared/models/finances';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
-import { formatCurrency, formatPercentage } from 'src/utils';
+import {
+  formatCurrency,
+  formatPercentage,
+  objectDateConverter,
+  toDayjs,
+} from 'src/utils';
 import * as yup from 'yup';
 
 interface Props {
-  onSubmit: (data: IDebt[]) => void;
-  data: IDebt[];
+  onSubmit: (data: IDebt<Dayjs>[]) => void;
+  data: IDebt<Dayjs>[];
   sx?: SxProps;
   loading?: boolean;
+  disabled?: boolean;
 }
 
-const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
+const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
@@ -96,7 +102,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      debts: data,
+      debts: [],
     },
   });
 
@@ -112,11 +118,16 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
     if (!data.debts) return;
 
     handleClose();
-    onSubmit(data.debts);
+    onSubmit(objectDateConverter(data.debts, toDayjs));
   }
 
   useEffect(() => {
-    setValue('debts', data.sort((x) => x.pendingDebt).reverse());
+    setValue(
+      'debts',
+      objectDateConverter(data, (date: Dayjs) => date.toDate())
+        .sort((x: any) => x.pendingDebt)
+        .reverse()
+    );
   }, [data, setValue]);
 
   const debts = watch('debts');
@@ -138,7 +149,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
     <>
       <Tooltip title={t('finances.personalFinances.header.debts.dialog.title')}>
         <Box sx={{ display: 'inline-block', ...sx }}>
-          <IconButton onClick={handleOpen} disabled={loading}>
+          <IconButton onClick={handleOpen} disabled={loading || disabled}>
             <EditIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -177,6 +188,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading }: Props) => {
                 key={item.id}
                 expanded={expanded === `panel${index}`}
                 onChange={() => setExpanded(`panel${index}`)}
+                variant="outlined"
               >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}

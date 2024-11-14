@@ -26,7 +26,6 @@ const Page = () => {
   return (
     <>
       <PageHeader title={t('title')} />
-
       <PageContent>
         <Grid container rowSpacing={4.5} columnSpacing={2.75}>
           {settings?.useGoogleCalendar && (
@@ -62,6 +61,42 @@ const Page = () => {
               count="5"
               percentage={27.4}
               extra="1,943"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <DenseAnalyticCard
+              title={t('totalPLTrading')}
+              count="$35,078"
+              percentage={27.4}
+              isLoss
+              extra="$20,395"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <DenseAnalyticCard
+              title={t('totalPLTrading')}
+              count="$35,078"
+              percentage={27.4}
+              isLoss
+              extra="$20,395"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <DenseAnalyticCard
+              title={t('totalPLTrading')}
+              count="$35,078"
+              percentage={27.4}
+              isLoss
+              extra="$20,395"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <DenseAnalyticCard
+              title={t('totalPLTrading')}
+              count="$35,078"
+              percentage={27.4}
+              isLoss
+              extra="$20,395"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3}>
