@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, version } from 'react';
 
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
@@ -17,22 +17,31 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Toolbar,
+  Typography,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
+import { MAIN_HEADER_HEIGHT } from './Header';
 
-const Sidebar = () => {
+const Sidebar = ({ title, version }: { title: string; version: string }) => {
   const { t } = useTranslation();
   const location = useLocation();
 
-  const mainMenuItems = useMemo(
+  const statisticsRoutes = useMemo(
     () => [
       {
         text: t('dashboard.title'),
         icon: <DashboardIcon />,
         path: '/client/dashboard',
       },
+    ],
+    [t]
+  );
+
+  const selfDevelopmentRoutes = useMemo(
+    () => [
       {
         text: t('finances.title'),
         icon: <AccountBalanceIcon />,
@@ -53,7 +62,7 @@ const Sidebar = () => {
     [t]
   );
 
-  const secondaryMenuItems = useMemo(
+  const socialRoutes = useMemo(
     () => [
       {
         text: t('members.title'),
@@ -67,49 +76,84 @@ const Sidebar = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <List>
-        {mainMenuItems.map(({ text, icon, path }) => (
-          <ListItem key={text} sx={{ paddingY: 0.5 }}>
-            <ListItemButton
-              sx={{ borderRadius: 2 }}
-              selected={location.pathname.includes(path)}
-              component={NavLink}
-              to={path}
-            >
-              <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText
-                primary={text}
-                primaryTypographyProps={{
-                  fontSize: '0.9rem',
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      <Toolbar
+        sx={{
+          minHeight: `${MAIN_HEADER_HEIGHT}px !important`,
+          height: MAIN_HEADER_HEIGHT,
+        }}
+      >
+        <Typography variant="h6" component="div" sx={{ position: 'relative' }}>
+          {title}{' '}
+          <Typography
+            mb={2}
+            variant="caption"
+            sx={{ position: 'absolute', top: 2, ml: 1 }}
+          >
+            ({version})
+          </Typography>
+        </Typography>
+      </Toolbar>
       <Divider />
-      <List sx={{ flexGrow: 1 }}>
-        {secondaryMenuItems.map(({ text, icon, path }) => (
+
+      <List dense>
+        {statisticsRoutes.map(({ text, icon, path }) => (
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
-              disabled
             >
               <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText
-                primary={text}
-                primaryTypographyProps={{
-                  fontSize: '0.9rem',
-                }}
-              />
+              <ListItemText primary={text} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-      <List>
+
+      <List dense>
+        <ListItem>
+          <Typography variant="caption" ml={2}>
+            Self Development
+          </Typography>
+        </ListItem>
+        {selfDevelopmentRoutes.map(({ text, icon, path }) => (
+          <ListItem key={text}>
+            <ListItemButton
+              sx={{ borderRadius: 2 }}
+              selected={location.pathname.includes(path)}
+              component={NavLink}
+              to={path}
+            >
+              <ListItemIcon>{icon}</ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+
+      <List sx={{ flexGrow: 1 }} dense>
+        <ListItem>
+          <Typography variant="caption" ml={2}>
+            Social
+          </Typography>
+        </ListItem>
+        {socialRoutes.map(({ text, icon, path }) => (
+          <ListItem key={text}>
+            <ListItemButton
+              sx={{ borderRadius: 2 }}
+              selected={location.pathname.includes(path)}
+              component={NavLink}
+              to={path}
+            >
+              <ListItemIcon>{icon}</ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+
+      <List dense>
         <AdminGuard>
           <ListItem>
             <ListItemButton

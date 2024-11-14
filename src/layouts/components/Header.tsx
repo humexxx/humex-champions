@@ -21,6 +21,7 @@ import logo from 'src/assets/images/logo.png';
 import { VERSION } from 'src/consts';
 import { useThemeContext } from 'src/context/theme';
 import { auth } from 'src/firebase';
+import { SIDEBAR_WIDTH } from './Sidebar';
 
 export const MAIN_HEADER_HEIGHT = 56;
 
@@ -55,11 +56,19 @@ const Header = ({ handleDrawerToggle }: Props) => {
   return (
     <AppBar
       position="fixed"
+      color="default"
       elevation={0}
       sx={{
+        height: MAIN_HEADER_HEIGHT,
+        width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
+        ml: { lg: `${SIDEBAR_WIDTH}px` },
         display: 'flex',
         justifyContent: 'space-between',
-        height: MAIN_HEADER_HEIGHT,
+        bgcolor: 'background.paper',
+        borderBottom: 1,
+        borderBottomColor: 'divider',
+        // bgcolor: "hsla(0, 0%, 100%, 0.6)",
+        // backdropFilter: "blur(50px)",
       }}
     >
       <Toolbar
@@ -77,15 +86,7 @@ const Header = ({ handleDrawerToggle }: Props) => {
         >
           <MenuIcon />
         </IconButton>
-        <Box flexGrow="1" display={'flex'} alignItems={'center'}>
-          {/* <img src={logo} alt="Logo" height={25} /> */}
-          <Typography variant="h6" component="h1">
-            Champions
-          </Typography>
-          <Typography ml={1} variant="caption">
-            ({VERSION})
-          </Typography>
-        </Box>
+        <Box flexGrow="1" display={'flex'} alignItems={'center'} />
         <IconButton
           color="inherit"
           ref={menuRef}

@@ -1,8 +1,9 @@
 import * as React from 'react';
 
-import { Box, Drawer } from '@mui/material';
+import { Box, Container, Drawer } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { PrivateRoute } from 'src/components/auth';
+import { VERSION } from 'src/consts';
 import { ThemeProvider } from 'src/context/theme';
 
 import { Header, Sidebar } from './components';
@@ -52,7 +53,7 @@ function ClientLayout() {
             },
           }}
         >
-          <Sidebar />
+          <Sidebar title="Champions" version={VERSION} />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -61,27 +62,26 @@ function ClientLayout() {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: SIDEBAR_WIDTH,
-              top: MAIN_HEADER_HEIGHT,
-              borderRight: 0,
-              height: `calc(100% - ${MAIN_HEADER_HEIGHT}px)`,
             },
           }}
           open
         >
-          <Sidebar />
+          <Sidebar title="Champions" version={VERSION} />
         </Drawer>
       </Box>
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          pt: `${MAIN_HEADER_HEIGHT}px`,
           width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
-          bgcolor: 'background.paper',
-          minHeight: '100vh',
+          backgroundColor: 'background.default',
+          minHeight: `calc(100vh - ${MAIN_HEADER_HEIGHT}px)`,
+          marginTop: `${MAIN_HEADER_HEIGHT}px`,
         }}
       >
-        <Outlet />
+        <Container maxWidth="xl" sx={{ mt: 4 }}>
+          <Outlet />
+        </Container>
       </Box>
     </Box>
   );

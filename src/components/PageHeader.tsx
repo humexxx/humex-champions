@@ -1,8 +1,7 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Breadcrumbs, Toolbar, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Toolbar, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useDocumentMetadata } from 'src/hooks';
-import { MAIN_HEADER_HEIGHT } from 'src/layouts/components/Header';
 
 export const SECONDARY_HEADER_HEIGHT = 62;
 
@@ -13,7 +12,7 @@ type Props = {
   hideHeader?: boolean;
 };
 
-const PageHeader = ({ title, breadcrumb, description, hideHeader }: Props) => {
+const PageHeader = ({ title, breadcrumb, hideHeader, description }: Props) => {
   useDocumentMetadata(`${title} - Champions`);
 
   if (hideHeader) {
@@ -21,18 +20,7 @@ const PageHeader = ({ title, breadcrumb, description, hideHeader }: Props) => {
   }
 
   return (
-    <Toolbar
-      sx={{
-        height: SECONDARY_HEADER_HEIGHT,
-        minHeight: `${SECONDARY_HEADER_HEIGHT}px !important`,
-        position: 'fixed',
-        top: `${MAIN_HEADER_HEIGHT}px`,
-        zIndex: 1000,
-        width: '100%',
-        backdropFilter: 'blur(8px)',
-        backgroudColor: 'hsla(0, 0%, 100%, 0.6);',
-      }}
-    >
+    <Box component={'header'} mb={8}>
       {breadcrumb ? (
         <Breadcrumbs aria-label="navigator">
           <Typography
@@ -70,10 +58,12 @@ const PageHeader = ({ title, breadcrumb, description, hideHeader }: Props) => {
           <strong>{title}</strong>
         </Typography>
       )}
-      {/* {Boolean(description) && (
-          <Typography variant="body1">{description}</Typography>
-        )} */}
-    </Toolbar>
+      {Boolean(description) && (
+        <Typography mt={1} variant="body2">
+          {description}
+        </Typography>
+      )}
+    </Box>
   );
 };
 
