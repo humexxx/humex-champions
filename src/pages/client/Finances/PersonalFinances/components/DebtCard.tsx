@@ -2,15 +2,16 @@ import { useMemo } from 'react';
 
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import { IDebt } from '@shared/models/finances';
+import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 
 import DebtEditDialog from './DebtEditDialog';
 
 interface Props {
-  debts: IDebt[];
+  debts: IDebt<Dayjs>[];
   isLoading: boolean;
-  update: (data: IDebt[]) => void;
+  update: (data: IDebt<Dayjs>[]) => void;
   canEdit?: boolean;
 }
 
@@ -44,25 +45,18 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
         position: 'relative',
         height: '100%',
         minHeight: 175,
-        bgcolor: canEdit ? 'inherit' : 'action.disabledBackground',
       }}
-      elevation={canEdit ? 2 : 0}
+      variant="outlined"
     >
-      {canEdit && (
-        <DebtEditDialog
-          data={debts}
-          onSubmit={update}
-          sx={{ position: 'absolute', right: 8, top: 8 }}
-          loading={isLoading}
-        />
-      )}
+      <DebtEditDialog
+        data={debts}
+        onSubmit={update}
+        sx={{ position: 'absolute', right: 8, top: 8 }}
+        loading={isLoading}
+        disabled={!canEdit}
+      />
       <CardContent>
-        <Typography
-          variant="body1"
-          component="h3"
-          mb={2}
-          color={canEdit ? 'primary.default' : 'text.disabled'}
-        >
+        <Typography variant="body1" component="h3" mb={2}>
           <strong>{t('finances.personalFinances.header.debts.title')}</strong>
         </Typography>
         {isLoading ? (

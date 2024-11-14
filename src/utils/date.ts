@@ -1,4 +1,5 @@
-import dayjs, { Dayjs, isDayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { Timestamp } from 'firebase/firestore';
 
 export function toTimestamp(date: any): Timestamp {
@@ -44,6 +45,7 @@ export function isLastDayOfMonth(date: Dayjs) {
   return date.date() === date.daysInMonth();
 }
 
+dayjs.extend(customParseFormat);
 export function objectDateConverter(
   obj: any,
   converter: (value: any) => any
@@ -54,7 +56,7 @@ export function objectDateConverter(
     obj !== null &&
     typeof obj === 'object' &&
     !(obj instanceof Timestamp) &&
-    !isDayjs(obj)
+    !dayjs.isDayjs(obj)
   ) {
     return Object.keys(obj).reduce((acc, key) => {
       acc[key] = objectDateConverter(obj[key], converter);
@@ -63,8 +65,8 @@ export function objectDateConverter(
   } else if (
     obj instanceof Date ||
     obj instanceof Timestamp ||
-    isDayjs(obj) ||
-    (typeof obj === 'string' && !isNaN(Date.parse(obj)))
+    dayjs.isDayjs(obj) ||
+    (typeof obj === 'string' && dayjs(obj, 'YYYY-MM-DD', true).isValid())
   ) {
     return converter(obj);
   } else {

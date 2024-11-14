@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { PageHeader } from 'src/components';
+import { PageContent, PageHeader } from 'src/components';
 
 import { WeekDays } from './components';
 
@@ -24,15 +24,19 @@ const Page = () => {
   const daysOfCurrentWeek = useMemo(getDaysOfCurrentWeek, []);
 
   return (
-    <PageHeader
-      breadcrumb={[
-        { title: t('uplift.title'), route: '/client/uplift' },
-        { title: t('uplift.planner.title'), route: 'planner' },
-      ]}
-      description={t('uplift.planner.description')}
-    >
-      <WeekDays days={daysOfCurrentWeek} />
-    </PageHeader>
+    <>
+      <PageHeader
+        title={t('uplift.planner.title')}
+        breadcrumb={[
+          { title: t('uplift.title'), route: '/client/uplift' },
+          { title: t('uplift.planner.title'), route: 'planner' },
+        ]}
+        description={t('uplift.planner.description')}
+      />
+      <PageContent>
+        <WeekDays days={daysOfCurrentWeek} />
+      </PageContent>
+    </>
   );
 };
 
