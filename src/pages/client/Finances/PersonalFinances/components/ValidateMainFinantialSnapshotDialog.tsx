@@ -14,6 +14,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { IDebt, IFinancialPlan } from '@shared/models/finances';
+import { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
@@ -21,8 +22,8 @@ import { formatCurrency } from 'src/utils';
 import * as yup from 'yup';
 
 interface Props {
-  financialPlan: IFinancialPlan;
-  onSubmit: (debts: IDebt[]) => void;
+  financialPlan: IFinancialPlan<Dayjs>;
+  onSubmit: (debts: IDebt<Dayjs>[]) => void;
 }
 
 const ValidateMainFinantialSnapshotDialog = ({
