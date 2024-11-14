@@ -173,6 +173,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                 key={item.id}
                 expanded={expanded === `panel${index}`}
                 onChange={() => setExpanded(`panel${index}`)}
+                variant="outlined"
               >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}

@@ -5,7 +5,7 @@ import { LineChart } from '@mui/x-charts';
 import { IPortfolioSnapshot } from '@shared/models/finances';
 import dayjs, { Dayjs } from 'dayjs';
 import { t } from 'i18next';
-import { DashedGraph } from 'src/components';
+import { DashedGraph } from 'src/components/graphs';
 import { getNextQuarterDate } from 'src/utils';
 
 import GraphTotalFilter from './GraphTotalFilter';
@@ -97,10 +97,11 @@ const Graph = ({ portfolioSnapshots, isTotalFilter }: Props) => {
           series={uniqueInstruments.map((instrument) => ({
             dataKey: instrument,
             valueFormatter: (value, i) =>
-              `$${value?.toFixed(2)}` +
-              (datasets[i.dataIndex].date > new Date()
-                ? ` (${t('finances.portfolio.predicted')})`
-                : ''),
+              `$${value?.toFixed(2)} ${
+                datasets[i.dataIndex].date > new Date()
+                  ? ` (${t('finances.portfolio.predicted')})`
+                  : ''
+              }`,
             showMark: false,
             ...(totalFilter === 'total' && isTotalFilter ? stackStrategy : {}),
           }))}

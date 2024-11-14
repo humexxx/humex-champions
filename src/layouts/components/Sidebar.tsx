@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, version } from 'react';
 
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
@@ -10,7 +10,6 @@ import GroupIcon from '@mui/icons-material/Group';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
-  Toolbar,
   Divider,
   List,
   ListItem,
@@ -18,24 +17,31 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
+  Toolbar,
   Typography,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
-import { VERSION } from 'src/consts';
+import { MAIN_HEADER_HEIGHT } from './Header';
 
-const Drawer = () => {
+const Sidebar = ({ title, version }: { title: string; version: string }) => {
   const { t } = useTranslation();
   const location = useLocation();
 
-  const mainMenuItems = useMemo(
+  const statisticsRoutes = useMemo(
     () => [
       {
         text: t('dashboard.title'),
         icon: <DashboardIcon />,
         path: '/client/dashboard',
       },
+    ],
+    [t]
+  );
+
+  const selfDevelopmentRoutes = useMemo(
+    () => [
       {
         text: t('finances.title'),
         icon: <AccountBalanceIcon />,
@@ -56,7 +62,7 @@ const Drawer = () => {
     [t]
   );
 
-  const secondaryMenuItems = useMemo(
+  const socialRoutes = useMemo(
     () => [
       {
         text: t('members.title'),
@@ -70,19 +76,33 @@ const Drawer = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar>
-        <Typography variant="caption">{VERSION}</Typography>
+      <Toolbar
+        sx={{
+          minHeight: `${MAIN_HEADER_HEIGHT}px !important`,
+          height: MAIN_HEADER_HEIGHT,
+        }}
+      >
+        <Typography variant="h6" component="div" sx={{ position: 'relative' }}>
+          {title}{' '}
+          <Typography
+            mb={2}
+            variant="caption"
+            sx={{ position: 'absolute', top: 2, ml: 1 }}
+          >
+            ({version})
+          </Typography>
+        </Typography>
       </Toolbar>
       <Divider />
-      <List>
-        {mainMenuItems.map(({ text, icon, path }) => (
+
+      <List dense>
+        {statisticsRoutes.map(({ text, icon, path }) => (
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
-              unstable_viewTransition
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -90,17 +110,20 @@ const Drawer = () => {
           </ListItem>
         ))}
       </List>
-      <Divider />
-      <List sx={{ flexGrow: 1 }}>
-        {secondaryMenuItems.map(({ text, icon, path }) => (
+
+      <List dense>
+        <ListItem>
+          <Typography variant="caption" ml={2}>
+            Self Development
+          </Typography>
+        </ListItem>
+        {selfDevelopmentRoutes.map(({ text, icon, path }) => (
           <ListItem key={text}>
             <ListItemButton
               sx={{ borderRadius: 2 }}
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
-              unstable_viewTransition
-              disabled
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -108,7 +131,29 @@ const Drawer = () => {
           </ListItem>
         ))}
       </List>
-      <List>
+
+      <List sx={{ flexGrow: 1 }} dense>
+        <ListItem>
+          <Typography variant="caption" ml={2}>
+            Social
+          </Typography>
+        </ListItem>
+        {socialRoutes.map(({ text, icon, path }) => (
+          <ListItem key={text}>
+            <ListItemButton
+              sx={{ borderRadius: 2 }}
+              selected={location.pathname.includes(path)}
+              component={NavLink}
+              to={path}
+            >
+              <ListItemIcon>{icon}</ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+
+      <List dense>
         <AdminGuard>
           <ListItem>
             <ListItemButton
@@ -116,7 +161,6 @@ const Drawer = () => {
               selected={location.pathname.includes('/client/admin')}
               component={NavLink}
               to="/client/admin"
-              unstable_viewTransition
             >
               <ListItemIcon>
                 <AdminPanelSettingsIcon />
@@ -131,7 +175,6 @@ const Drawer = () => {
             selected={location.pathname.includes('/client/settings')}
             component={NavLink}
             to="/client/settings"
-            unstable_viewTransition
           >
             <ListItemIcon>
               <SettingsIcon />
@@ -144,6 +187,6 @@ const Drawer = () => {
   );
 };
 
-export const DRAWER_WIDTH = 240;
+export const SIDEBAR_WIDTH = 240;
 
-export default Drawer;
+export default Sidebar;
