@@ -1,15 +1,12 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Alert, Breadcrumbs, Typography } from '@mui/material';
+import { Alert } from '@mui/material';
 import { IPortfolioSnapshot } from '@shared/models/finances';
 import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
 import { toDayjs } from 'src/utils';
 
 import { CreatePortfolio, PortfolioView } from './components';
 import { usePortfolio } from './hooks';
-
 
 const mockData: IPortfolioSnapshot<Dayjs>[] = [
   {
@@ -109,36 +106,19 @@ const Page = () => {
 
   return (
     <>
-      <PageHeader>
-        <Breadcrumbs aria-label="navigator">
-          <Typography
-            component={Link}
-            to="/client/finances"
-            unstable_viewTransition
-            color={'info.main'}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              textDecoration: 'none',
-              '&:hover': {
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            <ArrowBackIcon fontSize="small" sx={{ mr: 1 }} color="inherit" />
-            {t('finances.title')}
-          </Typography>
-          <Typography
-            variant="body1"
-            style={{
-              viewTransitionName: 'portfolio',
-            }}
-            color="text.primary"
-          >
-            <strong>{t('finances.portfolio.title')}</strong>
-          </Typography>
-        </Breadcrumbs>
-      </PageHeader>
+      <PageHeader
+        title={t('finances.portfolio.title')}
+        breadcrumb={[
+          {
+            title: t('finances.title'),
+            route: '/client/finances',
+          },
+          {
+            title: t('finances.portfolio.title'),
+            route: 'portfolio',
+          },
+        ]}
+      />
 
       <PageContent>
         {isLoading ? (

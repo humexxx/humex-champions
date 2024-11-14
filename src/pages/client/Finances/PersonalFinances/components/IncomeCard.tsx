@@ -23,7 +23,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
       incomes.reduce(
         (acc, income) =>
           acc +
-          ((income: IIncome) => {
+          ((income: IIncome<Dayjs>) => {
             switch (income.period) {
               case 'monthly':
                 return income.amount;
@@ -51,7 +51,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
     () =>
       incomes
         .filter((income) => income.date)
-        .sort((a, b) => a.date.diff(b.date))[0],
+        .sort((x) => dayjs(x.date).valueOf())[0],
     [incomes]
   );
 

@@ -4,6 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LabelIcon from '@mui/icons-material/Label';
+import { LoadingButton } from '@mui/lab';
 import {
   Button,
   Dialog,
@@ -18,13 +19,12 @@ import {
   TextField,
 } from '@mui/material';
 import { ELabelColorType } from '@shared/enums/ELabelColorType';
+import { ILabel } from '@shared/models/uplift';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 
 import { UseUplift } from '../../hooks/useUplift';
-import { ILabel } from '@shared/models/uplift';
-import { LoadingButton } from '@mui/lab';
 
 const LabelsDialog = ({ uplift }: { uplift: UseUplift }) => {
   const { t } = useTranslation();

@@ -1,5 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Breadcrumbs, Toolbar, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useDocumentMetadata } from 'src/hooks';
 
