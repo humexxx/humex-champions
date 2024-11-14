@@ -1,12 +1,10 @@
 import { useCallback, useState } from 'react';
 
 import AddIcon from '@mui/icons-material/Add';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Box, Breadcrumbs, Slider, Tab, Typography } from '@mui/material';
+import { Box, Slider, Tab } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { PageHeader } from 'src/components';
+import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 import { MULTIPLE_GRAPH_COLORS } from 'src/consts';
 
@@ -73,125 +71,112 @@ const CompoundInterestCalculatorPage = () => {
 
   return (
     <>
-      <PageHeader>
-        <Breadcrumbs aria-label="navigator">
-          <Typography
-            component={Link}
-            to="/client/finances"
-            unstable_viewTransition
-            color={'info.main'}
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              textDecoration: 'none',
-              '&:hover': {
-                textDecoration: 'underline',
-              },
-            }}
-          >
-            <ArrowBackIcon fontSize="small" sx={{ mr: 1 }} color="inherit" />
-            {t('finances.title')}
-          </Typography>
-          <Typography
-            variant="body1"
-            style={{
-              viewTransitionName: 'compound-calculator',
-            }}
-            color="text.primary"
-          >
-            <strong>{t('finances.compound-calculator.title')}</strong>
-          </Typography>
-        </Breadcrumbs>
-      </PageHeader>
+      <PageHeader
+        title={t('finances.compound-calculator.title')}
+        breadcrumb={[
+          {
+            title: t('finances.title'),
+            route: '/client/finances',
+          },
+          {
+            title: t('finances.compound-calculator.title'),
+            route: 'compound-calculator',
+          },
+        ]}
+      />
 
-      <Box mb={2}>
-        <TabContext value={selectedTab}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
-            <TabList
-              onChange={(_, tab) => setSelectedTab(tab)}
-              aria-label="compound interest calculator tabs"
-              scrollButtons="auto"
-              variant="scrollable"
-              sx={{
-                '& .MuiTabs-indicator': {
-                  backgroundColor: MULTIPLE_GRAPH_COLORS[Number(selectedTab)],
-                },
-              }}
-            >
-              {data.map((_, i) => (
-                <Tab
-                  key={i}
-                  label={`${t('finances.compound-calculator.investment')} ${i + 1}`}
-                  value={i.toString()}
-                  {...getTabProps(i.toString())}
-                  sx={{
-                    color: `${MULTIPLE_GRAPH_COLORS[i]} !important`,
-                  }}
+      <PageContent>
+        <Box mb={2}>
+          <TabContext value={selectedTab}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
+              <TabList
+                onChange={(_, tab) => setSelectedTab(tab)}
+                aria-label="compound interest calculator tabs"
+                scrollButtons="auto"
+                variant="scrollable"
+                sx={{
+                  '& .MuiTabs-indicator': {
+                    backgroundColor: MULTIPLE_GRAPH_COLORS[Number(selectedTab)],
+                  },
+                }}
+              >
+                {data.map((_, i) => (
+                  <Tab
+                    key={i}
+                    label={`${t('finances.compound-calculator.investment')} ${i + 1}`}
+                    value={i.toString()}
+                    {...getTabProps(i.toString())}
+                    sx={{
+                      color: `${MULTIPLE_GRAPH_COLORS[i]} !important`,
+                    }}
+                  />
+                ))}
+                <ButtonInTabs
+                  tooltipText={
+                    !data.length || data.length < MAX_INVESTMENTS
+                      ? t('finances.compound-calculator.addInvestment')
+                      : t('finances.compound-calculator.maxInvestments')
+                  }
+                  onClick={addInvestmentPlanOnClick}
+                  disabled={data.length >= MAX_INVESTMENTS}
+                  icon={<AddIcon />}
                 />
-              ))}
-              <ButtonInTabs
-                tooltipText={
-                  !data.length || data.length < MAX_INVESTMENTS
-                    ? t('finances.compound-calculator.addInvestment')
-                    : t('finances.compound-calculator.maxInvestments')
-                }
-                onClick={addInvestmentPlanOnClick}
-                disabled={data.length >= MAX_INVESTMENTS}
-                icon={<AddIcon />}
-              />
-            </TabList>
-          </Box>
-          {data.map((_, i) => (
-            <TabPanel key={i} value={i.toString()} sx={{ p: 2 }}>
-              <Inputs
-                onChange={(data) => OnChange(i, data)}
-                customData={data[i]}
-                onRemove={
-                  i ? () => removeInvestmentPlanOnClick(data[i]?.id) : undefined
-                }
-              />
-            </TabPanel>
-          ))}
-        </TabContext>
-      </Box>
-      <Graph data={data} years={years} />
-      <Box mt={4}>
-        <Slider
-          value={years}
-          onChange={(_, value) => setYears(value as number)}
-          min={1}
-          max={50}
-          step={1}
-          valueLabelDisplay="on"
-          valueLabelFormat={(value) => `${value} ${t('common.years')}`}
-          marks={[
-            {
-              value: 1,
-              label: '1 Year',
-            },
-            {
-              value: 10,
-              label: '10 Years',
-            },
-            {
-              value: 15,
-              label: '15 Years',
-            },
-            {
-              value: 20,
-              label: '20 Years',
-            },
-            {
-              value: 25,
-              label: '25 Years',
-            },
-            {
-              value: 50,
-              label: '50 Years',
-            },
-          ]}
-        />
-      </Box>
+              </TabList>
+            </Box>
+            {data.map((_, i) => (
+              <TabPanel key={i} value={i.toString()} sx={{ p: 2 }}>
+                <Inputs
+                  onChange={(data) => OnChange(i, data)}
+                  customData={data[i]}
+                  onRemove={
+                    i
+                      ? () => removeInvestmentPlanOnClick(data[i]?.id)
+                      : undefined
+                  }
+                />
+              </TabPanel>
+            ))}
+          </TabContext>
+        </Box>
+        <Graph data={data} years={years} />
+        <Box mt={4}>
+          <Slider
+            value={years}
+            onChange={(_, value) => setYears(value as number)}
+            min={1}
+            max={50}
+            step={1}
+            valueLabelDisplay="on"
+            valueLabelFormat={(value) => `${value} ${t('common.years')}`}
+            marks={[
+              {
+                value: 1,
+                label: '1 Year',
+              },
+              {
+                value: 10,
+                label: '10 Years',
+              },
+              {
+                value: 15,
+                label: '15 Years',
+              },
+              {
+                value: 20,
+                label: '20 Years',
+              },
+              {
+                value: 25,
+                label: '25 Years',
+              },
+              {
+                value: 50,
+                label: '50 Years',
+              },
+            ]}
+          />
+        </Box>
+      </PageContent>
     </>
   );
 };

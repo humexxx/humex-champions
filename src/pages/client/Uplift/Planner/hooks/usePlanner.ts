@@ -1,20 +1,12 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import { FIRESTORE_PATHS } from '@shared/consts';
 import { IPlanner } from '@shared/models/uplift';
 import dayjs, { Dayjs } from 'dayjs';
-import {
-  doc,
-  collection,
-  addDoc,
-  query,
-  where,
-  updateDoc,
-  onSnapshot,
-} from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
+import { objectDateConverter, toDayjs } from 'src/utils';
 
 export default function usePlanner() {
   const { currentUser } = useAuth();

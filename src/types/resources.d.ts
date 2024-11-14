@@ -31,8 +31,7 @@ interface Resources {
     },
     "finances": {
       "title": "Finances",
-      "financialSummary": "Financial Summary",
-      "summaryDescription": "Here you could include a brief summary of personal finances, such as current balance, portfolio performance, etc.",
+      "description": "Here you could include a brief summary of personal finances, such as current balance, portfolio performance, etc.",
       "personalFinances": {
         "title": "Personal Finances",
         "description": "Manage your personal finances and keep track of your expenses and income.",

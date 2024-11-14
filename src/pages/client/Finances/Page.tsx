@@ -6,7 +6,7 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Grid, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { LinkOptionCard, PageHeader } from 'src/components';
+import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 
 const FinancesPage = () => {
   const { t } = useTranslation();
@@ -44,27 +44,28 @@ const FinancesPage = () => {
 
   return (
     <>
-      <PageHeader>
-        <Typography variant="h6" component="h2" gutterBottom>
-          <strong>{t('finances.financialSummary')}</strong>
-        </Typography>
-        <Typography variant="body1">
-          {t('finances.summaryDescription')}
-        </Typography>
-      </PageHeader>
+      <PageHeader
+        title={t('finances.title')}
+        description={t('finances.description')}
+      />
 
-      <Grid container spacing={4}>
-        {options.map(({ route, Icon, description, label }) => (
-          <Grid item xs={12} md={4} key={route}>
-            <LinkOptionCard
-              route={route}
-              label={label}
-              description={description}
-              icon={<Icon color="primary" />}
-            />
+      <PageContent>
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+            <Typography variant="body2">{t('finances.description')}</Typography>
           </Grid>
-        ))}
-      </Grid>
+          {options.map(({ route, Icon, description, label }) => (
+            <Grid item xs={12} md={4} key={route}>
+              <LinkOptionCard
+                route={route}
+                label={label}
+                description={description}
+                icon={<Icon color="primary" />}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </PageContent>
     </>
   );
 };

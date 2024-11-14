@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 
-import { alpha, Box, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { alpha, Box, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
-import { SeriesValueFormatter } from '@mui/x-charts/internals';
 import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import {
   IDebt,
@@ -11,9 +10,9 @@ import {
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { DashedGraph } from 'src/components';
+import { DashedGraph } from 'src/components/graphs';
 
 const NUMBER_OF_MONTHS_PAST_TO_SHOW = 2;
 const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
@@ -22,12 +21,12 @@ const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
   lg: 12,
 };
 
-interface IDebtWithExtraPayment extends IDebt {
+interface IDebtWithExtraPayment extends IDebt<Dayjs> {
   extraPayment: number;
 }
 
 function applyAvalancheMethod(
-  debts: IDebt[],
+  debts: IDebt<Dayjs>[],
   surplus: number
 ): IDebtWithExtraPayment[] {
   // Ordenar las deudas por el interés anual más alto primero
@@ -53,7 +52,7 @@ function applyAvalancheMethod(
 }
 
 function applySnowballMethod(
-  debts: IDebt[],
+  debts: IDebt<Dayjs>[],
   surplus: number
 ): IDebtWithExtraPayment[] {
   // Ordenar las deudas por el saldo pendiente más bajo primero
@@ -79,12 +78,12 @@ function applySnowballMethod(
 }
 
 function generatePredictions(
-  historicalSnapshots: IFinancialSnapshot[],
-  fixedExpenses: IFixedExpense[],
-  incomes: IIncome[],
+  historicalSnapshots: IFinancialSnapshot<Dayjs>[],
+  fixedExpenses: IFixedExpense<Dayjs>[],
+  incomes: IIncome<Dayjs>[],
   viewSize: 'sm' | 'md' | 'lg',
   method = 'avalanche'
-): IFinancialSnapshot[] {
+): IFinancialSnapshot<Dayjs>[] {
   const snapshots = [...historicalSnapshots];
   let deficitCarryover = 0;
 
@@ -187,8 +186,8 @@ function generatePredictions(
 }
 
 function generateMissingHistoricalSnapshots(
-  snapshots: IFinancialSnapshot[]
-): IFinancialSnapshot[] {
+  snapshots: IFinancialSnapshot<Dayjs>[]
+): IFinancialSnapshot<Dayjs>[] {
   const historicalSnapshots = [...snapshots];
 
   if (snapshots.length < NUMBER_OF_MONTHS_PAST_TO_SHOW + 1) {
@@ -223,7 +222,7 @@ function getColorForPlan(index: number, total: number, baseColor: string) {
 }
 
 interface Props {
-  financialPlans: IFinancialPlan[];
+  financialPlans: IFinancialPlan<Dayjs>[] | null;
   loading: boolean;
 }
 
@@ -238,7 +237,7 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
 
   const _financialPlans = useMemo(
     () =>
-      financialPlans.map((plan) => {
+      financialPlans?.map((plan) => {
         const snapshots = generatePredictions(
           generateMissingHistoricalSnapshots(plan.financialSnapshots),
           plan.fixedExpenses,
@@ -246,71 +245,75 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
           viewSize
         );
         return { ...plan, financialSnapshots: snapshots };
-      }),
+      }) ?? [],
     [financialPlans, viewSize]
   );
 
-  const datasets = useMemo(
-    () =>
-      _financialPlans.map((plan, index) => {
-        const debtsTotal = plan.financialSnapshots.map(
-          (snapshot) =>
-            snapshot.debts.reduce((sum, debt) => sum + debt.pendingDebt, 0) +
-            (snapshot.surplus < 0 ? snapshot.surplus * -1 : 0)
-        );
-
+  const datasets = useMemo(() => {
+    if (!_financialPlans.length) return [];
+    const datasets: { date: Date; [key: string]: number | Date }[] = [];
+    for (let i = 0; i < _financialPlans[0].financialSnapshots.length; i++) {
+      const data = _financialPlans.reduce((acc, plan) => {
         return {
-          data: debtsTotal,
-          label: plan.name,
-          color: getColorForPlan(
-            index,
-            _financialPlans.length,
-            theme.palette.error.main
+          ...acc,
+          [plan.name]: plan.financialSnapshots[i].debts.reduce(
+            (sum, debt) => sum + debt.pendingDebt,
+            0
           ),
-          valueFormatter: (value: number) => `$${value.toFixed(2)}`,
-        } as {
-          data: number[];
-          label: string;
-          color: string;
-          valueFormatter: SeriesValueFormatter<number | null> | undefined;
         };
-      }),
-    [_financialPlans, theme]
-  );
+      }, {});
+      datasets.push({
+        date: _financialPlans[0].financialSnapshots[i].date.toDate(),
+        ...data,
+      });
+    }
+    return datasets;
+  }, [_financialPlans]);
+
+  if (loading) return null;
 
   return (
     <Box width={'100%'} height={500}>
       <LineChart
-        loading={loading}
-        series={datasets}
+        grid={{ vertical: true, horizontal: true }}
+        dataset={datasets}
+        series={
+          _financialPlans?.map((plan, index) => ({
+            dataKey: plan.name,
+            color: getColorForPlan(
+              index,
+              _financialPlans.length,
+              theme.palette.primary.main
+            ),
+            valueFormatter: (value, i) =>
+              `$${value?.toFixed(2)} ${
+                datasets[i.dataIndex].date > new Date()
+                  ? ` (${t('finances.portfolio.predicted')})`
+                  : ''
+              }`,
+          })) ?? []
+        }
         xAxis={[
           {
-            data: _financialPlans.length
-              ? _financialPlans[0].financialSnapshots.map((_, i) => i)
-              : [],
-            label: t('finances.personalFinances.graph.month'),
-            scaleType: 'point',
-            valueFormatter: (value) =>
-              _financialPlans[0].financialSnapshots[value].date.format('MMM'),
+            scaleType: 'time',
+            dataKey: 'date',
+            valueFormatter: (value: Date) => dayjs(value).format('MM/YY'),
+            tickInterval: (_, index) => index % 2 === 0,
           },
         ]}
         yAxis={[
           {
-            scaleType: 'linear',
             valueFormatter: (value) => `$${value}`,
           },
         ]}
         slots={{ line: DashedGraph }}
         slotProps={{
           line: {
-            limit: NUMBER_OF_MONTHS_PAST_TO_SHOW,
+            limit: new Date(),
             sxAfter: { strokeDasharray: '5 5' },
           } as any,
         }}
       />
-      <Box mt={2}>
-        <Typography variant="body1">Some information</Typography>
-      </Box>
     </Box>
   );
 };
