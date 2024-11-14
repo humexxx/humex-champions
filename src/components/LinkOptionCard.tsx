@@ -19,7 +19,7 @@ type Props = {
 
 const LinkOptionCard = ({ icon, description, label, route }: Props) => {
   return (
-    <Link unstable_viewTransition to={route} style={{ textDecoration: 'none' }}>
+    <Link to={route} style={{ textDecoration: 'none' }}>
       <Card
         sx={{
           display: 'flex',
@@ -47,14 +47,7 @@ const LinkOptionCard = ({ icon, description, label, route }: Props) => {
               >
                 {icon}
               </Paper>
-              <Typography
-                variant="body1"
-                component="h3"
-                my={2}
-                sx={{
-                  viewTransitionName: route,
-                }}
-              >
+              <Typography variant="body1" component="h3" my={2}>
                 <strong>{label}</strong>
               </Typography>
             </Box>
