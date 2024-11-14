@@ -18,15 +18,18 @@ import {
 import { IPlanner } from '@shared/models/uplift';
 import { Dayjs } from 'dayjs';
 
-import Form from './Form';
+import DailyChecklistForm from './DailyChecklistForm';
+import { UseUplift } from '../../hooks/useUplift';
 import { usePlannerSetter } from '../hooks';
 
 const DailyChecklist = ({
   day,
   data,
+  uplift,
 }: {
   day: Dayjs;
   data?: IPlanner<Dayjs>;
+  uplift: UseUplift;
 }) => {
   const { set } = usePlannerSetter();
 
@@ -45,7 +48,7 @@ const DailyChecklist = ({
   return (
     <Card variant={'outlined'} sx={{ minHeight: 500 }}>
       <CardContent sx={{ p: 2 }}>
-        <Container maxWidth="xs" sx={{ marginLeft: 0 }}>
+        <Container maxWidth="xs" sx={{ marginLeft: 2 }}>
           <Typography variant={'h6'}>
             {day.format('dddd')}
             <Typography component={'span'} variant={'body2'} sx={{ ml: 1 }}>
@@ -53,7 +56,10 @@ const DailyChecklist = ({
             </Typography>
           </Typography>
           <Box py={2}>
-            <Form planner={data ?? { date: day, items: [] }} />
+            <DailyChecklistForm
+              planner={data ?? { date: day, items: [] }}
+              uplift={uplift}
+            />
           </Box>
           <List>
             {data?.items.map((item, index) => (
@@ -87,9 +93,15 @@ const DailyChecklist = ({
                   <ListItemText
                     primary={item.title}
                     secondary={
-                      <Stack direction={'row'} gap={1}>
-                        <Chip label={'test'} />
-                        <Chip label={'test'} />
+                      <Stack direction={'row'} gap={1} mt={0.5}>
+                        {item.labels.map((label) => (
+                          <Chip
+                            key={label.title}
+                            label={label.title}
+                            size="small"
+                            color={label.color as any}
+                          />
+                        ))}
                       </Stack>
                     }
                   />
