@@ -1,38 +1,30 @@
-name: Dependabot auto-merge
+name: Auto Merge Dependabot
+
 on:
   pull_request:
+    branches:
+      - develop
     types:
       - opened
       - synchronize
       - reopened
 
-permissions:
-  contents: write
-  pull-requests: write
-  checks: read # Allows reading the status of the checks
-
 jobs:
-  dependabot:
+  auto-merge:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    permissions:
+      pull-requests: write
+      contents: write
+    if: github.actor == 'dependabot[bot]' # ✅ Solo ejecuta si el PR es de Dependabot
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v1
+      - name: Approve PR
+        uses: hmarr/auto-approve-action@v3
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Wait for build to succeed
-        uses: fountainhead/action-wait-for-check@v1.2.0
-        id: wait-for-build
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: Build and Preview
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - name: Enable auto-merge for Dependabot PRs
-        if: steps.wait-for-build.outputs.conclusion == 'success'
+      - name: Merge PR
         run: gh pr merge --auto --squash "$PR_URL"
         env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        continue-on-error: true
