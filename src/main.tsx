@@ -13,6 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   // <React.StrictMode>
   <LocalizationProvider dateAdapter={AdapterDayjs}>
     <AuthProvider>
+      {/* TEST */}
       <CssBaseline />
       <RouterProvider router={router} />
     </AuthProvider>
