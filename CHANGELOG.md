@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.25.0 (2025-02-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* versioning completed
+
+### Features
+
+* add tag creation ([d0a59c8](https://github.com/humexxx/humex-champions/commit/d0a59c8e3616856d198304316c954883ac14b49f))
+
 ### 0.24.1 (2025-02-06)
 
 
