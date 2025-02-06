@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.24.1 (2025-02-06)
+
+
+### Features
+
+* add git hub user on release creation ([cba2366](https://github.com/humexxx/humex-champions/commit/cba2366d02cf99680758a69d31c79f4772842f61))
+
 ## 0.24.0 (2024-11-14)
 
 ## 0.23.0 (2024-11-14)
