@@ -20,5 +20,9 @@ jobs:
         with:
           node-version: 18
       - run: npm install
-      - run: npm run release
-      - run: git push --follow-tags origin develop
+
+      - name: Run release script (Without Tagging)
+        run: npm run release -- --no-verify --no-git-tag-version
+
+      - name: Push changes
+        run: git push origin develop

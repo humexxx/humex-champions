@@ -1,4 +1,4 @@
-name: Create Tag on Main Merge
+name: Release on Main
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main # Se ejecuta cuando hay un push en main
 
 jobs:
-  tag_release:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -14,13 +14,26 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up Git user
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+
       - name: Get Version from package.json
         id: package_version
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
 
       - name: Create Tag
         run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
           git tag v${{ env.VERSION }}
           git push origin v${{ env.VERSION }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: 'Release v${{ env.VERSION }}'
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
