@@ -15,6 +15,7 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+    if: github.actor == 'dependabot[bot]' # ✅ Solo ejecuta si el PR es de Dependabot
     steps:
       - name: Check if PR is from Dependabot
         run: |
