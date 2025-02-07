@@ -13,3 +13,7 @@ export const MULTIPLE_GRAPH_COLORS = [
   '#9c755f',
   '#bab0ab',
 ];
+
+export const LOCAL_STORAGE_KEYS = {
+  THEME: 'theme',
+};

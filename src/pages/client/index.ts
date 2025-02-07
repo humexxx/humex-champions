@@ -1,2 +1,2 @@
-export { DashboardPage } from './Dashboard';
+export { DashboardPage } from './dashboardPage';
 export { SettingsPage } from './Settings';

@@ -63,8 +63,6 @@ const Header = ({ handleDrawerToggle }: Props) => {
         display: 'flex',
         justifyContent: 'space-between',
         bgcolor: 'background.paper',
-        borderBottom: 1,
-        borderBottomColor: 'divider',
         // bgcolor: "hsla(0, 0%, 100%, 0.6)",
         // backdropFilter: "blur(50px)",
       }}
