@@ -2,7 +2,7 @@ import { Button, Grid } from '@mui/material';
 import { useAuth } from 'src/context/hooks';
 import { createEvent } from 'src/services/calendar';
 
-import { useUserSettings } from '../../Settings/hooks';
+import { useUserSettings } from '../../settings/hooks';
 
 const Page = () => {
   const { settings } = useUserSettings();

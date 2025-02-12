@@ -2,6 +2,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import { Box, Container, Grid, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Page } from 'src/components/layout';
+import { ROUTES } from 'src/consts';
 
 import { MetricsCard } from './_components';
 
@@ -48,7 +49,7 @@ const DashboardPage = () => {
                   title="Finances"
                   icon={<ShowChartIcon />}
                   loading
-                  redirectPath="/client/finances"
+                  redirectPath={ROUTES.PORTAL.FINANCES.INDEX}
                 />
               </Grid>
               <Grid item xs={12} sm={6} lg={4}>

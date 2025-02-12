@@ -13,6 +13,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ConfirmDialog } from 'src/components';
+import { ROUTES } from 'src/consts';
 import { useTradingJournal } from 'src/hooks/pages/client/finances';
 
 import {
@@ -96,7 +97,10 @@ const TradingJournalPage = () => {
         }}
       />
       <Breadcrumbs aria-label="navigator">
-        <Link to="/client/finances" style={{ textDecoration: 'none' }}>
+        <Link
+          to={ROUTES.PORTAL.FINANCES.INDEX}
+          style={{ textDecoration: 'none' }}
+        >
           {t('finances.title')}
         </Link>
         <Typography variant="h6">
