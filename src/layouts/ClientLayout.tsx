@@ -1,10 +1,11 @@
 import * as React from 'react';
 
-import { Box, Container, Drawer } from '@mui/material';
+import { Box, Drawer } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { PrivateRoute } from 'src/components/auth';
 import { VERSION } from 'src/consts';
-import { ThemeProvider } from 'src/context/theme';
+import { ThemeProvider, useThemeContext } from 'src/context/theme';
+import { EThemeType } from 'src/enums';
 
 import { Header, Sidebar } from './components';
 import { MAIN_HEADER_HEIGHT } from './components/Header';
@@ -13,6 +14,7 @@ import { SIDEBAR_WIDTH } from './components/Sidebar';
 function ClientLayout() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
+  const themeContext = useThemeContext();
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -30,7 +32,15 @@ function ClientLayout() {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        bgcolor:
+          themeContext.theme === EThemeType.Light
+            ? '#fafafa'
+            : 'background.default',
+      }}
+    >
       <Header handleDrawerToggle={handleDrawerToggle} />
       <Box
         component="nav"
@@ -62,6 +72,7 @@ function ClientLayout() {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: SIDEBAR_WIDTH,
+              bgcolor: 'transparent',
             },
           }}
           open
@@ -70,18 +81,15 @@ function ClientLayout() {
         </Drawer>
       </Box>
       <Box
-        component="main"
+        component={'main'}
         sx={{
           flexGrow: 1,
           width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
-          backgroundColor: 'background.default',
           minHeight: `calc(100vh - ${MAIN_HEADER_HEIGHT}px)`,
           marginTop: `${MAIN_HEADER_HEIGHT}px`,
         }}
       >
-        <Container maxWidth="xl" sx={{ mt: 4 }}>
-          <Outlet />
-        </Container>
+        <Outlet />
       </Box>
     </Box>
   );

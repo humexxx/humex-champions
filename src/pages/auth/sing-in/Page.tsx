@@ -6,6 +6,7 @@ import {
   browserSessionPersistence,
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from 'src/consts';
 import { auth } from 'src/firebase';
 import { handleAuthError } from 'src/utils/auth';
 
@@ -22,7 +23,7 @@ const Page = () => {
       );
       await signInWithEmailAndPassword(auth, form.email, form.password).then(
         () => {
-          navigate('/client/dashboard');
+          navigate(ROUTES.PORTAL.DASHBOARD);
         }
       );
     } catch (error) {

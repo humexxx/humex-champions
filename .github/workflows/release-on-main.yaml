@@ -3,7 +3,7 @@ name: Release on Main
 on:
   push:
     branches:
-      - main # Se ejecuta cuando hay un push en main
+      - main
 
 jobs:
   release:

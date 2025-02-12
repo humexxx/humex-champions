@@ -13,6 +13,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
+import { ROUTES } from 'src/consts';
 
 import {
   DebtCard,
@@ -121,7 +122,7 @@ const PersonalFinancesPage = () => {
       <PageHeader
         title={t('finances.title')}
         breadcrumb={[
-          { title: t('finances.title'), route: '/client/finances' },
+          { title: t('finances.title'), route: ROUTES.PORTAL.FINANCES.INDEX },
           {
             title: t('finances.personalFinances.title'),
             route: 'personal-finances',

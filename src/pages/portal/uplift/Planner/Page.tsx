@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
+import { ROUTES } from 'src/consts';
 
 import { WeekDays } from './components';
 
@@ -28,7 +29,7 @@ const Page = () => {
       <PageHeader
         title={t('uplift.planner.title')}
         breadcrumb={[
-          { title: t('uplift.title'), route: '/client/uplift' },
+          { title: t('uplift.title'), route: ROUTES.PORTAL.UPLIFT.INDEX },
           { title: t('uplift.planner.title'), route: 'planner' },
         ]}
         description={t('uplift.planner.description')}

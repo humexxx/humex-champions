@@ -23,6 +23,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
+import { ROUTES } from 'src/consts';
 
 import { MAIN_HEADER_HEIGHT } from './Header';
 
@@ -35,7 +36,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
       {
         text: t('dashboard.title'),
         icon: <DashboardIcon />,
-        path: '/client/dashboard',
+        path: ROUTES.PORTAL.DASHBOARD,
       },
     ],
     [t]
@@ -46,18 +47,22 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
       {
         text: t('finances.title'),
         icon: <AccountBalanceIcon />,
-        path: '/client/finances',
+        path: ROUTES.PORTAL.FINANCES.INDEX,
       },
       {
         text: t('health.title'),
         icon: <DirectionsRunIcon />,
-        path: '/client/health',
+        path: ROUTES.PORTAL.HEALTH.INDEX,
       },
-      { text: t('uplift.title'), icon: <FlagIcon />, path: '/client/uplift' },
+      {
+        text: t('uplift.title'),
+        icon: <FlagIcon />,
+        path: ROUTES.PORTAL.UPLIFT.INDEX,
+      },
       {
         text: t('entertainment.title'),
         icon: <AddReactionIcon />,
-        path: '/client/entretainment',
+        path: ROUTES.PORTAL.ENTERTAINMENT.INDEX,
       },
     ],
     [t]
@@ -68,9 +73,13 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
       {
         text: t('members.title'),
         icon: <PeopleIcon />,
-        path: '/client/members',
+        path: ROUTES.PORTAL.SOCIAL.MEMBERS,
       },
-      { text: t('groups.title'), icon: <GroupIcon />, path: '/client/groups' },
+      {
+        text: t('groups.title'),
+        icon: <GroupIcon />,
+        path: ROUTES.PORTAL.SOCIAL.GROUPS,
+      },
     ],
     [t]
   );
@@ -159,9 +168,9 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
           <ListItem>
             <ListItemButton
               sx={{ borderRadius: 2 }}
-              selected={location.pathname.includes('/client/admin')}
+              selected={location.pathname.includes(ROUTES.PORTAL.ADMIN.INDEX)}
               component={NavLink}
-              to="/client/admin"
+              to={ROUTES.PORTAL.ADMIN.INDEX}
             >
               <ListItemIcon>
                 <AdminPanelSettingsIcon />
@@ -173,9 +182,9 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
         <ListItem>
           <ListItemButton
             sx={{ borderRadius: 2 }}
-            selected={location.pathname.includes('/client/settings')}
+            selected={location.pathname.includes(ROUTES.PORTAL.SETTINGS)}
             component={NavLink}
-            to="/client/settings"
+            to={ROUTES.PORTAL.SETTINGS}
           >
             <ListItemIcon>
               <SettingsIcon />
