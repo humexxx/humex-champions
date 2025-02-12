@@ -1,7 +1,7 @@
 {
   "name": "humex-champions",
   "private": true,
-  "version": "1.0.2",
+  "version": "0.24.0",
   "type": "module",
   "scripts": {
     "dev:vite": "vite",
