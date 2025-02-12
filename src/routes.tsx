@@ -1,104 +1,100 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { AutoLogRoute } from './components/auth';
+import { ROUTES } from './consts';
 import ClientLayout from './layouts/ClientLayout';
-import {
-  LandingPage,
-  ErrorPage,
-  SignInPage,
-  SignUpPage,
-  ForgotPasswordPage,
-} from './pages';
-import { DashboardPage, SettingsPage } from './pages/client';
-import { AdminPage } from './pages/client/Admin';
+import { LandingPage, ErrorPage } from './pages';
+import { AdminPage } from './pages/admin';
+import { ForgotPasswordPage, SignInPage, SignUpPage } from './pages/auth';
+import { DashboardPage, SettingsPage } from './pages/portal';
 import {
   EntertainmentPage,
   TripsPage,
   YouTubePage,
-} from './pages/client/Entertainment';
+} from './pages/portal/entertainment';
 import {
   PersonalFinancesPage,
   TradingJournalPage,
   PortfolioPage,
   CompoundCalculatorPage,
   FinancesPage,
-} from './pages/client/Finances';
+} from './pages/portal/finances';
 import {
   HealthCalculatorPage,
   HealthPage,
   NutritionPage,
   TrainingProgramPage,
-} from './pages/client/Health';
-import { PlannerPage, PathwayPage, UpliftPage } from './pages/client/Uplift';
+} from './pages/portal/health';
+import { PlannerPage, PathwayPage, UpliftPage } from './pages/portal/uplift';
 
 const financeRoutes = [
   {
-    path: '/client/finances',
+    path: ROUTES.PORTAL.FINANCES.INDEX,
     element: <FinancesPage />,
   },
   {
-    path: '/client/finances/personal-finances',
+    path: ROUTES.PORTAL.FINANCES.PERSONAL_FINANCES,
     element: <PersonalFinancesPage />,
   },
   {
-    path: '/client/finances/trading-journal',
+    path: ROUTES.PORTAL.FINANCES.TRADING_JOURNAL,
     element: <TradingJournalPage />,
   },
   {
-    path: '/client/finances/portfolio',
+    path: ROUTES.PORTAL.FINANCES.PORTFOLIO,
     element: <PortfolioPage />,
   },
   {
-    path: '/client/finances/compound-calculator',
+    path: ROUTES.PORTAL.FINANCES.COMPOUND_CALCULATOR,
     element: <CompoundCalculatorPage />,
   },
 ];
 
 const healthRoutes = [
   {
-    path: '/client/health',
+    path: ROUTES.PORTAL.HEALTH.INDEX,
     element: <HealthPage />,
   },
   {
-    path: '/client/health/calculator',
+    path: ROUTES.PORTAL.HEALTH.CALCULATOR,
     element: <HealthCalculatorPage />,
   },
   {
-    path: '/client/health/nutrition',
+    path: ROUTES.PORTAL.HEALTH.NUTRITION,
     element: <NutritionPage />,
   },
   {
-    path: '/client/health/training-program',
+    path: ROUTES.PORTAL.HEALTH.TRAINING_PROGRAM,
     element: <TrainingProgramPage />,
   },
 ];
 
 const upliftRoutes = [
   {
-    path: '/client/uplift',
+    path: ROUTES.PORTAL.UPLIFT.INDEX,
     element: <UpliftPage />,
   },
   {
-    path: '/client/uplift/pathway',
+    path: ROUTES.PORTAL.UPLIFT.PATHWAY,
     element: <PathwayPage />,
   },
   {
-    path: '/client/uplift/planner',
+    path: ROUTES.PORTAL.UPLIFT.PLANNER,
     element: <PlannerPage />,
   },
 ];
 
 const entertainmentRoutes = [
   {
-    path: '/client/entretainment',
+    path: ROUTES.PORTAL.ENTERTAINMENT.INDEX,
     element: <EntertainmentPage />,
   },
   {
-    path: '/client/entretainment/youtube',
+    path: ROUTES.PORTAL.ENTERTAINMENT.YOUTUBE,
     element: <YouTubePage />,
   },
   {
-    path: '/client/entretainment/trips',
+    path: ROUTES.PORTAL.ENTERTAINMENT.TRIPS,
     element: <TripsPage />,
   },
 ];
@@ -110,7 +106,7 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: '/sign-up',
+    path: ROUTES.AUTH.SIGN_UP,
     element: (
       <AutoLogRoute>
         <SignUpPage />
@@ -118,11 +114,11 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/sign-in',
-    element: <Navigate replace to="/login" />,
+    path: ROUTES.AUTH.SIGN_IN,
+    element: <Navigate replace to={ROUTES.AUTH.LOGIN} />,
   },
   {
-    path: '/login',
+    path: ROUTES.AUTH.LOGIN,
     element: (
       <AutoLogRoute>
         <SignInPage />
@@ -130,7 +126,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/forgot-password',
+    path: ROUTES.AUTH.FORGOT_PASSWORD,
     element: (
       <AutoLogRoute>
         <ForgotPasswordPage />
@@ -138,19 +134,19 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/client',
+    path: ROUTES.PORTAL.INDEX,
     element: <ClientLayout />,
     children: [
       {
-        path: '/client/dashboard',
+        path: ROUTES.PORTAL.DASHBOARD,
         element: <DashboardPage />,
       },
       {
-        path: '/client/admin',
+        path: ROUTES.PORTAL.ADMIN.INDEX,
         element: <AdminPage />,
       },
       {
-        path: '/client/settings',
+        path: ROUTES.PORTAL.SETTINGS,
         element: <SettingsPage />,
       },
       ...financeRoutes,
