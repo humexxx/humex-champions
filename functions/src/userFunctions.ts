@@ -1,20 +1,18 @@
 import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions';
+import { user } from 'firebase-functions/v1/auth';
 
-export const createUserDocument = functions.auth
-  .user()
-  .onCreate(async (user) => {
-    const { uid, email } = user;
+export const createUserDocument = user().onCreate(async (user) => {
+  const { uid, email } = user;
 
-    await admin
-      .firestore()
-      .collection('users')
-      .doc(uid)
-      .set({
-        email: email || null,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        timezone: 'UTC',
-      });
+  await admin
+    .firestore()
+    .collection('users')
+    .doc(uid)
+    .set({
+      email: email || null,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      timezone: 'UTC',
+    });
 
-    return null;
-  });
+  return null;
+});

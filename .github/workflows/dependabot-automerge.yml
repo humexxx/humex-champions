@@ -15,8 +15,17 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+      checks: read
     if: github.actor == 'dependabot[bot]' # ✅ Solo ejecuta si el PR es de Dependabot
     steps:
+      - name: Wait for build to succeed
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        id: wait-for-build
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Build and Preview
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
       - name: Approve PR
         uses: hmarr/auto-approve-action@v3
         with:

@@ -29,6 +29,7 @@ module.exports = {
     'require-jsdoc': 'off',
     'import/no-unresolved': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    'new-cap': 'off',
 
     'import/order': [
       'error',
