@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material';
+import { LOCAL_STORAGE_KEYS } from 'src/consts';
 import { useAuth } from 'src/context/hooks';
+import { EThemeType } from 'src/enums';
 import { useLocalStorage } from 'src/hooks';
 
 import ThemeContext from './ThemeContext';
@@ -9,7 +11,10 @@ import { ThemeContextType, ThemeProviderProps } from './ThemeContext.types';
 import { getDesignTokens } from './themes';
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
-  const [mode, setMode] = useLocalStorage<'light' | 'dark'>('theme', 'light');
+  const [mode, setMode] = useLocalStorage<EThemeType>(
+    LOCAL_STORAGE_KEYS.THEME,
+    EThemeType.Light
+  );
   const { currentUser } = useAuth();
 
   const theme = useMemo(
@@ -47,10 +52,13 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
   const value: ThemeContextType = useMemo(
     () => ({
       toggleColorMode: () => {
-        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+        setMode((prevMode) =>
+          prevMode === EThemeType.Light ? EThemeType.Dark : EThemeType.Light
+        );
       },
+      theme: mode,
     }),
-    [setMode]
+    [mode, setMode]
   );
 
   return (

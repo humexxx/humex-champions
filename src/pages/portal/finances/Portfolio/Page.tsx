@@ -3,6 +3,7 @@ import { IPortfolioSnapshot } from '@shared/models/finances';
 import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
+import { ROUTES } from 'src/consts';
 import { toDayjs } from 'src/utils';
 
 import { CreatePortfolio, PortfolioView } from './components';
@@ -111,7 +112,7 @@ const Page = () => {
         breadcrumb={[
           {
             title: t('finances.title'),
-            route: '/client/finances',
+            route: ROUTES.PORTAL.FINANCES.INDEX,
           },
           {
             title: t('finances.portfolio.title'),

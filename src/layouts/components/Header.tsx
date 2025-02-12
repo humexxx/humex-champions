@@ -17,6 +17,7 @@ import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useThemeContext } from 'src/context/theme';
+import { EThemeType } from 'src/enums';
 import { auth } from 'src/firebase';
 
 import { SIDEBAR_WIDTH } from './Sidebar';
@@ -54,7 +55,6 @@ const Header = ({ handleDrawerToggle }: Props) => {
   return (
     <AppBar
       position="fixed"
-      color="default"
       elevation={0}
       sx={{
         height: MAIN_HEADER_HEIGHT,
@@ -62,9 +62,8 @@ const Header = ({ handleDrawerToggle }: Props) => {
         ml: { lg: `${SIDEBAR_WIDTH}px` },
         display: 'flex',
         justifyContent: 'space-between',
-        bgcolor: 'background.paper',
-        borderBottom: 1,
-        borderBottomColor: 'divider',
+        bgcolor:
+          themeContext.theme === EThemeType.Light ? '#fafafa' : 'grey.900',
         // bgcolor: "hsla(0, 0%, 100%, 0.6)",
         // backdropFilter: "blur(50px)",
       }}
@@ -86,9 +85,9 @@ const Header = ({ handleDrawerToggle }: Props) => {
         </IconButton>
         <Box flexGrow="1" display={'flex'} alignItems={'center'} />
         <IconButton
-          color="inherit"
           ref={menuRef}
           onClick={() => setLanguageMenuOpen(true)}
+          sx={{ color: 'text.primary' }}
         >
           <TranslateIcon />
         </IconButton>
@@ -102,9 +101,8 @@ const Header = ({ handleDrawerToggle }: Props) => {
           <MenuItem onClick={handleLanguageOnChange('es')}>Español</MenuItem>
         </Menu>
         <IconButton
-          sx={{ ml: 2 }}
+          sx={{ ml: 2, color: 'text.primary' }}
           onClick={themeContext.toggleColorMode}
-          color="inherit"
         >
           {theme.palette.mode === 'dark' ? (
             <Brightness4Icon />
@@ -113,10 +111,9 @@ const Header = ({ handleDrawerToggle }: Props) => {
           )}
         </IconButton>
         <IconButton
-          color="inherit"
           edge="end"
           onClick={handleLogout}
-          sx={{ ml: 2 }}
+          sx={{ ml: 2, color: 'text.primary' }}
         >
           <LogoutIcon />
         </IconButton>

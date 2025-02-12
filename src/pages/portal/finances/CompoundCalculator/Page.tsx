@@ -6,7 +6,7 @@ import { Box, Slider, Tab } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
-import { MULTIPLE_GRAPH_COLORS } from 'src/consts';
+import { MULTIPLE_GRAPH_COLORS, ROUTES } from 'src/consts';
 
 import { Graph, Inputs } from './components';
 
@@ -76,7 +76,7 @@ const CompoundInterestCalculatorPage = () => {
         breadcrumb={[
           {
             title: t('finances.title'),
-            route: '/client/finances',
+            route: ROUTES.PORTAL.FINANCES.INDEX,
           },
           {
             title: t('finances.compound-calculator.title'),
