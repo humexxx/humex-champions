@@ -7,6 +7,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Grid, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
+import { Page } from 'src/components/layout';
 
 const FinancesPage = () => {
   const { t } = useTranslation();
@@ -43,7 +44,7 @@ const FinancesPage = () => {
   );
 
   return (
-    <>
+    <Page title={t('finances.title')}>
       <PageHeader
         title={t('finances.title')}
         description={t('finances.description')}
@@ -51,9 +52,6 @@ const FinancesPage = () => {
 
       <PageContent>
         <Grid container spacing={4}>
-          <Grid item xs={12}>
-            <Typography variant="body2">{t('finances.description')}</Typography>
-          </Grid>
           {options.map(({ route, Icon, description, label }) => (
             <Grid item xs={12} md={4} key={route}>
               <LinkOptionCard
@@ -66,7 +64,7 @@ const FinancesPage = () => {
           ))}
         </Grid>
       </PageContent>
-    </>
+    </Page>
   );
 };
 

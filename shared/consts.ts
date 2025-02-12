@@ -1,7 +1,9 @@
+export const AVG_WEEKS_IN_MONTH = 4.34524;
+
 export const FIRESTORE_PATHS = {
   USERS: (uid: string) => `users/${uid}`,
   FINANCES: {
-    FINANCIAL_PLANS: (uid: string) => `finances/${uid}/financialPlans`,
+    FINANCIAL_PLANS: (uid: string) => `finances/${uid}/financial-plans`,
   },
   UPLIFT: {
     INDEX: (uid: string) => `uplift/${uid}`,

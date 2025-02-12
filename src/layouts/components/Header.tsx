@@ -61,6 +61,7 @@ const Header = ({ handleDrawerToggle }: Props) => {
         width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
         ml: { lg: `${SIDEBAR_WIDTH}px` },
         display: 'flex',
+        color: 'text.primary',
         justifyContent: 'space-between',
         bgcolor:
           themeContext.theme === EThemeType.Light ? '#fafafa' : 'grey.900',
@@ -85,9 +86,9 @@ const Header = ({ handleDrawerToggle }: Props) => {
         </IconButton>
         <Box flexGrow="1" display={'flex'} alignItems={'center'} />
         <IconButton
+          color="inherit"
           ref={menuRef}
           onClick={() => setLanguageMenuOpen(true)}
-          sx={{ color: 'text.primary' }}
         >
           <TranslateIcon />
         </IconButton>
@@ -101,8 +102,9 @@ const Header = ({ handleDrawerToggle }: Props) => {
           <MenuItem onClick={handleLanguageOnChange('es')}>Español</MenuItem>
         </Menu>
         <IconButton
-          sx={{ ml: 2, color: 'text.primary' }}
+          color="inherit"
           onClick={themeContext.toggleColorMode}
+          sx={{ ml: 2 }}
         >
           {theme.palette.mode === 'dark' ? (
             <Brightness4Icon />
@@ -112,8 +114,9 @@ const Header = ({ handleDrawerToggle }: Props) => {
         </IconButton>
         <IconButton
           edge="end"
+          color="inherit"
           onClick={handleLogout}
-          sx={{ ml: 2, color: 'text.primary' }}
+          sx={{ ml: 2 }}
         >
           <LogoutIcon />
         </IconButton>

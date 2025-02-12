@@ -1,7 +1,6 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Breadcrumbs, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { useDocumentMetadata } from 'src/hooks';
 
 export const SECONDARY_HEADER_HEIGHT = 62;
 
@@ -9,16 +8,9 @@ type Props = {
   title: string;
   breadcrumb?: { title: string; route: string }[];
   description?: string;
-  hideHeader?: boolean;
 };
 
-const PageHeader = ({ title, breadcrumb, hideHeader, description }: Props) => {
-  useDocumentMetadata(`${title} - Champions`);
-
-  if (hideHeader) {
-    return null;
-  }
-
+const PageHeader = ({ title, breadcrumb, description }: Props) => {
   return (
     <Box component={'header'} mb={8}>
       {breadcrumb ? (
