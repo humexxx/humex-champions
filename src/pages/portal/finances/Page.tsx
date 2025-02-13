@@ -4,7 +4,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 import { Page } from 'src/components/layout';

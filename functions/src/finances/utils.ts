@@ -30,7 +30,7 @@ export function applyAvalancheMethod(debts: IDebt[], surplus: number): IDebt[] {
 export function generateSingleSnapshot(
   lastSnapshot: IFinancialSnapshot,
   fixedExpenses: IFixedExpense<any>[],
-  incomes: IIncome<any>[]
+  incomes: IIncome[]
 ): IFinancialSnapshot {
   const totalIncome = incomes.reduce((sum, income) => {
     switch (income.period) {

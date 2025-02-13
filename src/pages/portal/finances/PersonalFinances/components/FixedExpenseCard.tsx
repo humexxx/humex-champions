@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { IDebt, IFixedExpense } from '@shared/models/finances';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
@@ -16,10 +16,10 @@ import FixedExpenseEditDialog from './FixedExpenseEditDialog';
 
 interface Props {
   personalFinancesId?: string;
-  fixedExpenses: IFixedExpense<Dayjs>[];
-  debts: IDebt<Dayjs>[];
+  fixedExpenses: IFixedExpense[];
+  debts: IDebt[];
   isLoading: boolean;
-  update: (data: IFixedExpense<Dayjs>[]) => void;
+  update: (data: IFixedExpense[]) => void;
 }
 
 const FixedExpenseCard = ({
@@ -40,9 +40,9 @@ const FixedExpenseCard = ({
       fixedExpenses.reduce((acc, fixedExpense) => {
         switch (fixedExpense.expenseType) {
           case 'single':
-            return dayjs(fixedExpense.singleDate).get('month') ===
+            return dayjs(fixedExpense.date).get('month') ===
               dayjs().get('month') &&
-              dayjs(fixedExpense.singleDate).get('year') === dayjs().get('year')
+              dayjs(fixedExpense.date).get('year') === dayjs().get('year')
               ? acc + fixedExpense.amount
               : acc;
           case 'primary':

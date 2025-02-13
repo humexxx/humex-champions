@@ -38,11 +38,12 @@ import {
   objectDateConverter,
   toDayjs,
 } from 'src/utils';
+import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
 
 interface Props {
-  onSubmit: (data: IDebt<Dayjs>[]) => void;
-  data: IDebt<Dayjs>[];
+  onSubmit: (data: IDebt[]) => void;
+  data: IDebt[];
   sx?: SxProps;
   loading?: boolean;
   disabled?: boolean;
@@ -78,8 +79,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
               .required(t('commonValidations.required'))
               .typeError(t('commonValidations.required'))
               .moreThan(-1),
-            startDate: yup
-              .date()
+            startDate: yupDayjs
               .nonNullable()
               .required(t('commonValidations.required')),
           })

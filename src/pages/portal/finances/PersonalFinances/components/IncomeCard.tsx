@@ -3,16 +3,16 @@ import { useMemo } from 'react';
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import { IIncome } from '@shared/models/finances';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
 import IncomeEditDialog from './IncomeEditDialog';
 
 interface Props {
-  incomes: IIncome<Dayjs>[];
+  incomes: IIncome[];
   isLoading: boolean;
-  update: (data: IIncome<Dayjs>[]) => void;
+  update: (data: IIncome[]) => void;
 }
 
 const IncomeCard = ({ incomes, isLoading, update }: Props) => {
@@ -23,7 +23,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
       incomes.reduce(
         (acc, income) =>
           acc +
-          ((income: IIncome<Dayjs>) => {
+          ((income: IIncome) => {
             switch (income.period) {
               case 'monthly':
                 return income.amount;
@@ -47,7 +47,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
     [incomes]
   );
 
-  const nextExtraordinaryIncome: IIncome<Dayjs> | null = useMemo(
+  const nextExtraordinaryIncome: IIncome | null = useMemo(
     () =>
       incomes
         .filter((income) => income.date)

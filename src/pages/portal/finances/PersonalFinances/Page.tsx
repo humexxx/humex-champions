@@ -9,7 +9,7 @@ import {
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
@@ -25,16 +25,19 @@ import {
 } from './components';
 import { useFinancialPlans } from './hooks';
 
-const DEFAULT_FINANCIAL_PLAN: IFinancialPlan<Dayjs> = {
+const DEFAULT_FINANCIAL_PLAN: IFinancialPlan = {
   name: 'Main',
   fixedExpenses: [],
   incomes: [],
+  debts: [],
   financialSnapshots: [
     {
-      debts: [],
       date: dayjs(),
       reviewed: true,
       surplus: 0,
+      debts: [],
+      fixedExpenses: [],
+      incomes: [],
     },
   ],
   id: null,
@@ -53,7 +56,7 @@ const PersonalFinancesPage = () => {
   const { data: financialPlans, error, loading, set } = useFinancialPlans();
   const [selectedTab, setSelectedTab] = useState('0');
 
-  const _financialPlans: IFinancialPlan<Dayjs>[] = useMemo(
+  const _financialPlans: IFinancialPlan[] = useMemo(
     () => (financialPlans?.length ? financialPlans : [DEFAULT_FINANCIAL_PLAN]),
     [financialPlans]
   );
@@ -78,7 +81,7 @@ const PersonalFinancesPage = () => {
 
   function _updateFinancialPlan(
     planId: string | null,
-    data: IDebt<Dayjs>[] | IIncome<Dayjs>[] | IFixedExpense<Dayjs>[],
+    data: IDebt[] | IIncome[] | IFixedExpense[],
     key: 'debts' | 'incomes' | 'fixedExpenses'
   ) {
     let plan = planId
@@ -91,7 +94,7 @@ const PersonalFinancesPage = () => {
         if (i === plan!.financialSnapshots.length - 1) {
           return {
             ...snapshot,
-            ...(key === 'debts' ? { debts: data as IDebt<Dayjs>[] } : {}),
+            ...(key === 'debts' ? { debts: data as IDebt[] } : {}),
             reviewed: true,
           };
         }
@@ -101,7 +104,7 @@ const PersonalFinancesPage = () => {
     set(plan);
   }
 
-  function _updateDebts(planId: string | null, data: IDebt<Dayjs>[]) {
+  function _updateDebts(planId: string | null, data: IDebt[]) {
     if (!planId) _updateFinancialPlan(planId, data, 'debts');
     else {
       _financialPlans.forEach((plan) => {

@@ -36,11 +36,12 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
 import { formatCurrency, objectDateConverter, toDayjs } from 'src/utils';
+import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
 
 interface Props {
-  onSubmit: (data: IIncome<Dayjs>[]) => void;
-  data: IIncome<Dayjs>[];
+  onSubmit: (data: IIncome[]) => void;
+  data: IIncome[];
   sx?: SxProps;
   loading?: boolean;
 }
@@ -71,7 +72,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
               )
               .required(t('commonValidations.required'))
               .nonNullable(),
-            date: yup.date().optional(),
+            date: yupDayjs.nonNullable(),
           })
         ),
         useTrading: yup.boolean().default(true),
@@ -211,10 +212,12 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                           }
                         >
                           {incomes![index].period === 'single' ? (
-                            dayjs(incomes![index].date).format('DD MMM YYYY')
+                            dayjs(incomes![index].date as any).format(
+                              'DD MMM YYYY'
+                            )
                           ) : incomes![index].period === 'yearly' ? (
                             `${t('finances.personalFinances.header.incomes.dialog.yearlyOn')} ${dayjs(
-                              incomes![index].date
+                              incomes![index].date as any
                             ).format('DD MMM')}`
                           ) : (
                             <Box

@@ -10,7 +10,7 @@ import {
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { DashedGraph } from 'src/components/graphs';
 
@@ -21,12 +21,12 @@ const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
   lg: 12,
 };
 
-interface IDebtWithExtraPayment extends IDebt<Dayjs> {
+interface IDebtWithExtraPayment extends IDebt {
   extraPayment: number;
 }
 
 function applyAvalancheMethod(
-  debts: IDebt<Dayjs>[],
+  debts: IDebt[],
   surplus: number
 ): IDebtWithExtraPayment[] {
   // Ordenar las deudas por el interés anual más alto primero
@@ -52,7 +52,7 @@ function applyAvalancheMethod(
 }
 
 function applySnowballMethod(
-  debts: IDebt<Dayjs>[],
+  debts: IDebt[],
   surplus: number
 ): IDebtWithExtraPayment[] {
   // Ordenar las deudas por el saldo pendiente más bajo primero
@@ -78,12 +78,12 @@ function applySnowballMethod(
 }
 
 function generatePredictions(
-  historicalSnapshots: IFinancialSnapshot<Dayjs>[],
-  fixedExpenses: IFixedExpense<Dayjs>[],
-  incomes: IIncome<Dayjs>[],
+  historicalSnapshots: IFinancialSnapshot[],
+  fixedExpenses: IFixedExpense[],
+  incomes: IIncome[],
   viewSize: 'sm' | 'md' | 'lg',
   method = 'avalanche'
-): IFinancialSnapshot<Dayjs>[] {
+): IFinancialSnapshot[] {
   const snapshots = [...historicalSnapshots];
   let deficitCarryover = 0;
 
@@ -116,9 +116,9 @@ function generatePredictions(
     const totalFixedExpenses = fixedExpenses.reduce((sum, expense) => {
       switch (expense.expenseType) {
         case 'single':
-          return dayjs(expense.singleDate).month() ===
+          return dayjs(expense.date).month() ===
             previousSnapshot.date.month() &&
-            dayjs(expense.singleDate).year() === previousSnapshot.date.year()
+            dayjs(expense.date).year() === previousSnapshot.date.year()
             ? sum + expense.amount
             : sum;
         case 'primary':
@@ -179,6 +179,8 @@ function generatePredictions(
         .map(({ extraPayment, ...debt }) => debt),
       date: previousSnapshot.date.add(1, 'month'),
       surplus,
+      fixedExpenses,
+      incomes,
     });
   }
 
@@ -186,8 +188,8 @@ function generatePredictions(
 }
 
 function generateMissingHistoricalSnapshots(
-  snapshots: IFinancialSnapshot<Dayjs>[]
-): IFinancialSnapshot<Dayjs>[] {
+  snapshots: IFinancialSnapshot[]
+): IFinancialSnapshot[] {
   const historicalSnapshots = [...snapshots];
 
   if (snapshots.length < NUMBER_OF_MONTHS_PAST_TO_SHOW + 1) {
@@ -222,7 +224,7 @@ function getColorForPlan(index: number, total: number, baseColor: string) {
 }
 
 interface Props {
-  financialPlans: IFinancialPlan<Dayjs>[] | null;
+  financialPlans: IFinancialPlan[] | null;
   loading: boolean;
 }
 

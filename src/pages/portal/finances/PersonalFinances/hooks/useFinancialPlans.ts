@@ -3,7 +3,6 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { FIRESTORE_PATHS } from '@shared/consts';
 import { IFinancialPlan } from '@shared/models/finances';
 import { getError } from '@shared/utils';
-import { Dayjs } from 'dayjs';
 import {
   collection,
   getDocs,
@@ -17,19 +16,19 @@ import { firestore } from 'src/firebase';
 import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
 
 interface UsePersonalFinances {
-  data: IFinancialPlan<Dayjs>[] | null;
+  data: IFinancialPlan[] | null;
   loading: boolean;
   error: string | null;
-  set: (financialPlan: IFinancialPlan<Dayjs>) => Promise<void>;
-  get: (id: string) => Promise<IFinancialPlan<Dayjs>>;
-  getAll: () => Promise<IFinancialPlan<Dayjs>[]>;
+  set: (financialPlan: IFinancialPlan) => Promise<void>;
+  get: (id: string) => Promise<IFinancialPlan>;
+  getAll: () => Promise<IFinancialPlan[]>;
 }
 
 const useFinancialPlans = (
   { autoLoad }: { autoLoad: boolean } = { autoLoad: true }
 ): UsePersonalFinances => {
   const { currentUser } = useAuth();
-  const [data, setData] = useState<IFinancialPlan<Dayjs>[] | null>(null);
+  const [data, setData] = useState<IFinancialPlan[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +62,7 @@ const useFinancialPlans = (
           const _data = objectDateConverter(
             doc.data(),
             toDayjs
-          ) as IFinancialPlan<Dayjs>;
+          ) as IFinancialPlan;
           return { id: doc.id, ..._data };
         });
 
@@ -94,7 +93,7 @@ const useFinancialPlans = (
       return objectDateConverter(
         { id: snap.id, ...snap.data() },
         toDayjs
-      ) as IFinancialPlan<Dayjs>;
+      ) as IFinancialPlan;
     },
     [collectionRef]
   );
@@ -109,16 +108,13 @@ const useFinancialPlans = (
     }
 
     return snap.docs.map((doc) => {
-      const _data = objectDateConverter(
-        doc.data(),
-        toDayjs
-      ) as IFinancialPlan<Dayjs>;
+      const _data = objectDateConverter(doc.data(), toDayjs) as IFinancialPlan;
       return { id: doc.id, ..._data };
     });
   }, [collectionRef]);
 
   const set = useCallback(
-    async (data: IFinancialPlan<Dayjs>) => {
+    async (data: IFinancialPlan) => {
       if (!collectionRef) throw new Error('No collectionRef found');
       const docRef = data.id
         ? doc(firestore, collectionRef.path, data.id)

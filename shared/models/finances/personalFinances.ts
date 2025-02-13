@@ -1,35 +1,46 @@
-export interface IFinancialPlan<T = Date> {
+import { Dayjs } from 'dayjs';
+
+export interface IFinancialPlan {
   id?: string | null;
   name: string;
-  financialSnapshots: IFinancialSnapshot<T>[];
-  fixedExpenses: IFixedExpense<T>[];
-  incomes: IIncome<T>[];
+  financialSnapshots: IFinancialSnapshot[];
+
+  fixedExpenses: IFixedExpense[];
+  incomes: IIncome[];
+  debts: IDebt[];
 }
-export interface IIncome<T = Date> {
+
+export interface IIncome {
   amount: number;
   period: 'single' | 'weekly' | 'monthly' | 'yearly';
   name: string;
-  date?: T;
+  date?: Dayjs;
 }
 
-export interface IDebt<T = Date> {
+export interface IDebt {
   pendingDebt: number;
   minimumPayment: number;
   annualInterest: number;
-  startDate: T;
   name: string;
+  startDate: Dayjs;
 }
 
-export interface IFixedExpense<T = Date> {
+export interface IFixedExpense {
   amount: number;
   expenseType: 'single' | 'primary' | 'secondary';
   name: string;
-  singleDate?: T;
+  date?: Dayjs;
 }
 
-export interface IFinancialSnapshot<T = Date> {
-  debts: IDebt<T>[];
-  date: T;
+export interface IFinancialSnapshot {
+  date: Dayjs;
+
+  debts: IDebt[];
+  incomes: IIncome[];
+  fixedExpenses: IFixedExpense[];
+
   surplus: number;
+  actualSurplus?: number;
+
   reviewed: boolean;
 }

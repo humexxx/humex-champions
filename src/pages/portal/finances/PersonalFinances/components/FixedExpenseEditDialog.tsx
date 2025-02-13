@@ -37,8 +37,8 @@ import { formatCurrency, objectDateConverter, toDayjs } from 'src/utils';
 import * as yup from 'yup';
 
 interface Props {
-  onSubmit: (data: IFixedExpense<Dayjs>[]) => void;
-  data: IFixedExpense<Dayjs>[];
+  onSubmit: (data: IFixedExpense[]) => void;
+  data: IFixedExpense[];
   sx?: SxProps;
   loading?: boolean;
 }

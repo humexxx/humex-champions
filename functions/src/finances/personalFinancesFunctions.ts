@@ -13,7 +13,6 @@ const db = admin.firestore();
 export const scheduledSnapshotGeneration = pubsub
   .schedule('0 * 1 * *') // Se ejecuta cada hora el primer día de cada mes
   .onRun(async () => {
-    return null;
     try {
       const usersSnapshot = await db.collection('users').get();
 

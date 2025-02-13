@@ -2,16 +2,15 @@ import { useMemo } from 'react';
 
 import { Card, CardContent, Typography, Skeleton } from '@mui/material';
 import { IDebt } from '@shared/models/finances';
-import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 
 import DebtEditDialog from './DebtEditDialog';
 
 interface Props {
-  debts: IDebt<Dayjs>[];
+  debts: IDebt[];
   isLoading: boolean;
-  update: (data: IDebt<Dayjs>[]) => void;
+  update: (data: IDebt[]) => void;
   canEdit?: boolean;
 }
 
