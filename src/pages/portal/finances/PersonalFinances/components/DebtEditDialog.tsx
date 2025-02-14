@@ -35,7 +35,7 @@ import { CurrencyField, PercentageField } from 'src/components/forms';
 import {
   formatCurrency,
   formatPercentage,
-  objectDateConverter,
+  normalizeObjectDates,
   toDayjs,
 } from 'src/utils';
 import { yupDayjs } from 'src/yup';
@@ -118,13 +118,13 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
     if (!data.debts) return;
 
     handleClose();
-    onSubmit(objectDateConverter(data.debts, toDayjs));
+    onSubmit(normalizeObjectDates(data.debts, toDayjs));
   }
 
   useEffect(() => {
     setValue(
       'debts',
-      objectDateConverter(data, (date: Dayjs) => date.toDate())
+      normalizeObjectDates(data, (date: Dayjs) => date.toDate())
         .sort((x: any) => x.pendingDebt)
         .reverse()
     );

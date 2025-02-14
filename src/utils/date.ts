@@ -46,12 +46,12 @@ export function isLastDayOfMonth(date: Dayjs) {
 }
 
 dayjs.extend(customParseFormat);
-export function objectDateConverter(
+export function normalizeObjectDates<T>(
   obj: any,
-  converter: (value: any) => any
-): any {
+  converter: typeof toTimestamp | typeof toDayjs
+): T {
   if (Array.isArray(obj)) {
-    return obj.map((item) => objectDateConverter(item, converter));
+    return obj.map((item) => normalizeObjectDates(item, converter)) as any;
   } else if (
     obj !== null &&
     typeof obj === 'object' &&
@@ -59,7 +59,7 @@ export function objectDateConverter(
     !dayjs.isDayjs(obj)
   ) {
     return Object.keys(obj).reduce((acc, key) => {
-      acc[key] = objectDateConverter(obj[key], converter);
+      acc[key] = normalizeObjectDates(obj[key], converter);
       return acc;
     }, {} as any);
   } else if (
@@ -68,7 +68,7 @@ export function objectDateConverter(
     dayjs.isDayjs(obj) ||
     (typeof obj === 'string' && dayjs(obj, 'YYYY-MM-DD', true).isValid())
   ) {
-    return converter(obj);
+    return converter(obj) as any;
   } else {
     return obj;
   }

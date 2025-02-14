@@ -3,19 +3,27 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
-import { AuthProvider } from 'src/context';
+import { AuthProvider, ThemeProvider } from 'src/context';
 
+import { loadI18n } from './i18n.ts';
 import { router } from './routes.tsx';
 
-import './i18n.ts';
+const root = ReactDOM.createRoot(document.getElementById('root')!);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  // <React.StrictMode>
-  <LocalizationProvider dateAdapter={AdapterDayjs}>
-    <AuthProvider>
-      <CssBaseline />
-      <RouterProvider router={router} />
-    </AuthProvider>
-  </LocalizationProvider>
-  // </React.StrictMode>
-);
+loadI18n().then(() => {
+  root.render(
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <AuthProvider>
+        <ThemeProvider>
+          <CssBaseline />
+          <RouterProvider
+            router={router}
+            future={{
+              v7_startTransition: true,
+            }}
+          />
+        </ThemeProvider>
+      </AuthProvider>
+    </LocalizationProvider>
+  );
+});

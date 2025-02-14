@@ -25,24 +25,6 @@ import {
 } from './components';
 import { useFinancialPlans } from './hooks';
 
-const DEFAULT_FINANCIAL_PLAN: IFinancialPlan = {
-  name: 'Main',
-  fixedExpenses: [],
-  incomes: [],
-  debts: [],
-  financialSnapshots: [
-    {
-      date: dayjs(),
-      reviewed: true,
-      surplus: 0,
-      debts: [],
-      fixedExpenses: [],
-      incomes: [],
-    },
-  ],
-  id: null,
-};
-
 function getTabProps(id: string) {
   return {
     id: `tab-${id}`,
@@ -56,37 +38,31 @@ const PersonalFinancesPage = () => {
   const { data: financialPlans, error, loading, set } = useFinancialPlans();
   const [selectedTab, setSelectedTab] = useState('0');
 
-  const _financialPlans: IFinancialPlan[] = useMemo(
-    () => (financialPlans?.length ? financialPlans : [DEFAULT_FINANCIAL_PLAN]),
+  const isCreateNewPlanDisabled = useMemo(
+    () =>
+      Boolean(
+        financialPlans.length &&
+          financialPlans[0].financialSnapshots.at(-1)?.debts.length &&
+          financialPlans[0].fixedExpenses.length &&
+          financialPlans[0].incomes.length
+      ),
     [financialPlans]
   );
 
   function handleCreateNewPlan() {
-    // clone the first personal finance plan
-    // maybe open a modal later
     set({
-      ..._financialPlans[0],
+      ...financialPlans[0],
       id: '',
-      name: `Plan ${_financialPlans.length + 1}`,
+      name: `Plan ${financialPlans.length + 1}`,
     });
   }
-
-  const isCreateNewPlanDisabled = useMemo(
-    () =>
-      !_financialPlans[0].financialSnapshots.at(-1)?.debts.length &&
-      !_financialPlans[0].fixedExpenses.length &&
-      !_financialPlans[0].incomes.length,
-    [_financialPlans]
-  );
 
   function _updateFinancialPlan(
     planId: string | null,
     data: IDebt[] | IIncome[] | IFixedExpense[],
     key: 'debts' | 'incomes' | 'fixedExpenses'
   ) {
-    let plan = planId
-      ? DEFAULT_FINANCIAL_PLAN
-      : _financialPlans.find((p) => p.id === planId)!;
+    let plan = financialPlans.find((p) => p.id === planId)!;
     plan = {
       ...plan,
       ...(key === 'incomes' || key === 'fixedExpenses' ? { [key]: data } : {}),
@@ -107,7 +83,7 @@ const PersonalFinancesPage = () => {
   function _updateDebts(planId: string | null, data: IDebt[]) {
     if (!planId) _updateFinancialPlan(planId, data, 'debts');
     else {
-      _financialPlans.forEach((plan) => {
+      financialPlans.forEach((plan) => {
         _updateFinancialPlan(plan.id!, data, 'debts');
       });
     }
@@ -119,10 +95,10 @@ const PersonalFinancesPage = () => {
 
   return (
     <>
-      <ValidateMainFinantialSnapshotDialog
-        financialPlan={_financialPlans[0]}
-        onSubmit={(data) => _updateDebts(_financialPlans[0].id!, data)}
-      />
+      {/* <ValidateMainFinantialSnapshotDialog
+        financialPlan={financialPlans[0]}
+        onSubmit={(data) => _updateDebts(financialPlans[0].id!, data)}
+      /> */}
       <Page title={t('finances.title')}>
         <PageHeader
           title={t('finances.title')}
@@ -155,7 +131,7 @@ const PersonalFinancesPage = () => {
                     },
                   }}
                 >
-                  {_financialPlans.map(({ id, name }, i) => (
+                  {financialPlans.map(({ id, name }, i) => (
                     <Tab
                       key={`tab-${id}`}
                       label={name}
@@ -176,10 +152,11 @@ const PersonalFinancesPage = () => {
                 </TabList>
               </Box>
 
-              {_financialPlans.map(
+              {financialPlans.map(
                 ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
-                  const { debts } =
-                    financialSnapshots[financialSnapshots.length - 1];
+                  const debts =
+                    financialSnapshots[financialSnapshots.length - 1]?.debts ??
+                    [];
 
                   return (
                     <TabPanel
@@ -226,15 +203,14 @@ const PersonalFinancesPage = () => {
               )}
             </TabContext>
           </Box>
-
-          <Grid container>
+          {/* <Grid container>
             <Grid item xs={12}>
               <PersonalFinancesGraph
                 loading={loading}
                 financialPlans={financialPlans}
               />
             </Grid>
-          </Grid>
+          </Grid> */}
         </PageContent>
       </Page>
     </>

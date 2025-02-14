@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
+import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
 
 function injectEndBalance(operation: IOperation) {
   operation.balanceEnd =
@@ -94,7 +94,7 @@ export const useTradingJournal = () => {
         if (!snapshot.empty) {
           const doc = snapshot.docs[0];
           setJournal(
-            objectDateConverter(
+            normalizeObjectDates(
               { id: doc.id, ...doc.data() },
               toDayjs
             ) as ITradingJournal
@@ -150,7 +150,7 @@ export const useTradingJournal = () => {
           );
           await addDoc(
             journalRef,
-            objectDateConverter(nextJournal, toTimestamp)
+            normalizeObjectDates(nextJournal, toTimestamp)
           );
         }
 
@@ -172,7 +172,7 @@ export const useTradingJournal = () => {
           ];
 
           await updateDoc(docRef, {
-            operations: objectDateConverter(updatedOperations, toTimestamp),
+            operations: normalizeObjectDates(updatedOperations, toTimestamp),
           });
 
           setJournal({ ...tradingJournal, operations: updatedOperations });
@@ -190,7 +190,7 @@ export const useTradingJournal = () => {
           );
           const docRef = await addDoc(
             journalRef,
-            objectDateConverter(newJournal, toTimestamp)
+            normalizeObjectDates(newJournal, toTimestamp)
           );
           setJournal({ id: docRef.id, ...newJournal });
         }

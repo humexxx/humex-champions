@@ -35,7 +35,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
-import { formatCurrency, objectDateConverter, toDayjs } from 'src/utils';
+import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
 
@@ -94,7 +94,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      incomes: objectDateConverter(data, (x: Dayjs) => x.toDate()),
+      incomes: normalizeObjectDates(data, (x: Dayjs) => x.toDate()),
       useTrading: true,
     },
   });
@@ -111,13 +111,13 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
     if (!data.incomes) return;
 
     handleClose();
-    onSubmit(incomes ? objectDateConverter(incomes, toDayjs) : []);
+    onSubmit(incomes ? normalizeObjectDates(incomes, toDayjs) : []);
   }
 
   useEffect(() => {
     setValue(
       'incomes',
-      objectDateConverter(data.sort((x) => x.amount).reverse(), (x: Dayjs) =>
+      normalizeObjectDates(data.sort((x) => x.amount).reverse(), (x: Dayjs) =>
         x.toDate()
       )
     );

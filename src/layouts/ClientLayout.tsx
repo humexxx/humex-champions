@@ -4,7 +4,7 @@ import { Box, Drawer } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { PrivateRoute } from 'src/components/auth';
 import { VERSION } from 'src/consts';
-import { ThemeProvider, useThemeContext } from 'src/context/theme';
+import { useThemeContext } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
 
 import { Header, Sidebar } from './components';
@@ -98,9 +98,7 @@ function ClientLayout() {
 export default function ClientLayoutWrapper() {
   return (
     <PrivateRoute>
-      <ThemeProvider>
-        <ClientLayout />
-      </ThemeProvider>
+      <ClientLayout />
     </PrivateRoute>
   );
 }

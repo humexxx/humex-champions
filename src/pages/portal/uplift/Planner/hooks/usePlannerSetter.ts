@@ -6,7 +6,7 @@ import { Dayjs } from 'dayjs';
 import { doc, collection, addDoc, updateDoc } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { objectDateConverter, toTimestamp } from 'src/utils';
+import { normalizeObjectDates, toTimestamp } from 'src/utils';
 
 export default function usePlanner() {
   const { currentUser } = useAuth();
@@ -27,7 +27,7 @@ export default function usePlanner() {
         if (!plannerCollection) throw new Error('No planner collection');
         const isNew = !planner.id;
         setLoading(true);
-        const formmatedPlanner = objectDateConverter(planner, toTimestamp);
+        const formmatedPlanner = normalizeObjectDates(planner, toTimestamp);
 
         if (isNew) {
           const docRef = await addDoc(plannerCollection, formmatedPlanner);
@@ -37,7 +37,7 @@ export default function usePlanner() {
             firestore,
             `${plannerCollection.path}/${planner.id}`
           );
-          await updateDoc(checklistDocRef, formmatedPlanner);
+          await updateDoc(checklistDocRef, formmatedPlanner as any);
         }
       } catch (err: any) {
         setError(err.message || 'Error adding item');

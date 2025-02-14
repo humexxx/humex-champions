@@ -33,7 +33,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
-import { formatCurrency, objectDateConverter, toDayjs } from 'src/utils';
+import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import * as yup from 'yup';
 
 interface Props {
@@ -90,7 +90,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      expenses: objectDateConverter(data, (x: Dayjs) => x.toDate()),
+      expenses: normalizeObjectDates(data, (x: Dayjs) => x.toDate()),
     },
   });
 
@@ -109,7 +109,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
 
     handleClose();
     onSubmit(
-      objectDateConverter(
+      normalizeObjectDates(
         data.expenses.map((item) => ({ ...item, startDate: dayjs() })),
         toDayjs
       )
@@ -119,7 +119,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   useEffect(() => {
     setValue(
       'expenses',
-      objectDateConverter(data, (x: Dayjs) => x.toDate())
+      normalizeObjectDates(data, (x: Dayjs) => x.toDate())
     );
   }, [data, setValue]);
 

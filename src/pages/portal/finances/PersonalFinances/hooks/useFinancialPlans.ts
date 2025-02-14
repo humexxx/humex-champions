@@ -11,12 +11,14 @@ import {
   onSnapshot,
   getDoc,
 } from 'firebase/firestore';
+import { USE_MOCKED_DATA } from 'src/consts';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
+import { MOCKED_FINANCIAL_PLAN } from 'src/services/mockService';
+import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
 
 interface UsePersonalFinances {
-  data: IFinancialPlan[] | null;
+  data: IFinancialPlan[];
   loading: boolean;
   error: string | null;
   set: (financialPlan: IFinancialPlan) => Promise<void>;
@@ -28,22 +30,23 @@ const useFinancialPlans = (
   { autoLoad }: { autoLoad: boolean } = { autoLoad: true }
 ): UsePersonalFinances => {
   const { currentUser } = useAuth();
-  const [data, setData] = useState<IFinancialPlan[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [data, setData] = useState<IFinancialPlan[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const collectionRef = useMemo(() => {
-    if (!currentUser) {
-      return null;
-    }
     return collection(
       firestore,
-      FIRESTORE_PATHS.FINANCES.FINANCIAL_PLANS(currentUser.uid)
+      FIRESTORE_PATHS.FINANCES.FINANCIAL_PLANS(currentUser!.uid)
     );
   }, [currentUser]);
 
   useEffect(() => {
-    if (!autoLoad || !collectionRef) {
+    if (!autoLoad) return;
+
+    if (USE_MOCKED_DATA) {
+      setData([MOCKED_FINANCIAL_PLAN]);
+      setLoading(false);
       return;
     }
 
@@ -58,13 +61,12 @@ const useFinancialPlans = (
           return;
         }
 
-        const data = snap.docs.map((doc) => {
-          const _data = objectDateConverter(
-            doc.data(),
+        const data = snap.docs.map((doc) =>
+          normalizeObjectDates<IFinancialPlan>(
+            { id: doc.id, ...doc.data() },
             toDayjs
-          ) as IFinancialPlan;
-          return { id: doc.id, ..._data };
-        });
+          )
+        );
 
         setData(data);
         setLoading(false);
@@ -80,48 +82,58 @@ const useFinancialPlans = (
 
   const get = useCallback(
     async (id: string) => {
-      if (!collectionRef) throw new Error('No collectionRef found');
+      if (USE_MOCKED_DATA) {
+        return { ...MOCKED_FINANCIAL_PLAN, id };
+      }
 
       const docRef = doc(firestore, collectionRef.path, id);
-
       const snap = await getDoc(docRef);
 
       if (!snap.exists()) {
         throw new Error('No data found');
       }
 
-      return objectDateConverter(
+      return normalizeObjectDates<IFinancialPlan>(
         { id: snap.id, ...snap.data() },
         toDayjs
-      ) as IFinancialPlan;
+      );
     },
     [collectionRef]
   );
 
   const getAll = useCallback(async () => {
-    if (!collectionRef) throw new Error('No collectionRef found');
+    if (USE_MOCKED_DATA) {
+      return [MOCKED_FINANCIAL_PLAN];
+    }
 
     const snap = await getDocs(collectionRef);
-
     if (snap.empty) {
       return [];
     }
 
-    return snap.docs.map((doc) => {
-      const _data = objectDateConverter(doc.data(), toDayjs) as IFinancialPlan;
-      return { id: doc.id, ..._data };
-    });
+    return snap.docs.map((doc) =>
+      normalizeObjectDates<IFinancialPlan>(
+        { id: doc.id, ...doc.data() },
+        toDayjs
+      )
+    );
   }, [collectionRef]);
 
   const set = useCallback(
     async (data: IFinancialPlan) => {
-      if (!collectionRef) throw new Error('No collectionRef found');
+      if (USE_MOCKED_DATA) {
+        Object.assign(MOCKED_FINANCIAL_PLAN, data);
+        return;
+      }
+
       const docRef = data.id
         ? doc(firestore, collectionRef.path, data.id)
         : doc(collectionRef);
 
-      delete data.id;
-      const _data = objectDateConverter(data, toTimestamp) as IFinancialPlan;
+      const { id, ..._data } = normalizeObjectDates<IFinancialPlan>(
+        data,
+        toTimestamp
+      );
 
       return await setDoc(docRef, _data);
     },

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { createContext, PropsWithChildren, useMemo } from 'react';
 
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material';
 import { LOCAL_STORAGE_KEYS } from 'src/consts';
@@ -6,11 +6,17 @@ import { useAuth } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
 import { useLocalStorage } from 'src/hooks';
 
-import ThemeContext from './ThemeContext';
-import { ThemeContextType, ThemeProviderProps } from './ThemeContext.types';
-import { getDesignTokens } from './themes';
+import { getDesignTokens } from '../themes';
 
-export default function ThemeProvider({ children }: ThemeProviderProps) {
+export interface ThemeContextType {
+  toggleColorMode: () => void;
+  theme: EThemeType;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+export default ThemeContext;
+
+export function ThemeProvider({ children }: PropsWithChildren) {
   const [mode, setMode] = useLocalStorage<EThemeType>(
     LOCAL_STORAGE_KEYS.THEME,
     EThemeType.Light

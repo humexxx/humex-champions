@@ -16,7 +16,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useThemeContext } from 'src/context/theme';
+import { useThemeContext } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
 import { auth } from 'src/firebase';
 
