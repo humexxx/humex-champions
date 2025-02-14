@@ -59,9 +59,9 @@ interface Resources {
           },
           "incomes": {
             "title": "Income",
-            "total": "Total",
+            "total": "Total Monthly",
             "month": "month",
-            "nextExtraordinaryPayment": "Next extraordinary payment",
+            "nextExtraordinaryPayment": "Next extra payment",
             "noIncome": "No income found.",
             "dialog": {
               "title": "Edit monthly income",

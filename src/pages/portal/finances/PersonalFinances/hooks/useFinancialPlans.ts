@@ -11,6 +11,7 @@ import {
   onSnapshot,
   getDoc,
 } from 'firebase/firestore';
+import { CommonFetchHookProps } from 'src/_models';
 import { USE_MOCKED_DATA } from 'src/consts';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
@@ -27,7 +28,10 @@ interface UsePersonalFinances {
 }
 
 const useFinancialPlans = (
-  { autoLoad }: { autoLoad: boolean } = { autoLoad: true }
+  { autoLoad, forceMock }: CommonFetchHookProps = {
+    autoLoad: true,
+    forceMock: false,
+  }
 ): UsePersonalFinances => {
   const { currentUser } = useAuth();
   const [data, setData] = useState<IFinancialPlan[]>([]);
@@ -44,7 +48,7 @@ const useFinancialPlans = (
   useEffect(() => {
     if (!autoLoad) return;
 
-    if (USE_MOCKED_DATA) {
+    if (USE_MOCKED_DATA || forceMock) {
       setData([MOCKED_FINANCIAL_PLAN]);
       setLoading(false);
       return;
@@ -82,7 +86,7 @@ const useFinancialPlans = (
 
   const get = useCallback(
     async (id: string) => {
-      if (USE_MOCKED_DATA) {
+      if (USE_MOCKED_DATA || forceMock) {
         return { ...MOCKED_FINANCIAL_PLAN, id };
       }
 
@@ -102,7 +106,7 @@ const useFinancialPlans = (
   );
 
   const getAll = useCallback(async () => {
-    if (USE_MOCKED_DATA) {
+    if (USE_MOCKED_DATA || forceMock) {
       return [MOCKED_FINANCIAL_PLAN];
     }
 
@@ -121,7 +125,7 @@ const useFinancialPlans = (
 
   const set = useCallback(
     async (data: IFinancialPlan) => {
-      if (USE_MOCKED_DATA) {
+      if (USE_MOCKED_DATA || forceMock) {
         Object.assign(MOCKED_FINANCIAL_PLAN, data);
         return;
       }

@@ -1,6 +1,14 @@
 import { useMemo } from 'react';
 
-import { Card, CardContent, Typography, Skeleton } from '@mui/material';
+import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Skeleton,
+  Stack,
+  Button,
+} from '@mui/material';
 import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import { IIncome } from '@shared/models/finances';
 import dayjs from 'dayjs';
@@ -56,20 +64,29 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   );
 
   return (
-    <Card
-      sx={{ position: 'relative', height: '100%', minHeight: 175 }}
-      variant="outlined"
-    >
-      <IncomeEditDialog
-        data={incomes}
-        onSubmit={update}
-        sx={{ position: 'absolute', right: 8, top: 8 }}
-        loading={isLoading}
-      />
+    <Card sx={{ minHeight: 186 }}>
       <CardContent>
-        <Typography variant="body1" component="h3" mb={2}>
-          <strong>{t('finances.personalFinances.header.incomes.title')}</strong>
-        </Typography>
+        <Stack
+          direction={'row'}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          mb={2}
+        >
+          <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <RequestQuoteTwoToneIcon color="success" fontSize="large" />
+            <Typography variant="body1" component="h3">
+              <strong>
+                {t('finances.personalFinances.header.incomes.title')}
+              </strong>
+            </Typography>
+          </Stack>
+
+          <IncomeEditDialog
+            data={incomes}
+            onSubmit={update}
+            loading={isLoading}
+          />
+        </Stack>
         {isLoading ? (
           <>
             <Skeleton width="60%" height={32} />
@@ -77,19 +94,22 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
           </>
         ) : incomes.length ? (
           <>
-            <Typography component="h6" variant="body1" gutterBottom>
+            <Typography variant="body1" gutterBottom>
               {t('finances.personalFinances.header.incomes.total')}:{' '}
               {formatCurrency(total)}
             </Typography>
             {Boolean(nextExtraordinaryIncome) && (
-              <Typography variant="body2">
-                {t(
-                  'finances.personalFinances.header.incomes.nextExtraordinaryPayment'
-                )}
-                : {formatCurrency(nextExtraordinaryIncome!.amount)}
-                {' - '}
-                {dayjs(nextExtraordinaryIncome!.date).format('DD MMM YYYY')}
-              </Typography>
+              <>
+                <Typography variant="body2" color={'text.secondary'}>
+                  {t(
+                    'finances.personalFinances.header.incomes.nextExtraordinaryPayment'
+                  )}
+                  : {formatCurrency(nextExtraordinaryIncome!.amount)}
+                </Typography>
+                <Typography variant="caption" color={'text.secondary'}>
+                  {dayjs(nextExtraordinaryIncome!.date).format('DD MMM YYYY')}
+                </Typography>
+              </>
             )}
           </>
         ) : (

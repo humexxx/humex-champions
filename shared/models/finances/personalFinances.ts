@@ -10,12 +10,19 @@ export interface IFinancialPlan {
   debts: IDebt[];
 }
 
-export interface IIncome {
-  amount: number;
-  period: 'single' | 'weekly' | 'monthly' | 'yearly';
-  name: string;
-  date?: Dayjs;
-}
+export type IIncome =
+  | {
+      amount: number;
+      period: 'single';
+      name: string;
+      date: Dayjs;
+    }
+  | {
+      amount: number;
+      period: 'weekly' | 'monthly' | 'yearly';
+      name: string;
+      date?: Dayjs;
+    };
 
 export interface IDebt {
   pendingDebt: number;

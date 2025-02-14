@@ -141,7 +141,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
       >
         <Box sx={{ display: 'inline-block', ...sx }}>
           <IconButton onClick={handleOpen} disabled={loading}>
-            <EditIcon fontSize="small" />
+            <EditIcon />
           </IconButton>
         </Box>
       </Tooltip>

@@ -25,7 +25,8 @@
 
     "paths": {
       "src/*": ["./src/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@models/*": ["./src/_models/*"]
     },
 
     "typeRoots": ["./node_modules/@types", "./src/types"]

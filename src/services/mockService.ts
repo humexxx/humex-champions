@@ -1,4 +1,5 @@
 import { IFinancialPlan } from '@shared/models/finances';
+import dayjs from 'dayjs';
 import { User } from 'firebase/auth';
 
 // User
@@ -14,6 +15,18 @@ export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
   name: 'Mocked Financial Plan',
   debts: [],
   fixedExpenses: [],
-  incomes: [],
+  incomes: [
+    {
+      amount: 8900,
+      name: 'Tech9',
+      period: 'monthly',
+    },
+    {
+      amount: 5000,
+      name: 'Pendiente de Enero',
+      period: 'single',
+      date: dayjs('3/15/2025'),
+    },
+  ],
   financialSnapshots: [],
 };
