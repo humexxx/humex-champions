@@ -19,6 +19,19 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
 
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm install
+
+      - name: Run release script (Without Tagging)
+        run: npm run release -- --no-verify --no-git-tag-version
+
+      - name: Push changes
+        run: git push origin develop
+
       - name: Get Version from package.json
         id: package_version
         run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
