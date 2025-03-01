@@ -64,7 +64,7 @@ interface Resources {
             "nextExtraordinaryPayment": "Next extra payment",
             "noIncome": "No income found.",
             "dialog": {
-              "title": "Edit monthly income",
+              "title": "Edit Incomes",
               "period": "Period",
               "amount": "Amount",
               "startDate": "Start Date",

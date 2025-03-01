@@ -82,7 +82,7 @@ const useFinancialPlans = (
     );
 
     return () => unsubscribe();
-  }, [autoLoad, collectionRef]);
+  }, [autoLoad, collectionRef, forceMock]);
 
   const get = useCallback(
     async (id: string) => {
@@ -102,7 +102,7 @@ const useFinancialPlans = (
         toDayjs
       );
     },
-    [collectionRef]
+    [collectionRef.path, forceMock]
   );
 
   const getAll = useCallback(async () => {
@@ -121,12 +121,14 @@ const useFinancialPlans = (
         toDayjs
       )
     );
-  }, [collectionRef]);
+  }, [collectionRef, forceMock]);
 
   const set = useCallback(
     async (data: IFinancialPlan) => {
       if (USE_MOCKED_DATA || forceMock) {
         Object.assign(MOCKED_FINANCIAL_PLAN, data);
+        // No needed when updating real data sincce are subscribed to the snapshot
+        setData((prev) => prev.map((x) => (x.id === data.id ? data : x)));
         return;
       }
 
@@ -134,14 +136,14 @@ const useFinancialPlans = (
         ? doc(firestore, collectionRef.path, data.id)
         : doc(collectionRef);
 
-      const { id, ..._data } = normalizeObjectDates<IFinancialPlan>(
+      const { id: _id, ..._data } = normalizeObjectDates<IFinancialPlan>(
         data,
         toTimestamp
       );
 
       return await setDoc(docRef, _data);
     },
-    [collectionRef]
+    [collectionRef, forceMock]
   );
 
   return {

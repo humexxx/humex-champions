@@ -1,16 +1,9 @@
 import { useMemo } from 'react';
 
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Skeleton,
-  Stack,
-  Button,
-} from '@mui/material';
-import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
+import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { IIncome } from '@shared/models/finances';
+import { getTotalFromIcomes } from '@shared/utils';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
@@ -26,35 +19,7 @@ interface Props {
 const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   const { t } = useTranslation();
 
-  const total = useMemo(
-    () =>
-      incomes.reduce(
-        (acc, income) =>
-          acc +
-          ((income: IIncome) => {
-            switch (income.period) {
-              case 'monthly':
-                return income.amount;
-              case 'weekly':
-                return income.amount * AVG_WEEKS_IN_MONTH;
-              case 'yearly':
-                return dayjs(income.date).month() === dayjs().month()
-                  ? income.amount
-                  : 0;
-              case 'single':
-                return dayjs(income.date).month() === dayjs().month() &&
-                  dayjs(income.date).year() === dayjs().year()
-                  ? income.amount
-                  : 0;
-              default:
-                return 0;
-            }
-          })(income),
-        0
-      ),
-    [incomes]
-  );
-
+  const total = useMemo(() => getTotalFromIcomes(incomes), [incomes]);
   const nextExtraordinaryIncome: IIncome | null = useMemo(
     () =>
       incomes
@@ -84,7 +49,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
           <IncomeEditDialog
             data={incomes}
             onSubmit={update}
-            loading={isLoading}
+            disabled={isLoading}
           />
         </Stack>
         {isLoading ? (

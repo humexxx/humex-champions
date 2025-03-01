@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import {
-  Edit as EditIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import {
   Dialog,
   DialogTitle,
@@ -15,26 +12,28 @@ import {
   Button,
   TextField,
   IconButton,
-  useTheme,
-  useMediaQuery,
   Grid,
   Box,
   MenuItem,
   Checkbox,
   FormControlLabel,
-  SxProps,
   Tooltip,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Typography,
+  Card,
+  CardContent,
+  Stack,
+  ListItem,
+  List,
+  ListItemButton,
+  ListItemText,
+  Divider,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IIncome } from '@shared/models/finances';
-import dayjs, { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { CurrencyField } from 'src/components/forms';
+import { CurrencyField, PercentageField } from 'src/components/forms';
+import { useViewports } from 'src/hooks';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
@@ -42,11 +41,10 @@ import * as yup from 'yup';
 interface Props {
   onSubmit: (data: IIncome[]) => void;
   data: IIncome[];
-  sx?: SxProps;
-  loading?: boolean;
+  disabled?: boolean;
 }
 
-const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
+const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
@@ -76,14 +74,13 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
           })
         ),
         useTrading: yup.boolean().default(true),
+        tradingPercentage: yup.number(),
       }),
     [t]
   );
 
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string>('panel0');
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const { isMobile } = useViewports();
 
   const {
     control,
@@ -94,8 +91,9 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      incomes: normalizeObjectDates(data, (x: Dayjs) => x.toDate()),
-      useTrading: true,
+      incomes: normalizeObjectDates<IIncome[]>(data, toDayjs),
+      useTrading: false,
+      tradingPercentage: 0,
     },
   });
 
@@ -104,26 +102,23 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
     name: 'incomes',
   });
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  function _handleSubmit(data: { incomes?: IIncome[] }) {
-    if (!data.incomes) return;
-
-    handleClose();
-    onSubmit(incomes ? normalizeObjectDates(incomes, toDayjs) : []);
-  }
+  const [indexToEdit, setIndexToEdit] = useState(0);
 
   useEffect(() => {
     setValue(
       'incomes',
-      normalizeObjectDates(data.sort((x) => x.amount).reverse(), (x: Dayjs) =>
-        x.toDate()
-      )
+      normalizeObjectDates(data.sort((x) => x.amount).reverse(), toDayjs)
     );
   }, [data, setValue]);
 
   const incomes = watch('incomes');
+
+  function _handleSubmit(_data: { incomes?: IIncome[] }) {
+    if (!incomes) return;
+
+    setOpen(false);
+    onSubmit(normalizeObjectDates<IIncome[]>(incomes, toDayjs));
+  }
 
   function handleOnNewIncome() {
     append({
@@ -131,7 +126,7 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
       period: 'monthly',
       name: `${t('finances.personalFinances.header.incomes.dialog.income')} ${fields.length + 1}`,
     });
-    setExpanded(`panel${fields.length}`);
+    setIndexToEdit(fields.length);
   }
 
   return (
@@ -139,18 +134,18 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
       <Tooltip
         title={t('finances.personalFinances.header.incomes.dialog.title')}
       >
-        <Box sx={{ display: 'inline-block', ...sx }}>
-          <IconButton onClick={handleOpen} disabled={loading}>
+        <Box sx={{ display: 'inline-block' }}>
+          <IconButton onClick={() => setOpen(true)} disabled={disabled}>
             <EditIcon />
           </IconButton>
         </Box>
       </Tooltip>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         fullWidth
-        maxWidth="sm"
-        fullScreen={fullScreen}
+        maxWidth="md"
+        fullScreen={isMobile}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
         {...{ autoComplete: 'off' }}
@@ -158,145 +153,59 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
         <DialogTitle
           sx={{
             textTransform: 'capitalize',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
           }}
         >
           {t('finances.personalFinances.header.incomes.dialog.title')}
-          <Button
-            type="button"
-            onClick={handleOnNewIncome}
-            startIcon={<AddIcon />}
-          >
-            {t('finances.personalFinances.header.incomes.dialog.addIncome')}
-          </Button>
         </DialogTitle>
         <DialogContent>
-          <Box p={4}>
-            {fields.map((item, index) => (
-              <Accordion
-                key={item.id}
-                expanded={expanded === `panel${index}`}
-                onChange={() => setExpanded(`panel${index}`)}
-                variant="outlined"
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls={`panel${index}bh-content`}
-                  id={`panel${index}bh-header`}
-                  sx={{
-                    alignItems: 'center',
-                  }}
-                >
-                  {expanded !== `panel${index}` ? (
-                    <>
-                      <Box sx={{ width: '75%' }} mr={1}>
-                        <Typography
-                          color={
-                            Object.values(errors?.incomes?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'inherit'
-                          }
-                        >
-                          {incomes![index].name}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color={
-                            Object.values(errors?.incomes?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'text.secondary'
-                          }
-                        >
-                          {incomes![index].period === 'single' ? (
-                            dayjs(incomes![index].date as any).format(
-                              'DD MMM YYYY'
-                            )
-                          ) : incomes![index].period === 'yearly' ? (
-                            `${t('finances.personalFinances.header.incomes.dialog.yearlyOn')} ${dayjs(
-                              incomes![index].date as any
-                            ).format('DD MMM')}`
-                          ) : (
-                            <Box
-                              component="span"
-                              sx={{ textTransform: 'capitalize' }}
-                            >
-                              {incomes![index].period}
-                            </Box>
+          <Stack gap={4}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Card variant={'outlined'}>
+                  <CardContent key={indexToEdit}>
+                    <Controller
+                      name={`incomes.${indexToEdit}.name`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label={t(
+                            'finances.personalFinances.header.incomes.dialog.name'
                           )}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" alignItems="center">
-                        <Typography
-                          color={
-                            Object.values(errors?.incomes?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'text.secondary'
+                          fullWidth
+                          error={!!errors?.incomes?.[indexToEdit]?.name}
+                          helperText={
+                            errors?.incomes?.[indexToEdit]?.name?.message || ' '
                           }
-                        >
-                          {formatCurrency(incomes![index].amount)}
-                        </Typography>
-                      </Box>
-                    </>
-                  ) : (
-                    <IconButton onClick={() => remove(index)} size="small">
-                      <DeleteIcon fontSize="small" color="error" />
-                    </IconButton>
-                  )}
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container spacing={2} alignItems="center" key={item.id}>
-                    <Grid item xs={8}>
+                          margin="dense"
+                          inputProps={{ maxLength: 64 }}
+                        />
+                      )}
+                    />
+                    <Controller
+                      name={`incomes.${indexToEdit}.amount`}
+                      control={control}
+                      render={({ field }) => (
+                        <CurrencyField
+                          {...field}
+                          label={t(
+                            'finances.personalFinances.header.incomes.dialog.amount'
+                          )}
+                          fullWidth
+                          error={!!errors?.incomes?.[indexToEdit]?.amount}
+                          helperText={
+                            errors?.incomes?.[indexToEdit]?.amount?.message ||
+                            ' '
+                          }
+                          margin="dense"
+                          inputProps={{ min: 0 }}
+                        />
+                      )}
+                    />
+
+                    <Stack direction={'row'} gap={4}>
                       <Controller
-                        name={`incomes.${index}.name`}
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            label={t(
-                              'finances.personalFinances.header.incomes.dialog.name'
-                            )}
-                            fullWidth
-                            error={!!errors?.incomes?.[index]?.name}
-                            helperText={
-                              errors?.incomes?.[index]?.name?.message || ' '
-                            }
-                            margin="dense"
-                            variant="filled"
-                            inputProps={{ maxLength: 64 }}
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Controller
-                        name={`incomes.${index}.amount`}
-                        control={control}
-                        render={({ field }) => (
-                          <CurrencyField
-                            {...field}
-                            label={t(
-                              'finances.personalFinances.header.incomes.dialog.amount'
-                            )}
-                            fullWidth
-                            error={!!errors?.incomes?.[index]?.amount}
-                            helperText={
-                              errors?.incomes?.[index]?.amount?.message || ' '
-                            }
-                            margin="dense"
-                            variant="filled"
-                            inputProps={{ min: 0 }}
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Controller
-                        name={`incomes.${index}.period`}
+                        name={`incomes.${indexToEdit}.period`}
                         control={control}
                         render={({ field }) => (
                           <TextField
@@ -306,12 +215,12 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                             )}
                             fullWidth
                             select
-                            error={!!errors?.incomes?.[index]?.period}
+                            error={!!errors?.incomes?.[indexToEdit]?.period}
                             helperText={
-                              errors?.incomes?.[index]?.period?.message || ' '
+                              errors?.incomes?.[indexToEdit]?.period?.message ||
+                              ' '
                             }
                             margin="dense"
-                            variant="filled"
                           >
                             <MenuItem value="single">
                               {t(
@@ -336,63 +245,110 @@ const IncomeEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                           </TextField>
                         )}
                       />
-                    </Grid>
-                    {Boolean(
-                      incomes![index].period === 'single' ||
-                        incomes![index].period === 'yearly'
-                    ) && (
-                      <Grid item xs={4}>
-                        <Controller
-                          name={`incomes.${index}.date`}
-                          control={control}
-                          render={({ field }) => (
-                            <DatePicker
-                              {...field}
-                              value={field.value ?? null}
-                              slotProps={{
-                                textField: {
-                                  fullWidth: true,
-                                  size: 'small',
-                                  error: !!errors?.incomes?.[index]?.date,
-                                  helperText:
-                                    errors?.incomes?.[index]?.date?.message ||
-                                    ' ',
-                                  margin: 'dense',
-                                  variant: 'filled',
-                                },
-                              }}
-                              label={t(
-                                'finances.personalFinances.header.incomes.dialog.date'
-                              )}
-                              views={['year', 'month', 'day']}
-                            />
-                          )}
+                      <Controller
+                        name={`incomes.${indexToEdit}.date`}
+                        control={control}
+                        render={({ field }) => (
+                          <DatePicker
+                            {...field}
+                            value={field.value ?? null}
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                size: 'small',
+                                error: !!errors?.incomes?.[indexToEdit]?.date,
+                                helperText:
+                                  errors?.incomes?.[indexToEdit]?.date
+                                    ?.message || ' ',
+                                margin: 'dense',
+                              },
+                            }}
+                            label={t(
+                              'finances.personalFinances.header.incomes.dialog.date'
+                            )}
+                            views={['year', 'month', 'day']}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={6}>
+                <List sx={{ py: 0 }} dense>
+                  {incomes?.map((x, i) => (
+                    <ListItem key={i}>
+                      <ListItemButton
+                        sx={{ borderRadius: 2 }}
+                        selected={i === indexToEdit}
+                        onClick={() => setIndexToEdit(i)}
+                      >
+                        <ListItemText
+                          primary={x.name}
+                          secondary={formatCurrency(x.amount)}
                         />
-                      </Grid>
-                    )}
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </Box>
+                        <IconButton color="error" onClick={() => remove(i)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+                <Stack direction={'row'} justifyContent={'flex-end'} p={2}>
+                  <Button startIcon={<AddIcon />} onClick={handleOnNewIncome}>
+                    Add Income
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+            <Divider />
+            <Grid container>
+              <Grid item xs={12} md={6}>
+                <Typography variant="h6" gutterBottom>
+                  Use Trading Profits
+                </Typography>
 
-          <FormControlLabel
-            control={
-              <Controller
-                name="useTrading"
-                control={control}
-                render={({ field }) => (
-                  <Checkbox {...field} checked={field.value} disabled />
-                )}
-              />
-            }
-            label={t(
-              'finances.personalFinances.header.incomes.dialog.useTrading'
-            )}
-          />
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="useTrading"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox {...field} checked={field.value} disabled />
+                      )}
+                    />
+                  }
+                  label={t(
+                    'finances.personalFinances.header.incomes.dialog.useTrading'
+                  )}
+                />
+                <Controller
+                  name={'tradingPercentage'}
+                  control={control}
+                  render={({ field }) => (
+                    <PercentageField
+                      {...field}
+                      label={'Withdrawal Profit Percentage'}
+                      fullWidth
+                      error={!!errors?.tradingPercentage}
+                      helperText={errors?.tradingPercentage?.message || ' '}
+                      margin="dense"
+                      inputProps={{ min: 0 }}
+                      disabled
+                    />
+                  )}
+                />
+                <Typography variant="caption">
+                  If this is active and you have trading profits for the month,
+                  the percentage you choose will be automatically added to the
+                  income.
+                </Typography>
+              </Grid>
+            </Grid>
+          </Stack>
         </DialogContent>
         <DialogActions>
-          <Button type="button" onClick={handleClose}>
+          <Button type="button" onClick={() => setOpen(false)}>
             {t('finances.personalFinances.header.incomes.dialog.cancel')}
           </Button>
           <Button type="submit">
