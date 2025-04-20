@@ -3,7 +3,7 @@ export function formatCurrency(
   defaultValue = 0
 ) {
   if (!amount) {
-    return defaultValue.toString();
+    amount = defaultValue;
   }
   if (typeof amount === 'string') {
     amount = parseFloat(amount);

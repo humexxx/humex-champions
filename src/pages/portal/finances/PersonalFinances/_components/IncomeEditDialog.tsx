@@ -33,7 +33,6 @@ import { IIncome } from '@shared/models/finances';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
-import { useViewports } from 'src/hooks';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
@@ -80,7 +79,6 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
   );
 
   const [open, setOpen] = useState(false);
-  const { isMobile } = useViewports();
 
   const {
     control,
@@ -114,10 +112,10 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
   const incomes = watch('incomes');
 
   function _handleSubmit(_data: { incomes?: IIncome[] }) {
-    if (!incomes) return;
+    if (!_data.incomes) return;
 
     setOpen(false);
-    onSubmit(normalizeObjectDates<IIncome[]>(incomes, toDayjs));
+    onSubmit(normalizeObjectDates<IIncome[]>(_data.incomes, toDayjs));
   }
 
   function handleOnNewIncome() {
@@ -145,7 +143,6 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
         onClose={() => setOpen(false)}
         fullWidth
         maxWidth="md"
-        fullScreen={isMobile}
         component={'form'}
         onSubmit={handleSubmit(_handleSubmit)}
         {...{ autoComplete: 'off' }}
@@ -175,9 +172,8 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                           fullWidth
                           error={!!errors?.incomes?.[indexToEdit]?.name}
                           helperText={
-                            errors?.incomes?.[indexToEdit]?.name?.message || ' '
+                            errors?.incomes?.[indexToEdit]?.name?.message
                           }
-                          margin="dense"
                           inputProps={{ maxLength: 64 }}
                         />
                       )}
@@ -194,10 +190,8 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                           fullWidth
                           error={!!errors?.incomes?.[indexToEdit]?.amount}
                           helperText={
-                            errors?.incomes?.[indexToEdit]?.amount?.message ||
-                            ' '
+                            errors?.incomes?.[indexToEdit]?.amount?.message
                           }
-                          margin="dense"
                           inputProps={{ min: 0 }}
                         />
                       )}
@@ -217,10 +211,8 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                             select
                             error={!!errors?.incomes?.[indexToEdit]?.period}
                             helperText={
-                              errors?.incomes?.[indexToEdit]?.period?.message ||
-                              ' '
+                              errors?.incomes?.[indexToEdit]?.period?.message
                             }
-                            margin="dense"
                           >
                             <MenuItem value="single">
                               {t(
@@ -255,12 +247,9 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                             slotProps={{
                               textField: {
                                 fullWidth: true,
-                                size: 'small',
                                 error: !!errors?.incomes?.[indexToEdit]?.date,
                                 helperText:
-                                  errors?.incomes?.[indexToEdit]?.date
-                                    ?.message || ' ',
-                                margin: 'dense',
+                                  errors?.incomes?.[indexToEdit]?.date?.message,
                               },
                             }}
                             label={t(
@@ -284,7 +273,13 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                         onClick={() => setIndexToEdit(i)}
                       >
                         <ListItemText
-                          primary={x.name}
+                          primary={
+                            x.name ? (
+                              x.name
+                            ) : (
+                              <Box color={'error.main'}>Not Defined</Box>
+                            )
+                          }
                           secondary={formatCurrency(x.amount)}
                         />
                         <IconButton color="error" onClick={() => remove(i)}>
@@ -303,9 +298,9 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
             </Grid>
             <Divider />
             <Grid container>
-              <Grid item xs={12} md={6}>
-                <Typography variant="h6" gutterBottom>
-                  Use Trading Profits
+              <Grid item xs={12} md={6} sx={{ px: 4 }}>
+                <Typography variant="body1" gutterBottom>
+                  <strong>Use Trading Profits</strong>
                 </Typography>
 
                 <FormControlLabel

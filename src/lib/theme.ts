@@ -27,7 +27,7 @@ function getTheme(mode: EThemeType) {
     // },
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-      fontSize: 14,
+      fontSize: 12,
       button: {
         textTransform: 'none',
         fontWeight: 500,
@@ -46,17 +46,20 @@ function getTheme(mode: EThemeType) {
         },
       },
       MuiCard: {
+        defaultProps: {
+          variant: 'outlined',
+        },
         styleOverrides: {
           root: {
             borderRadius: 12,
-            boxShadow:
-              '0px 1px 3px rgba(60, 64, 67, 0.15), 0px 4px 8px rgba(60, 64, 67, 0.15)',
           },
         },
       },
       MuiTextField: {
         defaultProps: {
-          variant: 'outlined',
+          variant: 'filled',
+          margin: 'dense',
+          size: 'small',
         },
         styleOverrides: {
           root: {

@@ -22,7 +22,7 @@ import {
   IncomeCard,
   PersonalFinancesGraph,
   ValidateMainFinantialSnapshotDialog,
-} from './components';
+} from './_components';
 import { useFinancialPlans } from './hooks';
 
 function getTabProps(id: string) {
@@ -102,87 +102,97 @@ const PersonalFinancesPage = () => {
       <Page title={t('finances.title')}>
         <PageHeader
           title={t('finances.title')}
-          breadcrumb={[
-            { title: t('finances.title'), route: ROUTES.PORTAL.FINANCES.INDEX },
-            {
-              title: t('finances.personalFinances.title'),
-              route: 'personal-finances',
+          navigator={{
+            link: {
+              title: t('finances.title'),
+              route: ROUTES.PORTAL.FINANCES.INDEX,
             },
-          ]}
+            breadcrumb: [
+              {
+                title: t('finances.personalFinances.title'),
+                route: 'personal-finances',
+              },
+            ],
+          }}
         />
         <PageContent>
           <Box mb={2}>
-            <TabContext value={selectedTab}>
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
-                <TabList
-                  onChange={(_, tab) => setSelectedTab(tab)}
-                  aria-label="personal finances ideas"
-                  scrollButtons="auto"
-                  sx={{
-                    '& .MuiTab-root:first-of-type': {
-                      color: 'warning.main',
-                    },
-                    '& .Mui-selected:first-of-type': {
-                      color: 'warning.main',
-                    },
-                    '& .MuiTabs-indicator': {
-                      backgroundColor:
-                        selectedTab === '0' ? 'warning.main' : 'primary.main',
-                    },
-                  }}
-                >
-                  {financialPlans.map(({ id, name }, i) => (
-                    <Tab
-                      key={`tab-${id}`}
-                      label={name}
-                      value={i.toString()}
-                      {...getTabProps(id ?? '')}
+            {financialPlans.length > 0 && (
+              <TabContext value={selectedTab}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
+                  <TabList
+                    onChange={(_, tab) => setSelectedTab(tab)}
+                    aria-label="personal finances ideas"
+                    scrollButtons="auto"
+                    sx={{
+                      '& .MuiTab-root:first-of-type': {
+                        color: 'warning.main',
+                      },
+                      '& .Mui-selected:first-of-type': {
+                        color: 'warning.main',
+                      },
+                      '& .MuiTabs-indicator': {
+                        backgroundColor:
+                          selectedTab === '0' ? 'warning.main' : 'primary.main',
+                      },
+                    }}
+                  >
+                    {financialPlans.map(({ id, name }, i) => (
+                      <Tab
+                        key={`tab-${id}`}
+                        label={name}
+                        value={i.toString()}
+                        {...getTabProps(id ?? '')}
+                      />
+                    ))}
+                    <ButtonInTabs
+                      tooltipText={
+                        !isCreateNewPlanDisabled
+                          ? t('finances.personalFinances.addPlan')
+                          : t('finances.personalFinances.addPlanHint')
+                      }
+                      onClick={handleCreateNewPlan}
+                      disabled={isCreateNewPlanDisabled || loading}
+                      icon={<AddIcon />}
                     />
-                  ))}
-                  <ButtonInTabs
-                    tooltipText={
-                      !isCreateNewPlanDisabled
-                        ? t('finances.personalFinances.addPlan')
-                        : t('finances.personalFinances.addPlanHint')
-                    }
-                    onClick={handleCreateNewPlan}
-                    disabled={isCreateNewPlanDisabled || loading}
-                    icon={<AddIcon />}
-                  />
-                </TabList>
-              </Box>
+                  </TabList>
+                </Box>
 
-              {financialPlans.map(
-                ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
-                  const debts =
-                    financialSnapshots[financialSnapshots.length - 1]?.debts ??
-                    [];
+                {financialPlans.map(
+                  ({ id, fixedExpenses, incomes, financialSnapshots }, i) => {
+                    const debts =
+                      financialSnapshots[financialSnapshots.length - 1]
+                        ?.debts ?? [];
 
-                  return (
-                    <TabPanel
-                      key={`tab-panel-${id}`}
-                      value={i.toString()}
-                      sx={{ p: 2 }}
-                    >
-                      <Grid container spacing={4}>
-                        <Grid item xs={12} md={4}>
-                          <DebtCard
-                            canEdit={i === 0}
-                            debts={debts}
-                            isLoading={loading}
-                            update={(data) => _updateDebts(id ?? null, data)}
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                          <IncomeCard
-                            incomes={incomes}
-                            isLoading={loading}
-                            update={(data) =>
-                              _updateFinancialPlan(id ?? null, data, 'incomes')
-                            }
-                          />
-                        </Grid>
-                        {/* <Grid item xs={12} md={4}>
+                    return (
+                      <TabPanel
+                        key={`tab-panel-${id}`}
+                        value={i.toString()}
+                        sx={{ p: 2 }}
+                      >
+                        <Grid container spacing={4}>
+                          <Grid item xs={12} md={4}>
+                            <DebtCard
+                              canEdit={i === 0}
+                              debts={debts}
+                              isLoading={loading}
+                              update={(data) => _updateDebts(id ?? null, data)}
+                            />
+                          </Grid>
+                          <Grid item xs={12} md={4}>
+                            <IncomeCard
+                              incomes={incomes}
+                              isLoading={loading}
+                              update={(data) =>
+                                _updateFinancialPlan(
+                                  id ?? null,
+                                  data,
+                                  'incomes'
+                                )
+                              }
+                            />
+                          </Grid>
+                          {/* <Grid item xs={12} md={4}>
                           <FixedExpenseCard
                             fixedExpenses={fixedExpenses}
                             debts={debts}
@@ -196,12 +206,13 @@ const PersonalFinancesPage = () => {
                             }
                           />
                         </Grid> */}
-                      </Grid>
-                    </TabPanel>
-                  );
-                }
-              )}
-            </TabContext>
+                        </Grid>
+                      </TabPanel>
+                    );
+                  }
+                )}
+              </TabContext>
+            )}
           </Box>
           {/* <Grid container>
             <Grid item xs={12}>

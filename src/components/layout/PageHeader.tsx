@@ -6,19 +6,22 @@ export const SECONDARY_HEADER_HEIGHT = 62;
 
 type Props = {
   title: string;
-  breadcrumb?: { title: string; route: string }[];
+  navigator?: {
+    breadcrumb: { title: string; route: string }[];
+    link: { title: string; route: string };
+  };
   description?: string;
 };
 
-const PageHeader = ({ title, breadcrumb, description }: Props) => {
+const PageHeader = ({ title, navigator, description }: Props) => {
   return (
-    <Box component={'header'} mb={8}>
-      {breadcrumb ? (
+    <Box component={'header'} my={2}>
+      {navigator ? (
         <Breadcrumbs aria-label="navigator">
           <Typography
             variant="body2"
             component={Link}
-            to={breadcrumb[0].route}
+            to={navigator.link.route}
             color={'info.main'}
             sx={{
               display: 'flex',
@@ -30,20 +33,18 @@ const PageHeader = ({ title, breadcrumb, description }: Props) => {
             }}
           >
             <ArrowBackIcon fontSize="small" sx={{ mr: 1 }} color="inherit" />
-            {breadcrumb[0].title}
+            {navigator.link.title}
           </Typography>
-          {breadcrumb
-            .filter((_, index) => index > 0)
-            .map((item) => (
-              <Typography
-                key={item.route}
-                variant="body1"
-                color="text.primary"
-                component={'h1'}
-              >
-                <strong>{item.title}</strong>
-              </Typography>
-            ))}
+          {navigator.breadcrumb.map((item) => (
+            <Typography
+              key={item.route}
+              variant="body1"
+              color="text.primary"
+              component={'h1'}
+            >
+              <strong>{item.title}</strong>
+            </Typography>
+          ))}
         </Breadcrumbs>
       ) : (
         <Typography variant="h6" component="h1">
