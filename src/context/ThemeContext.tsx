@@ -1,12 +1,10 @@
 import { createContext, PropsWithChildren, useMemo } from 'react';
 
-import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material';
+import { ThemeProvider as MuiThemeProvider } from '@mui/material';
 import { LOCAL_STORAGE_KEYS } from 'src/consts';
-import { useAuth } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
 import { useLocalStorage } from 'src/hooks';
-
-import { getDesignTokens } from '../themes';
+import getTheme from 'src/lib/theme';
 
 export interface ThemeContextType {
   toggleColorMode: () => void;
@@ -21,39 +19,8 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     LOCAL_STORAGE_KEYS.THEME,
     EThemeType.Light
   );
-  const { currentUser } = useAuth();
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        ...((currentUser as any)
-          .hasCustomTheme /* || true when we want to add a custom theme */
-          ? getDesignTokens(mode)
-          : {
-              palette: {
-                mode,
-              },
-            }),
-        components: {
-          MuiCardContent: {
-            styleOverrides: { root: { padding: '32px' } },
-          },
-          MuiTab: {
-            styleOverrides: {
-              root: {
-                textTransform: 'none',
-              },
-            },
-          },
-          MuiTextField: {
-            defaultProps: {
-              size: 'small',
-            },
-          },
-        },
-      }),
-    [currentUser, mode]
-  );
+  const theme = useMemo(() => getTheme(mode), [mode]);
 
   const value: ThemeContextType = useMemo(
     () => ({
