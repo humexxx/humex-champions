@@ -45,11 +45,10 @@ interface Props {
   onSubmit: (data: IDebt[]) => void;
   data: IDebt[];
   sx?: SxProps;
-  loading?: boolean;
   disabled?: boolean;
 }
 
-const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
+const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
@@ -124,7 +123,7 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
   useEffect(() => {
     setValue(
       'debts',
-      normalizeObjectDates(data, (date: Dayjs) => date.toDate())
+      normalizeObjectDates<IDebt[]>(data, toDayjs)
         .sort((x: any) => x.pendingDebt)
         .reverse()
     );
@@ -148,9 +147,9 @@ const DebtEditDialog = ({ onSubmit, data, sx, loading, disabled }: Props) => {
   return (
     <>
       <Tooltip title={t('finances.personalFinances.header.debts.dialog.title')}>
-        <Box sx={{ display: 'inline-block', ...sx }}>
-          <IconButton onClick={handleOpen} disabled={loading || disabled}>
-            <EditIcon fontSize="small" />
+        <Box sx={{ display: 'inline-block' }}>
+          <IconButton onClick={handleOpen} disabled={disabled}>
+            <EditIcon />
           </IconButton>
         </Box>
       </Tooltip>

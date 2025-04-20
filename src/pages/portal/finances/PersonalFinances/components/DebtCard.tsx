@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 
-import { Card, CardContent, Typography, Skeleton } from '@mui/material';
+import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
+import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { IDebt } from '@shared/models/finances';
+import { getTotalDebts } from '@shared/utils';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 
@@ -17,10 +19,7 @@ interface Props {
 const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
   const { t } = useTranslation();
 
-  const totalDebt = useMemo(
-    () => debts.reduce((acc, debt) => acc + debt.pendingDebt, 0),
-    [debts]
-  );
+  const totalDebt = useMemo(() => getTotalDebts(debts), [debts]);
 
   const totalMinimumPayment = useMemo(
     () => debts.reduce((acc, debt) => acc + debt.minimumPayment, 0),
@@ -41,23 +40,31 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
   return (
     <Card
       sx={{
-        position: 'relative',
-        height: '100%',
-        minHeight: 175,
+        minHeight: 186,
       }}
-      variant="outlined"
     >
-      <DebtEditDialog
-        data={debts}
-        onSubmit={update}
-        sx={{ position: 'absolute', right: 8, top: 8 }}
-        loading={isLoading}
-        disabled={!canEdit}
-      />
       <CardContent>
-        <Typography variant="body1" component="h3" mb={2}>
-          <strong>{t('finances.personalFinances.header.debts.title')}</strong>
-        </Typography>
+        <Stack
+          direction={'row'}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          mb={2}
+        >
+          <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <RequestQuoteTwoToneIcon color="error" fontSize="large" />
+            <Typography variant="body1" component="h3">
+              <strong>
+                {t('finances.personalFinances.header.debts.title')}
+              </strong>
+            </Typography>
+          </Stack>
+
+          <DebtEditDialog
+            data={debts}
+            onSubmit={update}
+            disabled={isLoading || !canEdit}
+          />
+        </Stack>
         {isLoading ? (
           <>
             <Skeleton width="60%" height={32} />

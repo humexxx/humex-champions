@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { IIncome } from '@shared/models/finances';
-import { getTotalFromIcomes } from '@shared/utils';
+import { getTotalIcomes } from '@shared/utils';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
@@ -19,7 +19,7 @@ interface Props {
 const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   const { t } = useTranslation();
 
-  const total = useMemo(() => getTotalFromIcomes(incomes), [incomes]);
+  const total = useMemo(() => getTotalIcomes(incomes), [incomes]);
   const nextExtraordinaryIncome: IIncome | null = useMemo(
     () =>
       incomes

@@ -1,8 +1,8 @@
 import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
-import { IIncome } from '@shared/models/finances';
+import { IDebt, IIncome } from '@shared/models/finances';
 import dayjs from 'dayjs';
 
-export function getTotalFromIcomes(incomes: IIncome[]): number {
+export function getTotalIcomes(incomes: IIncome[]): number {
   const total = incomes.reduce(
     (acc, income) =>
       acc +
@@ -27,5 +27,10 @@ export function getTotalFromIcomes(incomes: IIncome[]): number {
       })(income),
     0
   );
+  return total;
+}
+
+export function getTotalDebts(debts: IDebt[]): number {
+  const total = debts.reduce((acc, debt) => acc + debt.minimumPayment, 0);
   return total;
 }
