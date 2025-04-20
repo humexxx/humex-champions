@@ -157,7 +157,7 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
         <DialogContent>
           <Stack gap={4}>
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <Card variant={'outlined'}>
                   <CardContent key={indexToEdit}>
                     <Controller
@@ -197,7 +197,7 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                       )}
                     />
 
-                    <Stack direction={'row'} gap={4}>
+                    <Stack direction={'row'} gap={2}>
                       <Controller
                         name={`incomes.${indexToEdit}.period`}
                         control={control}
@@ -246,6 +246,9 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                             value={field.value ?? null}
                             slotProps={{
                               textField: {
+                                variant: 'filled',
+                                margin: 'dense',
+                                size: 'small',
                                 fullWidth: true,
                                 error: !!errors?.incomes?.[indexToEdit]?.date,
                                 helperText:
@@ -263,7 +266,7 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <List sx={{ py: 0 }} dense>
                   {incomes?.map((x, i) => (
                     <ListItem key={i}>
@@ -298,7 +301,7 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
             </Grid>
             <Divider />
             <Grid container>
-              <Grid item xs={12} md={6} sx={{ px: 4 }}>
+              <Grid size={{ xs: 12, md: 6 }} sx={{ px: 4 }}>
                 <Typography variant="body1" gutterBottom>
                   <strong>Use Trading Profits</strong>
                 </Typography>

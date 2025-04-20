@@ -171,7 +171,7 @@ const PersonalFinancesPage = () => {
                         sx={{ p: 2 }}
                       >
                         <Grid container spacing={4}>
-                          <Grid item xs={12} md={4}>
+                          <Grid size={{ xs: 12, md: 4 }}>
                             <DebtCard
                               canEdit={i === 0}
                               debts={debts}
@@ -179,7 +179,7 @@ const PersonalFinancesPage = () => {
                               update={(data) => _updateDebts(id ?? null, data)}
                             />
                           </Grid>
-                          <Grid item xs={12} md={4}>
+                          <Grid size={{ xs: 12, md: 4 }}>
                             <IncomeCard
                               incomes={incomes}
                               isLoading={loading}
@@ -192,7 +192,7 @@ const PersonalFinancesPage = () => {
                               }
                             />
                           </Grid>
-                          {/* <Grid item xs={12} md={4}>
+                          {/* <Grid size={{xs: 12, md: 4}}>
                           <FixedExpenseCard
                             fixedExpenses={fixedExpenses}
                             debts={debts}
@@ -215,7 +215,7 @@ const PersonalFinancesPage = () => {
             )}
           </Box>
           {/* <Grid container>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <PersonalFinancesGraph
                 loading={loading}
                 financialPlans={financialPlans}
