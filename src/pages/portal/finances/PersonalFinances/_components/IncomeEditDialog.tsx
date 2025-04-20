@@ -17,7 +17,6 @@ import {
   MenuItem,
   Checkbox,
   FormControlLabel,
-  Tooltip,
   Typography,
   Card,
   CardContent,
@@ -129,21 +128,16 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
 
   return (
     <>
-      <Tooltip
-        title={t('finances.personalFinances.header.incomes.dialog.title')}
-      >
-        <Box sx={{ display: 'inline-block' }}>
-          <IconButton onClick={() => setOpen(true)} disabled={disabled}>
-            <EditIcon />
-          </IconButton>
-        </Box>
-      </Tooltip>
+      <IconButton onClick={() => setOpen(true)} aria-label="Edit incomes">
+        <EditIcon />
+      </IconButton>
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
         fullWidth
         maxWidth="md"
         component={'form'}
+        closeAfterTransition={false}
         onSubmit={handleSubmit(_handleSubmit)}
         {...{ autoComplete: 'off' }}
       >

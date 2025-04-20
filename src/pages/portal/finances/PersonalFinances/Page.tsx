@@ -171,14 +171,14 @@ const PersonalFinancesPage = () => {
                         sx={{ p: 2 }}
                       >
                         <Grid container spacing={4}>
-                          <Grid size={{ xs: 12, md: 4 }}>
+                          {/* <Grid size={{ xs: 12, md: 4 }}>
                             <DebtCard
                               canEdit={i === 0}
                               debts={debts}
                               isLoading={loading}
                               update={(data) => _updateDebts(id ?? null, data)}
                             />
-                          </Grid>
+                          </Grid> */}
                           <Grid size={{ xs: 12, md: 4 }}>
                             <IncomeCard
                               incomes={incomes}
