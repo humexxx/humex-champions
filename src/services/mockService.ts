@@ -13,7 +13,15 @@ export const MOCKED_USER: User = {
 export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
   id: '123',
   name: 'Mocked Financial Plan',
-  debts: [],
+  debts: [
+    {
+      annualInterest: 0.3,
+      minimumPayment: 3000,
+      name: 'Mocked Debt',
+      pendingDebt: 40000,
+      startDate: dayjs('3/15/2025'),
+    },
+  ],
   fixedExpenses: [],
   incomes: [
     {

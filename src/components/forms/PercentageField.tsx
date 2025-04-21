@@ -9,13 +9,16 @@ const PercentageField = forwardRef<HTMLInputElement, TextFieldProps>(
         {...props}
         inputRef={ref}
         type="number"
-        InputProps={{
-          ...props.InputProps,
-          startAdornment: <InputAdornment position="start">%</InputAdornment>,
-        }}
-        inputProps={{
-          ...props.inputProps,
-          step: '0.01',
+        slotProps={{
+          ...props.slotProps,
+          input: {
+            ...props.slotProps?.input,
+            startAdornment: <InputAdornment position="start">%</InputAdornment>,
+          },
+          htmlInput: {
+            ...props.slotProps?.htmlInput,
+            step: '0.01',
+          },
         }}
         onFocus={(event) => {
           event.target.select();

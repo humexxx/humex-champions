@@ -40,8 +40,8 @@ interface Resources {
         "header": {
           "debts": {
             "title": "Debts",
-            "total": "Total",
-            "minimumPayment": "Min. payment",
+            "total": "Total Monthly",
+            "left": "Left to pay",
             "interest": "Weighted interest",
             "noDebts": "No debts found.",
             "dialog": {

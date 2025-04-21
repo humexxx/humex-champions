@@ -34,11 +34,13 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
       0
     );
 
-    return weightedSum / totalDebt;
+    return (weightedSum / totalDebt) * 100;
   }, [debts, totalDebt]);
 
   return (
     <Card
+      variant="elevation"
+      elevation={4}
       sx={{
         minHeight: 186,
       }}
@@ -69,7 +71,6 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
           <>
             <Skeleton width="60%" height={32} />
             <Skeleton width="50%" height={24} />
-            <Skeleton width="50%" height={24} />
           </>
         ) : debts.length ? (
           <>
@@ -79,19 +80,17 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
               gutterBottom
               color={canEdit ? 'text.primary' : 'text.disabled'}
             >
-              {t('finances.personalFinances.header.debts.total')}:{' '}
-              {formatCurrency(totalDebt)}
+              Total Monthly: {formatCurrency(totalMinimumPayment)}
             </Typography>
             <Typography
               variant="body2"
-              color={canEdit ? 'text.primary' : 'text.disabled'}
+              color={canEdit ? 'text.secondary' : 'text.disabled'}
             >
-              {t('finances.personalFinances.header.debts.minimumPayment')}:{' '}
-              {formatCurrency(totalMinimumPayment)}
+              Total Debt: {formatCurrency(totalDebt)}
             </Typography>
             <Typography
-              variant="body2"
-              color={canEdit ? 'text.primary' : 'text.disabled'}
+              variant="caption"
+              color={canEdit ? 'text.secondary' : 'text.disabled'}
             >
               {t('finances.personalFinances.header.debts.interest')}:{' '}
               {formatPercentage(weightedInterest)}

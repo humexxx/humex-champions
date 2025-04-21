@@ -6,7 +6,6 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Dialog,
   DialogTitle,
@@ -14,42 +13,36 @@ import {
   DialogActions,
   Button,
   IconButton,
-  useTheme,
-  useMediaQuery,
   Grid,
   Box,
-  SxProps,
-  Tooltip,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Typography,
   TextField,
+  Stack,
+  List,
+  Card,
+  CardContent,
+  ListItem,
+  ListItemButton,
+  ListItemText,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IDebt } from '@shared/models/finances';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
-import {
-  formatCurrency,
-  formatPercentage,
-  normalizeObjectDates,
-  toDayjs,
-} from 'src/utils';
+import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
 
 interface Props {
   onSubmit: (data: IDebt[]) => void;
   data: IDebt[];
-  sx?: SxProps;
   disabled?: boolean;
 }
 
 const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   const { t } = useTranslation();
+
   const schema = useMemo(
     () =>
       yup.object().shape({
@@ -88,9 +81,6 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   );
 
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string>('panel0');
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const {
     control,
@@ -101,7 +91,7 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      debts: [],
+      debts: normalizeObjectDates<IDebt[]>(data, toDayjs),
     },
   });
 
@@ -110,26 +100,23 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
     name: 'debts',
   });
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  function _handleSubmit(data: { debts?: IDebt[] }) {
-    if (!data.debts) return;
-
-    handleClose();
-    onSubmit(normalizeObjectDates(data.debts, toDayjs));
-  }
+  const [indexToEdit, setIndexToEdit] = useState(0);
 
   useEffect(() => {
     setValue(
       'debts',
       normalizeObjectDates<IDebt[]>(data, toDayjs)
-        .sort((x: any) => x.pendingDebt)
+        .sort((x) => x.pendingDebt)
         .reverse()
     );
   }, [data, setValue]);
 
   const debts = watch('debts');
+
+  const handleOpen = (e: React.MouseEvent) => {
+    (e.currentTarget as HTMLElement).blur();
+    setOpen(true);
+  };
 
   const handleOnNewDebt = () => {
     append({
@@ -139,27 +126,35 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
       pendingDebt: 0,
       minimumPayment: 0,
       annualInterest: 0,
-      startDate: dayjs() as any,
+      startDate: dayjs(),
     });
-    setExpanded(`panel${fields.length}`);
+    setIndexToEdit(fields.length);
   };
+
+  function _handleSubmit(data: { debts?: IDebt[] }) {
+    if (!data.debts) return;
+
+    setOpen(false);
+    onSubmit(normalizeObjectDates(data.debts, toDayjs));
+  }
 
   return (
     <>
-      <Tooltip title={t('finances.personalFinances.header.debts.dialog.title')}>
-        <Box sx={{ display: 'inline-block' }}>
-          <IconButton onClick={handleOpen} disabled={disabled}>
-            <EditIcon />
-          </IconButton>
-        </Box>
-      </Tooltip>
+      <IconButton
+        onClick={handleOpen}
+        disabled={disabled}
+        aria-label="Edit debts"
+      >
+        <EditIcon />
+      </IconButton>
+
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         fullWidth
-        maxWidth="sm"
-        fullScreen={fullScreen}
-        component={'form'}
+        maxWidth="md"
+        component="form"
+        closeAfterTransition={false}
         onSubmit={handleSubmit(_handleSubmit)}
         {...{ autoComplete: 'off' }}
       >
@@ -167,107 +162,106 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
           sx={{
             textTransform: 'capitalize',
             display: 'flex',
-            alignItems: 'center',
             justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
           {t('finances.personalFinances.header.debts.dialog.title')}
-          <Button
-            type="button"
-            onClick={handleOnNewDebt}
-            startIcon={<AddIcon />}
-          >
-            {t('finances.personalFinances.header.debts.dialog.addDebt')}
-          </Button>
         </DialogTitle>
+
         <DialogContent>
-          <Box p={4}>
-            {fields.map((item, index) => (
-              <Accordion
-                key={item.id}
-                expanded={expanded === `panel${index}`}
-                onChange={() => setExpanded(`panel${index}`)}
-                variant="outlined"
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls={`panel${index}bh-content`}
-                  id={`panel${index}bh-header`}
-                  sx={{
-                    alignItems: 'center',
-                  }}
-                >
-                  {expanded !== `panel${index}` ? (
-                    <>
-                      <Box sx={{ width: '75%' }} mr={1}>
-                        <Typography
-                          color={
-                            Object.values(errors?.debts?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'inherit'
+          <Stack gap={4}>
+            <Grid container spacing={2}>
+              <Grid size={6}>
+                <Card variant={'outlined'}>
+                  <CardContent key={indexToEdit}>
+                    <Controller
+                      name={`debts.${indexToEdit}.name`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Debt Name"
+                          fullWidth
+                          error={!!errors?.debts?.[indexToEdit]?.name}
+                          helperText={
+                            errors?.debts?.[indexToEdit]?.name?.message
                           }
-                        >
-                          {debts![index].name}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color={
-                            Object.values(errors?.debts?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'text.secondary'
-                          }
-                        >
-                          {formatPercentage(debts![index].annualInterest)}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" alignItems="center">
-                        <Typography
-                          color={
-                            Object.values(errors?.debts?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'text.secondary'
-                          }
-                        >
-                          {formatCurrency(debts![index].pendingDebt)}
-                        </Typography>
-                      </Box>
-                    </>
-                  ) : (
-                    <IconButton onClick={() => remove(index)} size="small">
-                      <DeleteIcon fontSize="small" color="error" />
-                    </IconButton>
-                  )}
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={8}>
+                        />
+                      )}
+                    />
+                    <Stack direction={'row'} gap={2}>
                       <Controller
-                        name={`debts.${index}.name`}
+                        name={`debts.${indexToEdit}.pendingDebt`}
                         control={control}
                         render={({ field }) => (
-                          <TextField
+                          <CurrencyField
                             {...field}
-                            label={t(
-                              'finances.personalFinances.header.debts.dialog.name'
-                            )}
+                            label={'Pending Debt'}
                             fullWidth
-                            error={!!errors?.debts?.[index]?.name}
+                            error={!!errors?.debts?.[indexToEdit]?.pendingDebt}
                             helperText={
-                              errors?.debts?.[index]?.name?.message || ' '
+                              errors?.debts?.[indexToEdit]?.pendingDebt?.message
                             }
-                            margin="dense"
-                            variant="filled"
-                            inputProps={{ maxLength: 64 }}
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                              },
+                            }}
                           />
                         )}
                       />
-                    </Grid>
-                    <Grid item xs={4}>
                       <Controller
-                        name={`debts.${index}.startDate`}
+                        name={`debts.${indexToEdit}.minimumPayment`}
+                        control={control}
+                        render={({ field }) => (
+                          <CurrencyField
+                            {...field}
+                            label={'Minimum Payment'}
+                            fullWidth
+                            error={
+                              !!errors?.debts?.[indexToEdit]?.minimumPayment
+                            }
+                            helperText={
+                              errors?.debts?.[indexToEdit]?.minimumPayment
+                                ?.message
+                            }
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                              },
+                            }}
+                          />
+                        )}
+                      />
+                    </Stack>
+
+                    <Stack direction={'row'} gap={2}>
+                      <Controller
+                        name={`debts.${indexToEdit}.annualInterest`}
+                        control={control}
+                        render={({ field }) => (
+                          <PercentageField
+                            {...field}
+                            label={'Annual Interest'}
+                            fullWidth
+                            error={
+                              !!errors?.debts?.[indexToEdit]?.annualInterest
+                            }
+                            helperText={
+                              errors?.debts?.[indexToEdit]?.annualInterest
+                                ?.message
+                            }
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                              },
+                            }}
+                          />
+                        )}
+                      />
+                      <Controller
+                        name={`debts.${indexToEdit}.startDate`}
                         control={control}
                         render={({ field }) => (
                           <DatePicker
@@ -275,101 +269,64 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
                             value={field.value ?? null}
                             slotProps={{
                               textField: {
-                                fullWidth: true,
-                                size: 'small',
-                                error: !!errors?.debts?.[index]?.startDate,
-                                helperText:
-                                  errors?.debts?.[index]?.startDate?.message ||
-                                  ' ',
-                                margin: 'dense',
                                 variant: 'filled',
+                                margin: 'dense',
+                                size: 'small',
+                                fullWidth: true,
+                                error:
+                                  !!errors?.debts?.[indexToEdit]?.startDate,
+                                helperText:
+                                  errors?.debts?.[indexToEdit]?.startDate
+                                    ?.message,
                               },
                             }}
-                            label={t(
-                              'finances.personalFinances.header.debts.dialog.startDate'
-                            )}
+                            label={'Start Date'}
                             views={['year', 'month', 'day']}
                           />
                         )}
                       />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Controller
-                        name={`debts.${index}.pendingDebt`}
-                        control={control}
-                        render={({ field }) => (
-                          <CurrencyField
-                            {...field}
-                            label={t(
-                              'finances.personalFinances.header.debts.dialog.pendingDebt'
-                            )}
-                            fullWidth
-                            error={!!errors?.debts?.[index]?.pendingDebt}
-                            helperText={
-                              errors?.debts?.[index]?.pendingDebt?.message ||
-                              ' '
-                            }
-                            margin="dense"
-                            inputProps={{ min: 0 }}
-                            variant="filled"
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Controller
-                        name={`debts.${index}.minimumPayment`}
-                        control={control}
-                        render={({ field }) => (
-                          <CurrencyField
-                            {...field}
-                            label={t(
-                              'finances.personalFinances.header.debts.dialog.minPayment'
-                            )}
-                            fullWidth
-                            error={!!errors?.debts?.[index]?.minimumPayment}
-                            helperText={
-                              errors?.debts?.[index]?.minimumPayment?.message ||
-                              ' '
-                            }
-                            margin="dense"
-                            inputProps={{ min: 0 }}
-                            variant="filled"
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Controller
-                        name={`debts.${index}.annualInterest`}
-                        control={control}
-                        render={({ field }) => (
-                          <PercentageField
-                            {...field}
-                            label={t(
-                              'finances.personalFinances.header.debts.dialog.anualInterest'
-                            )}
-                            fullWidth
-                            error={!!errors?.debts?.[index]?.annualInterest}
-                            helperText={
-                              errors?.debts?.[index]?.annualInterest?.message ||
-                              ' '
-                            }
-                            margin="dense"
-                            inputProps={{ min: 0 }}
-                            variant="filled"
-                          />
-                        )}
-                      />
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </Box>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={6}>
+                <List sx={{ py: 0 }} dense>
+                  {debts?.map((x, i) => (
+                    <ListItem key={i}>
+                      <ListItemButton
+                        sx={{ borderRadius: 2 }}
+                        selected={i === indexToEdit}
+                        onClick={() => setIndexToEdit(i)}
+                      >
+                        <ListItemText
+                          primary={
+                            x.name ? (
+                              x.name
+                            ) : (
+                              <Box color={'error.main'}>Not Defined</Box>
+                            )
+                          }
+                          secondary={formatCurrency(x.pendingDebt)}
+                        />
+                        <IconButton color="error" onClick={() => remove(i)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+                <Stack direction={'row'} justifyContent={'flex-end'} p={2}>
+                  <Button startIcon={<AddIcon />} onClick={handleOnNewDebt}>
+                    Add Debt
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+          </Stack>
         </DialogContent>
+
         <DialogActions>
-          <Button type="button" onClick={handleClose}>
+          <Button type="button" onClick={() => setOpen(false)}>
             {t('finances.personalFinances.header.debts.dialog.cancel')}
           </Button>
           <Button type="submit">

@@ -31,6 +31,6 @@ export function getTotalIcomes(incomes: IIncome[]): number {
 }
 
 export function getTotalDebts(debts: IDebt[]): number {
-  const total = debts.reduce((acc, debt) => acc + debt.minimumPayment, 0);
+  const total = debts.reduce((acc, debt) => acc + debt.pendingDebt, 0);
   return total;
 }

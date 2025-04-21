@@ -42,7 +42,7 @@ interface Props {
   disabled?: boolean;
 }
 
-const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
+const IncomeEditDialog = ({ onSubmit, data }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
@@ -148,6 +148,7 @@ const IncomeEditDialog = ({ onSubmit, data, disabled }: Props) => {
         >
           {t('finances.personalFinances.header.incomes.dialog.title')}
         </DialogTitle>
+
         <DialogContent>
           <Stack gap={4}>
             <Grid container spacing={2}>
