@@ -3,27 +3,15 @@ import { useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Alert, Box, Grid, Tab } from '@mui/material';
-import {
-  IDebt,
-  IFinancialPlan,
-  IFixedExpense,
-  IIncome,
-} from '@shared/models/finances';
-import dayjs from 'dayjs';
+import { IDebt, IFixedExpense, IIncome } from '@shared/models/finances';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 import { Page } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
 
-import {
-  DebtCard,
-  FixedExpenseCard,
-  IncomeCard,
-  PersonalFinancesGraph,
-  ValidateMainFinantialSnapshotDialog,
-} from './_components';
-import { useFinancialPlans } from './hooks';
+import { DebtCard, FixedExpenseCard, IncomeCard } from './_components';
+import useFinancialPlans from './useFinancialPlans';
 
 function getTabProps(id: string) {
   return {
