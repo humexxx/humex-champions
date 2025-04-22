@@ -169,7 +169,11 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                           helperText={
                             errors?.incomes?.[indexToEdit]?.name?.message
                           }
-                          inputProps={{ maxLength: 64 }}
+                          slotProps={{
+                            htmlInput: {
+                              maxLength: 64,
+                            },
+                          }}
                         />
                       )}
                     />
@@ -187,7 +191,11 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                           helperText={
                             errors?.incomes?.[indexToEdit]?.amount?.message
                           }
-                          inputProps={{ min: 0 }}
+                          slotProps={{
+                            htmlInput: {
+                              min: 0,
+                            },
+                          }}
                         />
                       )}
                     />

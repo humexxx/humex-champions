@@ -42,7 +42,7 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
       variant="elevation"
       elevation={4}
       sx={{
-        minHeight: 186,
+        minHeight: 160,
       }}
     >
       <CardContent>

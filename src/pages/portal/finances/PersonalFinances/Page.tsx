@@ -193,20 +193,20 @@ const PersonalFinancesPage = () => {
                               }
                             />
                           </Grid>
-                          {/* <Grid size={{xs: 12, md: 4}}>
-                          <FixedExpenseCard
-                            fixedExpenses={fixedExpenses}
-                            debts={debts}
-                            isLoading={loading}
-                            update={(data) =>
-                              _updateFinancialPlan(
-                                id ?? null,
-                                data,
-                                'fixedExpenses'
-                              )
-                            }
-                          />
-                        </Grid> */}
+                          <Grid size={{ xs: 12, md: 4 }}>
+                            <FixedExpenseCard
+                              fixedExpenses={fixedExpenses}
+                              debts={debts}
+                              isLoading={loading}
+                              update={(data) =>
+                                _updateFinancialPlan(
+                                  id ?? null,
+                                  data,
+                                  'fixedExpenses'
+                                )
+                              }
+                            />
+                          </Grid>
                         </Grid>
                       </TabPanel>
                     );

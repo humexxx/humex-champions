@@ -6,7 +6,6 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Dialog,
   DialogTitle,
@@ -15,35 +14,33 @@ import {
   Button,
   TextField,
   IconButton,
-  useTheme,
-  useMediaQuery,
   Grid,
   Box,
   MenuItem,
-  SxProps,
-  Tooltip,
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Typography,
+  Card,
+  CardContent,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IFixedExpense } from '@shared/models/finances';
-import dayjs, { Dayjs } from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import * as yup from 'yup';
+import { yupDayjs } from 'src/yup';
 
 interface Props {
   onSubmit: (data: IFixedExpense[]) => void;
   data: IFixedExpense[];
-  sx?: SxProps;
-  loading?: boolean;
+  disabled?: boolean;
 }
 
-const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
+const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
   const { t } = useTranslation();
   const schema = useMemo(
     () =>
@@ -69,7 +66,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
                 t('commonValidations.type')
               )
               .required(t('commonValidations.required')),
-            singleDate: yup.date().optional(),
+            date: yupDayjs.nonNullable(),
           })
         ),
       }),
@@ -77,9 +74,6 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   );
 
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string>('panel0');
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const {
     control,
@@ -90,7 +84,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      expenses: normalizeObjectDates(data, (x: Dayjs) => x.toDate()),
+      expenses: normalizeObjectDates<IFixedExpense[]>(data, toDayjs),
     },
   });
 
@@ -99,31 +93,23 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
     name: 'expenses',
   });
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  function _handleSubmit(data: {
-    expenses?: Omit<IFixedExpense, 'startDate'>[];
-  }) {
-    if (!data.expenses) return;
-
-    handleClose();
-    onSubmit(
-      normalizeObjectDates(
-        data.expenses.map((item) => ({ ...item, startDate: dayjs() })),
-        toDayjs
-      )
-    );
-  }
+  const [indexToEdit, setIndexToEdit] = useState(0);
 
   useEffect(() => {
     setValue(
       'expenses',
-      normalizeObjectDates(data, (x: Dayjs) => x.toDate())
+      normalizeObjectDates(data.sort((x) => x.amount).reverse(), toDayjs)
     );
   }, [data, setValue]);
 
   const expenses = watch('expenses');
+
+  function _handleSubmit(_data: { expenses?: IFixedExpense[] }) {
+    if (!_data.expenses) return;
+
+    setOpen(false);
+    onSubmit(normalizeObjectDates<IFixedExpense[]>(_data.expenses, toDayjs));
+  }
 
   function handleOnNewExpense() {
     append({
@@ -131,252 +117,173 @@ const FixedExpenseEditDialog = ({ onSubmit, data, loading, sx }: Props) => {
       expenseType: 'primary',
       name: `${t('finances.personalFinances.header.fixedExpenses.dialog.fixedExpense')} ${fields.length + 1}`,
     });
-    setExpanded(`panel${fields.length}`);
+    setIndexToEdit(fields.length);
   }
 
   return (
     <>
-      <Tooltip
-        title={t('finances.personalFinances.header.fixedExpenses.dialog.title')}
+      <IconButton
+        onClick={() => setOpen(true)}
+        aria-label="Edit fixed expenses"
       >
-        <Box sx={{ display: 'inline-block', ...sx }}>
-          <IconButton onClick={handleOpen} disabled={loading}>
-            <EditIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      </Tooltip>
+        <EditIcon />
+      </IconButton>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         fullWidth
-        maxWidth="sm"
-        fullScreen={fullScreen}
+        maxWidth="md"
         component={'form'}
+        closeAfterTransition={false}
         onSubmit={handleSubmit(_handleSubmit)}
         {...{ autoComplete: 'off' }}
       >
         <DialogTitle
           sx={{
             textTransform: 'capitalize',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
           }}
         >
           {t('finances.personalFinances.header.fixedExpenses.dialog.title')}
-          <Button
-            type="button"
-            onClick={handleOnNewExpense}
-            startIcon={<AddIcon />}
-          >
-            {t(
-              'finances.personalFinances.header.fixedExpenses.dialog.addFixedExpense'
-            )}
-          </Button>
         </DialogTitle>
         <DialogContent>
-          <Box p={4}>
-            {fields.map((item, index) => (
-              <Accordion
-                key={item.id}
-                expanded={expanded === `panel${index}`}
-                onChange={() => setExpanded(`panel${index}`)}
-                variant="outlined"
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls={`panel${index}bh-content`}
-                  id={`panel${index}bh-header`}
-                  sx={{
-                    alignItems: 'center',
-                  }}
-                >
-                  {expanded !== `panel${index}` ? (
-                    <>
-                      <Box sx={{ width: '75%' }} mr={1}>
-                        <Typography
-                          color={
-                            Object.values(errors?.expenses?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'inherit'
+          <Stack gap={4}>
+            <Grid container spacing={2}>
+              <Grid size={6}>
+                <Card variant={'outlined'}>
+                  <CardContent key={indexToEdit}>
+                    <Controller
+                      name={`expenses.${indexToEdit}.name`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Name"
+                          fullWidth
+                          error={!!errors?.expenses?.[indexToEdit]?.name}
+                          helperText={
+                            errors?.expenses?.[indexToEdit]?.name?.message
                           }
-                        >
-                          {expenses![index].name}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color={
-                            Object.values(errors?.expenses?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'text.secondary'
+                          slotProps={{
+                            htmlInput: {
+                              maxLength: 64,
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                    <Controller
+                      name={`expenses.${indexToEdit}.amount`}
+                      control={control}
+                      render={({ field }) => (
+                        <CurrencyField
+                          {...field}
+                          label={'Amount'}
+                          fullWidth
+                          error={!!errors?.expenses?.[indexToEdit]?.amount}
+                          helperText={
+                            errors?.expenses?.[indexToEdit]?.amount?.message
                           }
-                        >
-                          {
-                            <Box
-                              component="span"
-                              sx={{ textTransform: 'capitalize' }}
-                            >
-                              {expenses![index].expenseType !== 'single'
-                                ? expenses![index].expenseType
-                                : dayjs(expenses![index].singleDate).format(
-                                    'DD MMM YYYY'
-                                  )}
-                            </Box>
-                          }
-                        </Typography>
-                      </Box>
-                      <Box display="flex" alignItems="center">
-                        <Typography
-                          color={
-                            Object.values(errors?.expenses?.[index] ?? {})
-                              .length && expanded !== `panel${index}`
-                              ? 'error.main'
-                              : 'text.secondary'
-                          }
-                        >
-                          {formatCurrency(expenses![index].amount)}
-                        </Typography>
-                      </Box>
-                    </>
-                  ) : (
-                    <IconButton onClick={() => remove(index)} size="small">
-                      <DeleteIcon fontSize="small" color="error" />
-                    </IconButton>
-                  )}
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container spacing={2} alignItems="center" key={item.id}>
-                    <Grid item xs={8}>
+                          slotProps={{
+                            htmlInput: {
+                              min: 0,
+                            },
+                          }}
+                        />
+                      )}
+                    />
+
+                    <Stack direction={'row'} gap={2}>
                       <Controller
-                        name={`expenses.${index}.name`}
+                        name={`expenses.${indexToEdit}.expenseType`}
                         control={control}
                         render={({ field }) => (
                           <TextField
                             {...field}
-                            label={t(
-                              'finances.personalFinances.header.fixedExpenses.dialog.name'
-                            )}
-                            fullWidth
-                            error={!!errors?.expenses?.[index]?.expenseType}
-                            helperText={
-                              errors?.expenses?.[index]?.expenseType?.message ||
-                              ' '
-                            }
-                            margin="dense"
-                            inputProps={{ maxLength: 64 }}
-                            variant="filled"
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Controller
-                        name={`expenses.${index}.amount`}
-                        control={control}
-                        render={({ field }) => (
-                          <CurrencyField
-                            {...field}
-                            value={field.value.toString()}
-                            label={t(
-                              'finances.personalFinances.header.fixedExpenses.dialog.amount'
-                            )}
-                            fullWidth
-                            error={!!errors?.expenses?.[index]?.amount}
-                            helperText={
-                              errors?.expenses?.[index]?.amount?.message || ' '
-                            }
-                            margin="dense"
-                            inputProps={{ min: 0 }}
-                            variant="filled"
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Controller
-                        name={`expenses.${index}.expenseType`}
-                        control={control}
-                        render={({ field }) => (
-                          <TextField
-                            {...field}
-                            label={t(
-                              'finances.personalFinances.header.fixedExpenses.dialog.expenseType'
-                            )}
+                            label={'Type'}
                             fullWidth
                             select
-                            error={!!errors?.expenses?.[index]?.expenseType}
-                            helperText={
-                              errors?.expenses?.[index]?.expenseType?.message ||
-                              ' '
+                            error={
+                              !!errors?.expenses?.[indexToEdit]?.expenseType
                             }
-                            margin="dense"
-                            variant="filled"
+                            helperText={
+                              errors?.expenses?.[indexToEdit]?.expenseType
+                                ?.message
+                            }
                           >
-                            <MenuItem value="single">
-                              {t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.single'
-                              )}
-                            </MenuItem>
-                            <MenuItem value="primary">
-                              {t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.primary'
-                              )}
-                            </MenuItem>
-                            <MenuItem value="secondary">
-                              {t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.expenseTypes.secondary'
-                              )}
-                            </MenuItem>
+                            <MenuItem value="single">Single</MenuItem>
+                            <MenuItem value="primary">Primary</MenuItem>
+                            <MenuItem value="secondary">Secondary</MenuItem>
                           </TextField>
                         )}
                       />
-                    </Grid>
-                    {Boolean(expenses![index].expenseType === 'single') && (
-                      <Grid item xs={4}>
-                        <Controller
-                          name={`expenses.${index}.singleDate`}
-                          control={control}
-                          render={({ field }) => (
-                            <DatePicker
-                              {...field}
-                              value={field.value ?? null}
-                              slotProps={{
-                                textField: {
-                                  fullWidth: true,
-                                  size: 'small',
-                                  error:
-                                    !!errors?.expenses?.[index]?.singleDate,
-                                  helperText:
-                                    errors?.expenses?.[index]?.singleDate
-                                      ?.message || ' ',
-                                  margin: 'dense',
-                                  variant: 'filled',
-                                },
-                              }}
-                              label={t(
-                                'finances.personalFinances.header.fixedExpenses.dialog.date'
-                              )}
-                              views={['year', 'month', 'day']}
-                            />
-                          )}
+                      <Controller
+                        name={`expenses.${indexToEdit}.date`}
+                        control={control}
+                        render={({ field }) => (
+                          <DatePicker
+                            {...field}
+                            value={field.value ?? null}
+                            slotProps={{
+                              textField: {
+                                variant: 'filled',
+                                margin: 'dense',
+                                size: 'small',
+                                fullWidth: true,
+                                error: !!errors?.expenses?.[indexToEdit]?.date,
+                                helperText:
+                                  errors?.expenses?.[indexToEdit]?.date
+                                    ?.message,
+                              },
+                            }}
+                            label={'Date'}
+                            views={['year', 'month', 'day']}
+                          />
+                        )}
+                      />
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={6}>
+                <List sx={{ py: 0 }} dense>
+                  {expenses?.map((x, i) => (
+                    <ListItem key={i}>
+                      <ListItemButton
+                        sx={{ borderRadius: 2 }}
+                        selected={i === indexToEdit}
+                        onClick={() => setIndexToEdit(i)}
+                      >
+                        <ListItemText
+                          primary={
+                            x.name ? (
+                              x.name
+                            ) : (
+                              <Box color={'error.main'}>Not Defined</Box>
+                            )
+                          }
+                          secondary={formatCurrency(x.amount)}
                         />
-                      </Grid>
-                    )}
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </Box>
+                        <IconButton color="error" onClick={() => remove(i)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+                <Stack direction={'row'} justifyContent={'flex-end'} p={2}>
+                  <Button startIcon={<AddIcon />} onClick={handleOnNewExpense}>
+                    Add Expense
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+          </Stack>
         </DialogContent>
         <DialogActions>
-          <Button type="button" onClick={handleClose}>
-            {t('finances.personalFinances.header.fixedExpenses.dialog.cancel')}
+          <Button type="button" onClick={() => setOpen(false)}>
+            Cancel
           </Button>
-          <Button type="submit">
-            {t('finances.personalFinances.header.fixedExpenses.dialog.save')}
-          </Button>
+          <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
     </>

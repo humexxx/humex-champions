@@ -22,7 +22,18 @@ export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
       startDate: dayjs('3/15/2025'),
     },
   ],
-  fixedExpenses: [],
+  fixedExpenses: [
+    {
+      amount: 500,
+      expenseType: 'primary',
+      name: 'Mocked Fixed Expense',
+    },
+    {
+      amount: 1500,
+      expenseType: 'primary',
+      name: 'Mocked Secondary Fixed Expense',
+    },
+  ],
   incomes: [
     {
       amount: 8900,

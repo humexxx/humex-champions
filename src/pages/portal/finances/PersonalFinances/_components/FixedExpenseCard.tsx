@@ -6,16 +6,16 @@ import {
   Skeleton,
   Typography,
   Tooltip,
+  Stack,
 } from '@mui/material';
 import { IDebt, IFixedExpense } from '@shared/models/finances';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
-
+import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import FixedExpenseEditDialog from './FixedExpenseEditDialog';
 
 interface Props {
-  personalFinancesId?: string;
   fixedExpenses: IFixedExpense[];
   debts: IDebt[];
   isLoading: boolean;
@@ -55,22 +55,28 @@ const FixedExpenseCard = ({
   );
 
   return (
-    <Card
-      sx={{ position: 'relative', height: '100%', minHeight: 175 }}
-      variant="outlined"
-    >
-      <FixedExpenseEditDialog
-        data={fixedExpenses}
-        onSubmit={update}
-        sx={{ position: 'absolute', right: 8, top: 8 }}
-        loading={isLoading}
-      />
+    <Card variant="elevation" elevation={4} sx={{ minHeight: 160 }}>
       <CardContent>
-        <Typography variant="body1" component="h3" mb={2}>
-          <strong>
-            {t('finances.personalFinances.header.fixedExpenses.title')}
-          </strong>
-        </Typography>
+        <Stack
+          direction={'row'}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          mb={2}
+        >
+          <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <RequestQuoteTwoToneIcon color="warning" fontSize="large" />
+            <Typography variant="body1" component="h3" mb={2}>
+              <strong>
+                {t('finances.personalFinances.header.fixedExpenses.title')}
+              </strong>
+            </Typography>
+          </Stack>
+          <FixedExpenseEditDialog
+            data={fixedExpenses}
+            onSubmit={update}
+            disabled={isLoading}
+          />
+        </Stack>
         {isLoading ? (
           <>
             <Skeleton width="60%" height={32} />

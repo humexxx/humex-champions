@@ -29,7 +29,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   );
 
   return (
-    <Card variant="elevation" elevation={4} sx={{ minHeight: 186 }}>
+    <Card variant="elevation" elevation={4} sx={{ minHeight: 160 }}>
       <CardContent>
         <Stack
           direction={'row'}
