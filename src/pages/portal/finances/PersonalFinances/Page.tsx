@@ -10,7 +10,12 @@ import ButtonInTabs from 'src/components/ButtonInTabs';
 import { Page } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
 
-import { DebtCard, FixedExpenseCard, IncomeCard } from './_components';
+import {
+  DebtCard,
+  FixedExpenseCard,
+  IncomeCard,
+  PersonalFinancesGraph,
+} from './_components';
 import useFinancialPlans from './useFinancialPlans';
 
 function getTabProps(id: string) {
@@ -203,14 +208,14 @@ const PersonalFinancesPage = () => {
               </TabContext>
             )}
           </Box>
-          {/* <Grid container>
-            <Grid xs={12}>
+          <Grid container>
+            <Grid size={12}>
               <PersonalFinancesGraph
                 loading={loading}
                 financialPlans={financialPlans}
               />
             </Grid>
-          </Grid> */}
+          </Grid>
         </PageContent>
       </Page>
     </>

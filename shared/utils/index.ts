@@ -1,2 +1,2 @@
 export * from './error';
-export * from './finances';
+export * from './finance';

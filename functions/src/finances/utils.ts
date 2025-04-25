@@ -1,10 +1,10 @@
-import { AVG_WEEKS_IN_MONTH } from '@shared/consts';
 import {
   IDebt,
   IFinancialSnapshot,
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
+import { financeUtils } from '@shared/utils';
 import { Timestamp } from 'firebase-admin/firestore';
 
 // Función para aplicar el método Avalanche
@@ -29,34 +29,16 @@ export function applyAvalancheMethod(debts: IDebt[], surplus: number): IDebt[] {
 
 export function generateSingleSnapshot(
   lastSnapshot: IFinancialSnapshot,
-  fixedExpenses: IFixedExpense<any>[],
+  fixedExpenses: IFixedExpense[],
   incomes: IIncome[]
 ): IFinancialSnapshot {
-  const totalIncome = incomes.reduce((sum, income) => {
-    switch (income.period) {
-      case 'weekly':
-        return sum + income.amount * AVG_WEEKS_IN_MONTH;
-      case 'monthly':
-        return sum + income.amount;
-      case 'yearly':
-        return income.date?.toDate().getMonth() === new Date().getMonth()
-          ? sum + income.amount
-          : sum;
-      case 'single':
-        return income.date?.toDate().getMonth() === new Date().getMonth() &&
-          income.date?.toDate().getFullYear() === new Date().getFullYear()
-          ? sum + income.amount
-          : sum;
-    }
-  }, 0);
+  const totalIncome = financeUtils.getTotalMonthlyIncome(incomes);
 
   const totalFixedExpenses = fixedExpenses.reduce((sum, expense) => {
     switch (expense.expenseType) {
       case 'single':
-        return expense.singleDate?.toDate().getMonth() ===
-          new Date().getMonth() &&
-          expense.singleDate?.toDate().getFullYear() ===
-            new Date().getFullYear()
+        return expense.date?.toDate().getMonth() === new Date().getMonth() &&
+          expense.date?.toDate().getFullYear() === new Date().getFullYear()
           ? sum + expense.amount
           : sum;
       case 'primary':

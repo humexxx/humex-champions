@@ -3,12 +3,12 @@ import { useMemo } from 'react';
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { IIncome } from '@shared/models/finances';
-import { getTotalIcomes } from '@shared/utils';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
 import IncomeEditDialog from './IncomeEditDialog';
+import { financeUtils } from '@shared/utils';
 
 interface Props {
   incomes: IIncome[];
@@ -19,7 +19,10 @@ interface Props {
 const IncomeCard = ({ incomes, isLoading, update }: Props) => {
   const { t } = useTranslation();
 
-  const total = useMemo(() => getTotalIcomes(incomes), [incomes]);
+  const total = useMemo(
+    () => financeUtils.getTotalMonthlyIncome(incomes),
+    [incomes]
+  );
   const nextExtraordinaryIncome: IIncome | null = useMemo(
     () =>
       incomes

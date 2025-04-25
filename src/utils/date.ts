@@ -29,22 +29,6 @@ export function toDayjs(date: any): Dayjs {
   throw new Error('Invalid date type');
 }
 
-export function isFirstDayOfWeek(date: Dayjs) {
-  return date.day() === 0;
-}
-
-export function isLastDayOfWeek(date: Dayjs) {
-  return date.day() === 6;
-}
-
-export function isFirstDayOfMonth(date: Dayjs) {
-  return date.date() === 1;
-}
-
-export function isLastDayOfMonth(date: Dayjs) {
-  return date.date() === date.daysInMonth();
-}
-
 dayjs.extend(customParseFormat);
 export function normalizeObjectDates<T>(
   obj: any,
@@ -94,4 +78,20 @@ export function getNextQuarterDate(date: Date): Date {
     nextQuarterMonth === 0 ? currentYear + 1 : currentYear;
 
   return new Date(nextQuarterYear, nextQuarterMonth, 1);
+}
+
+export function isFirstDayOfWeek(date: Dayjs) {
+  return date.day() === 0;
+}
+
+export function isLastDayOfWeek(date: Dayjs) {
+  return date.day() === 6;
+}
+
+export function isFirstDayOfMonth(date: Dayjs) {
+  return date.date() === 1;
+}
+
+export function isLastDayOfMonth(date: Dayjs) {
+  return date.date() === date.daysInMonth();
 }

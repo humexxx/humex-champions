@@ -3,11 +3,11 @@ import { useMemo } from 'react';
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { IDebt } from '@shared/models/finances';
-import { getTotalDebts } from '@shared/utils';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 
 import DebtEditDialog from './DebtEditDialog';
+import { financeUtils } from '@shared/utils';
 
 interface Props {
   debts: IDebt[];
@@ -19,7 +19,7 @@ interface Props {
 const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
   const { t } = useTranslation();
 
-  const totalDebt = useMemo(() => getTotalDebts(debts), [debts]);
+  const totalDebt = useMemo(() => financeUtils.getTotalDebts(debts), [debts]);
 
   const totalMinimumPayment = useMemo(
     () => debts.reduce((acc, debt) => acc + debt.minimumPayment, 0),

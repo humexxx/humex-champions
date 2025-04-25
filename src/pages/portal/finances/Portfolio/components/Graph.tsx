@@ -5,10 +5,10 @@ import { LineChart } from '@mui/x-charts';
 import { IPortfolioSnapshot } from '@shared/models/finances';
 import dayjs, { Dayjs } from 'dayjs';
 import { t } from 'i18next';
-import { DashedGraph } from 'src/components/graphs';
 import { getNextQuarterDate } from 'src/utils';
 
 import GraphTotalFilter from './GraphTotalFilter';
+import { CustomAnimatedLine } from 'src/components/graphs';
 
 const DEFAULT_PERCENTAGE_INCREMENT_PER_TRIMESTRE = 0.03;
 const TOTAL_PREDICTIONS = 24;
@@ -117,7 +117,7 @@ const Graph = ({ portfolioSnapshots, isTotalFilter }: Props) => {
               valueFormatter: (value) => `$${value?.toFixed(2)}`,
             },
           ]}
-          slots={{ line: DashedGraph }}
+          slots={{ line: CustomAnimatedLine }}
           slotProps={{
             line: {
               limit: new Date(),
