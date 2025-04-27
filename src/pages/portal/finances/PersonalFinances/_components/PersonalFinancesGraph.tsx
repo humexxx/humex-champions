@@ -4,11 +4,11 @@ import { alpha, Box, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { IFinancialPlan } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { formatCompactNumber } from 'src/utils';
 import { financeUtils } from '@shared/utils';
-import { EPayoffMethodType } from '@shared/enums/finance';
 import { CustomAnimatedLine } from 'src/components/graphs';
+import { SYSTEM } from 'src/consts';
+import { EPayoffMethodType } from '@shared/enums/finance';
 
 const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
   sm: 6,
@@ -33,74 +33,109 @@ function getColorForPlan(index: number, total: number, baseColor: string) {
 interface Props {
   financialPlans: IFinancialPlan[] | null;
   loading: boolean;
+  currentIndex: number;
 }
 
-const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
-  const { t } = useTranslation();
+const PersonalFinancesGraph = ({
+  financialPlans,
+  loading,
+  currentIndex,
+}: Props) => {
   const theme = useTheme();
-
-  const paymentType = EPayoffMethodType.AVALANCHE;
 
   const isLg = useMediaQuery(theme.breakpoints.up('lg'));
   const isMd = useMediaQuery(theme.breakpoints.up('md'));
 
   const viewSize = isLg ? 'lg' : isMd ? 'md' : 'sm';
 
-  const _financialPlans = useMemo(() => {
-    if (!financialPlans?.length) return [];
+  const _avalancheFinancialPlan = useMemo(() => {
+    if (!financialPlans?.length) return null;
 
-    return financialPlans.map((plan) => {
-      const { financialSnapshots } = plan;
+    const plan = financialPlans[currentIndex];
 
-      let pastSnapshots = financialSnapshots.filter((snapshot) =>
-        snapshot.date.isBefore(dayjs())
+    const generatedFinancialSnapshots =
+      financeUtils.generateMonthlyFinancialSnapshotsPredictions(
+        plan.financialSnapshots.at(-1)!,
+        EPayoffMethodType.AVALANCHE,
+        NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
       );
 
-      if (!pastSnapshots.length) {
-        pastSnapshots = financeUtils.generatePastFinancialSnapshots(
-          financialSnapshots,
-          1
-        );
-      }
+    return {
+      ...structuredClone(plan),
+      name: `${SYSTEM}_AVALANCHE`,
+      financialSnapshots: generatedFinancialSnapshots,
+    };
+  }, [financialPlans, currentIndex]);
 
-      const generatedFinancialSnapshots =
-        paymentType === EPayoffMethodType.AVALANCHE
-          ? financeUtils.generateMonthlyAvalancheFinancialSnapshots(
-              pastSnapshots.at(-1)!,
-              NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
-            )
-          : financeUtils.generateMonthlySnowballFinancialSnapshots(
-              pastSnapshots.at(-1)!,
-              NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
-            );
+  const _snowballFinancialPlan = useMemo(() => {
+    if (!financialPlans?.length) return null;
 
-      return {
-        ...plan,
-        financialSnapshots: [...pastSnapshots, ...generatedFinancialSnapshots],
-      };
-    });
-  }, [financialPlans, paymentType]);
+    const plan = financialPlans[currentIndex];
+
+    const generatedFinancialSnapshots =
+      financeUtils.generateMonthlyFinancialSnapshotsPredictions(
+        plan.financialSnapshots.at(-1)!,
+        EPayoffMethodType.SNOWBALL,
+        NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
+      );
+
+    return {
+      ...structuredClone(plan),
+      name: `${SYSTEM}_SNOWBALL`,
+      financialSnapshots: generatedFinancialSnapshots,
+    };
+  }, [financialPlans, currentIndex]);
 
   const datasets = useMemo(() => {
-    if (!_financialPlans.length) return [];
-    const datasets: { date: Date; [key: string]: number | Date }[] = [];
-    for (let i = 0; i < _financialPlans[0].financialSnapshots.length; i++) {
-      const data = _financialPlans.reduce((acc, plan) => {
-        return {
-          ...acc,
-          [plan.name]: plan.financialSnapshots[i].debts.reduce(
-            (sum, debt) => sum + debt.pendingDebt,
-            0
-          ),
-        };
-      }, {});
-      datasets.push({
-        ...data,
-        date: _financialPlans[0].financialSnapshots[i].date.toDate(),
+    if (!financialPlans?.length) return [];
+
+    const monthlyDebtsMap: Record<string, { [key: string]: number | Date }> =
+      {};
+
+    [
+      ...financialPlans,
+      _avalancheFinancialPlan,
+      _snowballFinancialPlan,
+    ].forEach((plan) => {
+      if (!plan) return;
+      plan.financialSnapshots.forEach((snapshot) => {
+        const monthKey = snapshot.date.startOf('month').format('YYYY-MM');
+
+        if (!monthlyDebtsMap[monthKey]) {
+          monthlyDebtsMap[monthKey] = {
+            date: snapshot.date.startOf('month').toDate(),
+          };
+        }
+
+        const totalDebts = financeUtils.getTotalDebts(snapshot.debts);
+        monthlyDebtsMap[monthKey][plan.name] = totalDebts;
       });
-    }
-    return datasets;
-  }, [_financialPlans]);
+    });
+
+    const datasetsResult = Object.values(monthlyDebtsMap).sort(
+      (a, b) => (a.date as Date).getTime() - (b.date as Date).getTime()
+    );
+
+    return datasetsResult;
+  }, [financialPlans, currentIndex]);
+
+  const series = useMemo(() => {
+    if (!financialPlans?.length) return [];
+    const plans = [
+      ...financialPlans,
+      _avalancheFinancialPlan,
+      _snowballFinancialPlan,
+    ].filter(Boolean) as IFinancialPlan[];
+
+    return plans.map((plan, index) => ({
+      dataKey: plan.name,
+      color: getColorForPlan(index, plans.length, theme.palette.primary.main),
+      valueFormatter: (value: any, i: any) =>
+        `$${value?.toFixed(2)} ${
+          datasets[i.dataIndex].date > new Date() ? ` (Prediction)` : ''
+        }`,
+    }));
+  }, [financialPlans, currentIndex, theme]);
 
   if (loading) return null;
 
@@ -109,6 +144,7 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
       <LineChart
         loading={loading}
         sx={{
+          ml: -4,
           height: '100%',
           '& .line-after path': { strokeDasharray: '10 5' },
         }}
@@ -127,22 +163,7 @@ const PersonalFinancesGraph = ({ financialPlans, loading }: Props) => {
             label: 'Price (USD)',
           },
         ]}
-        series={
-          _financialPlans?.map((plan, index) => ({
-            dataKey: plan.name,
-            color: getColorForPlan(
-              index,
-              _financialPlans.length,
-              theme.palette.primary.main
-            ),
-            valueFormatter: (value, i) =>
-              `$${value?.toFixed(2)} ${
-                datasets[i.dataIndex].date > new Date()
-                  ? ` (${t('finances.portfolio.predicted')})`
-                  : ''
-              }`,
-          })) ?? []
-        }
+        series={series}
         slots={{ line: CustomAnimatedLine }}
         slotProps={{
           line: {

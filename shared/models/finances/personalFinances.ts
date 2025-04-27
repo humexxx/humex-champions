@@ -1,3 +1,4 @@
+import { EPeriodType } from '@shared/enums/finance';
 import { Dayjs } from 'dayjs';
 
 export interface IFinancialPlan {
@@ -12,7 +13,7 @@ export interface IFinancialPlan {
 
 export interface IIncome {
   amount: number;
-  period: 'weekly' | 'monthly' | 'yearly' | 'single';
+  period: EPeriodType;
   name: string;
   date?: Dayjs;
 }
@@ -39,8 +40,7 @@ export interface IFinancialSnapshot {
   debts: IDebt[];
   fixedExpenses: IFixedExpense[];
 
-  surplus: number;
+  expectedSurplus: number;
   actualSurplus?: number;
-
   reviewed: boolean;
 }

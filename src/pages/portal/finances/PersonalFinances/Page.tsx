@@ -213,6 +213,7 @@ const PersonalFinancesPage = () => {
               <PersonalFinancesGraph
                 loading={loading}
                 financialPlans={financialPlans}
+                currentIndex={Number(selectedTab)}
               />
             </Grid>
           </Grid>

@@ -1,4 +1,4 @@
-import { EPeriodType } from '@shared/enums/finance';
+import { EPayoffMethodType, EPeriodType } from '@shared/enums/finance';
 import {
   IDebt,
   IFinancialSnapshot,
@@ -8,18 +8,19 @@ import {
 import dayjs, { Dayjs } from 'dayjs';
 
 function generatePastFinancialSnapshots(
-  historicalSnapshots: IFinancialSnapshot[],
+  historicalSnapshot: IFinancialSnapshot,
   quantity: number
 ): IFinancialSnapshot[] {
   const snapshots: IFinancialSnapshot[] = [];
+  let previousSnapshot = historicalSnapshot;
 
   for (let i = 0; i < quantity; i++) {
-    const previousSnapshot = historicalSnapshots[i];
     const newSnapshot: IFinancialSnapshot = {
       ...structuredClone(previousSnapshot),
-      date: dayjs(previousSnapshot.date).subtract(i + 1, 'month'),
+      date: dayjs(previousSnapshot.date).subtract(1, 'month'),
     };
-    snapshots.push(newSnapshot);
+    snapshots.unshift(newSnapshot);
+    previousSnapshot = snapshots[0];
   }
 
   return snapshots;
@@ -35,8 +36,8 @@ function getTotalMonthlyIncome(
       ((income: IIncome) => {
         switch (income.period as EPeriodType) {
           case EPeriodType.SINGLE:
-            return income.date!.month() === date.month() &&
-              income.date!.year() === date.year()
+            return dayjs(income.date).month() === date.month() &&
+              dayjs(income.date).year() === date.year()
               ? income.amount
               : 0;
           case EPeriodType.WEEKLY: {
@@ -127,52 +128,13 @@ function applyAvalancheMethod(
     surplus -= extra;
 
     debt.pendingDebt = Math.max(totalDue - payment, 0);
+
+    // ✅ Actualizar el minimumPayment basado en el nuevo pendingDebt
+    // ⚠️ En el futuro este porcentaje (0.03 = 3%) deberá ser dinámico según configuraciones del usuario
+    debt.minimumPayment = Math.max(debt.pendingDebt * 0.03, 50);
   }
 
   return { newDebts: sortedDebts, surplus };
-}
-
-function generateMonthlyAvalancheFinancialSnapshots(
-  data: IFinancialSnapshot,
-  maxMonths: number = 12
-): IFinancialSnapshot[] {
-  const result: IFinancialSnapshot[] = [];
-
-  let date = dayjs().add(1, 'month');
-  let previousSnapshot = structuredClone(data);
-  let iterations = 0;
-
-  while (getTotalDebts(previousSnapshot.debts) > 0 && iterations < maxMonths) {
-    const totalIncome = getTotalMonthlyIncome(previousSnapshot.incomes, date);
-    const totalFixedExpenses = getTotalFixedExpenses(
-      previousSnapshot.fixedExpenses
-    );
-    const totalMinimumPayments = getTotalMinimumDebtPayments(
-      previousSnapshot.debts
-    );
-
-    const surplus = totalIncome - totalFixedExpenses - totalMinimumPayments;
-
-    const { newDebts, surplus: remainingSurplus } = applyAvalancheMethod(
-      [...previousSnapshot.debts],
-      surplus
-    );
-
-    const newSnapshot: IFinancialSnapshot = {
-      ...structuredClone(previousSnapshot),
-      debts: newDebts,
-      reviewed: true,
-      surplus: remainingSurplus,
-      date: date,
-    };
-
-    result.push(newSnapshot);
-    previousSnapshot = newSnapshot;
-    date = date.add(1, 'month');
-    iterations++;
-  }
-
-  return [data, ...result];
 }
 
 function applySnowballMethod(
@@ -195,42 +157,59 @@ function applySnowballMethod(
     surplus -= extra;
 
     debt.pendingDebt = Math.max(totalDue - payment, 0);
+
+    // ✅ Actualizar el minimumPayment basado en el nuevo pendingDebt
+    // ⚠️ En el futuro este porcentaje (0.03 = 3%) deberá ser dinámico según configuraciones del usuario
+    debt.minimumPayment = Math.max(debt.pendingDebt * 0.03, 50);
   }
 
   return { newDebts: sortedDebts, surplus };
 }
 
-function generateMonthlySnowballFinancialSnapshots(
+function generateMonthlyFinancialSnapshotsPredictions(
   data: IFinancialSnapshot,
+  type: EPayoffMethodType,
   maxMonths: number = 12
 ): IFinancialSnapshot[] {
   const result: IFinancialSnapshot[] = [];
 
-  let date = dayjs().add(1, 'month');
-  let previousSnapshot = structuredClone(data);
+  let date = data.date.add(1, 'month');
+  let previousSnapshot = data;
   let iterations = 0;
 
   while (getTotalDebts(previousSnapshot.debts) > 0 && iterations < maxMonths) {
+    let updatedDebts = previousSnapshot.debts.map((debt) => {
+      const interest = (debt.pendingDebt * debt.annualInterest) / 12;
+      const newPendingDebt = debt.pendingDebt + interest;
+
+      const paymentToApply = Math.min(debt.minimumPayment, newPendingDebt);
+      const remainingDebt = newPendingDebt - paymentToApply;
+
+      return {
+        ...debt,
+        pendingDebt: remainingDebt,
+        minimumPayment: Math.max(remainingDebt * 0.03, 50),
+      };
+    });
+
     const totalIncome = getTotalMonthlyIncome(previousSnapshot.incomes, date);
     const totalFixedExpenses = getTotalFixedExpenses(
       previousSnapshot.fixedExpenses
     );
-    const totalMinimumPayments = getTotalMinimumDebtPayments(
-      previousSnapshot.debts
-    );
+    const totalMinimumPayments = getTotalMinimumDebtPayments(updatedDebts);
 
-    const surplus = totalIncome - totalFixedExpenses - totalMinimumPayments;
+    let surplus = totalIncome - totalFixedExpenses - totalMinimumPayments;
 
-    const { newDebts, surplus: remainingSurplus } = applySnowballMethod(
-      [...previousSnapshot.debts],
-      surplus
-    );
+    const { newDebts, surplus: remainingSurplus } =
+      type === EPayoffMethodType.AVALANCHE
+        ? applyAvalancheMethod(updatedDebts, surplus)
+        : applySnowballMethod(updatedDebts, surplus);
 
     const newSnapshot: IFinancialSnapshot = {
-      ...structuredClone(previousSnapshot),
+      ...previousSnapshot,
       debts: newDebts,
       reviewed: true,
-      surplus: remainingSurplus,
+      expectedSurplus: remainingSurplus,
       date,
     };
 
@@ -249,8 +228,7 @@ export const financeUtils = {
   getTotalDebts,
   getTotalMinimumDebtPayments,
   getTotalFixedExpenses,
+  generateMonthlyFinancialSnapshotsPredictions,
   applyAvalancheMethod,
-  generateMonthlyAvalancheFinancialSnapshots,
   applySnowballMethod,
-  generateMonthlySnowballFinancialSnapshots,
 };

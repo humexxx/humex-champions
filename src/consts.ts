@@ -1,5 +1,6 @@
 import packageJson from '../package.json';
 
+export const SYSTEM = 'SYSTEM';
 export const USE_MOCKED_DATA = Boolean(import.meta.env.VITE_USE_MOCKED_DATA);
 export const USE_ADMIN_ROLE = Boolean(
   import.meta.env.VITE_USE_MOCKED_ADMIN_MODE

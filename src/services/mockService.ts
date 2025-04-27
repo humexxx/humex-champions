@@ -1,4 +1,10 @@
-import { IFinancialPlan } from '@shared/models/finances';
+import { EPeriodType } from '@shared/enums/finance';
+import {
+  IDebt,
+  IFinancialPlan,
+  IFixedExpense,
+  IIncome,
+} from '@shared/models/finances';
 import dayjs from 'dayjs';
 import { User } from 'firebase/auth';
 
@@ -9,83 +15,67 @@ export const MOCKED_USER: User = {
   providerData: [{ displayName: 'Mocked User' }],
 } as User;
 
+const firstDayOfMonth = dayjs().startOf('month');
+
+const MOCKED_DEBTS: IDebt[] = [
+  {
+    annualInterest: 0.15,
+    minimumPayment: 2000,
+    name: 'Mocked Debt',
+    pendingDebt: 40000,
+    startDate: firstDayOfMonth,
+  },
+  {
+    annualInterest: 0.7,
+    minimumPayment: 2000,
+    name: 'Mocked Debt',
+    pendingDebt: 45000,
+    startDate: firstDayOfMonth,
+  },
+];
+
+const MOCKED_INCOMES: IIncome[] = [
+  {
+    amount: 8900,
+    name: 'Mocked Income',
+    period: EPeriodType.MONTHLY,
+  },
+  {
+    amount: 5000,
+    name: 'Mocked Income',
+    period: EPeriodType.SINGLE,
+    date: dayjs('07/01/2025'),
+  },
+];
+
+const MOCKED_FIXED_EXPENSES: IFixedExpense[] = [
+  {
+    amount: 2500,
+    expenseType: 'primary',
+    name: 'Mocked Fixed Expense',
+  },
+  {
+    amount: 2500,
+    expenseType: 'primary',
+    name: 'Mocked Secondary Fixed Expense',
+  },
+];
+
 // Financial
 export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
   id: '123',
   name: 'Mocked Financial Plan',
-  debts: [
-    {
-      annualInterest: 0.3,
-      minimumPayment: 3000,
-      name: 'Mocked Debt',
-      pendingDebt: 40000,
-      startDate: dayjs('3/15/2025'),
-    },
-  ],
-  fixedExpenses: [
-    {
-      amount: 500,
-      expenseType: 'primary',
-      name: 'Mocked Fixed Expense',
-    },
-    {
-      amount: 1500,
-      expenseType: 'primary',
-      name: 'Mocked Secondary Fixed Expense',
-    },
-  ],
-  incomes: [
-    {
-      amount: 8900,
-      name: 'Tech9',
-      period: 'monthly',
-    },
-    {
-      amount: 5000,
-      name: 'Pendiente de Enero',
-      period: 'single',
-      date: dayjs('3/15/2025'),
-    },
-  ],
+  debts: MOCKED_DEBTS,
+  fixedExpenses: MOCKED_FIXED_EXPENSES,
+  incomes: MOCKED_INCOMES,
   financialSnapshots: [
     {
-      date: dayjs().add(-1, 'month'),
-      debts: [
-        {
-          annualInterest: 0.3,
-          minimumPayment: 3000,
-          name: 'Mocked Debt',
-          pendingDebt: 40000,
-          startDate: dayjs('3/15/2025'),
-        },
-      ],
-      fixedExpenses: [
-        {
-          amount: 500,
-          expenseType: 'primary',
-          name: 'Mocked Fixed Expense',
-        },
-        {
-          amount: 1500,
-          expenseType: 'primary',
-          name: 'Mocked Secondary Fixed Expense',
-        },
-      ],
-      incomes: [
-        {
-          amount: 8900,
-          name: 'Tech9',
-          period: 'monthly',
-        },
-        {
-          amount: 5000,
-          name: 'Pendiente de Enero',
-          period: 'single',
-          date: dayjs('3/15/2025'),
-        },
-      ],
-      reviewed: false,
-      surplus: 0,
+      date: firstDayOfMonth,
+      debts: MOCKED_DEBTS,
+      fixedExpenses: MOCKED_FIXED_EXPENSES,
+      incomes: MOCKED_INCOMES,
+      reviewed: true,
+      expectedSurplus: 0,
       actualSurplus: 0,
     },
   ],
