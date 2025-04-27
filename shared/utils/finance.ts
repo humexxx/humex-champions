@@ -219,7 +219,7 @@ function generateMonthlyFinancialSnapshotsPredictions(
     iterations++;
   }
 
-  return [data, ...result];
+  return result;
 }
 
 export const financeUtils = {

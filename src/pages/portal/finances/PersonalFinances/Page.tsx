@@ -15,6 +15,7 @@ import {
   FixedExpenseCard,
   IncomeCard,
   PersonalFinancesGraph,
+  PersonalFinancesGrid,
 } from './_components';
 import useFinancialPlans from './useFinancialPlans';
 
@@ -211,6 +212,13 @@ const PersonalFinancesPage = () => {
           <Grid container>
             <Grid size={12}>
               <PersonalFinancesGraph
+                loading={loading}
+                financialPlans={financialPlans}
+                currentIndex={Number(selectedTab)}
+              />
+            </Grid>
+            <Grid size={12}>
+              <PersonalFinancesGrid
                 loading={loading}
                 financialPlans={financialPlans}
                 currentIndex={Number(selectedTab)}
