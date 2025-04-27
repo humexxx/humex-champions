@@ -23,7 +23,7 @@ const columns: GridColDef<Row>[] = [
   {
     field: 'date',
     headerName: 'Date',
-    width: 90,
+    width: 150,
     valueFormatter: (value: Date) => dayjs(value).format('MM/YYYY'),
   },
   {
@@ -173,13 +173,16 @@ const PersonalFinancesGraph = ({
   if (loading) return null;
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
       <DataGrid
         getRowId={(row) => row.date.toString()}
         rows={$rows}
         columns={columns}
-        checkboxSelection
         disableRowSelectionOnClick
+        disableColumnSorting
+        disableColumnMenu
+        disableColumnFilter
+        hideFooter
       />
     </Box>
   );
