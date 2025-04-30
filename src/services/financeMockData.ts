@@ -6,14 +6,6 @@ import {
   IIncome,
 } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { User } from 'firebase/auth';
-
-// User
-export const MOCKED_USER: User = {
-  uid: '123',
-  email: 'mocked@mocked.com',
-  providerData: [{ displayName: 'Mocked User' }],
-} as User;
 
 const firstDayOfMonth = dayjs().startOf('month');
 
@@ -61,7 +53,6 @@ const MOCKED_FIXED_EXPENSES: IFixedExpense[] = [
   },
 ];
 
-// Financial
 export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
   id: '123',
   name: 'Mocked Financial Plan',

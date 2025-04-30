@@ -10,3 +10,9 @@ export const FIRESTORE_PATHS = {
     CHECKLIST: (uid: string) => `uplift/${uid}/checklist`,
   },
 };
+
+export const CALLABLE_FUNCTIONS = {
+  dashboard: {
+    summary: 'dashboardSummary',
+  },
+};
