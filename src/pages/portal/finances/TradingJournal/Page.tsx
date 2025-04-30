@@ -25,7 +25,7 @@ import {
   OperationsHistoryChart,
   Timeline,
   Quote,
-} from './components';
+} from './_components';
 
 const TradingJournalPage = () => {
   const { t } = useTranslation();

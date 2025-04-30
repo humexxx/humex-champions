@@ -8,7 +8,7 @@ import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 import { MULTIPLE_GRAPH_COLORS, ROUTES } from 'src/consts';
 
-import { Graph, Inputs } from './components';
+import { Graph, Inputs } from './_components';
 
 const MAX_INVESTMENTS = 10;
 

@@ -6,7 +6,7 @@ import { GlobalLoader, PageContent, PageHeader } from 'src/components';
 import { ROUTES } from 'src/consts';
 import { toDayjs } from 'src/utils';
 
-import { CreatePortfolio, PortfolioView } from './components';
+import { CreatePortfolio, PortfolioView } from './_components';
 import { usePortfolio } from './hooks';
 
 const mockData: IPortfolioSnapshot<Dayjs>[] = [
