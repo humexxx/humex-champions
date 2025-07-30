@@ -5,7 +5,7 @@ import { IdTokenResult, User, onAuthStateChanged } from 'firebase/auth';
 import { GlobalLoader } from 'src/components';
 import { USE_ADMIN_ROLE, USE_MOCKED_DATA } from 'src/consts';
 import { auth } from 'src/firebase';
-import { MOCKED_USER } from 'src/services/authMockData';
+import { MOCKED_USER } from 'src/mock/authMockData';
 
 export interface AuthContextType {
   currentUser: User | null;

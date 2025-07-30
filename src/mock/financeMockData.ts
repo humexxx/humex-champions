@@ -21,7 +21,7 @@ const MOCKED_DEBTS: IDebt[] = [
   {
     annualInterest: 0.7,
     minimumPayment: 2000,
-    name: 'Mocked Debt',
+    name: 'Mocked Debt 2',
     pendingDebt: 45000,
     startDate: firstDayOfMonth,
   },

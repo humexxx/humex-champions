@@ -16,7 +16,7 @@ import { USE_MOCKED_DATA } from 'src/consts';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
 import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
-import { MOCKED_FINANCIAL_PLAN } from 'src/services/financeMockData';
+import { MOCKED_FINANCIAL_PLAN } from 'src/mock/financeMockData';
 
 interface UsePersonalFinances {
   data: IFinancialPlan[];

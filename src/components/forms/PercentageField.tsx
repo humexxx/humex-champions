@@ -7,6 +7,11 @@ const PercentageField = forwardRef<HTMLInputElement, TextFieldProps>(
     return (
       <TextField
         {...props}
+        value={((props.value ?? 0) as number) * 100}
+        onChange={(e) => {
+          const input = parseFloat(e.target.value);
+          props.onChange?.((isNaN(input) ? 0 : input / 100) as any);
+        }}
         inputRef={ref}
         type="number"
         slotProps={{

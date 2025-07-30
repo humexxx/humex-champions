@@ -23,11 +23,14 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Snackbar,
+  Alert,
+  SnackbarCloseReason,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IDebt } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { useForm, Controller, useFieldArray, set } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
@@ -56,9 +59,9 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
             pendingDebt: yup
               .number()
               .nonNullable()
+              .moreThan(0, 'Has to be greater than 0')
               .required(t('commonValidations.required'))
-              .typeError(t('commonValidations.required'))
-              .moreThan(-1),
+              .typeError(t('commonValidations.required')),
             minimumPayment: yup
               .number()
               .nonNullable()
@@ -101,6 +104,7 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   });
 
   const [indexToEdit, setIndexToEdit] = useState(0);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   useEffect(() => {
     setValue(
@@ -109,7 +113,8 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
         .sort((x) => x.pendingDebt)
         .reverse()
     );
-  }, [data, setValue]);
+    setIndexToEdit(0);
+  }, [data, setValue, open]);
 
   const debts = watch('debts');
 
@@ -119,6 +124,11 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   };
 
   const handleOnNewDebt = () => {
+    if (fields.length >= 5) {
+      setIsAlertOpen(true);
+      return;
+    }
+
     append({
       name: `${t('finances.personalFinances.header.debts.dialog.debt')} ${
         fields.length + 1
@@ -138,8 +148,35 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
     onSubmit(normalizeObjectDates(data.debts, toDayjs));
   }
 
+  const handleAlertClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setIsAlertOpen(false);
+  };
+
   return (
     <>
+      <Snackbar
+        open={isAlertOpen}
+        autoHideDuration={3000}
+        onClose={handleAlertClose}
+      >
+        <Alert
+          onClose={handleAlertClose}
+          severity="warning"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          Are you really that broke? Just kidding, you cannot add more than 5
+          debts for now.
+        </Alert>
+      </Snackbar>
+
       <IconButton
         onClick={handleOpen}
         disabled={disabled}
@@ -150,7 +187,10 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
 
       <Dialog
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={(_, reason) => {
+          if (reason == 'backdropClick') return;
+          setOpen(false);
+        }}
         fullWidth
         maxWidth="md"
         component="form"
@@ -290,7 +330,7 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
                 </Card>
               </Grid>
               <Grid size={6}>
-                <List sx={{ py: 0 }} dense>
+                <List sx={{ py: 0, overflowY: 'auto' }} dense>
                   {debts?.map((x, i) => (
                     <ListItem key={i}>
                       <ListItemButton

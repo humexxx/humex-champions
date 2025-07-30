@@ -8,7 +8,7 @@ import { functions } from 'src/firebase';
 import { ISummary } from '@shared/models/dashboard';
 import { ICallableRequest, ICallableResponse } from '@shared/models';
 import { httpsCallable } from 'firebase/functions';
-import { MOCKED_SUMMARY } from 'src/services/dashboardMockData';
+import { MOCKED_SUMMARY } from 'src/mock/dashboardMockData';
 
 type Props = {
   data: ISummary | null;

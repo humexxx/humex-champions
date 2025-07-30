@@ -146,8 +146,6 @@ const PersonalFinancesGraph = ({
 
   if (loading) return null;
 
-  console.log(datasets);
-
   return (
     <Box sx={{ width: '100%', aspectRatio: '2' }}>
       <LineChart
