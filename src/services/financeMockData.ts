@@ -7,6 +7,7 @@ import {
 } from '@shared/models/finances';
 import dayjs from 'dayjs';
 
+const firstDayOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
 const firstDayOfMonth = dayjs().startOf('month');
 
 const MOCKED_DEBTS: IDebt[] = [
@@ -60,6 +61,15 @@ export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
   fixedExpenses: MOCKED_FIXED_EXPENSES,
   incomes: MOCKED_INCOMES,
   financialSnapshots: [
+    {
+      date: firstDayOfLastMonth,
+      debts: MOCKED_DEBTS,
+      fixedExpenses: MOCKED_FIXED_EXPENSES,
+      incomes: MOCKED_INCOMES,
+      reviewed: true,
+      expectedSurplus: 0,
+      actualSurplus: 0,
+    },
     {
       date: firstDayOfMonth,
       debts: MOCKED_DEBTS,

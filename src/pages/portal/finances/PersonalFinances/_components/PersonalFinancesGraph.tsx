@@ -89,9 +89,16 @@ const PersonalFinancesGraph = ({
   const datasets = useMemo(() => {
     if (!financialPlans?.length) return [];
 
+    // TODO: pensar una mejor forma en el futuro
+    // Quizas agregar un promedio
+    financialPlans.forEach((plan) => {
+      plan.financialSnapshots.push(
+        _avalancheFinancialPlan!.financialSnapshots[0]
+      );
+    });
+
     const monthlyDebtsMap: Record<string, { [key: string]: number | Date }> =
       {};
-
     [
       ...financialPlans,
       _avalancheFinancialPlan,
@@ -138,6 +145,8 @@ const PersonalFinancesGraph = ({
   }, [financialPlans, currentIndex, theme]);
 
   if (loading) return null;
+
+  console.log(datasets);
 
   return (
     <Box sx={{ width: '100%', aspectRatio: '2' }}>
