@@ -4,7 +4,7 @@ import { alpha, Box, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { IFinancialPlan } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { formatCompactNumber } from 'src/utils';
+import { formatCompactNumber, normalizeObjectDates, toDayjs } from 'src/utils';
 import { financeUtils } from '@shared/utils';
 import { CustomAnimatedLine } from 'src/components/graphs';
 import { SYSTEM } from 'src/consts';
@@ -31,7 +31,7 @@ function getColorForPlan(index: number, total: number, baseColor: string) {
 }
 
 interface Props {
-  financialPlans: IFinancialPlan[] | null;
+  financialPlans: IFinancialPlan[];
   loading: boolean;
   currentIndex: number;
 }
@@ -48,10 +48,15 @@ const PersonalFinancesGraph = ({
 
   const viewSize = isLg ? 'lg' : isMd ? 'md' : 'sm';
 
-  const _avalancheFinancialPlan = useMemo(() => {
-    if (!financialPlans?.length) return null;
+  const _clonedFinancialPlans = useMemo(() => {
+    return normalizeObjectDates<IFinancialPlan[]>(
+      structuredClone(financialPlans),
+      toDayjs
+    );
+  }, [financialPlans]);
 
-    const plan = financialPlans[currentIndex];
+  const _avalancheFinancialPlan = useMemo(() => {
+    const plan = _clonedFinancialPlans[currentIndex];
 
     const generatedFinancialSnapshots =
       financeUtils.generateMonthlyFinancialSnapshotsPredictions(
@@ -61,16 +66,14 @@ const PersonalFinancesGraph = ({
       );
 
     return {
-      ...structuredClone(plan),
+      ...plan,
       name: `${SYSTEM}_AVALANCHE`,
       financialSnapshots: generatedFinancialSnapshots,
     };
   }, [financialPlans, currentIndex]);
 
   const _snowballFinancialPlan = useMemo(() => {
-    if (!financialPlans?.length) return null;
-
-    const plan = financialPlans[currentIndex];
+    const plan = _clonedFinancialPlans[currentIndex];
 
     const generatedFinancialSnapshots =
       financeUtils.generateMonthlyFinancialSnapshotsPredictions(
@@ -80,18 +83,16 @@ const PersonalFinancesGraph = ({
       );
 
     return {
-      ...structuredClone(plan),
+      ...plan,
       name: `${SYSTEM}_SNOWBALL`,
       financialSnapshots: generatedFinancialSnapshots,
     };
   }, [financialPlans, currentIndex]);
 
   const datasets = useMemo(() => {
-    if (!financialPlans?.length) return [];
-
     // TODO: pensar una mejor forma en el futuro
     // Quizas agregar un promedio
-    financialPlans.forEach((plan) => {
+    _clonedFinancialPlans.forEach((plan) => {
       plan.financialSnapshots.push(
         _avalancheFinancialPlan!.financialSnapshots[0]
       );
@@ -100,7 +101,7 @@ const PersonalFinancesGraph = ({
     const monthlyDebtsMap: Record<string, { [key: string]: number | Date }> =
       {};
     [
-      ...financialPlans,
+      ..._clonedFinancialPlans,
       _avalancheFinancialPlan,
       _snowballFinancialPlan,
     ].forEach((plan) => {
@@ -127,9 +128,8 @@ const PersonalFinancesGraph = ({
   }, [financialPlans, currentIndex]);
 
   const series = useMemo(() => {
-    if (!financialPlans?.length) return [];
     const plans = [
-      ...financialPlans,
+      ..._clonedFinancialPlans,
       _avalancheFinancialPlan,
       _snowballFinancialPlan,
     ].filter(Boolean) as IFinancialPlan[];

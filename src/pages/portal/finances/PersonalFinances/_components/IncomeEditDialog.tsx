@@ -35,6 +35,7 @@ import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
+import { EPeriodType } from '@shared/enums/finance';
 
 interface Props {
   onSubmit: (data: IIncome[]) => void;
@@ -61,11 +62,8 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
               .required(t('commonValidations.required'))
               .moreThan(-1),
             period: yup
-              .string()
-              .oneOf(
-                ['single', 'weekly', 'monthly', 'yearly'],
-                t('commonValidations.type')
-              )
+              .mixed<EPeriodType>()
+              .oneOf(Object.values(EPeriodType), t('commonValidations.type'))
               .required(t('commonValidations.required'))
               .nonNullable(),
             date: yupDayjs.nonNullable(),
@@ -102,11 +100,17 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
   const [indexToEdit, setIndexToEdit] = useState(0);
 
   useEffect(() => {
-    setValue(
-      'incomes',
-      normalizeObjectDates(data.sort((x) => x.amount).reverse(), toDayjs)
-    );
-  }, [data, setValue]);
+    if (open) {
+      setValue(
+        'incomes',
+        normalizeObjectDates<IIncome[]>(
+          data.sort((x) => x.amount).reverse(),
+          toDayjs
+        )
+      );
+      setIndexToEdit(0);
+    }
+  }, [data, setValue, open]);
 
   const incomes = watch('incomes');
 
@@ -120,10 +124,22 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
   function handleOnNewIncome() {
     append({
       amount: 0,
-      period: 'monthly',
+      period: EPeriodType.MONTHLY,
       name: `${t('finances.personalFinances.header.incomes.dialog.income')} ${fields.length + 1}`,
     });
     setIndexToEdit(fields.length);
+  }
+
+  function onRemove(index: number) {
+    setIndexToEdit((prev) => {
+      const incomesCount = (incomes?.length ?? 0) - 1;
+      if (incomesCount === 1) return 0;
+      if (prev === index && index === incomesCount) return prev - 1;
+      if (prev > index) return prev - 1;
+      return prev;
+    });
+
+    remove(index);
   }
 
   return (
@@ -153,121 +169,124 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
           <Stack gap={4}>
             <Grid container spacing={2}>
               <Grid size={6}>
-                <Card variant={'outlined'}>
-                  <CardContent key={indexToEdit}>
-                    <Controller
-                      name={`incomes.${indexToEdit}.name`}
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          label={t(
-                            'finances.personalFinances.header.incomes.dialog.name'
-                          )}
-                          fullWidth
-                          error={!!errors?.incomes?.[indexToEdit]?.name}
-                          helperText={
-                            errors?.incomes?.[indexToEdit]?.name?.message
-                          }
-                          slotProps={{
-                            htmlInput: {
-                              maxLength: 64,
-                            },
-                          }}
-                        />
-                      )}
-                    />
-                    <Controller
-                      name={`incomes.${indexToEdit}.amount`}
-                      control={control}
-                      render={({ field }) => (
-                        <CurrencyField
-                          {...field}
-                          label={t(
-                            'finances.personalFinances.header.incomes.dialog.amount'
-                          )}
-                          fullWidth
-                          error={!!errors?.incomes?.[indexToEdit]?.amount}
-                          helperText={
-                            errors?.incomes?.[indexToEdit]?.amount?.message
-                          }
-                          slotProps={{
-                            htmlInput: {
-                              min: 0,
-                            },
-                          }}
-                        />
-                      )}
-                    />
-
-                    <Stack direction={'row'} gap={2}>
+                {incomes?.length ? (
+                  <Card variant={'outlined'}>
+                    <CardContent key={`${indexToEdit}_${incomes.length}`}>
                       <Controller
-                        name={`incomes.${indexToEdit}.period`}
+                        name={`incomes.${indexToEdit}.name`}
                         control={control}
                         render={({ field }) => (
                           <TextField
                             {...field}
                             label={t(
-                              'finances.personalFinances.header.incomes.dialog.period'
+                              'finances.personalFinances.header.incomes.dialog.name'
                             )}
                             fullWidth
-                            select
-                            error={!!errors?.incomes?.[indexToEdit]?.period}
+                            error={!!errors?.incomes?.[indexToEdit]?.name}
                             helperText={
-                              errors?.incomes?.[indexToEdit]?.period?.message
+                              errors?.incomes?.[indexToEdit]?.name?.message
                             }
-                          >
-                            <MenuItem value="single">
-                              {t(
-                                'finances.personalFinances.header.incomes.dialog.periods.single'
-                              )}
-                            </MenuItem>
-                            <MenuItem value="weekly">
-                              {t(
-                                'finances.personalFinances.header.incomes.dialog.periods.weekly'
-                              )}
-                            </MenuItem>
-                            <MenuItem value="monthly">
-                              {t(
-                                'finances.personalFinances.header.incomes.dialog.periods.monthly'
-                              )}
-                            </MenuItem>
-                            <MenuItem value="yearly">
-                              {t(
-                                'finances.personalFinances.header.incomes.dialog.periods.yearly'
-                              )}
-                            </MenuItem>
-                          </TextField>
-                        )}
-                      />
-                      <Controller
-                        name={`incomes.${indexToEdit}.date`}
-                        control={control}
-                        render={({ field }) => (
-                          <DatePicker
-                            {...field}
-                            value={field.value ?? null}
                             slotProps={{
-                              textField: {
-                                variant: 'filled',
-                                margin: 'dense',
-                                size: 'small',
-                                fullWidth: true,
-                                error: !!errors?.incomes?.[indexToEdit]?.date,
-                                helperText:
-                                  errors?.incomes?.[indexToEdit]?.date?.message,
+                              htmlInput: {
+                                maxLength: 64,
                               },
                             }}
-                            label={t(
-                              'finances.personalFinances.header.incomes.dialog.date'
-                            )}
-                            views={['year', 'month', 'day']}
                           />
                         )}
                       />
-                    </Stack>
-                  </CardContent>
-                </Card>
+                      <Controller
+                        name={`incomes.${indexToEdit}.amount`}
+                        control={control}
+                        render={({ field }) => (
+                          <CurrencyField
+                            {...field}
+                            label={t(
+                              'finances.personalFinances.header.incomes.dialog.amount'
+                            )}
+                            fullWidth
+                            error={!!errors?.incomes?.[indexToEdit]?.amount}
+                            helperText={
+                              errors?.incomes?.[indexToEdit]?.amount?.message
+                            }
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                              },
+                            }}
+                          />
+                        )}
+                      />
+
+                      <Stack direction={'row'} gap={2}>
+                        <Controller
+                          name={`incomes.${indexToEdit}.period`}
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              label={t(
+                                'finances.personalFinances.header.incomes.dialog.period'
+                              )}
+                              fullWidth
+                              select
+                              error={!!errors?.incomes?.[indexToEdit]?.period}
+                              helperText={
+                                errors?.incomes?.[indexToEdit]?.period?.message
+                              }
+                            >
+                              <MenuItem value={EPeriodType.SINGLE}>
+                                Single
+                              </MenuItem>
+                              <MenuItem value={EPeriodType.WEEKLY}>
+                                Weekly
+                              </MenuItem>
+                              <MenuItem value={EPeriodType.MONTHLY}>
+                                Monthly
+                              </MenuItem>
+                              <MenuItem value={EPeriodType.YEARLY}>
+                                Yearly
+                              </MenuItem>
+                            </TextField>
+                          )}
+                        />
+                        <Controller
+                          name={`incomes.${indexToEdit}.date`}
+                          control={control}
+                          render={({ field }) => (
+                            <DatePicker
+                              {...field}
+                              value={field.value ?? null}
+                              slotProps={{
+                                textField: {
+                                  variant: 'filled',
+                                  margin: 'dense',
+                                  size: 'small',
+                                  fullWidth: true,
+                                  error: !!errors?.incomes?.[indexToEdit]?.date,
+                                  helperText:
+                                    errors?.incomes?.[indexToEdit]?.date
+                                      ?.message,
+                                },
+                              }}
+                              label={t(
+                                'finances.personalFinances.header.incomes.dialog.date'
+                              )}
+                              views={['year', 'month', 'day']}
+                            />
+                          )}
+                        />
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card variant={'outlined'}>
+                    <CardContent>
+                      <Typography variant="body1" gutterBottom>
+                        There are no incomes defined yet.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                )}
               </Grid>
               <Grid size={6}>
                 <List sx={{ py: 0 }} dense>
@@ -288,7 +307,13 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                           }
                           secondary={formatCurrency(x.amount)}
                         />
-                        <IconButton color="error" onClick={() => remove(i)}>
+                        <IconButton
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemove(i);
+                          }}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </ListItemButton>
@@ -334,7 +359,11 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                       error={!!errors?.tradingPercentage}
                       helperText={errors?.tradingPercentage?.message || ' '}
                       margin="dense"
-                      inputProps={{ min: 0 }}
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                        },
+                      }}
                       disabled
                     />
                   )}

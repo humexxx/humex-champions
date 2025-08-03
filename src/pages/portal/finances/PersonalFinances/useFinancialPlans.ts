@@ -127,7 +127,7 @@ const useFinancialPlans = (
     async (data: IFinancialPlan) => {
       if (USE_MOCKED_DATA || forceMock) {
         Object.assign(MOCKED_FINANCIAL_PLAN, data);
-        // No needed when updating real data sincce are subscribed to the snapshot
+        // No needed when updating real data since are subscribed to the snapshot
         setData((prev) => prev.map((x) => (x.id === data.id ? data : x)));
         return;
       }

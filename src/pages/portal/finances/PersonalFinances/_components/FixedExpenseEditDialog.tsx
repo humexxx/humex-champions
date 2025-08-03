@@ -24,6 +24,7 @@ import {
   ListItemButton,
   ListItemText,
   Stack,
+  Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IFixedExpense } from '@shared/models/finances';
@@ -96,11 +97,17 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
   const [indexToEdit, setIndexToEdit] = useState(0);
 
   useEffect(() => {
-    setValue(
-      'expenses',
-      normalizeObjectDates(data.sort((x) => x.amount).reverse(), toDayjs)
-    );
-  }, [data, setValue]);
+    if (open) {
+      setValue(
+        'expenses',
+        normalizeObjectDates<IFixedExpense[]>(
+          data.sort((x) => x.amount).reverse(),
+          toDayjs
+        )
+      );
+      setIndexToEdit(0);
+    }
+  }, [data, setValue, open]);
 
   const expenses = watch('expenses');
 
@@ -118,6 +125,18 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
       name: `${t('finances.personalFinances.header.fixedExpenses.dialog.fixedExpense')} ${fields.length + 1}`,
     });
     setIndexToEdit(fields.length);
+  }
+
+  function onRemove(index: number) {
+    setIndexToEdit((prev) => {
+      const expensesCount = (expenses?.length ?? 0) - 1;
+      if (expensesCount === 1) return 0;
+      if (prev === index && index === expensesCount) return prev - 1;
+      if (prev > index) return prev - 1;
+      return prev;
+    });
+
+    remove(index);
   }
 
   return (
@@ -149,100 +168,111 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
           <Stack gap={4}>
             <Grid container spacing={2}>
               <Grid size={6}>
-                <Card variant={'outlined'}>
-                  <CardContent key={indexToEdit}>
-                    <Controller
-                      name={`expenses.${indexToEdit}.name`}
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          label="Name"
-                          fullWidth
-                          error={!!errors?.expenses?.[indexToEdit]?.name}
-                          helperText={
-                            errors?.expenses?.[indexToEdit]?.name?.message
-                          }
-                          slotProps={{
-                            htmlInput: {
-                              maxLength: 64,
-                            },
-                          }}
-                        />
-                      )}
-                    />
-                    <Controller
-                      name={`expenses.${indexToEdit}.amount`}
-                      control={control}
-                      render={({ field }) => (
-                        <CurrencyField
-                          {...field}
-                          label={'Amount'}
-                          fullWidth
-                          error={!!errors?.expenses?.[indexToEdit]?.amount}
-                          helperText={
-                            errors?.expenses?.[indexToEdit]?.amount?.message
-                          }
-                          slotProps={{
-                            htmlInput: {
-                              min: 0,
-                            },
-                          }}
-                        />
-                      )}
-                    />
-
-                    <Stack direction={'row'} gap={2}>
+                {expenses?.length ? (
+                  <Card variant={'outlined'}>
+                    <CardContent key={`${indexToEdit}_${expenses?.length}`}>
                       <Controller
-                        name={`expenses.${indexToEdit}.expenseType`}
+                        name={`expenses.${indexToEdit}.name`}
                         control={control}
                         render={({ field }) => (
                           <TextField
                             {...field}
-                            label={'Type'}
+                            label="Name"
                             fullWidth
-                            select
-                            error={
-                              !!errors?.expenses?.[indexToEdit]?.expenseType
-                            }
+                            error={!!errors?.expenses?.[indexToEdit]?.name}
                             helperText={
-                              errors?.expenses?.[indexToEdit]?.expenseType
-                                ?.message
+                              errors?.expenses?.[indexToEdit]?.name?.message
                             }
-                          >
-                            <MenuItem value="single">Single</MenuItem>
-                            <MenuItem value="primary">Primary</MenuItem>
-                            <MenuItem value="secondary">Secondary</MenuItem>
-                          </TextField>
-                        )}
-                      />
-                      <Controller
-                        name={`expenses.${indexToEdit}.date`}
-                        control={control}
-                        render={({ field }) => (
-                          <DatePicker
-                            {...field}
-                            value={field.value ?? null}
                             slotProps={{
-                              textField: {
-                                variant: 'filled',
-                                margin: 'dense',
-                                size: 'small',
-                                fullWidth: true,
-                                error: !!errors?.expenses?.[indexToEdit]?.date,
-                                helperText:
-                                  errors?.expenses?.[indexToEdit]?.date
-                                    ?.message,
+                              htmlInput: {
+                                maxLength: 64,
                               },
                             }}
-                            label={'Date'}
-                            views={['year', 'month', 'day']}
                           />
                         )}
                       />
-                    </Stack>
-                  </CardContent>
-                </Card>
+                      <Controller
+                        name={`expenses.${indexToEdit}.amount`}
+                        control={control}
+                        render={({ field }) => (
+                          <CurrencyField
+                            {...field}
+                            label={'Amount'}
+                            fullWidth
+                            error={!!errors?.expenses?.[indexToEdit]?.amount}
+                            helperText={
+                              errors?.expenses?.[indexToEdit]?.amount?.message
+                            }
+                            slotProps={{
+                              htmlInput: {
+                                min: 0,
+                              },
+                            }}
+                          />
+                        )}
+                      />
+
+                      <Stack direction={'row'} gap={2}>
+                        <Controller
+                          name={`expenses.${indexToEdit}.expenseType`}
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              label={'Type'}
+                              fullWidth
+                              select
+                              error={
+                                !!errors?.expenses?.[indexToEdit]?.expenseType
+                              }
+                              helperText={
+                                errors?.expenses?.[indexToEdit]?.expenseType
+                                  ?.message
+                              }
+                            >
+                              <MenuItem value="single">Single</MenuItem>
+                              <MenuItem value="primary">Primary</MenuItem>
+                              <MenuItem value="secondary">Secondary</MenuItem>
+                            </TextField>
+                          )}
+                        />
+                        <Controller
+                          name={`expenses.${indexToEdit}.date`}
+                          control={control}
+                          render={({ field }) => (
+                            <DatePicker
+                              {...field}
+                              value={field.value ?? null}
+                              slotProps={{
+                                textField: {
+                                  variant: 'filled',
+                                  margin: 'dense',
+                                  size: 'small',
+                                  fullWidth: true,
+                                  error:
+                                    !!errors?.expenses?.[indexToEdit]?.date,
+                                  helperText:
+                                    errors?.expenses?.[indexToEdit]?.date
+                                      ?.message,
+                                },
+                              }}
+                              label={'Date'}
+                              views={['year', 'month', 'day']}
+                            />
+                          )}
+                        />
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card variant={'outlined'}>
+                    <CardContent>
+                      <Typography variant="body2" color="text.secondary">
+                        There are no fixed expenses defined yet.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                )}
               </Grid>
               <Grid size={6}>
                 <List sx={{ py: 0 }} dense>
@@ -263,7 +293,13 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
                           }
                           secondary={formatCurrency(x.amount)}
                         />
-                        <IconButton color="error" onClick={() => remove(i)}>
+                        <IconButton
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemove(i);
+                          }}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </ListItemButton>

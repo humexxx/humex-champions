@@ -19,13 +19,19 @@ export function toTimestamp(date: any): Timestamp {
 
 export function toDayjs(date: any): Dayjs {
   if (!date) return date;
+
   if (date instanceof dayjs) {
     return date as Dayjs;
   } else if (date instanceof Date) {
     return dayjs(date);
   } else if (date instanceof Timestamp) {
     return dayjs(date.toDate());
+  } else if (typeof date === 'string') {
+    return dayjs(date, 'YYYY-MM-DD', true);
+  } else if (date?.$isDayjsObject) {
+    return dayjs(date.$d);
   }
+
   throw new Error('Invalid date type');
 }
 
@@ -40,7 +46,8 @@ export function normalizeObjectDates<T>(
     obj !== null &&
     typeof obj === 'object' &&
     !(obj instanceof Timestamp) &&
-    !dayjs.isDayjs(obj)
+    !dayjs.isDayjs(obj) &&
+    !obj.$isDayjsObject
   ) {
     return Object.keys(obj).reduce((acc, key) => {
       acc[key] = normalizeObjectDates(obj[key], converter);
@@ -50,7 +57,8 @@ export function normalizeObjectDates<T>(
     obj instanceof Date ||
     obj instanceof Timestamp ||
     dayjs.isDayjs(obj) ||
-    (typeof obj === 'string' && dayjs(obj, 'YYYY-MM-DD', true).isValid())
+    (typeof obj === 'string' && dayjs(obj, 'YYYY-MM-DD', true).isValid()) ||
+    obj?.$isDayjsObject
   ) {
     return converter(obj) as any;
   } else {

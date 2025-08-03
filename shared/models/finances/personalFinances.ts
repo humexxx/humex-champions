@@ -2,7 +2,7 @@ import { EPeriodType } from '@shared/enums/finance';
 import { Dayjs } from 'dayjs';
 
 export interface IFinancialPlan {
-  id?: string | null;
+  id: string;
   name: string;
   financialSnapshots: IFinancialSnapshot[];
 

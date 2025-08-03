@@ -26,11 +26,12 @@ import {
   Snackbar,
   Alert,
   SnackbarCloseReason,
+  Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IDebt } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { useForm, Controller, useFieldArray, set } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
@@ -107,13 +108,15 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   useEffect(() => {
-    setValue(
-      'debts',
-      normalizeObjectDates<IDebt[]>(data, toDayjs)
-        .sort((x) => x.pendingDebt)
-        .reverse()
-    );
-    setIndexToEdit(0);
+    if (open) {
+      setValue(
+        'debts',
+        normalizeObjectDates<IDebt[]>(data, toDayjs)
+          .sort((x) => x.pendingDebt)
+          .reverse()
+      );
+      setIndexToEdit(0);
+    }
   }, [data, setValue, open]);
 
   const debts = watch('debts');
@@ -158,6 +161,18 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
 
     setIsAlertOpen(false);
   };
+
+  function onRemove(index: number) {
+    setIndexToEdit((prev) => {
+      const debtsCount = (debts?.length ?? 0) - 1;
+      if (debtsCount === 1) return 0;
+      if (prev === index && index === debtsCount) return prev - 1;
+      if (prev > index) return prev - 1;
+      return prev;
+    });
+
+    remove(index);
+  }
 
   return (
     <>
@@ -213,121 +228,135 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
           <Stack gap={4}>
             <Grid container spacing={2}>
               <Grid size={6}>
-                <Card variant={'outlined'}>
-                  <CardContent key={indexToEdit}>
-                    <Controller
-                      name={`debts.${indexToEdit}.name`}
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          label="Debt Name"
-                          fullWidth
-                          error={!!errors?.debts?.[indexToEdit]?.name}
-                          helperText={
-                            errors?.debts?.[indexToEdit]?.name?.message
-                          }
+                {debts?.length ? (
+                  <Card variant={'outlined'}>
+                    <CardContent key={`${indexToEdit}_${debts?.length}`}>
+                      <Controller
+                        name={`debts.${indexToEdit}.name`}
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            label="Debt Name"
+                            fullWidth
+                            error={!!errors?.debts?.[indexToEdit]?.name}
+                            helperText={
+                              errors?.debts?.[indexToEdit]?.name?.message
+                            }
+                          />
+                        )}
+                      />
+                      <Stack direction={'row'} gap={2}>
+                        <Controller
+                          name={`debts.${indexToEdit}.pendingDebt`}
+                          control={control}
+                          render={({ field }) => (
+                            <CurrencyField
+                              {...field}
+                              label={'Pending Debt'}
+                              fullWidth
+                              error={
+                                !!errors?.debts?.[indexToEdit]?.pendingDebt
+                              }
+                              helperText={
+                                errors?.debts?.[indexToEdit]?.pendingDebt
+                                  ?.message
+                              }
+                              slotProps={{
+                                htmlInput: {
+                                  min: 0,
+                                },
+                              }}
+                            />
+                          )}
                         />
-                      )}
-                    />
-                    <Stack direction={'row'} gap={2}>
-                      <Controller
-                        name={`debts.${indexToEdit}.pendingDebt`}
-                        control={control}
-                        render={({ field }) => (
-                          <CurrencyField
-                            {...field}
-                            label={'Pending Debt'}
-                            fullWidth
-                            error={!!errors?.debts?.[indexToEdit]?.pendingDebt}
-                            helperText={
-                              errors?.debts?.[indexToEdit]?.pendingDebt?.message
-                            }
-                            slotProps={{
-                              htmlInput: {
-                                min: 0,
-                              },
-                            }}
-                          />
-                        )}
-                      />
-                      <Controller
-                        name={`debts.${indexToEdit}.minimumPayment`}
-                        control={control}
-                        render={({ field }) => (
-                          <CurrencyField
-                            {...field}
-                            label={'Minimum Payment'}
-                            fullWidth
-                            error={
-                              !!errors?.debts?.[indexToEdit]?.minimumPayment
-                            }
-                            helperText={
-                              errors?.debts?.[indexToEdit]?.minimumPayment
-                                ?.message
-                            }
-                            slotProps={{
-                              htmlInput: {
-                                min: 0,
-                              },
-                            }}
-                          />
-                        )}
-                      />
-                    </Stack>
+                        <Controller
+                          name={`debts.${indexToEdit}.minimumPayment`}
+                          control={control}
+                          render={({ field }) => (
+                            <CurrencyField
+                              {...field}
+                              label={'Minimum Payment'}
+                              fullWidth
+                              error={
+                                !!errors?.debts?.[indexToEdit]?.minimumPayment
+                              }
+                              helperText={
+                                errors?.debts?.[indexToEdit]?.minimumPayment
+                                  ?.message
+                              }
+                              slotProps={{
+                                htmlInput: {
+                                  min: 0,
+                                },
+                              }}
+                            />
+                          )}
+                        />
+                      </Stack>
 
-                    <Stack direction={'row'} gap={2}>
-                      <Controller
-                        name={`debts.${indexToEdit}.annualInterest`}
-                        control={control}
-                        render={({ field }) => (
-                          <PercentageField
-                            {...field}
-                            label={'Annual Interest'}
-                            fullWidth
-                            error={
-                              !!errors?.debts?.[indexToEdit]?.annualInterest
-                            }
-                            helperText={
-                              errors?.debts?.[indexToEdit]?.annualInterest
-                                ?.message
-                            }
-                            slotProps={{
-                              htmlInput: {
-                                min: 0,
-                              },
-                            }}
-                          />
-                        )}
-                      />
-                      <Controller
-                        name={`debts.${indexToEdit}.startDate`}
-                        control={control}
-                        render={({ field }) => (
-                          <DatePicker
-                            {...field}
-                            value={field.value ?? null}
-                            slotProps={{
-                              textField: {
-                                variant: 'filled',
-                                margin: 'dense',
-                                size: 'small',
-                                fullWidth: true,
-                                error:
-                                  !!errors?.debts?.[indexToEdit]?.startDate,
-                                helperText:
-                                  errors?.debts?.[indexToEdit]?.startDate
-                                    ?.message,
-                              },
-                            }}
-                            label={'Start Date'}
-                            views={['year', 'month', 'day']}
-                          />
-                        )}
-                      />
-                    </Stack>
-                  </CardContent>
-                </Card>
+                      <Stack direction={'row'} gap={2}>
+                        <Controller
+                          name={`debts.${indexToEdit}.annualInterest`}
+                          control={control}
+                          render={({ field }) => (
+                            <PercentageField
+                              {...field}
+                              label={'Annual Interest'}
+                              fullWidth
+                              error={
+                                !!errors?.debts?.[indexToEdit]?.annualInterest
+                              }
+                              helperText={
+                                errors?.debts?.[indexToEdit]?.annualInterest
+                                  ?.message
+                              }
+                              slotProps={{
+                                htmlInput: {
+                                  min: 0,
+                                },
+                              }}
+                            />
+                          )}
+                        />
+                        <Controller
+                          name={`debts.${indexToEdit}.startDate`}
+                          control={control}
+                          render={({ field }) => (
+                            <DatePicker
+                              {...field}
+                              value={field.value ?? null}
+                              slotProps={{
+                                textField: {
+                                  variant: 'filled',
+                                  margin: 'dense',
+                                  size: 'small',
+                                  fullWidth: true,
+                                  error:
+                                    !!errors?.debts?.[indexToEdit]?.startDate,
+                                  helperText:
+                                    errors?.debts?.[indexToEdit]?.startDate
+                                      ?.message,
+                                },
+                              }}
+                              label={'Start Date'}
+                              views={['year', 'month', 'day']}
+                            />
+                          )}
+                        />
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card variant={'outlined'}>
+                    <CardContent>
+                      <Typography variant="body1" color="textSecondary">
+                        There are no debts to edit. Click "Add Debt" to create a
+                        new one.
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                )}
               </Grid>
               <Grid size={6}>
                 <List sx={{ py: 0, overflowY: 'auto' }} dense>
@@ -348,7 +377,13 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
                           }
                           secondary={formatCurrency(x.pendingDebt)}
                         />
-                        <IconButton color="error" onClick={() => remove(i)}>
+                        <IconButton
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemove(i);
+                          }}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </ListItemButton>

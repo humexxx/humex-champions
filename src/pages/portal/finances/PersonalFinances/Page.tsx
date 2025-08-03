@@ -52,20 +52,19 @@ const PersonalFinancesPage = () => {
   }
 
   function _updateFinancialPlan(
-    planId: string | null,
+    planId: string,
     data: IDebt[] | IIncome[] | IFixedExpense[],
     key: 'debts' | 'incomes' | 'fixedExpenses'
   ) {
     let plan = financialPlans.find((p) => p.id === planId)!;
     plan = {
       ...plan,
-      ...(key === 'incomes' || key === 'fixedExpenses' ? { [key]: data } : {}),
+      [key]: data,
       financialSnapshots: plan.financialSnapshots.map((snapshot, i) => {
-        if (i === plan!.financialSnapshots.length - 1) {
+        if (i === plan.financialSnapshots.length - 1) {
           return {
             ...snapshot,
-            ...(key === 'debts' ? { debts: data as IDebt[] } : {}),
-            reviewed: true,
+            [key]: data,
           };
         }
         return snapshot;
@@ -74,7 +73,7 @@ const PersonalFinancesPage = () => {
     set(plan);
   }
 
-  function _updateDebts(planId: string | null, data: IDebt[]) {
+  function _updateDebts(planId: string, data: IDebt[]) {
     if (!planId) _updateFinancialPlan(planId, data, 'debts');
     else {
       financialPlans.forEach((plan) => {
@@ -153,10 +152,7 @@ const PersonalFinancesPage = () => {
                 </Box>
 
                 {financialPlans.map(
-                  (
-                    { id, fixedExpenses, incomes, financialSnapshots, debts },
-                    i
-                  ) => {
+                  ({ id, fixedExpenses, incomes, debts }, i) => {
                     return (
                       <TabPanel
                         key={`tab-panel-${id}`}
@@ -170,7 +166,7 @@ const PersonalFinancesPage = () => {
                               debts={debts}
                               isLoading={loading}
                               update={(data) =>
-                                _updateFinancialPlan(id ?? null, data, 'debts')
+                                _updateFinancialPlan(id, data, 'debts')
                               }
                             />
                           </Grid>
@@ -179,11 +175,7 @@ const PersonalFinancesPage = () => {
                               incomes={incomes}
                               isLoading={loading}
                               update={(data) =>
-                                _updateFinancialPlan(
-                                  id ?? null,
-                                  data,
-                                  'incomes'
-                                )
+                                _updateFinancialPlan(id, data, 'incomes')
                               }
                             />
                           </Grid>
@@ -193,11 +185,7 @@ const PersonalFinancesPage = () => {
                               debts={debts}
                               isLoading={loading}
                               update={(data) =>
-                                _updateFinancialPlan(
-                                  id ?? null,
-                                  data,
-                                  'fixedExpenses'
-                                )
+                                _updateFinancialPlan(id, data, 'fixedExpenses')
                               }
                             />
                           </Grid>
@@ -211,11 +199,13 @@ const PersonalFinancesPage = () => {
           </Box>
           <Grid container>
             <Grid size={12}>
-              <PersonalFinancesGraph
-                loading={loading}
-                financialPlans={financialPlans}
-                currentIndex={Number(selectedTab)}
-              />
+              {financialPlans.length > 0 && !loading && (
+                <PersonalFinancesGraph
+                  loading={loading}
+                  financialPlans={financialPlans}
+                  currentIndex={Number(selectedTab)}
+                />
+              )}
             </Grid>
             <Grid size={12}>
               <PersonalFinancesGrid
