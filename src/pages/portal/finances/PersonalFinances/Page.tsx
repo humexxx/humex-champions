@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import AddIcon from '@mui/icons-material/Add';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Alert, Box, Grid, Tab } from '@mui/material';
+import { Alert, Box, Grid, Tab, Typography } from '@mui/material';
 import { IDebt, IFixedExpense, IIncome } from '@shared/models/finances';
 import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
@@ -109,7 +109,7 @@ const PersonalFinancesPage = () => {
           }}
         />
         <PageContent>
-          <Box mb={2}>
+          <Box mb={4}>
             {financialPlans.length > 0 && (
               <TabContext value={selectedTab}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }} mb={2}>
@@ -170,7 +170,7 @@ const PersonalFinancesPage = () => {
                               }
                             />
                           </Grid>
-                          <Grid size={{ xs: 12, md: 4 }}>
+                          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                             <IncomeCard
                               incomes={incomes}
                               isLoading={loading}
@@ -179,7 +179,7 @@ const PersonalFinancesPage = () => {
                               }
                             />
                           </Grid>
-                          <Grid size={{ xs: 12, md: 4 }}>
+                          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                             <FixedExpenseCard
                               fixedExpenses={fixedExpenses}
                               debts={debts}
@@ -197,22 +197,33 @@ const PersonalFinancesPage = () => {
               </TabContext>
             )}
           </Box>
-          <Grid container>
+          <Grid container rowSpacing={4}>
             <Grid size={12}>
               {financialPlans.length > 0 && !loading && (
-                <PersonalFinancesGraph
-                  loading={loading}
-                  financialPlans={financialPlans}
-                  currentIndex={Number(selectedTab)}
-                />
+                <>
+                  <Typography variant="h6" mb={2}>
+                    Grafico de los planes financieros
+                  </Typography>
+                  <PersonalFinancesGraph
+                    loading={loading}
+                    financialPlans={financialPlans}
+                    currentIndex={Number(selectedTab)}
+                  />
+                </>
               )}
             </Grid>
             <Grid size={12}>
-              <PersonalFinancesGrid
-                loading={loading}
-                financialPlans={financialPlans}
-                currentIndex={Number(selectedTab)}
-              />
+              {financialPlans.length > 0 && !loading && (
+                <>
+                  <Typography variant="h6" mb={2}>
+                    Detalles del Plan Financiero
+                  </Typography>
+                  <PersonalFinancesGrid
+                    loading={loading}
+                    financialPlan={financialPlans[Number(selectedTab)]}
+                  />
+                </>
+              )}
             </Grid>
           </Grid>
         </PageContent>

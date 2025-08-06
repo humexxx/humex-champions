@@ -85,6 +85,7 @@ function ClientLayout() {
         sx={{
           flexGrow: 1,
           width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
+          maxWidth: '100%',
           minHeight: `calc(100vh - ${MAIN_HEADER_HEIGHT}px)`,
           marginTop: `${MAIN_HEADER_HEIGHT}px`,
           paddingBottom: '2rem',

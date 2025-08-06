@@ -16,7 +16,7 @@ const Page = ({
   useDocumentMetadata(`${title} - Champions`);
 
   if (useContainer) {
-    return <Container maxWidth="xl">{children}</Container>;
+    return <Container>{children}</Container>;
   }
 
   return children;

@@ -118,19 +118,12 @@ function applyAvalancheMethod(
     .sort((a, b) => b.annualInterest - a.annualInterest);
 
   for (const debt of sortedDebts) {
-    const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
-    const totalDue = debt.pendingDebt + interest;
+    const totalDue = debt.pendingDebt;
 
-    const basePayment = debt.minimumPayment;
-    const extra = surplus > 0 ? Math.min(surplus, totalDue - basePayment) : 0;
-
-    const payment = basePayment + extra;
+    const extra = surplus > 0 ? Math.min(surplus, totalDue) : 0;
     surplus -= extra;
 
-    debt.pendingDebt = Math.max(totalDue - payment, 0);
-
-    // ✅ Actualizar el minimumPayment basado en el nuevo pendingDebt
-    // ⚠️ En el futuro este porcentaje (0.03 = 3%) deberá ser dinámico según configuraciones del usuario
+    debt.pendingDebt = Math.max(totalDue - extra, 0);
     debt.minimumPayment = Math.max(debt.pendingDebt * 0.03, 50);
   }
 
@@ -146,20 +139,12 @@ function applySnowballMethod(
     .sort((a, b) => a.pendingDebt - b.pendingDebt);
 
   for (const debt of sortedDebts) {
-    const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
-    const totalDue = debt.pendingDebt + interest;
+    const totalDue = debt.pendingDebt;
 
-    const basePayment = debt.minimumPayment;
-    const availableToPay = surplus > 0 ? basePayment + surplus : basePayment;
-    const payment = Math.min(availableToPay, totalDue);
-
-    const extra = Math.max(payment - basePayment, 0);
+    const extra = surplus > 0 ? Math.min(surplus, totalDue) : 0;
     surplus -= extra;
 
-    debt.pendingDebt = Math.max(totalDue - payment, 0);
-
-    // ✅ Actualizar el minimumPayment basado en el nuevo pendingDebt
-    // ⚠️ En el futuro este porcentaje (0.03 = 3%) deberá ser dinámico según configuraciones del usuario
+    debt.pendingDebt = Math.max(totalDue - extra, 0);
     debt.minimumPayment = Math.max(debt.pendingDebt * 0.03, 50);
   }
 
@@ -178,10 +163,12 @@ function generateMonthlyFinancialSnapshotsPredictions(
   let iterations = 0;
 
   while (getTotalDebts(previousSnapshot.debts) > 0 && iterations < maxMonths) {
+    // Aplica intereses y pago mínimo aquí, solo una vez por ciclo
     let updatedDebts = previousSnapshot.debts.map((debt) => {
-      const interest = (debt.pendingDebt * debt.annualInterest) / 12;
+      const interest = (debt.pendingDebt * debt.annualInterest) / 12 / 100;
       const newPendingDebt = debt.pendingDebt + interest;
 
+      // Aplica el pago mínimo
       const paymentToApply = Math.min(debt.minimumPayment, newPendingDebt);
       const remainingDebt = newPendingDebt - paymentToApply;
 
@@ -200,7 +187,8 @@ function generateMonthlyFinancialSnapshotsPredictions(
 
     let surplus = totalIncome - totalFixedExpenses - totalMinimumPayments;
 
-    const { newDebts, surplus: remainingSurplus } =
+    // TODO: Usar el total de sobrante en el futuro
+    const { newDebts, surplus: totalSurplus } =
       type === EPayoffMethodType.AVALANCHE
         ? applyAvalancheMethod(updatedDebts, surplus)
         : applySnowballMethod(updatedDebts, surplus);
@@ -209,7 +197,7 @@ function generateMonthlyFinancialSnapshotsPredictions(
       ...previousSnapshot,
       debts: newDebts,
       reviewed: true,
-      expectedSurplus: remainingSurplus,
+      expectedSurplus: surplus,
       date,
     };
 
