@@ -1,22 +1,11 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-import { FIRESTORE_PATHS } from '@shared/consts';
 import { IFinancialPlan } from '@shared/models/finances';
-import { getError } from '@shared/utils';
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  onSnapshot,
-  getDoc,
-} from 'firebase/firestore';
 import { CommonFetchHookProps } from 'src/_models';
 import { USE_MOCKED_DATA } from 'src/consts';
 import { useAuth } from 'src/context/hooks';
-import { firestore } from 'src/firebase';
-import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
-import { MOCKED_FINANCIAL_PLAN } from 'src/mock/financeMockData';
+import { MOCKED_FINANCIAL_PLANS } from 'src/mock/financeMockData';
+import { financialPlansService } from 'src/services/finances/personalFinancesService';
 
 interface UsePersonalFinances {
   data: IFinancialPlan[];
@@ -38,112 +27,80 @@ const useFinancialPlans = (
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const collectionRef = useMemo(() => {
-    return collection(
-      firestore,
-      FIRESTORE_PATHS.FINANCES.FINANCIAL_PLANS(currentUser!.uid)
-    );
-  }, [currentUser]);
-
   useEffect(() => {
-    if (!autoLoad) return;
+    if (!autoLoad || !currentUser) return;
 
     if (USE_MOCKED_DATA || forceMock) {
-      setData([MOCKED_FINANCIAL_PLAN]);
+      setData([...MOCKED_FINANCIAL_PLANS]);
       setLoading(false);
       return;
     }
 
     setLoading(true);
 
-    const unsubscribe = onSnapshot(
-      collectionRef,
-      (snap) => {
-        if (snap.empty) {
-          setData([]);
-          setLoading(false);
-          return;
-        }
-
-        const data = snap.docs.map((doc) =>
-          normalizeObjectDates<IFinancialPlan>(
-            { id: doc.id, ...doc.data() },
-            toDayjs
-          )
-        );
-
-        setData(data);
+    const unsubscribe = financialPlansService.subscribe(
+      currentUser.uid,
+      (plans) => {
+        setData(plans);
         setLoading(false);
+        setError(null);
       },
       (error) => {
-        setError(getError(error));
+        setError(error);
         setLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [autoLoad, collectionRef, forceMock]);
+  }, [autoLoad, currentUser, forceMock]);
 
   const get = useCallback(
     async (id: string) => {
+      if (!currentUser) throw new Error('User not authenticated');
+
       if (USE_MOCKED_DATA || forceMock) {
-        return { ...MOCKED_FINANCIAL_PLAN, id };
+        const plan = MOCKED_FINANCIAL_PLANS.find((p) => p.id === id);
+        if (!plan) {
+          throw new Error('No data found');
+        }
+        return { ...plan, id };
       }
 
-      const docRef = doc(firestore, collectionRef.path, id);
-      const snap = await getDoc(docRef);
-
-      if (!snap.exists()) {
-        throw new Error('No data found');
-      }
-
-      return normalizeObjectDates<IFinancialPlan>(
-        { id: snap.id, ...snap.data() },
-        toDayjs
-      );
+      return await financialPlansService.get(currentUser.uid, id);
     },
-    [collectionRef.path, forceMock]
+    [currentUser, forceMock]
   );
 
   const getAll = useCallback(async () => {
+    if (!currentUser) throw new Error('User not authenticated');
+
     if (USE_MOCKED_DATA || forceMock) {
-      return [MOCKED_FINANCIAL_PLAN];
+      return MOCKED_FINANCIAL_PLANS;
     }
 
-    const snap = await getDocs(collectionRef);
-    if (snap.empty) {
-      return [];
-    }
-
-    return snap.docs.map((doc) =>
-      normalizeObjectDates<IFinancialPlan>(
-        { id: doc.id, ...doc.data() },
-        toDayjs
-      )
-    );
-  }, [collectionRef, forceMock]);
+    return await financialPlansService.getAll(currentUser.uid);
+  }, [currentUser, forceMock]);
 
   const set = useCallback(
     async (data: IFinancialPlan) => {
+      if (!currentUser) throw new Error('User not authenticated');
+
       if (USE_MOCKED_DATA || forceMock) {
-        Object.assign(MOCKED_FINANCIAL_PLAN, data);
-        // No needed when updating real data since are subscribed to the snapshot
-        setData((prev) => prev.map((x) => (x.id === data.id ? data : x)));
+        if (!data.id) {
+          const newPlan = {
+            ...data,
+            id: `mocked-${Date.now()}`,
+          };
+          setData((prev) => [...prev, newPlan]);
+        } else {
+          setData((prev) => prev.map((x) => (x.id === data.id ? data : x)));
+        }
         return;
       }
 
-      const docRef = data.id
-        ? doc(firestore, collectionRef.path, data.id)
-        : doc(collectionRef);
-
-      const { id: _id, ..._data } = normalizeObjectDates<IFinancialPlan>(
-        data,
-        toTimestamp
-      );
-
-      return await setDoc(docRef, _data);
+      return await financialPlansService.set(currentUser.uid, data);
     },
-    [collectionRef, forceMock]
+    [currentUser, forceMock]
   );
 
   return {

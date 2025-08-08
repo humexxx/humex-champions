@@ -9,7 +9,7 @@ interface Props {
 
 function ButtonInTabs({ onClick, tooltipText, icon, disabled = false }: Props) {
   return (
-    <Box>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Tooltip title={tooltipText}>
         <Box sx={{ display: 'inline-block' }}>
           <IconButton color="primary" onClick={onClick} disabled={disabled}>

@@ -137,7 +137,6 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
         EPayoffMethodType.SNOWBALL,
         12
       );
-    console.log('Snowball Financial Plan:', generatedFinancialSnapshots);
 
     return {
       ...structuredClone(financialPlan),

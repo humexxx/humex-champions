@@ -54,7 +54,7 @@ const MOCKED_FIXED_EXPENSES: IFixedExpense[] = [
   },
 ];
 
-export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
+const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
   id: '123',
   name: 'Mocked Financial Plan',
   debts: MOCKED_DEBTS,
@@ -81,3 +81,5 @@ export const MOCKED_FINANCIAL_PLAN: IFinancialPlan = {
     },
   ],
 };
+
+export const MOCKED_FINANCIAL_PLANS: IFinancialPlan[] = [MOCKED_FINANCIAL_PLAN];

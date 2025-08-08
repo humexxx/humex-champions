@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import AddIcon from '@mui/icons-material/Add';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
@@ -19,6 +19,8 @@ import {
 } from './_components';
 import useFinancialPlans from './useFinancialPlans';
 
+const MAX_PLANS = 5;
+
 function getTabProps(id: string) {
   return {
     id: `tab-${id}`,
@@ -30,24 +32,21 @@ const PersonalFinancesPage = () => {
   const { t } = useTranslation();
 
   const { data: financialPlans, error, loading, set } = useFinancialPlans();
+  const [_, setIsAddingNewPlan] = useState(false);
   const [selectedTab, setSelectedTab] = useState('0');
 
-  const isCreateNewPlanDisabled = useMemo(
-    () =>
-      Boolean(
-        financialPlans.length &&
-          financialPlans[0].financialSnapshots.at(-1)?.debts.length &&
-          financialPlans[0].fixedExpenses.length &&
-          financialPlans[0].incomes.length
-      ),
-    [financialPlans]
-  );
+  useEffect(() => {
+    if (financialPlans?.length) {
+      setSelectedTab(financialPlans.length - 1 + '');
+      setIsAddingNewPlan(false);
+    }
+  }, [financialPlans.length]);
 
   function handleCreateNewPlan() {
     set({
       ...financialPlans[0],
-      id: '',
       name: `Plan ${financialPlans.length + 1}`,
+      id: '',
     });
   }
 
@@ -71,6 +70,7 @@ const PersonalFinancesPage = () => {
       }),
     };
     set(plan);
+    setIsAddingNewPlan(true);
   }
 
   function _updateDebts(planId: string, data: IDebt[]) {
@@ -139,13 +139,9 @@ const PersonalFinancesPage = () => {
                       />
                     ))}
                     <ButtonInTabs
-                      tooltipText={
-                        !isCreateNewPlanDisabled
-                          ? t('finances.personalFinances.addPlan')
-                          : t('finances.personalFinances.addPlanHint')
-                      }
+                      tooltipText="Add a new financial plan to compare different scenarios"
                       onClick={handleCreateNewPlan}
-                      disabled={isCreateNewPlanDisabled || loading}
+                      disabled={financialPlans.length >= MAX_PLANS || loading}
                       icon={<AddIcon />}
                     />
                   </TabList>

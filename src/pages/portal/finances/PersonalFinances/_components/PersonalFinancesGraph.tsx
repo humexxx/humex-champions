@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 import { formatCompactNumber, normalizeObjectDates, toDayjs } from 'src/utils';
 import { financeUtils } from '@shared/utils';
 import { CustomAnimatedLine } from 'src/components/graphs';
-import { SYSTEM } from 'src/consts';
 import { EPayoffMethodType } from '@shared/enums/finance';
 
 const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
@@ -55,57 +54,89 @@ const PersonalFinancesGraph = ({
     );
   }, [financialPlans]);
 
-  const _avalancheFinancialPlan = useMemo(() => {
-    const plan = _clonedFinancialPlans[currentIndex];
+  const _allPlansWithPredictions = useMemo(() => {
+    return _clonedFinancialPlans.flatMap((plan, index) => {
+      // El plan seleccionado (currentIndex) tiene color principal, los demás usan getColorForPlan
+      const baseColor =
+        index === currentIndex
+          ? theme.palette.primary.main
+          : getColorForPlan(
+              index,
+              _clonedFinancialPlans.length,
+              theme.palette.primary.main
+            );
 
-    const generatedFinancialSnapshots =
-      financeUtils.generateMonthlyFinancialSnapshotsPredictions(
-        plan.financialSnapshots.at(-1)!,
-        EPayoffMethodType.AVALANCHE,
-        NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
-      );
+      // Plan original
+      const originalPlan = {
+        ...plan,
+        displayName: plan.name,
+        color: baseColor,
+      };
 
-    return {
-      ...plan,
-      name: `${SYSTEM}_AVALANCHE`,
-      financialSnapshots: generatedFinancialSnapshots,
-    };
-  }, [financialPlans, currentIndex]);
+      // Predicciones Avalanche
+      const avalancheSnapshots =
+        financeUtils.generateMonthlyFinancialSnapshotsPredictions(
+          plan.financialSnapshots.at(-1)!,
+          EPayoffMethodType.AVALANCHE,
+          NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
+        );
 
-  const _snowballFinancialPlan = useMemo(() => {
-    const plan = _clonedFinancialPlans[currentIndex];
+      const avalanchePlan = {
+        ...plan,
+        name: `${plan.name}_AVALANCHE`,
+        displayName: `${plan.name} (Avalanche)`,
+        financialSnapshots: avalancheSnapshots,
+        color: alpha(
+          typeof baseColor === 'string'
+            ? baseColor
+            : theme.palette.primary.main,
+          0.7
+        ),
+      };
 
-    const generatedFinancialSnapshots =
-      financeUtils.generateMonthlyFinancialSnapshotsPredictions(
-        plan.financialSnapshots.at(-1)!,
-        EPayoffMethodType.SNOWBALL,
-        NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
-      );
+      // Predicciones Snowball
+      const snowballSnapshots =
+        financeUtils.generateMonthlyFinancialSnapshotsPredictions(
+          plan.financialSnapshots.at(-1)!,
+          EPayoffMethodType.SNOWBALL,
+          NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
+        );
 
-    return {
-      ...plan,
-      name: `${SYSTEM}_SNOWBALL`,
-      financialSnapshots: generatedFinancialSnapshots,
-    };
-  }, [financialPlans, currentIndex]);
+      const snowballPlan = {
+        ...plan,
+        name: `${plan.name}_SNOWBALL`,
+        displayName: `${plan.name} (Snowball)`,
+        financialSnapshots: snowballSnapshots,
+        color: alpha(
+          typeof baseColor === 'string'
+            ? baseColor
+            : theme.palette.primary.main,
+          0.5
+        ),
+      };
+
+      return [originalPlan, avalanchePlan, snowballPlan];
+    });
+  }, [_clonedFinancialPlans, currentIndex, viewSize, theme]);
 
   const datasets = useMemo(() => {
-    // TODO: pensar una mejor forma en el futuro
-    // Quizas agregar un promedio
-    _clonedFinancialPlans.forEach((plan) => {
-      plan.financialSnapshots.push(
-        _avalancheFinancialPlan!.financialSnapshots[0]
-      );
-    });
+    // Crear un bridge snapshot para conectar los datos históricos con las predicciones
+    const plansWithBridgeSnapshot = _clonedFinancialPlans.map((plan) => ({
+      ...plan,
+      financialSnapshots: [
+        ...plan.financialSnapshots,
+        // Tomar el primer snapshot de las predicciones como puente
+        _allPlansWithPredictions.find(
+          (p) => p.name === `${plan.name}_AVALANCHE`
+        )?.financialSnapshots[0]!,
+      ],
+    }));
 
     const monthlyDebtsMap: Record<string, { [key: string]: number | Date }> =
       {};
-    [
-      ..._clonedFinancialPlans,
-      _avalancheFinancialPlan,
-      _snowballFinancialPlan,
-    ].forEach((plan) => {
-      if (!plan) return;
+
+    // Procesar planes originales con bridge
+    plansWithBridgeSnapshot.forEach((plan) => {
       plan.financialSnapshots.forEach((snapshot) => {
         const monthKey = snapshot.date.startOf('month').format('YYYY-MM');
 
@@ -116,8 +147,40 @@ const PersonalFinancesGraph = ({
         }
 
         const totalDebts = financeUtils.getTotalDebts(snapshot.debts);
-        monthlyDebtsMap[monthKey][plan.name] = totalDebts;
+        // Solo agregar si el valor es válido (no undefined, null, o NaN)
+        if (
+          totalDebts !== undefined &&
+          totalDebts !== null &&
+          !isNaN(totalDebts)
+        ) {
+          monthlyDebtsMap[monthKey][plan.name] = totalDebts;
+        }
       });
+    });
+
+    // Procesar todas las predicciones
+    _allPlansWithPredictions.forEach((plan) => {
+      if (plan.name.includes('_AVALANCHE') || plan.name.includes('_SNOWBALL')) {
+        plan.financialSnapshots.forEach((snapshot) => {
+          const monthKey = snapshot.date.startOf('month').format('YYYY-MM');
+
+          if (!monthlyDebtsMap[monthKey]) {
+            monthlyDebtsMap[monthKey] = {
+              date: snapshot.date.startOf('month').toDate(),
+            };
+          }
+
+          const totalDebts = financeUtils.getTotalDebts(snapshot.debts);
+          // Solo agregar si el valor es válido (no undefined, null, o NaN)
+          if (
+            totalDebts !== undefined &&
+            totalDebts !== null &&
+            !isNaN(totalDebts)
+          ) {
+            monthlyDebtsMap[monthKey][plan.name] = totalDebts;
+          }
+        });
+      }
     });
 
     const datasetsResult = Object.values(monthlyDebtsMap).sort(
@@ -125,24 +188,93 @@ const PersonalFinancesGraph = ({
     );
 
     return datasetsResult;
-  }, [financialPlans, currentIndex]);
+  }, [_clonedFinancialPlans, _allPlansWithPredictions]);
 
   const series = useMemo(() => {
-    const plans = [
-      ..._clonedFinancialPlans,
-      _avalancheFinancialPlan,
-      _snowballFinancialPlan,
-    ].filter(Boolean) as IFinancialPlan[];
+    // Crear todas las series: planes originales + predicciones
+    const allSeries: any[] = [];
 
-    return plans.map((plan, index) => ({
-      dataKey: plan.name,
-      color: getColorForPlan(index, plans.length, theme.palette.primary.main),
-      valueFormatter: (value: any, i: any) =>
-        `$${value?.toFixed(2)} ${
-          datasets[i.dataIndex].date > new Date() ? ` (Prediction)` : ''
-        }`,
-    }));
-  }, [financialPlans, currentIndex, theme]);
+    // Primero añadir los planes originales (solo si tienen datos históricos válidos)
+    _clonedFinancialPlans.forEach((plan, index) => {
+      // Verificar que el plan tenga snapshots Y que al menos uno tenga datos de deuda válidos
+      if (plan.financialSnapshots && plan.financialSnapshots.length > 0) {
+        const hasValidHistoricalData = plan.financialSnapshots.some(
+          (snapshot) => {
+            const totalDebts = financeUtils.getTotalDebts(snapshot.debts);
+            return (
+              totalDebts !== undefined &&
+              totalDebts !== null &&
+              !isNaN(totalDebts)
+            );
+          }
+        );
+
+        if (hasValidHistoricalData) {
+          const color =
+            index === currentIndex
+              ? theme.palette.primary.main
+              : getColorForPlan(
+                  index,
+                  _clonedFinancialPlans.length,
+                  theme.palette.primary.main
+                );
+
+          allSeries.push({
+            dataKey: plan.name,
+            color: color,
+            valueFormatter: (value: any, i: any) => {
+              if (value === undefined || value === null || isNaN(value)) {
+                return 'No data';
+              }
+              return `$${value?.toFixed(2)} ${
+                datasets[i.dataIndex].date > new Date() ? ` (Prediction)` : ''
+              }`;
+            },
+          });
+        }
+      }
+    });
+
+    // Luego añadir las predicciones (solo si tienen datos válidos)
+    _allPlansWithPredictions.forEach((plan) => {
+      if (plan.name.includes('_AVALANCHE') || plan.name.includes('_SNOWBALL')) {
+        // Verificar que las predicciones tienen snapshots válidos Y datos válidos
+        if (plan.financialSnapshots && plan.financialSnapshots.length > 0) {
+          const hasValidPredictionData = plan.financialSnapshots.some(
+            (snapshot) => {
+              const totalDebts = financeUtils.getTotalDebts(snapshot.debts);
+              return (
+                totalDebts !== undefined &&
+                totalDebts !== null &&
+                !isNaN(totalDebts)
+              );
+            }
+          );
+
+          if (hasValidPredictionData) {
+            allSeries.push({
+              dataKey: plan.name,
+              color: plan.color,
+              valueFormatter: (value: any) => {
+                if (value === undefined || value === null || isNaN(value)) {
+                  return 'No data';
+                }
+                return `$${value?.toFixed(2)} ${plan.displayName} (Prediction)`;
+              },
+            });
+          }
+        }
+      }
+    });
+
+    return allSeries;
+  }, [
+    _clonedFinancialPlans,
+    _allPlansWithPredictions,
+    currentIndex,
+    theme,
+    datasets,
+  ]);
 
   if (loading) return null;
 
