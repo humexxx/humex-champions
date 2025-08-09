@@ -1,4 +1,4 @@
-import { EPeriodType } from '@shared/enums/finance';
+import { PeriodType } from '@shared/enums/finance';
 import { Dayjs } from 'dayjs';
 
 export interface IFinancialPlan {
@@ -13,7 +13,7 @@ export interface IFinancialPlan {
 
 export interface IIncome {
   amount: number;
-  period: EPeriodType;
+  period: PeriodType;
   name: string;
   date?: Dayjs;
 }

@@ -1,135 +1,114 @@
-import { Alert } from '@mui/material';
-import { IPortfolioSnapshot } from '@shared/models/finances';
-import { Dayjs } from 'dayjs';
-import { GlobalLoader, PageContent, PageHeader } from 'src/components';
+import { Grid } from '@mui/material';
+import { PageContent, PageHeader } from 'src/components';
+import {
+  PortfolioHeader,
+  PortfolioChart,
+  HoldingsTable,
+  PortfolioHighlights,
+} from './_components';
 import { ROUTES } from 'src/consts';
-import { toDayjs } from 'src/utils';
+import { Page } from 'src/components/layout';
+import { useState } from 'react';
+import {
+  TIME_FILTERS,
+  TimeFilter,
+} from '../../../../../shared/enums/finance/timeFilters';
 
-import { CreatePortfolio, PortfolioView } from './_components';
-import { usePortfolio } from './hooks';
+// Mock data for the chart
+const chartData = [3333.5, 3400, 120417.6];
+const chartLabels = ['May 2025', 'Jun 2025', 'Jul 2025'];
 
-const mockData: IPortfolioSnapshot<Dayjs>[] = [
+// Mock portfolio data
+const portfolioData = {
+  name: 'MVP',
+  totalValue: 120417.6,
+  totalGain: 117084.1,
+  totalGainPercentage: 3512.36,
+  lastUpdate: '9 ago, 3:34:53 p.m. UTC-6 · USD · Renuncia de responsabilidad',
+  dailyGain: -212.58,
+  dailyGainPercentage: -0.18,
+  overallGain: 299.4,
+  overallGainPercentage: 0.25,
+  cryptoPercentage: 100,
+};
+
+const holdings = [
   {
-    date: toDayjs(new Date('2021-01-01')),
-    id: '1',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 50,
-        value: 1000,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 50,
-        value: 1000,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
+    symbol: 'BTC',
+    name: 'Bitcoin (BTC / USD)',
+    price: 116383.2,
+    quantity: 1,
+    dailyChange: -295.08,
+    dailyChangePercentage: -0.25,
+    value: 116383.2,
   },
   {
-    date: toDayjs(new Date('2021-04-01')),
-    id: '2',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 60,
-        value: 1200,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 40,
-        value: 800,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
-  },
-  {
-    date: toDayjs(new Date('2021-08-01')),
-    id: '3',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 70,
-        value: 1400,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 30,
-        value: 600,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
-  },
-  {
-    date: toDayjs(new Date('2021-12-01')),
-    id: '4',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 80,
-        value: 1600,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 20,
-        value: 400,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
+    symbol: 'ADA',
+    name: 'Cardano (ADA / USD)',
+    price: 0.81,
+    quantity: 5000,
+    dailyChange: 82.5,
+    dailyChangePercentage: 2.09,
+    value: 4034.4,
   },
 ];
 
-const Page = () => {
-  const { error, isLoading, portfolioSnapshots, initPortfolio } =
-    usePortfolio();
-
-  if (error) {
-    return <Alert severity="error">{error.message}</Alert>;
-  }
+const PortafolioPage = () => {
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<TimeFilter>(
+    TIME_FILTERS.ONE_YEAR
+  );
 
   return (
-    <>
+    <Page title="Portafolio">
       <PageHeader
         title={'Portfolio'}
-        breadcrumb={[
-          {
+        navigator={{
+          breadcrumb: [{ title: 'Portfolio', route: 'portfolio' }],
+          link: {
             title: 'Finances',
             route: ROUTES.PORTAL.FINANCES.INDEX,
           },
-          {
-            title: 'Portfolio',
-            route: 'portfolio',
-          },
-        ]}
+        }}
       />
 
       <PageContent>
-        {isLoading ? (
-          <GlobalLoader />
-        ) : portfolioSnapshots.length ? (
-          <PortfolioView portfolioSnapshots={mockData} />
-        ) : (
-          <CreatePortfolio onSubmit={initPortfolio} pageLoading={isLoading} />
-        )}
+        <PortfolioHeader
+          name={portfolioData.name}
+          totalValue={portfolioData.totalValue}
+          totalGain={portfolioData.totalGain}
+          totalGainPercentage={portfolioData.totalGainPercentage}
+          lastUpdate={portfolioData.lastUpdate}
+          selectedTimeFilter={selectedTimeFilter}
+        />
+
+        <Grid container spacing={3}>
+          {/* Left Column - Main Chart and Stats */}
+          <Grid size={{ xs: 12, md: 8 }}>
+            <PortfolioChart
+              chartData={chartData}
+              chartLabels={chartLabels}
+              selectedTimeFilter={selectedTimeFilter}
+              timeFilters={Object.values(TIME_FILTERS)}
+              onTimeFilterChange={setSelectedTimeFilter}
+            />
+
+            <HoldingsTable holdings={holdings} />
+          </Grid>
+
+          {/* Right Column - Portfolio Highlights */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <PortfolioHighlights
+              dailyGain={portfolioData.dailyGain}
+              dailyGainPercentage={portfolioData.dailyGainPercentage}
+              overallGain={portfolioData.overallGain}
+              overallGainPercentage={portfolioData.overallGainPercentage}
+              cryptoPercentage={portfolioData.cryptoPercentage}
+            />
+          </Grid>
+        </Grid>
       </PageContent>
-    </>
+    </Page>
   );
 };
 
-export default Page;
+export default PortafolioPage;

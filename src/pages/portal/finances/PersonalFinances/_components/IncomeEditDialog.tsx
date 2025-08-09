@@ -34,7 +34,7 @@ import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
-import { EPeriodType } from '@shared/enums/finance';
+import { PeriodType, PERIOD_TYPES } from '@shared/enums/finance';
 
 interface Props {
   onSubmit: (data: IIncome[]) => void;
@@ -57,8 +57,8 @@ const schema = yup.object().shape({
         .required('This field is required')
         .moreThan(-1),
       period: yup
-        .mixed<EPeriodType>()
-        .oneOf(Object.values(EPeriodType), 'Invalid type')
+        .mixed<PeriodType>()
+        .oneOf(Object.values(PERIOD_TYPES), 'Invalid type')
         .required('This field is required')
         .nonNullable(),
       date: yupDayjs.nonNullable(),
@@ -118,7 +118,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
   function handleOnNewIncome() {
     append({
       amount: 0,
-      period: EPeriodType.MONTHLY,
+      period: PERIOD_TYPES.MONTHLY,
       name: `Income ${fields.length + 1}`,
     });
     setIndexToEdit(fields.length);
@@ -222,16 +222,16 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                                 errors?.incomes?.[indexToEdit]?.period?.message
                               }
                             >
-                              <MenuItem value={EPeriodType.SINGLE}>
+                              <MenuItem value={PERIOD_TYPES.SINGLE}>
                                 Single
                               </MenuItem>
-                              <MenuItem value={EPeriodType.WEEKLY}>
+                              <MenuItem value={PERIOD_TYPES.WEEKLY}>
                                 Weekly
                               </MenuItem>
-                              <MenuItem value={EPeriodType.MONTHLY}>
+                              <MenuItem value={PERIOD_TYPES.MONTHLY}>
                                 Monthly
                               </MenuItem>
-                              <MenuItem value={EPeriodType.YEARLY}>
+                              <MenuItem value={PERIOD_TYPES.YEARLY}>
                                 Yearly
                               </MenuItem>
                             </TextField>

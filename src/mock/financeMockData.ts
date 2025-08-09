@@ -1,10 +1,10 @@
-import { EPeriodType } from '@shared/enums/finance';
 import {
   IDebt,
   IFinancialPlan,
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
+import { PERIOD_TYPES } from '@shared/enums/finance';
 import dayjs from 'dayjs';
 
 const firstDayOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
@@ -31,12 +31,12 @@ const MOCKED_INCOMES: IIncome[] = [
   {
     amount: 8900,
     name: 'Mocked Income',
-    period: EPeriodType.MONTHLY,
+    period: PERIOD_TYPES.MONTHLY,
   },
   {
     amount: 5000,
     name: 'Mocked Income',
-    period: EPeriodType.SINGLE,
+    period: PERIOD_TYPES.SINGLE,
     date: dayjs('07/01/2025'),
   },
 ];
