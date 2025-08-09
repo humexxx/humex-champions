@@ -3,7 +3,7 @@ import { createContext, PropsWithChildren, useEffect, useState } from 'react';
 import { EProviderType } from '@shared/enums';
 import { IdTokenResult, User, onAuthStateChanged } from 'firebase/auth';
 import { GlobalLoader } from 'src/components';
-import { USE_ADMIN_ROLE, USE_MOCKED_DATA } from 'src/consts';
+import { ENV } from 'src/consts';
 import { auth } from 'src/firebase';
 import { MOCKED_USER } from 'src/mock/authMockData';
 
@@ -25,9 +25,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (USE_MOCKED_DATA) {
+    if (ENV.USE_MOCKED_USER) {
       setCurrentUser(MOCKED_USER);
-      setIsAdmin(USE_ADMIN_ROLE);
+      setIsAdmin(ENV.USE_ADMIN_ROLE);
       setLoading(false);
       return;
     }
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       if (user) {
         const token = await user.getIdTokenResult();
         setToken(token);
-        setIsAdmin(Boolean(token.claims.admin) || USE_ADMIN_ROLE);
+        setIsAdmin(Boolean(token.claims.admin) || ENV.USE_ADMIN_ROLE);
       }
 
       // Get claims

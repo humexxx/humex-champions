@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { CALLABLE_FUNCTIONS } from '@shared/consts';
 import { CommonFetchHookProps } from 'src/_models';
-import { USE_MOCKED_DATA } from 'src/consts';
+import { ENV } from 'src/consts';
 import { useAuth } from 'src/context/hooks';
 import { functions } from 'src/firebase';
 import { ISummary } from '@shared/models/dashboard';
@@ -36,7 +36,7 @@ const useSummary = (
   async function fetchData() {
     setLoading(true);
 
-    if (USE_MOCKED_DATA || forceMock) {
+    if (ENV.USE_MOCKED_DATA || forceMock) {
       setData(MOCKED_SUMMARY);
       setLoading(false);
       return MOCKED_SUMMARY;

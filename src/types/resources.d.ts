@@ -37,6 +37,11 @@ interface Resources {
         "description": "Manage your personal finances and keep track of your expenses and income.",
         "addPlan": "Add Plan",
         "addPlanHint": "Main plan should have data",
+        "noPlans": {
+          "title": "No Financial Plans Found",
+          "description": "Create your first financial plan to start organizing your income, expenses, and debts.",
+          "createButton": "Create My First Plan"
+        },
         "header": {
           "debts": {
             "title": "Debts",

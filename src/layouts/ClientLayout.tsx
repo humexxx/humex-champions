@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Box, Drawer } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { PrivateRoute } from 'src/components/auth';
-import { VERSION } from 'src/consts';
+import { ENV } from 'src/consts';
 import { useThemeContext } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
 
@@ -63,7 +63,7 @@ function ClientLayout() {
             },
           }}
         >
-          <Sidebar title="Champions" version={VERSION} />
+          <Sidebar title="Champions" version={ENV.APP_VERSION} />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -77,7 +77,7 @@ function ClientLayout() {
           }}
           open
         >
-          <Sidebar title="Champions" version={VERSION} />
+          <Sidebar title="Champions" version={ENV.APP_VERSION} />
         </Drawer>
       </Box>
       <Box
