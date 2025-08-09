@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import { IOperation, ITrade } from '@shared/models/finances';
 import dayjs, { Dayjs } from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ConfirmDialog } from 'src/components';
 import { ROUTES } from 'src/consts';
@@ -25,10 +24,9 @@ import {
   OperationsHistoryChart,
   Timeline,
   Quote,
-} from './components';
+} from './_components';
 
 const TradingJournalPage = () => {
-  const { t } = useTranslation();
   const [filter, setFilter] = useState<'day' | 'week' | 'month'>('day');
   const pendingFilter = useRef<'day' | 'week' | 'month'>('day');
   const [day, setDay] = useState<Dayjs>(dayjs());
@@ -87,8 +85,8 @@ const TradingJournalPage = () => {
   return (
     <>
       <ConfirmDialog
-        title={t('finances.tradingJournal.formIsDirtyTitle')}
-        description={t('finances.tradingJournal.formIsDirtyDescription')}
+        title="Unsaved Changes"
+        description="You have unsaved changes. Are you sure you want to continue?"
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onConfirm={() => {
@@ -101,11 +99,9 @@ const TradingJournalPage = () => {
           to={ROUTES.PORTAL.FINANCES.INDEX}
           style={{ textDecoration: 'none' }}
         >
-          {t('finances.title')}
+          Finances
         </Link>
-        <Typography variant="h6">
-          {t('finances.tradingJournal.title')}
-        </Typography>
+        <Typography variant="h6">Trading Journal</Typography>
       </Breadcrumbs>
       <Box mt={4}>
         <Grid container columnSpacing={4}>
@@ -115,19 +111,19 @@ const TradingJournalPage = () => {
                 variant={filter === 'day' ? 'contained' : 'outlined'}
                 onClick={handleFilterChange('day')}
               >
-                {t('finances.tradingJournal.day')}
+                Day
               </Button>
               <Button
                 variant={filter === 'week' ? 'contained' : 'outlined'}
                 onClick={handleFilterChange('week')}
               >
-                {t('finances.tradingJournal.week')}
+                Week
               </Button>
               <Button
                 variant={filter === 'month' ? 'contained' : 'outlined'}
                 onClick={handleFilterChange('month')}
               >
-                {t('finances.tradingJournal.month')}
+                Month
               </Button>
             </ButtonGroup>
           </Grid>

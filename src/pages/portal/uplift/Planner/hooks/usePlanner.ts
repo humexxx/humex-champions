@@ -6,7 +6,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { objectDateConverter, toDayjs } from 'src/utils';
+import { normalizeObjectDates, toDayjs } from 'src/utils';
 
 export default function usePlanner() {
   const { currentUser } = useAuth();
@@ -65,7 +65,7 @@ export default function usePlanner() {
           const plannerList = snapshot.docs.map((doc) => {
             const docData = doc.data();
             docData.id = doc.id;
-            return objectDateConverter(docData, toDayjs);
+            return normalizeObjectDates(docData, toDayjs);
           }) as IPlanner<Dayjs>[];
 
           setPlannerList(plannerList);

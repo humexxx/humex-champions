@@ -22,17 +22,20 @@ const CurrencyField = forwardRef<HTMLInputElement, TextFieldProps & Props>(
         {...props}
         inputRef={ref}
         type="number"
-        InputProps={{
-          ...props.InputProps,
-          startAdornment: (
-            <InputAdornment position="start">
-              {getCurrencySymbol(currency)}
-            </InputAdornment>
-          ),
-        }}
-        inputProps={{
-          ...props.inputProps,
-          step: 'any',
+        slotProps={{
+          input: {
+            ...props.slotProps?.input,
+            startAdornment: (
+              <InputAdornment position="start">
+                {getCurrencySymbol(currency)}
+              </InputAdornment>
+            ),
+          },
+          htmlInput: {
+            step: 'any',
+            ...props.slotProps?.htmlInput,
+          },
+          ...props.slotProps,
         }}
         onFocus={(event) => {
           event.target.select();

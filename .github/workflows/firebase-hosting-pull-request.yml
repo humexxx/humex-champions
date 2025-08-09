@@ -34,3 +34,12 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HUMEX_CHAMPIONS }}
           projectId: humex-champions
+
+      - name: Deploy Functions
+        run: |
+          cd functions
+          npm ci
+          npm run deploy
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HUMEX_CHAMPIONS }}
+          FIREBASE_PROJECT_ID: humex-champions

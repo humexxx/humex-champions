@@ -1,10 +1,13 @@
+import { FIRESTORE_PATHS } from '@shared/consts';
+import { ICallableRequest, ICallableResponse } from '@shared/models';
 import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions';
+import { https } from 'firebase-functions';
+import { pubsub } from 'firebase-functions/v1';
 
 const db = admin.firestore();
 const DEFAULT_PERCENTAGE_INCREMENT = 0.03;
 
-export const portfolioQuarterlyUpdate = functions.pubsub
+export const portfolioQuarterlyUpdate = pubsub
   // Se ejecuta cada hora el primer día de enero, abril, julio y octubre
   .schedule('0 * 1 1,4,7,10 *')
   .onRun(async () => {
@@ -69,15 +72,15 @@ export const portfolioQuarterlyUpdate = functions.pubsub
     }
   });
 
-export const adminPortfolioSnapshotGeneration = functions.https.onCall(
-  async (_, context) => {
-    if (!context.auth || !context.auth.token.admin) {
-      return { error: 'Only admins can generate snapshots.' };
+export const adminPortfolioSnapshotGeneration = https.onCall<ICallableRequest>(
+  async (req): Promise<ICallableResponse<{ message: string; doc: any }>> => {
+    if (!req.auth?.uid || !req.auth.token.admin) {
+      return { success: false, error: 'Only admins can generate snapshots.' };
     }
 
     try {
       const lastPortfolioSnapshot = await db
-        .collection(`finances/${context.auth.uid}/portfolio`)
+        .collection(FIRESTORE_PATHS.FINANCES.PORTFOLIO(req.auth.uid))
         .orderBy('date', 'desc')
         .limit(1)
         .get();
@@ -104,18 +107,21 @@ export const adminPortfolioSnapshotGeneration = functions.https.onCall(
         };
 
         await db
-          .collection(`finances/${context.auth.uid}/portfolio`)
+          .collection(FIRESTORE_PATHS.FINANCES.PORTFOLIO(req.auth.uid))
           .add(newDocData);
 
         return {
-          message: 'Portfolio snapshot generated successfully.',
-          data: newDocData,
+          success: true,
+          data: {
+            message: 'Portfolio snapshot generated successfully.',
+            doc: newDocData,
+          },
         };
       }
-      return { message: 'No previous snapshot found.' };
+      return { success: false, error: 'No previous snapshot found.' };
     } catch (error) {
       console.error(error);
-      return { error: 'Error generating snapshot.' };
+      return { success: false, error: 'Error generating snapshot.' };
     }
   }
 );

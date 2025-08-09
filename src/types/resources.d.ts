@@ -37,11 +37,16 @@ interface Resources {
         "description": "Manage your personal finances and keep track of your expenses and income.",
         "addPlan": "Add Plan",
         "addPlanHint": "Main plan should have data",
+        "noPlans": {
+          "title": "No Financial Plans Found",
+          "description": "Create your first financial plan to start organizing your income, expenses, and debts.",
+          "createButton": "Create My First Plan"
+        },
         "header": {
           "debts": {
             "title": "Debts",
-            "total": "Total",
-            "minimumPayment": "Min. payment",
+            "total": "Total Monthly",
+            "left": "Left to pay",
             "interest": "Weighted interest",
             "noDebts": "No debts found.",
             "dialog": {
@@ -59,12 +64,12 @@ interface Resources {
           },
           "incomes": {
             "title": "Income",
-            "total": "Total",
+            "total": "Total Monthly",
             "month": "month",
-            "nextExtraordinaryPayment": "Next extraordinary payment",
+            "nextExtraordinaryPayment": "Next extra payment",
             "noIncome": "No income found.",
             "dialog": {
-              "title": "Edit monthly income",
+              "title": "Edit Incomes",
               "period": "Period",
               "amount": "Amount",
               "startDate": "Start Date",

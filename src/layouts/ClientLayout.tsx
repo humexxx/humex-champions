@@ -3,8 +3,8 @@ import * as React from 'react';
 import { Box, Drawer } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { PrivateRoute } from 'src/components/auth';
-import { VERSION } from 'src/consts';
-import { ThemeProvider, useThemeContext } from 'src/context/theme';
+import { ENV } from 'src/consts';
+import { useThemeContext } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
 
 import { Header, Sidebar } from './components';
@@ -63,7 +63,7 @@ function ClientLayout() {
             },
           }}
         >
-          <Sidebar title="Champions" version={VERSION} />
+          <Sidebar title="Champions" version={ENV.APP_VERSION} />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -77,7 +77,7 @@ function ClientLayout() {
           }}
           open
         >
-          <Sidebar title="Champions" version={VERSION} />
+          <Sidebar title="Champions" version={ENV.APP_VERSION} />
         </Drawer>
       </Box>
       <Box
@@ -85,8 +85,10 @@ function ClientLayout() {
         sx={{
           flexGrow: 1,
           width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
+          maxWidth: '100%',
           minHeight: `calc(100vh - ${MAIN_HEADER_HEIGHT}px)`,
           marginTop: `${MAIN_HEADER_HEIGHT}px`,
+          paddingBottom: '2rem',
         }}
       >
         <Outlet />
@@ -98,9 +100,7 @@ function ClientLayout() {
 export default function ClientLayoutWrapper() {
   return (
     <PrivateRoute>
-      <ThemeProvider>
-        <ClientLayout />
-      </ThemeProvider>
+      <ClientLayout />
     </PrivateRoute>
   );
 }

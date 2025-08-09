@@ -21,13 +21,11 @@ import {
 import { ELabelColorType } from '@shared/enums/ELabelColorType';
 import { ILabel } from '@shared/models/uplift';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 
 import { UseUplift } from '../../hooks/useUplift';
 
 const LabelsDialog = ({ uplift }: { uplift: UseUplift }) => {
-  const { t } = useTranslation();
   const schema = useMemo(
     () =>
       yup.object().shape({

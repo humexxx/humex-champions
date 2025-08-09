@@ -1,11 +1,12 @@
-import { IChecklist, IChecklistItem } from '@shared/models/uplift';
+import { FIRESTORE_PATHS } from '@shared/consts';
+import { ICallableRequest, ICallableResponse } from '@shared/models';
 import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
-import * as functions from 'firebase-functions';
+import { https } from 'firebase-functions';
+import { pubsub } from 'firebase-functions/v1';
 
 const db = admin.firestore();
 
-export const checklistReportGeneration = functions.pubsub
+export const checklistReportGeneration = pubsub
   .schedule('every 1 hours') // Se ejecuta cada hora
   .onRun(async () => {
     try {
@@ -29,12 +30,12 @@ export const checklistReportGeneration = functions.pubsub
 
             if (!lastChecklistSnapshot.empty) {
               const lastDoc = lastChecklistSnapshot.docs[0];
-              const lastData = lastDoc.data() as IChecklist<Timestamp>;
+              const lastData = lastDoc.data() as any;
 
               if (lastData.date.toDate().getDate() === now.getDate() - 1) {
                 if (lastData.items && lastData.items.length > 0) {
                   const completedItems = lastData.items.filter(
-                    (item: IChecklistItem) => item.completed
+                    (item: any) => item.completed
                   ).length;
 
                   const totalItems = lastData.items.length;
@@ -47,11 +48,14 @@ export const checklistReportGeneration = functions.pubsub
 
                   // Mover ítems no completados al checklist de hoy
                   const uncompletedItems = lastData.items
-                    .filter((item) => !item.completed)
-                    .map((item) => ({ ...item, movedFromYesterday: true }));
+                    .filter((item: any) => !item.completed)
+                    .map((item: any) => ({
+                      ...item,
+                      movedFromYesterday: true,
+                    }));
 
                   if (uncompletedItems.length > 0) {
-                    const newDocData: IChecklist<Timestamp> = {
+                    const newDocData: any = {
                       date: admin.firestore.Timestamp.fromDate(new Date()),
                       items: uncompletedItems,
                     };
@@ -73,26 +77,26 @@ export const checklistReportGeneration = functions.pubsub
     }
   });
 
-export const adminChecklistReportGeneration = functions.https.onCall(
-  async (_, context) => {
-    if (!context.auth || !context.auth.token.admin) {
-      return { error: 'Only admins can generate reports.' };
+export const adminChecklistReportGeneration = https.onCall<ICallableRequest>(
+  async (req): Promise<ICallableResponse<{ message: string; doc: any }>> => {
+    if (!req.auth?.uid || !req.auth.token.admin) {
+      return { success: false, error: 'Only admins can generate reports.' };
     }
 
     try {
       const lastChecklistSnapshot = await db
-        .collection(`uplift/${context.auth.uid}/checklist`)
+        .collection(FIRESTORE_PATHS.UPLIFT.CHECKLIST(req.auth.uid))
         .orderBy('date', 'desc')
         .limit(1)
         .get();
 
       if (!lastChecklistSnapshot.empty) {
         const lastDoc = lastChecklistSnapshot.docs[0];
-        const lastData = lastDoc.data() as IChecklist;
+        const lastData = lastDoc.data() as any;
 
         if (lastData.items && lastData.items.length > 0) {
           const completedItems = lastData.items.filter(
-            (item: IChecklistItem) => item.completed
+            (item: any) => item.completed
           ).length;
 
           const totalItems = lastData.items.length;
@@ -104,33 +108,42 @@ export const adminChecklistReportGeneration = functions.https.onCall(
 
           // Mover ítems no completados al checklist de hoy
           const uncompletedItems = lastData.items
-            .filter((item) => !item.completed)
-            .map((item) => ({ ...item, movedFromYesterday: true }));
+            .filter((item: any) => !item.completed)
+            .map((item: any) => ({ ...item, movedFromYesterday: true }));
 
           if (uncompletedItems.length > 0) {
-            const newDocData: IChecklist<Timestamp> = {
+            const newDocData: any = {
               date: admin.firestore.Timestamp.fromDate(new Date()),
               items: uncompletedItems,
             };
 
             await db
-              .collection(`uplift/${context.auth.uid}/checklist`)
+              .collection(FIRESTORE_PATHS.UPLIFT.CHECKLIST(req.auth.uid))
               .add(newDocData);
 
             return {
-              message:
-                'Checklist report generated successfully with uncompleted items.',
-              data: newDocData,
+              success: true,
+              data: {
+                message:
+                  'Checklist report generated successfully with uncompleted items.',
+                doc: newDocData,
+              },
             };
           }
-          return { message: 'Checklist report generated successfully' };
+          return {
+            success: false,
+            error: 'Checklist report generated successfully',
+          };
         }
-        return { message: 'No items found under the last checklist.' };
+        return {
+          success: false,
+          error: 'No items found under the last checklist.',
+        };
       }
-      return { message: 'No previous snapshot found.' };
+      return { success: false, error: 'No previous snapshot found.' };
     } catch (error) {
       console.error(error);
-      return { error: 'Error generating snapshot.' };
+      return { success: false, error: 'Error generating snapshot.' };
     }
   }
 );

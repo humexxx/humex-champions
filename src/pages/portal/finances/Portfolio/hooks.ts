@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { objectDateConverter, toDayjs, toTimestamp } from 'src/utils';
+import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
 
 interface UserPortfolioResult {
   portfolioSnapshots: IPortfolioSnapshot<Dayjs>[];
@@ -63,7 +63,9 @@ export const usePortfolio = (): UserPortfolioResult => {
             ...(doc.data() as IPortfolioSnapshot<Dayjs>),
           }));
 
-        setPortfolioSnapshots(objectDateConverter(portfolioSnapshots, toDayjs));
+        setPortfolioSnapshots(
+          normalizeObjectDates(portfolioSnapshots, toDayjs)
+        );
       } catch (err) {
         console.error(err);
         setError(err as Error);
@@ -82,7 +84,7 @@ export const usePortfolio = (): UserPortfolioResult => {
       setIsLoading(true);
       delete portfolioSnapshot.id;
       try {
-        const doc = objectDateConverter(portfolioSnapshot, toTimestamp);
+        const doc = normalizeObjectDates(portfolioSnapshot, toTimestamp);
         const response = await addDoc(collectionRef, doc);
         setPortfolioSnapshots([{ id: response.id, ...doc }]);
       } catch (err) {

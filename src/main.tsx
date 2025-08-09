@@ -1,21 +1,35 @@
 import { CssBaseline } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider/LocalizationProvider';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
-import { AuthProvider } from 'src/context';
+import { AuthProvider, ThemeProvider } from 'src/context';
+import { validateEnvironmentOrThrow, logEnvironmentInfo } from 'src/utils';
 
 import { router } from './routes.tsx';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 
-import './i18n.ts';
+// Validate environment configuration on startup
+try {
+  validateEnvironmentOrThrow();
+  logEnvironmentInfo();
+} catch (error) {
+  console.error(error);
+  // In development, show error in UI
+  if (import.meta.env.DEV) {
+    document.body.innerHTML = `<pre style="color: red; padding: 20px; font-family: monospace;">${error}</pre>`;
+    throw error;
+  }
+}
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  // <React.StrictMode>
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+
+root.render(
   <LocalizationProvider dateAdapter={AdapterDayjs}>
     <AuthProvider>
-      <CssBaseline />
-      <RouterProvider router={router} />
+      <ThemeProvider>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </AuthProvider>
   </LocalizationProvider>
-  // </React.StrictMode>
 );

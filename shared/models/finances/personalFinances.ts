@@ -1,35 +1,46 @@
-export interface IFinancialPlan<T = Date> {
-  id?: string | null;
+import { EPeriodType } from '@shared/enums/finance';
+import { Dayjs } from 'dayjs';
+
+export interface IFinancialPlan {
+  id: string;
   name: string;
-  financialSnapshots: IFinancialSnapshot<T>[];
-  fixedExpenses: IFixedExpense<T>[];
-  incomes: IIncome<T>[];
-}
-export interface IIncome<T = Date> {
-  amount: number;
-  period: 'single' | 'weekly' | 'monthly' | 'yearly';
-  name: string;
-  date?: T;
+  financialSnapshots: IFinancialSnapshot[];
+
+  fixedExpenses: IFixedExpense[];
+  incomes: IIncome[];
+  debts: IDebt[];
 }
 
-export interface IDebt<T = Date> {
+export interface IIncome {
+  amount: number;
+  period: EPeriodType;
+  name: string;
+  date?: Dayjs;
+}
+
+export interface IDebt {
   pendingDebt: number;
   minimumPayment: number;
   annualInterest: number;
-  startDate: T;
   name: string;
+  startDate: Dayjs;
 }
 
-export interface IFixedExpense<T = Date> {
+export interface IFixedExpense {
   amount: number;
   expenseType: 'single' | 'primary' | 'secondary';
   name: string;
-  singleDate?: T;
+  date?: Dayjs;
 }
 
-export interface IFinancialSnapshot<T = Date> {
-  debts: IDebt<T>[];
-  date: T;
-  surplus: number;
+export interface IFinancialSnapshot {
+  date: Dayjs;
+
+  incomes: IIncome[];
+  debts: IDebt[];
+  fixedExpenses: IFixedExpense[];
+
+  expectedSurplus: number;
+  actualSurplus?: number;
   reviewed: boolean;
 }

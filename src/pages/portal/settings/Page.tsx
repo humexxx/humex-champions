@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
@@ -13,7 +13,6 @@ import {
   Typography,
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import { GoogleLoginButton } from 'src/components/auth';
 import { useAuth } from 'src/context/hooks';
@@ -22,18 +21,13 @@ import * as yup from 'yup';
 
 import { useUserSettings } from './hooks';
 
-const Page = () => {
-  const { t } = useTranslation();
-  const { hasGoogleProvider } = useAuth();
+const schema = yup.object().shape({
+  timezone: yup.string().required('This field is required'),
+  useGoogleCalendar: yup.boolean(),
+});
 
-  const schema = useMemo(
-    () =>
-      yup.object().shape({
-        timezone: yup.string().required(t('commonValidations.required')),
-        useGoogleCalendar: yup.boolean(),
-      }),
-    [t]
-  );
+const Page = () => {
+  const { hasGoogleProvider } = useAuth();
 
   const { settings, update } = useUserSettings();
 
@@ -62,8 +56,8 @@ const Page = () => {
   return (
     <>
       <PageHeader
-        title={t('settings.title')}
-        description={t('settings.description')}
+        title="Settings"
+        description="Configure your application settings"
       ></PageHeader>
 
       <PageContent>
@@ -90,8 +84,8 @@ const Page = () => {
             <Grid item xs={6}>
               <Typography variant="h6" component="h2" gutterBottom>
                 {hasGoogleProvider
-                  ? t('settings.googleLoggedIn')
-                  : t('settings.googleNotLoggedIn')}
+                  ? 'Google Account Connected'
+                  : 'Google Account Not Connected'}
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -100,7 +94,7 @@ const Page = () => {
           </Grid>
           <Box>
             <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-              {t('common.save')}
+              Save
             </Button>
           </Box>
         </Stack>

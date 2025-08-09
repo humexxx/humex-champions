@@ -3,36 +3,33 @@ import { useMemo } from 'react';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import InsightsIcon from '@mui/icons-material/Insights';
 import { Container, Grid } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 
 const Page = () => {
-  const { t } = useTranslation();
-
   const options = useMemo(
     () => [
       {
         route: 'planner',
-        label: t('uplift.planner.title'),
-        description: t('uplift.planner.description'),
+        label: 'Planner',
+        description: 'Plan and track your daily goals',
         Icon: ChecklistIcon,
       },
 
       {
         route: 'pathway',
-        label: t('uplift.pathway.title'),
-        description: t('uplift.pathway.description'),
+        label: 'Pathway',
+        description: 'Track your personal development journey',
         Icon: InsightsIcon,
       },
     ],
-    [t]
+    []
   );
 
   return (
     <>
       <PageHeader
-        title={t('uplift.summary')}
-        description={t('uplift.description')}
+        title="Self Development"
+        description="Tools for personal growth and improvement"
       />
       <PageContent>
         <Container maxWidth="md">

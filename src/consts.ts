@@ -1,5 +1,17 @@
 import packageJson from '../package.json';
-export const VERSION = import.meta.env.VITE_APP_VERSION || packageJson.version;
+import { getEnvBoolean, getEnvString } from './utils/env';
+
+// Environment Configuration
+export const ENV = {
+  USE_MOCKED_DATA: getEnvBoolean('VITE_USE_MOCKED_DATA'),
+  USE_ADMIN_ROLE: getEnvBoolean('VITE_USE_MOCKED_ADMIN_MODE'),
+  USE_MOCKED_USER: getEnvBoolean('VITE_USE_MOCK_USER'),
+  APP_VERSION: getEnvString('VITE_APP_VERSION', packageJson.version),
+  NODE_ENV: getEnvString('VITE_NODE_ENV', 'development'),
+} as const;
+
+// Legacy exports for backward compatibility (consider deprecating)
+export const SYSTEM = 'SYSTEM';
 
 export const MULTIPLE_GRAPH_COLORS = [
   '#4e79a7',

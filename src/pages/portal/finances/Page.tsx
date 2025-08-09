@@ -4,58 +4,53 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { Grid, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Grid } from '@mui/material';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
+import { Page } from 'src/components/layout';
 
 const FinancesPage = () => {
-  const { t } = useTranslation();
-
   const options = useMemo(
     () => [
       {
         route: 'personal-finances',
-        label: t('finances.personalFinances.title'),
-        description: t('finances.personalFinances.description'),
+        label: 'Personal Finances',
+        description: 'Track your income, expenses, and debts',
         Icon: BarChartIcon,
       },
 
       {
         route: 'portfolio',
-        label: t('finances.portfolio.title'),
-        description: t('finances.portfolio.description'),
+        label: 'Portfolio',
+        description: 'Manage your investment portfolio',
         Icon: PieChartIcon,
       },
       {
         route: 'trading-journal',
-        label: t('finances.tradingJournal.title'),
-        description: t('finances.tradingJournal.description'),
+        label: 'Trading Journal',
+        description: 'Keep track of your trading activities',
         Icon: TrendingUpIcon,
       },
       {
         route: 'compound-calculator',
-        label: t('finances.compound-calculator.title'),
-        description: t('finances.compound-calculator.description'),
+        label: 'Compound Calculator',
+        description: 'Calculate compound interest over time',
         Icon: CalculateIcon,
       },
     ],
-    [t]
+    []
   );
 
   return (
-    <>
+    <Page title="Finances">
       <PageHeader
-        title={t('finances.title')}
-        description={t('finances.description')}
+        title="Finances"
+        description="Manage your financial planning and tracking"
       />
 
       <PageContent>
         <Grid container spacing={4}>
-          <Grid item xs={12}>
-            <Typography variant="body2">{t('finances.description')}</Typography>
-          </Grid>
           {options.map(({ route, Icon, description, label }) => (
-            <Grid item xs={12} md={4} key={route}>
+            <Grid size={{ xs: 12, md: 4 }} key={route}>
               <LinkOptionCard
                 route={route}
                 label={label}
@@ -66,7 +61,7 @@ const FinancesPage = () => {
           ))}
         </Grid>
       </PageContent>
-    </>
+    </Page>
   );
 };
 

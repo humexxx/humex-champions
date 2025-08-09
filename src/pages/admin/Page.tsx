@@ -5,7 +5,6 @@ import ChecklistIcon from '@mui/icons-material/Checklist';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import { Grid, Typography } from '@mui/material';
 import { httpsCallable } from 'firebase/functions';
-import { useTranslation } from 'react-i18next';
 import {
   ButtonOptionCard,
   ConfirmDialog,
@@ -15,7 +14,6 @@ import {
 import { functions } from 'src/firebase';
 
 const Page = () => {
-  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const functionToCall = useRef<null | string>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,15 +40,15 @@ const Page = () => {
         open={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={onConfirm}
-        title={t('admin.confirmDialog.title')}
-        description={t('admin.confirmDialog.description')}
+        title="Confirm Action"
+        description="Are you sure you want to execute this admin function?"
       />
-      <PageHeader title={t('admin.title')} />
+      <PageHeader title="Admin Panel" />
       <PageContent>
         <Grid container spacing={4}>
           <Grid item xs={12}>
             <Typography variant="h4" gutterBottom>
-              {t('finances.title')}
+              Finances
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -60,8 +58,8 @@ const Page = () => {
                 functionToCall.current ===
                   'adminPersonalFinanceSnapshotGeneration'
               }
-              label={t('finances.personalFinances.title')}
-              description={t('admin.options.personalFinancesDescription')}
+              label="Personal Finances"
+              description="Generate personal finance snapshots for all users"
               icon={<BarChartIcon color="primary" />}
               onClick={() => {
                 setIsOpen(true);
@@ -76,8 +74,8 @@ const Page = () => {
                 isLoading &&
                 functionToCall.current === 'adminPortfolioSnapshotGeneration'
               }
-              label={t('finances.portfolio.title')}
-              description={t('admin.options.portfolioDescription')}
+              label="Portfolio"
+              description="Generate portfolio snapshots for all users"
               icon={<PieChartIcon color="primary" />}
               onClick={() => {
                 setIsOpen(true);
@@ -87,7 +85,7 @@ const Page = () => {
           </Grid>
           <Grid item xs={12}>
             <Typography variant="h4" gutterBottom>
-              {t('uplift.title')}
+              Self Development
             </Typography>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -96,8 +94,8 @@ const Page = () => {
                 isLoading &&
                 functionToCall.current === 'adminChecklistReportGeneration'
               }
-              label={t('uplift.checklist.title')}
-              description={t('admin.options.checklistDescription')}
+              label="Checklist Reports"
+              description="Generate checklist reports for all users"
               icon={<ChecklistIcon color="primary" />}
               onClick={() => {
                 setIsOpen(true);

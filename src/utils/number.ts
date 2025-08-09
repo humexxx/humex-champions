@@ -3,7 +3,7 @@ export function formatCurrency(
   defaultValue = 0
 ) {
   if (!amount) {
-    return defaultValue.toString();
+    amount = defaultValue;
   }
   if (typeof amount === 'string') {
     amount = parseFloat(amount);
@@ -27,4 +27,17 @@ export function forceNumberOnInputChange(setter: (value: number) => void) {
     const number = parseFloat(value);
     return isNaN(number) ? setter(0) : setter(number);
   };
+}
+
+export function formatCompactNumber(amount: number | string, defaultValue = 0) {
+  if (!amount) {
+    amount = defaultValue;
+  }
+  if (typeof amount === 'string') {
+    amount = parseFloat(amount);
+  }
+  return amount.toLocaleString('en-US', {
+    notation: 'compact',
+    maximumFractionDigits: 2,
+  });
 }

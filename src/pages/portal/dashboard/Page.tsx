@@ -1,16 +1,18 @@
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import { Box, Container, Grid, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Box, Container, Grid, Stack, Typography } from '@mui/material';
 import { Page } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
 
 import { MetricsCard } from './_components';
+import useSummary from './useSummary';
 
 const DashboardPage = () => {
-  const { t } = useTranslation(undefined, { keyPrefix: 'dashboard' });
+  const { data, loading } = useSummary();
+
+  console.log(data);
 
   return (
-    <Page title={t('title')} useContainer={false}>
+    <Page title="Dashboard" useContainer={false}>
       <Box
         component={'section'}
         sx={{
@@ -44,19 +46,26 @@ const DashboardPage = () => {
         <Box component={'section'}>
           <Container maxWidth="lg" sx={{ py: 4 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} lg={4}>
+              <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
                 <MetricsCard
                   title="Finances"
                   icon={<ShowChartIcon />}
-                  loading
+                  loading={loading}
                   redirectPath={ROUTES.PORTAL.FINANCES.INDEX}
-                />
+                >
+                  <Stack direction={'column'}>
+                    <Typography variant="body1">Financial Score</Typography>
+                    <Typography component={'p'} variant="h1">
+                      {data?.finance.financeScore}
+                    </Typography>
+                  </Stack>
+                </MetricsCard>
               </Grid>
-              <Grid item xs={12} sm={6} lg={4}>
-                <MetricsCard title="Page Views" />
+              <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
+                <MetricsCard title="Page Views" loading={loading} />
               </Grid>
-              <Grid item xs={12} sm={6} lg={4}>
-                <MetricsCard title="Bounce Rate" />
+              <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
+                <MetricsCard title="Bounce Rate" loading={loading} />
               </Grid>
             </Grid>
           </Container>

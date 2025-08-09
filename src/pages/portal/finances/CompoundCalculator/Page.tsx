@@ -3,12 +3,11 @@ import { useCallback, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Slider, Tab } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 import { MULTIPLE_GRAPH_COLORS, ROUTES } from 'src/consts';
 
-import { Graph, Inputs } from './components';
+import { Graph, Inputs } from './_components';
 
 const MAX_INVESTMENTS = 10;
 
@@ -27,8 +26,6 @@ function getTabProps(id: string) {
 }
 
 const CompoundInterestCalculatorPage = () => {
-  const { t } = useTranslation();
-
   const [selectedTab, setSelectedTab] = useState('0');
   const [years, setYears] = useState(10);
   const [data, setData] = useState<DataSet[]>([
@@ -72,14 +69,14 @@ const CompoundInterestCalculatorPage = () => {
   return (
     <>
       <PageHeader
-        title={t('finances.compound-calculator.title')}
+        title="Compound Calculator"
         breadcrumb={[
           {
-            title: t('finances.title'),
+            title: 'Finances',
             route: ROUTES.PORTAL.FINANCES.INDEX,
           },
           {
-            title: t('finances.compound-calculator.title'),
+            title: 'Compound Calculator',
             route: 'compound-calculator',
           },
         ]}
@@ -103,7 +100,7 @@ const CompoundInterestCalculatorPage = () => {
                 {data.map((_, i) => (
                   <Tab
                     key={i}
-                    label={`${t('finances.compound-calculator.investment')} ${i + 1}`}
+                    label={`Investment ${i + 1}`}
                     value={i.toString()}
                     {...getTabProps(i.toString())}
                     sx={{
@@ -114,8 +111,8 @@ const CompoundInterestCalculatorPage = () => {
                 <ButtonInTabs
                   tooltipText={
                     !data.length || data.length < MAX_INVESTMENTS
-                      ? t('finances.compound-calculator.addInvestment')
-                      : t('finances.compound-calculator.maxInvestments')
+                      ? 'Add Investment'
+                      : 'Maximum investments reached'
                   }
                   onClick={addInvestmentPlanOnClick}
                   disabled={data.length >= MAX_INVESTMENTS}
@@ -147,7 +144,7 @@ const CompoundInterestCalculatorPage = () => {
             max={50}
             step={1}
             valueLabelDisplay="on"
-            valueLabelFormat={(value) => `${value} ${t('common.years')}`}
+            valueLabelFormat={(value) => `${value} Years`}
             marks={[
               {
                 value: 1,

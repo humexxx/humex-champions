@@ -1,0 +1,197 @@
+import { useState, useEffect, Fragment } from 'react';
+
+import { yupResolver } from '@hookform/resolvers/yup';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Grid,
+  Typography,
+  Button,
+  useTheme,
+  useMediaQuery,
+  DialogActions,
+} from '@mui/material';
+import { IDebt, IFinancialPlan } from '@shared/models/finances';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { CurrencyField } from 'src/components/forms';
+import { formatCurrency } from 'src/utils';
+import * as yup from 'yup';
+
+interface Props {
+  financialPlan: IFinancialPlan;
+  onSubmit: (debts: IDebt[]) => void;
+}
+
+const ValidateMainFinantialSnapshotDialog = ({
+  financialPlan,
+  onSubmit,
+}: Props) => {
+  const schema = yup.object().shape({
+    debts: yup.array().of(
+      yup.object().shape({
+        pendingDebt: yup
+          .number()
+          .nonNullable()
+          .required('This field is required')
+          .moreThan(-1),
+      })
+    ),
+  });
+
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [open, setOpen] = useState(false);
+
+  const lastSnapshot = financialPlan?.financialSnapshots.at(-1);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      debts: lastSnapshot?.debts || [],
+    },
+  });
+
+  useEffect(() => {
+    if (lastSnapshot && !lastSnapshot.reviewed) {
+      setOpen(true);
+      setValue('debts', lastSnapshot.debts);
+    }
+  }, [lastSnapshot, setValue]);
+
+  const { fields } = useFieldArray({
+    control,
+    name: 'debts',
+  });
+
+  if (!lastSnapshot) return null;
+
+  const prevSnapshot =
+    financialPlan.financialSnapshots.length > 1
+      ? financialPlan.financialSnapshots.at(-2)
+      : lastSnapshot;
+
+  const handleClose = () => setOpen(false);
+
+  const _handleSubmit = (data: { debts?: { pendingDebt: number }[] }) => {
+    if (!data.debts) return;
+    handleClose();
+    onSubmit(
+      lastSnapshot.debts.map((debt, index) => ({
+        ...debt,
+        pendingDebt: data.debts![index].pendingDebt,
+      }))
+    );
+  };
+
+  const debts = watch('debts');
+  const totalNewDebt = debts?.reduce(
+    (sum, debt) => sum + (debt.pendingDebt || 0),
+    0
+  );
+
+  return (
+    <Dialog
+      open={open}
+      fullWidth
+      maxWidth="sm"
+      fullScreen={fullScreen}
+      component={'form'}
+      onSubmit={handleSubmit(_handleSubmit)}
+      disableEscapeKeyDown
+      {...{ autoComplete: 'off' }}
+    >
+      <DialogTitle>Debt Confirmation</DialogTitle>
+      <DialogContent>
+        <Typography variant="body1" my={4}>
+          Please confirm your current debt amounts to keep your financial plan
+          up to date.
+        </Typography>
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          sx={{ ml: 0, maxWidth: '100%' }}
+        >
+          {fields.map((item, index) => (
+            <Fragment key={item.id}>
+              <Grid item xs={6} textAlign="right">
+                <Typography component="span" variant="subtitle2" marginTop={1}>
+                  <strong>
+                    {formatCurrency(prevSnapshot!.debts[index].pendingDebt)}
+                  </strong>
+                </Typography>
+                <ArrowRightAltIcon
+                  color="action"
+                  sx={{ mr: 1, ml: 2, pt: '10px' }}
+                />
+              </Grid>
+              <Grid item xs={6} justifyContent="center">
+                <Controller
+                  name={`debts.${index}.pendingDebt`}
+                  control={control}
+                  render={({ field }) => (
+                    <CurrencyField
+                      {...field}
+                      label="New Debt Amount"
+                      fullWidth
+                      error={!!errors?.debts?.[index]?.pendingDebt}
+                      margin="dense"
+                      size="small"
+                      inputProps={{ min: 0 }}
+                      sx={{ maxWidth: 160 }}
+                    />
+                  )}
+                />
+              </Grid>
+            </Fragment>
+          ))}
+        </Grid>
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          sx={{
+            mt: 4,
+            borderTop: 1,
+            borderColor: 'divider',
+            ml: 0,
+            maxWidth: '100%',
+          }}
+        >
+          <Grid item xs={6}>
+            <Typography variant="body1" textAlign="right">
+              Total Previous Debt:{' '}
+              <strong>
+                {formatCurrency(
+                  prevSnapshot!.debts.reduce(
+                    (sum, debt) => sum + debt.pendingDebt,
+                    0
+                  )
+                )}
+              </strong>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="body1">
+              Total New Debt:{' '}
+              <strong>{formatCurrency(totalNewDebt ?? 0)}</strong>
+            </Typography>
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button type="submit">Confirm</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default ValidateMainFinantialSnapshotDialog;

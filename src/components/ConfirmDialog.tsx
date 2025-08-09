@@ -8,7 +8,6 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -25,7 +24,6 @@ const ConfirmDialog = ({
   title,
   description,
 }: ConfirmDialogProps) => {
-  const { t } = useTranslation();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   return (
@@ -40,9 +38,9 @@ const ConfirmDialog = ({
         <DialogContentText>{description}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <Button onClick={onClose}>Cancel</Button>
         <Button onClick={onConfirm} color="primary">
-          {t('common.confirm')}
+          Confirm
         </Button>
       </DialogActions>
     </Dialog>

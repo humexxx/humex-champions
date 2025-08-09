@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, PropsWithChildren } from 'react';
 
 import {
   Box,
@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +16,13 @@ type Props = {
   redirectPath?: string;
 };
 
-const MetricsCard = ({ title, loading, icon, redirectPath }: Props) => {
+const MetricsCard = ({
+  title,
+  loading,
+  icon,
+  redirectPath,
+  children,
+}: PropsWithChildren<Props>) => {
   const navigate = useNavigate();
 
   const handleRedirect = () => {
@@ -44,15 +49,7 @@ const MetricsCard = ({ title, loading, icon, redirectPath }: Props) => {
           alignItems="center"
           justifyContent="center"
         >
-          {loading ? (
-            <CircularProgress size={60} />
-          ) : (
-            <>
-              <Typography variant="h6" component="h3">
-                {title}
-              </Typography>
-            </>
-          )}
+          {loading ? <CircularProgress size={32} /> : children}
         </Box>
       </CardContent>
     </Card>

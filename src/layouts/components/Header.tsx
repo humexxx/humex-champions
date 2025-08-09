@@ -1,22 +1,11 @@
-import { useRef, useState } from 'react';
-
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
-import TranslateIcon from '@mui/icons-material/Translate';
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
-  Box,
-} from '@mui/material';
+import { AppBar, Toolbar, IconButton, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useThemeContext } from 'src/context/theme';
+import { useThemeContext } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
 import { auth } from 'src/firebase';
 
@@ -32,9 +21,6 @@ const Header = ({ handleDrawerToggle }: Props) => {
   const theme = useTheme();
   const themeContext = useThemeContext();
   const navigate = useNavigate();
-  const [isLanguageMenuOpen, setLanguageMenuOpen] = useState(false);
-  const menuRef = useRef(null);
-  const { i18n } = useTranslation();
 
   function handleLogout() {
     auth
@@ -47,11 +33,6 @@ const Header = ({ handleDrawerToggle }: Props) => {
       });
   }
 
-  const handleLanguageOnChange = (language: string) => () => {
-    setLanguageMenuOpen(false);
-    i18n.changeLanguage(language);
-  };
-
   return (
     <AppBar
       position="fixed"
@@ -61,6 +42,7 @@ const Header = ({ handleDrawerToggle }: Props) => {
         width: { lg: `calc(100% - ${SIDEBAR_WIDTH}px)` },
         ml: { lg: `${SIDEBAR_WIDTH}px` },
         display: 'flex',
+        color: 'text.primary',
         justifyContent: 'space-between',
         bgcolor:
           themeContext.theme === EThemeType.Light ? '#fafafa' : 'grey.900',
@@ -85,24 +67,9 @@ const Header = ({ handleDrawerToggle }: Props) => {
         </IconButton>
         <Box flexGrow="1" display={'flex'} alignItems={'center'} />
         <IconButton
-          ref={menuRef}
-          onClick={() => setLanguageMenuOpen(true)}
-          sx={{ color: 'text.primary' }}
-        >
-          <TranslateIcon />
-        </IconButton>
-        <Menu
-          id="basic-menu"
-          anchorEl={menuRef.current}
-          open={isLanguageMenuOpen}
-          onClose={() => setLanguageMenuOpen(false)}
-        >
-          <MenuItem onClick={handleLanguageOnChange('en')}>English</MenuItem>
-          <MenuItem onClick={handleLanguageOnChange('es')}>Español</MenuItem>
-        </Menu>
-        <IconButton
-          sx={{ ml: 2, color: 'text.primary' }}
+          color="inherit"
           onClick={themeContext.toggleColorMode}
+          sx={{ ml: 2 }}
         >
           {theme.palette.mode === 'dark' ? (
             <Brightness4Icon />
@@ -112,8 +79,9 @@ const Header = ({ handleDrawerToggle }: Props) => {
         </IconButton>
         <IconButton
           edge="end"
+          color="inherit"
           onClick={handleLogout}
-          sx={{ ml: 2, color: 'text.primary' }}
+          sx={{ ml: 2 }}
         >
           <LogoutIcon />
         </IconButton>

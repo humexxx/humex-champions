@@ -1,12 +1,11 @@
 import { Alert } from '@mui/material';
 import { IPortfolioSnapshot } from '@shared/models/finances';
 import { Dayjs } from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
 import { ROUTES } from 'src/consts';
 import { toDayjs } from 'src/utils';
 
-import { CreatePortfolio, PortfolioView } from './components';
+import { CreatePortfolio, PortfolioView } from './_components';
 import { usePortfolio } from './hooks';
 
 const mockData: IPortfolioSnapshot<Dayjs>[] = [
@@ -97,7 +96,6 @@ const mockData: IPortfolioSnapshot<Dayjs>[] = [
 ];
 
 const Page = () => {
-  const { t } = useTranslation();
   const { error, isLoading, portfolioSnapshots, initPortfolio } =
     usePortfolio();
 
@@ -108,14 +106,14 @@ const Page = () => {
   return (
     <>
       <PageHeader
-        title={t('finances.portfolio.title')}
+        title={'Portfolio'}
         breadcrumb={[
           {
-            title: t('finances.title'),
+            title: 'Finances',
             route: ROUTES.PORTAL.FINANCES.INDEX,
           },
           {
-            title: t('finances.portfolio.title'),
+            title: 'Portfolio',
             route: 'portfolio',
           },
         ]}

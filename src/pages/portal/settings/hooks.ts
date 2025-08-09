@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-import { FIRESTORE_PATHS } from '@shared/consts/firebase';
+import { FIRESTORE_PATHS } from '@shared/consts';
 import { ISettings } from '@shared/models/settings';
 import { updateDoc, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
