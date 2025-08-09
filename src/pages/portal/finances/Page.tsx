@@ -5,49 +5,46 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Grid } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 import { Page } from 'src/components/layout';
 
 const FinancesPage = () => {
-  const { t } = useTranslation();
-
   const options = useMemo(
     () => [
       {
         route: 'personal-finances',
-        label: t('finances.personalFinances.title'),
-        description: t('finances.personalFinances.description'),
+        label: 'Personal Finances',
+        description: 'Track your income, expenses, and debts',
         Icon: BarChartIcon,
       },
 
       {
         route: 'portfolio',
-        label: t('finances.portfolio.title'),
-        description: t('finances.portfolio.description'),
+        label: 'Portfolio',
+        description: 'Manage your investment portfolio',
         Icon: PieChartIcon,
       },
       {
         route: 'trading-journal',
-        label: t('finances.tradingJournal.title'),
-        description: t('finances.tradingJournal.description'),
+        label: 'Trading Journal',
+        description: 'Keep track of your trading activities',
         Icon: TrendingUpIcon,
       },
       {
         route: 'compound-calculator',
-        label: t('finances.compound-calculator.title'),
-        description: t('finances.compound-calculator.description'),
+        label: 'Compound Calculator',
+        description: 'Calculate compound interest over time',
         Icon: CalculateIcon,
       },
     ],
-    [t]
+    []
   );
 
   return (
-    <Page title={t('finances.title')}>
+    <Page title="Finances">
       <PageHeader
-        title={t('finances.title')}
-        description={t('finances.description')}
+        title="Finances"
+        description="Manage your financial planning and tracking"
       />
 
       <PageContent>

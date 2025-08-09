@@ -1,20 +1,9 @@
-import { useRef, useState } from 'react';
-
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
-import TranslateIcon from '@mui/icons-material/Translate';
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
-  Box,
-} from '@mui/material';
+import { AppBar, Toolbar, IconButton, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useThemeContext } from 'src/context/hooks';
 import { EThemeType } from 'src/enums';
@@ -32,9 +21,6 @@ const Header = ({ handleDrawerToggle }: Props) => {
   const theme = useTheme();
   const themeContext = useThemeContext();
   const navigate = useNavigate();
-  const [isLanguageMenuOpen, setLanguageMenuOpen] = useState(false);
-  const menuRef = useRef(null);
-  const { i18n } = useTranslation();
 
   function handleLogout() {
     auth
@@ -46,11 +32,6 @@ const Header = ({ handleDrawerToggle }: Props) => {
         console.error(error);
       });
   }
-
-  const handleLanguageOnChange = (language: string) => () => {
-    setLanguageMenuOpen(false);
-    i18n.changeLanguage(language);
-  };
 
   return (
     <AppBar
@@ -85,22 +66,6 @@ const Header = ({ handleDrawerToggle }: Props) => {
           <MenuIcon />
         </IconButton>
         <Box flexGrow="1" display={'flex'} alignItems={'center'} />
-        <IconButton
-          color="inherit"
-          ref={menuRef}
-          onClick={() => setLanguageMenuOpen(true)}
-        >
-          <TranslateIcon />
-        </IconButton>
-        <Menu
-          id="basic-menu"
-          anchorEl={menuRef.current}
-          open={isLanguageMenuOpen}
-          onClose={() => setLanguageMenuOpen(false)}
-        >
-          <MenuItem onClick={handleLanguageOnChange('en')}>English</MenuItem>
-          <MenuItem onClick={handleLanguageOnChange('es')}>Español</MenuItem>
-        </Menu>
         <IconButton
           color="inherit"
           onClick={themeContext.toggleColorMode}

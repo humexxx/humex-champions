@@ -4,7 +4,6 @@ import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { IIncome } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
 import IncomeEditDialog from './IncomeEditDialog';
@@ -17,8 +16,6 @@ interface Props {
 }
 
 const IncomeCard = ({ incomes, isLoading, update }: Props) => {
-  const { t } = useTranslation();
-
   const total = useMemo(
     () => financeUtils.getTotalMonthlyIncome(incomes),
     [incomes]
@@ -43,9 +40,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
           <Stack direction={'row'} gap={1} alignItems={'center'}>
             <RequestQuoteTwoToneIcon color="success" fontSize="large" />
             <Typography variant="body1" component="h3">
-              <strong>
-                {t('finances.personalFinances.header.incomes.title')}
-              </strong>
+              <strong>Incomes</strong>
             </Typography>
           </Stack>
 
@@ -63,16 +58,13 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
         ) : incomes.length ? (
           <>
             <Typography variant="body1" gutterBottom>
-              {t('finances.personalFinances.header.incomes.total')}:{' '}
-              {formatCurrency(total)}
+              Total: {formatCurrency(total)}
             </Typography>
             {Boolean(nextExtraordinaryIncome) && (
               <>
                 <Typography variant="body2" color={'text.secondary'}>
-                  {t(
-                    'finances.personalFinances.header.incomes.nextExtraordinaryPayment'
-                  )}
-                  : {formatCurrency(nextExtraordinaryIncome!.amount)}
+                  Next extraordinary payment:{' '}
+                  {formatCurrency(nextExtraordinaryIncome!.amount)}
                 </Typography>
                 <Typography variant="caption" color={'text.secondary'}>
                   {dayjs(nextExtraordinaryIncome!.date).format('DD MMM YYYY')}
@@ -82,7 +74,7 @@ const IncomeCard = ({ incomes, isLoading, update }: Props) => {
           </>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            {t('finances.personalFinances.header.incomes.noIncome')}
+            No income registered
           </Typography>
         )}
       </CardContent>

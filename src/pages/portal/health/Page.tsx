@@ -4,42 +4,39 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import { Grid } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 
 const Page = () => {
-  const { t } = useTranslation();
-
   const options = useMemo(
     () => [
       {
         route: 'training-program',
-        label: t('health.trainingProgram.title'),
-        description: t('health.trainingProgram.description'),
+        label: 'Training Program',
+        description: 'Create and track your fitness routine',
         Icon: FitnessCenterIcon,
       },
 
       {
         route: 'nutrition',
-        label: t('health.nutrition.title'),
-        description: t('health.nutrition.description'),
+        label: 'Nutrition',
+        description: 'Track your meals and nutrition goals',
         Icon: LocalDiningIcon,
       },
       {
         route: 'calculator',
-        label: t('health.calculator.title'),
-        description: t('health.calculator.description'),
+        label: 'Health Calculator',
+        description: 'Calculate BMI, calories, and other health metrics',
         Icon: CalculateIcon,
       },
     ],
-    [t]
+    []
   );
 
   return (
     <>
       <PageHeader
-        title={t('health.summary')}
-        description={t('health.description')}
+        title="Health & Fitness"
+        description="Track your health, fitness, and nutrition goals"
       />
       <PageContent>
         <Grid container spacing={4}>

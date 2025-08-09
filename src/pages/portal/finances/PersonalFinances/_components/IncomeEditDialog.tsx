@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Edit as EditIcon } from '@mui/icons-material';
@@ -30,7 +30,6 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { IIncome } from '@shared/models/finances';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
@@ -43,38 +42,33 @@ interface Props {
   disabled?: boolean;
 }
 
-const IncomeEditDialog = ({ onSubmit, data }: Props) => {
-  const { t } = useTranslation();
-  const schema = useMemo(
-    () =>
-      yup.object().shape({
-        incomes: yup.array().of(
-          yup.object().shape({
-            name: yup
-              .string()
-              .required(t('commonValidations.required'))
-              .nonNullable()
-              .max(64),
-            amount: yup
-              .number()
-              .nonNullable()
-              .typeError(t('commonValidations.required'))
-              .required(t('commonValidations.required'))
-              .moreThan(-1),
-            period: yup
-              .mixed<EPeriodType>()
-              .oneOf(Object.values(EPeriodType), t('commonValidations.type'))
-              .required(t('commonValidations.required'))
-              .nonNullable(),
-            date: yupDayjs.nonNullable(),
-          })
-        ),
-        useTrading: yup.boolean().default(true),
-        tradingPercentage: yup.number(),
-      }),
-    [t]
-  );
+const schema = yup.object().shape({
+  incomes: yup.array().of(
+    yup.object().shape({
+      name: yup
+        .string()
+        .required('This field is required')
+        .nonNullable()
+        .max(64),
+      amount: yup
+        .number()
+        .nonNullable()
+        .typeError('This field is required')
+        .required('This field is required')
+        .moreThan(-1),
+      period: yup
+        .mixed<EPeriodType>()
+        .oneOf(Object.values(EPeriodType), 'Invalid type')
+        .required('This field is required')
+        .nonNullable(),
+      date: yupDayjs.nonNullable(),
+    })
+  ),
+  useTrading: yup.boolean().default(true),
+  tradingPercentage: yup.number(),
+});
 
+const IncomeEditDialog = ({ onSubmit, data }: Props) => {
   const [open, setOpen] = useState(false);
 
   const {
@@ -125,7 +119,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
     append({
       amount: 0,
       period: EPeriodType.MONTHLY,
-      name: `${t('finances.personalFinances.header.incomes.dialog.income')} ${fields.length + 1}`,
+      name: `Income ${fields.length + 1}`,
     });
     setIndexToEdit(fields.length);
   }
@@ -162,7 +156,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
             textTransform: 'capitalize',
           }}
         >
-          {t('finances.personalFinances.header.incomes.dialog.title')}
+          Manage Incomes
         </DialogTitle>
 
         <DialogContent>
@@ -379,11 +373,9 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
         </DialogContent>
         <DialogActions>
           <Button type="button" onClick={() => setOpen(false)}>
-            {t('finances.personalFinances.header.incomes.dialog.cancel')}
+            Cancel
           </Button>
-          <Button type="submit">
-            {t('finances.personalFinances.header.incomes.dialog.save')}
-          </Button>
+          <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
     </>

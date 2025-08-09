@@ -5,7 +5,6 @@ import { RouterProvider } from 'react-router-dom';
 import { AuthProvider, ThemeProvider } from 'src/context';
 import { validateEnvironmentOrThrow, logEnvironmentInfo } from 'src/utils';
 
-import { loadI18n } from './i18n.ts';
 import { router } from './routes.tsx';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
@@ -24,15 +23,13 @@ try {
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
-loadI18n().then(() => {
-  root.render(
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <AuthProvider>
-        <ThemeProvider>
-          <CssBaseline />
-          <RouterProvider router={router} />
-        </ThemeProvider>
-      </AuthProvider>
-    </LocalizationProvider>
-  );
-});
+root.render(
+  <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <AuthProvider>
+      <ThemeProvider>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </AuthProvider>
+  </LocalizationProvider>
+);

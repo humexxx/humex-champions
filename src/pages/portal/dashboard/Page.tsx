@@ -1,6 +1,5 @@
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import { Box, Container, Grid, Stack, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { Page } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
 
@@ -8,13 +7,12 @@ import { MetricsCard } from './_components';
 import useSummary from './useSummary';
 
 const DashboardPage = () => {
-  const { t } = useTranslation(undefined, { keyPrefix: 'dashboard' });
   const { data, loading } = useSummary();
 
   console.log(data);
 
   return (
-    <Page title={t('title')} useContainer={false}>
+    <Page title="Dashboard" useContainer={false}>
       <Box
         component={'section'}
         sx={{

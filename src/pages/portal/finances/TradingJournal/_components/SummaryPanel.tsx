@@ -1,7 +1,6 @@
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Box, Grid, Paper, Typography, Divider } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 
 interface Props {
   trades: number;
@@ -11,19 +10,17 @@ interface Props {
 }
 
 const SummaryPanel = ({ trades, percentage, amount, monthlyGrowth }: Props) => {
-  const { t } = useTranslation();
-
   return (
     <Paper elevation={3} style={{ padding: '20px', borderRadius: '10px' }}>
       <Typography variant="h5" gutterBottom>
-        {t('finances.tradingJournal.summaryPanel.title')}
+        Trading Summary
       </Typography>
       <Divider />
       <Grid container spacing={4} mt={2}>
         <Grid item xs={12} md={6}>
           <Box textAlign="center">
             <Typography variant="h6" color="textSecondary">
-              {t('finances.tradingJournal.summaryPanel.trades')}
+              Trades
             </Typography>
             <Typography variant="h4" color="primary">
               {trades}
@@ -36,7 +33,7 @@ const SummaryPanel = ({ trades, percentage, amount, monthlyGrowth }: Props) => {
         <Grid item xs={12} md={6}>
           <Box textAlign="center">
             <Typography variant="h6" color="textSecondary">
-              {t('finances.tradingJournal.summaryPanel.amount')}
+              Amount
             </Typography>
             <Typography variant="h4" color="primary">
               ${amount.toLocaleString()}
@@ -46,7 +43,7 @@ const SummaryPanel = ({ trades, percentage, amount, monthlyGrowth }: Props) => {
         <Grid item xs={12}>
           <Box textAlign="center">
             <Typography variant="h6" color="textSecondary">
-              {t('finances.tradingJournal.summaryPanel.monthlyGrowth')}
+              Monthly Growth
             </Typography>
             <Typography
               variant="h4"

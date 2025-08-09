@@ -20,7 +20,6 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import AdminGuard from 'src/components/auth/AdminGuard';
 import { ROUTES } from 'src/consts';
@@ -28,60 +27,59 @@ import { ROUTES } from 'src/consts';
 import { MAIN_HEADER_HEIGHT } from './Header';
 
 const Sidebar = ({ title, version }: { title: string; version: string }) => {
-  const { t } = useTranslation();
   const location = useLocation();
 
   const statisticsRoutes = useMemo(
     () => [
       {
-        text: t('dashboard.title'),
+        text: 'Dashboard',
         icon: <DashboardIcon />,
         path: ROUTES.PORTAL.DASHBOARD,
       },
     ],
-    [t]
+    []
   );
 
   const selfDevelopmentRoutes = useMemo(
     () => [
       {
-        text: t('finances.title'),
+        text: 'Finances',
         icon: <AccountBalanceIcon />,
         path: ROUTES.PORTAL.FINANCES.INDEX,
       },
       {
-        text: t('health.title'),
+        text: 'Health',
         icon: <DirectionsRunIcon />,
         path: ROUTES.PORTAL.HEALTH.INDEX,
       },
       {
-        text: t('uplift.title'),
+        text: 'Uplift',
         icon: <FlagIcon />,
         path: ROUTES.PORTAL.UPLIFT.INDEX,
       },
       {
-        text: t('entertainment.title'),
+        text: 'Entertainment',
         icon: <AddReactionIcon />,
         path: ROUTES.PORTAL.ENTERTAINMENT.INDEX,
       },
     ],
-    [t]
+    []
   );
 
   const socialRoutes = useMemo(
     () => [
       {
-        text: t('members.title'),
+        text: 'Members',
         icon: <PeopleIcon />,
         path: ROUTES.PORTAL.SOCIAL.MEMBERS,
       },
       {
-        text: t('groups.title'),
+        text: 'Groups',
         icon: <GroupIcon />,
         path: ROUTES.PORTAL.SOCIAL.GROUPS,
       },
     ],
-    [t]
+    []
   );
 
   return (
@@ -175,7 +173,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
               <ListItemIcon>
                 <AdminPanelSettingsIcon />
               </ListItemIcon>
-              <ListItemText primary={t('admin.title')} />
+              <ListItemText primary="Admin" />
             </ListItemButton>
           </ListItem>
         </AdminGuard>
@@ -189,7 +187,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
-            <ListItemText primary={t('settings.title')} />
+            <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
       </List>
