@@ -81,7 +81,7 @@ const PortafolioPage = () => {
           selectedTimeFilter={selectedTimeFilter}
         />
 
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           {/* Left Column - Main Chart and Stats */}
           <Grid size={{ xs: 12, md: 8 }}>
             <PortfolioChart

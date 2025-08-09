@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, useTheme } from '@mui/material';
+import { Box, Tab, Tabs, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { TimeFilter } from '../../../../../../shared/enums/finance/timeFilters';
 
@@ -21,34 +21,33 @@ const PortfolioChart = ({
 
   return (
     <>
-      {/* Time Filter Buttons */}
-      <Box sx={{ mb: 2 }}>
-        <ButtonGroup variant="text" size="small">
+      {/* Time Filter Tabs */}
+      <Box sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={selectedTimeFilter}
+          onChange={(_, newValue) => onTimeFilterChange(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            minHeight: 36,
+            '& .MuiTab-root': {
+              minHeight: 36,
+              minWidth: 60,
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+            },
+          }}
+        >
           {timeFilters.map((filter) => (
-            <Button
-              key={filter}
-              variant={selectedTimeFilter === filter ? 'contained' : 'text'}
-              onClick={() => onTimeFilterChange(filter)}
-              sx={{
-                minWidth: 40,
-                textTransform: 'none',
-                ...(selectedTimeFilter === filter && {
-                  backgroundColor: theme.palette.primary.main,
-                  color: 'white',
-                }),
-              }}
-            >
-              {filter}
-            </Button>
+            <Tab key={filter} label={filter} value={filter} />
           ))}
-        </ButtonGroup>
+        </Tabs>
       </Box>
 
       {/* Chart */}
-      <Box sx={{ height: 300, mb: 3 }}>
+      <Box sx={{ width: '100%', aspectRatio: '2', mb: 3 }}>
         <LineChart
-          width={800}
-          height={300}
           series={[
             {
               data: chartData,
@@ -72,8 +71,9 @@ const PortfolioChart = ({
             },
           ]}
           grid={{ horizontal: false, vertical: false }}
-          margin={{ left: 0, right: 0, top: 20, bottom: 50 }}
+          margin={{ left: 0, right: 20, top: 20, bottom: 50 }}
           sx={{
+            height: '100%',
             '& .MuiChartsAxis-line': {
               display: 'none',
             },
