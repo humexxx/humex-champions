@@ -73,10 +73,24 @@ const PersonalFinancesGraph = ({
         color: baseColor,
       };
 
+      // Verificar si hay snapshots y deudas antes de generar predicciones
+      const lastSnapshot = plan.financialSnapshots.at(-1);
+      if (!lastSnapshot || !lastSnapshot.debts.length) {
+        // Si no hay snapshots o no hay deudas, solo retornamos el plan original
+        return [originalPlan];
+      }
+
+      // Verificar si hay deudas pendientes
+      const totalDebts = financeUtils.getTotalDebts(lastSnapshot.debts);
+      if (totalDebts <= 0) {
+        // Si no hay deudas pendientes, solo retornamos el plan original
+        return [originalPlan];
+      }
+
       // Predicciones Avalanche
       const avalancheSnapshots =
         financeUtils.generateMonthlyFinancialSnapshotsPredictions(
-          plan.financialSnapshots.at(-1)!,
+          lastSnapshot,
           EPayoffMethodType.AVALANCHE,
           NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
         );
@@ -97,7 +111,7 @@ const PersonalFinancesGraph = ({
       // Predicciones Snowball
       const snowballSnapshots =
         financeUtils.generateMonthlyFinancialSnapshotsPredictions(
-          plan.financialSnapshots.at(-1)!,
+          lastSnapshot,
           EPayoffMethodType.SNOWBALL,
           NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
         );
@@ -121,16 +135,24 @@ const PersonalFinancesGraph = ({
 
   const datasets = useMemo(() => {
     // Crear un bridge snapshot para conectar los datos históricos con las predicciones
-    const plansWithBridgeSnapshot = _clonedFinancialPlans.map((plan) => ({
-      ...plan,
-      financialSnapshots: [
-        ...plan.financialSnapshots,
-        // Tomar el primer snapshot de las predicciones como puente
-        _allPlansWithPredictions.find(
-          (p) => p.name === `${plan.name}_AVALANCHE`
-        )?.financialSnapshots[0]!,
-      ],
-    }));
+    const plansWithBridgeSnapshot = _clonedFinancialPlans.map((plan) => {
+      // Buscar si hay predicciones Avalanche para este plan
+      const avalanchePlan = _allPlansWithPredictions.find(
+        (p) => p.name === `${plan.name}_AVALANCHE`
+      );
+
+      // Si hay predicciones Avalanche, incluir el primer snapshot como bridge
+      const bridgeSnapshot = avalanchePlan?.financialSnapshots[0];
+
+      return {
+        ...plan,
+        financialSnapshots: [
+          ...plan.financialSnapshots,
+          // Solo agregar bridge snapshot si existe
+          ...(bridgeSnapshot ? [bridgeSnapshot] : []),
+        ],
+      };
+    });
 
     const monthlyDebtsMap: Record<string, { [key: string]: number | Date }> =
       {};

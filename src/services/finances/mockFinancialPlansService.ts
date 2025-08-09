@@ -3,12 +3,31 @@ import { MOCKED_FINANCIAL_PLANS } from 'src/mock/financeMockData';
 
 let mockData = [...MOCKED_FINANCIAL_PLANS];
 
+// Sistema de subscriptores para simular Firebase onSnapshot
+type SubscriberCallback = (plans: IFinancialPlan[]) => void;
+const subscribers: Set<SubscriberCallback> = new Set();
+
+// Función para notificar a todos los subscribers
+const notifySubscribers = () => {
+  subscribers.forEach((callback) => {
+    try {
+      callback([...mockData]);
+    } catch (error) {
+      console.error('Error notifying subscriber:', error);
+    }
+  });
+};
+
 export const mockFinancialPlansService = {
   subscribe: (
     _userId: string,
     onSuccess: (plans: IFinancialPlan[]) => void,
     onError: (error: string) => void
   ) => {
+    // Agregar al conjunto de subscribers
+    subscribers.add(onSuccess);
+
+    // Enviar datos iniciales
     const timeoutId = setTimeout(() => {
       try {
         onSuccess([...mockData]);
@@ -17,8 +36,10 @@ export const mockFinancialPlansService = {
       }
     }, 300);
 
+    // Retornar función de cleanup
     return () => {
       clearTimeout(timeoutId);
+      subscribers.delete(onSuccess);
     };
   },
 
@@ -54,5 +75,10 @@ export const mockFinancialPlansService = {
       }
       mockData[index] = { ...data };
     }
+
+    // Notificar a todos los subscribers después de la mutación
+    setTimeout(() => {
+      notifySubscribers();
+    }, 100);
   },
 };

@@ -156,6 +156,11 @@ function generateMonthlyFinancialSnapshotsPredictions(
   type: EPayoffMethodType,
   maxMonths: number = 12
 ): IFinancialSnapshot[] {
+  // Si no hay deudas, retornar array vacío inmediatamente
+  if (!data.debts.length || getTotalDebts(data.debts) <= 0) {
+    return [];
+  }
+
   const result: IFinancialSnapshot[] = [];
 
   let date = data.date.add(1, 'month');
