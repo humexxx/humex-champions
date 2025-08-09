@@ -1,5 +1,4 @@
 import { Box, Button, ButtonGroup, SxProps } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 
 interface Props {
   setSelectedFilter: (instrument: 'total' | 'value') => void;
@@ -8,7 +7,6 @@ interface Props {
 }
 
 const GraphTotalFilter = ({ selectedFilter, setSelectedFilter, sx }: Props) => {
-  const { t } = useTranslation();
   const handleSelect = (instrument: 'total' | 'value') => () => {
     setSelectedFilter(instrument);
   };
@@ -20,13 +18,13 @@ const GraphTotalFilter = ({ selectedFilter, setSelectedFilter, sx }: Props) => {
           variant={selectedFilter === 'total' ? 'contained' : 'outlined'}
           onClick={handleSelect('total')}
         >
-          {t('common.total')}
+          Total
         </Button>
         <Button
           variant={selectedFilter === 'value' ? 'contained' : 'outlined'}
           onClick={handleSelect('value')}
         >
-          {t('common.value')}
+          Value
         </Button>
       </ButtonGroup>
     </Box>

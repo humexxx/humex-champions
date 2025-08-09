@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
@@ -17,7 +17,6 @@ import {
 import { IOperation, ITransaction } from '@shared/models/finances';
 import dayjs from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
 import { useDialogFullScreen } from 'src/hooks';
 import * as yup from 'yup';
@@ -30,27 +29,24 @@ type Props = {
 };
 
 const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
-  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const fullScreen = useDialogFullScreen();
   const [startOperation, setStartOperation] = useState<IOperation | null>(null);
   const [endOperation, setEndOperation] = useState<IOperation | null>(null);
 
-  const schema = useMemo(() => {
-    return yup.object().shape({
-      amount: yup
-        .number()
-        .nonNullable()
-        .required(t('commonValidations.required'))
-        .typeError(t('commonValidations.required')),
-      type: yup
-        .string()
-        .oneOf(['withdrawal', 'deposit'], t('commonValidations.required'))
-        .required(t('commonValidations.required'))
-        .nonNullable(),
-      notes: yup.string(),
-    });
-  }, [t]);
+  const schema = yup.object().shape({
+    amount: yup
+      .number()
+      .nonNullable()
+      .required('This field is required')
+      .typeError('This field is required'),
+    type: yup
+      .string()
+      .oneOf(['withdrawal', 'deposit'], 'This field is required')
+      .required('This field is required')
+      .nonNullable(),
+    notes: yup.string(),
+  });
 
   const {
     control,
@@ -109,14 +105,10 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
         onSubmit={handleSubmit(_handleSubmit)}
         {...{ autoComplete: 'off' }}
       >
-        <DialogTitle>
-          {t('finances.tradingJournal.balanceTracker.transactionDialog.title')}
-        </DialogTitle>
+        <DialogTitle>Transaction</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {t(
-              'finances.tradingJournal.balanceTracker.transactionDialog.description'
-            )}
+            Add a new transaction to track your balance changes.
           </DialogContentText>
           <Grid container spacing={2} my={4}>
             <Grid item xs={6}>
@@ -194,24 +186,24 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
         </DialogContent>
         <DialogActions>
           <Button type="button" onClick={() => setOpen(false)}>
-            {t('common.cancel')}
+            {'Cancel'}
           </Button>
           <Button type="submit" color="primary">
-            {t('common.confirm')}
+            {'Confirm'}
           </Button>
         </DialogActions>
       </Dialog>
       <Grid container spacing={2}>
         <Grid item xs={5}>
           <CurrencyField
-            label={t('finances.tradingJournal.balanceTracker.balanceStart')}
+            label={'Balance Start'}
             value={startOperation?.balanceStart ?? 0}
             disabled
           />
         </Grid>
         <Grid item xs={5}>
           <CurrencyField
-            label={t('finances.tradingJournal.balanceTracker.balanceEnd')}
+            label={'Balance End'}
             value={endOperation?.balanceEnd ?? 0}
             disabled
           />

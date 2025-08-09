@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react';
 import { Box, Button, ButtonGroup } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { IOperation } from '@shared/models/finances';
-import { useTranslation } from 'react-i18next';
 
 type Props = {
   operations: IOperation[];
@@ -11,7 +10,6 @@ type Props = {
 };
 
 const OperationsHistoryChart = ({ operations }: Props) => {
-  const { t } = useTranslation();
   const [filter, setFilter] = useState<'profit' | 'balance'>('profit');
 
   const data = useMemo(

@@ -14,7 +14,6 @@ import {
 } from '@mui/material';
 import { IDebt, IFixedExpense, IIncome } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 import { Page } from 'src/components/layout';
@@ -39,8 +38,6 @@ function getTabProps(id: string) {
 }
 
 const PersonalFinancesPage = () => {
-  const { t } = useTranslation();
-
   const { data: financialPlans, error, loading, set } = useFinancialPlans();
   const [_, setIsAddingNewPlan] = useState(false);
   const [selectedTab, setSelectedTab] = useState('0');
@@ -113,17 +110,17 @@ const PersonalFinancesPage = () => {
         financialPlan={financialPlans[0]}
         onSubmit={(data) => _updateDebts(financialPlans[0].id!, data)}
       /> */}
-      <Page title={t('finances.title')}>
+      <Page title="Finances">
         <PageHeader
-          title={t('finances.title')}
+          title="Finances"
           navigator={{
             link: {
-              title: t('finances.title'),
+              title: 'Finances',
               route: ROUTES.PORTAL.FINANCES.INDEX,
             },
             breadcrumb: [
               {
-                title: t('finances.personalFinances.title'),
+                title: 'Personal Finances',
                 route: 'personal-finances',
               },
             ],
@@ -140,16 +137,11 @@ const PersonalFinancesPage = () => {
               <Card sx={{ maxWidth: 600, textAlign: 'center', p: 4 }}>
                 <CardContent>
                   <Typography variant="h5" gutterBottom color="text.secondary">
-                    {t(
-                      'finances.personalFinances.noPlans.title',
-                      'No tienes planes financieros'
-                    )}
+                    No Financial Plans
                   </Typography>
                   <Typography variant="body1" color="text.secondary" mb={3}>
-                    {t(
-                      'finances.personalFinances.noPlans.description',
-                      'Crea tu primer plan financiero para comenzar a organizar tus ingresos, gastos y deudas.'
-                    )}
+                    Create your first financial plan to start organizing your
+                    income, expenses and debts.
                   </Typography>
                   <Button
                     variant="contained"
@@ -158,10 +150,7 @@ const PersonalFinancesPage = () => {
                     onClick={handleCreateFirstPlan}
                     disabled={loading}
                   >
-                    {t(
-                      'finances.personalFinances.noPlans.createButton',
-                      'Crear Mi Primer Plan'
-                    )}
+                    Create My First Plan
                   </Button>
                 </CardContent>
               </Card>

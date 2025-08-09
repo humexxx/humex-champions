@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
@@ -32,7 +32,6 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { IDebt } from '@shared/models/finances';
 import dayjs from 'dayjs';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
@@ -45,44 +44,36 @@ interface Props {
 }
 
 const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
-  const { t } = useTranslation();
-
-  const schema = useMemo(
-    () =>
+  const schema = yup.object().shape({
+    debts: yup.array().of(
       yup.object().shape({
-        debts: yup.array().of(
-          yup.object().shape({
-            name: yup
-              .string()
-              .nonNullable()
-              .required(t('commonValidations.required'))
-              .max(64),
-            pendingDebt: yup
-              .number()
-              .nonNullable()
-              .moreThan(0, 'Has to be greater than 0')
-              .required(t('commonValidations.required'))
-              .typeError(t('commonValidations.required')),
-            minimumPayment: yup
-              .number()
-              .nonNullable()
-              .required(t('commonValidations.required'))
-              .typeError(t('commonValidations.required'))
-              .moreThan(-1),
-            annualInterest: yup
-              .number()
-              .nonNullable()
-              .required(t('commonValidations.required'))
-              .typeError(t('commonValidations.required'))
-              .moreThan(-1),
-            startDate: yupDayjs
-              .nonNullable()
-              .required(t('commonValidations.required')),
-          })
-        ),
-      }),
-    [t]
-  );
+        name: yup
+          .string()
+          .nonNullable()
+          .required('This field is required')
+          .max(64),
+        pendingDebt: yup
+          .number()
+          .nonNullable()
+          .moreThan(0, 'Has to be greater than 0')
+          .required('This field is required')
+          .typeError('This field is required'),
+        minimumPayment: yup
+          .number()
+          .nonNullable()
+          .required('This field is required')
+          .typeError('This field is required')
+          .moreThan(-1),
+        annualInterest: yup
+          .number()
+          .nonNullable()
+          .required('This field is required')
+          .typeError('This field is required')
+          .moreThan(-1),
+        startDate: yupDayjs.nonNullable().required('This field is required'),
+      })
+    ),
+  });
 
   const [open, setOpen] = useState(false);
 
@@ -133,9 +124,7 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
     }
 
     append({
-      name: `${t('finances.personalFinances.header.debts.dialog.debt')} ${
-        fields.length + 1
-      }`,
+      name: `Debt ${fields.length + 1}`,
       pendingDebt: 0,
       minimumPayment: 0,
       annualInterest: 0,
@@ -221,7 +210,7 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
             alignItems: 'center',
           }}
         >
-          {t('finances.personalFinances.header.debts.dialog.title')}
+          Debts
         </DialogTitle>
 
         <DialogContent>
@@ -402,11 +391,9 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
 
         <DialogActions>
           <Button type="button" onClick={() => setOpen(false)}>
-            {t('finances.personalFinances.header.debts.dialog.cancel')}
+            Cancel
           </Button>
-          <Button type="submit">
-            {t('finances.personalFinances.header.debts.dialog.save')}
-          </Button>
+          <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
     </>

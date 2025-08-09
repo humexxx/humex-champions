@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import { IDebt, IFinancialPlan } from '@shared/models/finances';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
 import { formatCurrency } from 'src/utils';
 import * as yup from 'yup';
@@ -29,22 +28,17 @@ const ValidateMainFinantialSnapshotDialog = ({
   financialPlan,
   onSubmit,
 }: Props) => {
-  const { t } = useTranslation();
-  const schema = useMemo(
-    () =>
+  const schema = yup.object().shape({
+    debts: yup.array().of(
       yup.object().shape({
-        debts: yup.array().of(
-          yup.object().shape({
-            pendingDebt: yup
-              .number()
-              .nonNullable()
-              .required(t('commonValidations.required'))
-              .moreThan(-1),
-          })
-        ),
-      }),
-    [t]
-  );
+        pendingDebt: yup
+          .number()
+          .nonNullable()
+          .required('This field is required')
+          .moreThan(-1),
+      })
+    ),
+  });
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -114,12 +108,11 @@ const ValidateMainFinantialSnapshotDialog = ({
       disableEscapeKeyDown
       {...{ autoComplete: 'off' }}
     >
-      <DialogTitle>
-        {t('finances.personalFinances.debtConfirmationDialog.title')}
-      </DialogTitle>
+      <DialogTitle>Debt Confirmation</DialogTitle>
       <DialogContent>
         <Typography variant="body1" my={4}>
-          {t('finances.personalFinances.debtConfirmationDialog.description')}
+          Please confirm your current debt amounts to keep your financial plan
+          up to date.
         </Typography>
         <Grid
           container
@@ -147,9 +140,7 @@ const ValidateMainFinantialSnapshotDialog = ({
                   render={({ field }) => (
                     <CurrencyField
                       {...field}
-                      label={t(
-                        'finances.personalFinances.debtConfirmationDialog.newDebt'
-                      )}
+                      label="New Debt Amount"
                       fullWidth
                       error={!!errors?.debts?.[index]?.pendingDebt}
                       margin="dense"
@@ -177,10 +168,7 @@ const ValidateMainFinantialSnapshotDialog = ({
         >
           <Grid item xs={6}>
             <Typography variant="body1" textAlign="right">
-              {t(
-                'finances.personalFinances.debtConfirmationDialog.totalPreviousDebt'
-              )}
-              :{' '}
+              Total Previous Debt:{' '}
               <strong>
                 {formatCurrency(
                   prevSnapshot!.debts.reduce(
@@ -193,18 +181,14 @@ const ValidateMainFinantialSnapshotDialog = ({
           </Grid>
           <Grid item xs={6}>
             <Typography variant="body1">
-              {t(
-                'finances.personalFinances.debtConfirmationDialog.totalNewDebt'
-              )}
-              : <strong>{formatCurrency(totalNewDebt ?? 0)}</strong>
+              Total New Debt:{' '}
+              <strong>{formatCurrency(totalNewDebt ?? 0)}</strong>
             </Typography>
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button type="submit">
-          {t('finances.personalFinances.debtConfirmationDialog.confirm')}
-        </Button>
+        <Button type="submit">Confirm</Button>
       </DialogActions>
     </Dialog>
   );

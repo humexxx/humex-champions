@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
@@ -29,7 +29,6 @@ import {
 import { DatePicker } from '@mui/x-date-pickers';
 import { IFixedExpense } from '@shared/models/finances';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { CurrencyField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import * as yup from 'yup';
@@ -42,37 +41,29 @@ interface Props {
 }
 
 const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
-  const { t } = useTranslation();
-  const schema = useMemo(
-    () =>
+  const schema = yup.object().shape({
+    expenses: yup.array().of(
       yup.object().shape({
-        expenses: yup.array().of(
-          yup.object().shape({
-            name: yup
-              .string()
-              .nonNullable()
-              .required(t('commonValidations.required'))
-              .max(64),
-            amount: yup
-              .number()
-              .nonNullable()
-              .required(t('commonValidations.required'))
-              .typeError(t('commonValidations.required'))
-              .moreThan(-1),
-            expenseType: yup
-              .string()
-              .nonNullable()
-              .oneOf(
-                ['primary', 'secondary', 'single'],
-                t('commonValidations.type')
-              )
-              .required(t('commonValidations.required')),
-            date: yupDayjs.nonNullable(),
-          })
-        ),
-      }),
-    [t]
-  );
+        name: yup
+          .string()
+          .nonNullable()
+          .required('This field is required')
+          .max(64),
+        amount: yup
+          .number()
+          .nonNullable()
+          .required('This field is required')
+          .typeError('This field is required')
+          .moreThan(-1),
+        expenseType: yup
+          .string()
+          .nonNullable()
+          .oneOf(['primary', 'secondary', 'single'], 'Invalid type')
+          .required('This field is required'),
+        date: yupDayjs.nonNullable(),
+      })
+    ),
+  });
 
   const [open, setOpen] = useState(false);
 
@@ -122,7 +113,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
     append({
       amount: 0,
       expenseType: 'primary',
-      name: `${t('finances.personalFinances.header.fixedExpenses.dialog.fixedExpense')} ${fields.length + 1}`,
+      name: `Fixed Expense ${fields.length + 1}`,
     });
     setIndexToEdit(fields.length);
   }
@@ -162,7 +153,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
             textTransform: 'capitalize',
           }}
         >
-          {t('finances.personalFinances.header.fixedExpenses.dialog.title')}
+          Fixed Expenses
         </DialogTitle>
         <DialogContent>
           <Stack gap={4}>

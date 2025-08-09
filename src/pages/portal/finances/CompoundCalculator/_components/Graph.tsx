@@ -3,12 +3,10 @@ import { useMemo } from 'react';
 import { Box } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { MULTIPLE_GRAPH_COLORS } from 'src/consts';
 import { formatCurrency } from 'src/utils';
 
 import { DataSet } from '../Page';
-
 
 const calculateInterest = (
   initial: number,
@@ -39,8 +37,6 @@ interface Props {
 }
 
 const Graph = ({ data, years }: Props) => {
-  const { t } = useTranslation();
-
   const dataset = useMemo(
     () =>
       data.map(
@@ -71,20 +67,16 @@ const Graph = ({ data, years }: Props) => {
         yAxis={[
           {
             valueFormatter: (value) =>
-              value > 99999999
-                ? `${t('common.infinite')} $$`
-                : `$${value.toLocaleString()}`,
+              value > 99999999 ? 'Infinite $$' : `$${value.toLocaleString()}`,
           },
         ]}
         series={dataset.map((data, i) => ({
           curve: 'natural',
           data: data.data.map(({ amount }) => amount),
-          label: `${t('finances.compound-calculator.investment')} ${i + 1}`,
+          label: `Investment ${i + 1}`,
           color: data.color,
           valueFormatter: (val) =>
-            (val ?? 0) > 99999999
-              ? `${t('common.infinite')} $$`
-              : formatCurrency(val),
+            (val ?? 0) > 99999999 ? 'Infinite $$' : formatCurrency(val),
         }))}
         margin={{ left: 80 }}
         grid={{ horizontal: true }}

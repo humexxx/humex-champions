@@ -1,7 +1,6 @@
 import { Box, Button, ButtonGroup, SxProps, Typography } from '@mui/material';
 import { IPortfolioSnapshot } from '@shared/models/finances';
 import { Dayjs } from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 
 interface Props {
@@ -17,7 +16,6 @@ const SelectInstrumentFilter = ({
   setSelectedFilter,
   sx,
 }: Props) => {
-  const { t } = useTranslation();
   const handleSelect = (instrument: string) => () => {
     setSelectedFilter(instrument);
   };
@@ -34,7 +32,7 @@ const SelectInstrumentFilter = ({
           onClick={handleSelect('total')}
         >
           <Box>
-            <Typography variant="body2">{t('common.total')}</Typography>
+            <Typography variant="body2">Total</Typography>
             <Typography variant="caption">
               {formatCurrency(portfolioSnapshot.totalValue)}
             </Typography>

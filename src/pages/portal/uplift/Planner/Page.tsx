@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import dayjs, { Dayjs } from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { PageContent, PageHeader } from 'src/components';
 import { ROUTES } from 'src/consts';
 
@@ -20,17 +19,15 @@ function getDaysOfCurrentWeek(): Dayjs[] {
 }
 
 const Page = () => {
-  const { t } = useTranslation();
-
   const daysOfCurrentWeek = useMemo(getDaysOfCurrentWeek, []);
 
   return (
     <>
       <PageHeader
-        title={t('uplift.planner.title')}
+        title={'Life Planner'}
         breadcrumb={[
-          { title: t('uplift.title'), route: ROUTES.PORTAL.UPLIFT.INDEX },
-          { title: t('uplift.planner.title'), route: 'planner' },
+          { title: 'Uplift', route: ROUTES.PORTAL.UPLIFT.INDEX },
+          { title: 'Life Planner', route: 'planner' },
         ]}
         description={t('uplift.planner.description')}
       />

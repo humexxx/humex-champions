@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Grid, IconButton } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { forceNumberOnInputChange } from 'src/utils';
 
 import { DataSet } from '../Page';
-
 
 interface Props {
   onChange: (data: DataSet) => void;
@@ -16,8 +14,6 @@ interface Props {
 }
 
 const Inputs = ({ onChange, customData, onRemove }: Props) => {
-  const { t } = useTranslation();
-
   const [initialInvestment, setInitialInvestment] = useState(
     customData ? customData.initialInvestment : 1000
   );
@@ -41,21 +37,21 @@ const Inputs = ({ onChange, customData, onRemove }: Props) => {
     <Grid container spacing={2}>
       <Grid item>
         <CurrencyField
-          label={t('finances.compound-calculator.inputs.initialInvestment')}
+          label="Initial Investment"
           value={initialInvestment}
           onChange={forceNumberOnInputChange(setInitialInvestment)}
         />
       </Grid>
       <Grid item>
         <CurrencyField
-          label={t('finances.compound-calculator.inputs.monthlyContribution')}
+          label="Monthly Contribution"
           value={monthlyContribution}
           onChange={forceNumberOnInputChange(setMonthlyContribution)}
         />
       </Grid>
       <Grid item>
         <PercentageField
-          label={t('finances.compound-calculator.inputs.interestRate')}
+          label="Interest Rate"
           value={interestRate}
           onChange={forceNumberOnInputChange(setInterestRate)}
         />

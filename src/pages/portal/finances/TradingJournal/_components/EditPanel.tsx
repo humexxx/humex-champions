@@ -1,23 +1,22 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  Grid,
-  TextField,
-  MenuItem,
-  Button,
-  Box,
-  IconButton,
-  Pagination,
-  Typography,
-} from '@mui/material';
 import { ITrade } from '@shared/models/finances';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { CurrencyField } from 'src/components/forms';
 import * as yup from 'yup';
+import {
+  Box,
+  Grid,
+  Typography,
+  TextField,
+  MenuItem,
+  IconButton,
+  Button,
+  Pagination,
+} from '@mui/material';
+import { CurrencyField } from 'src/components/forms';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 
 type Props = {
   trades: ITrade[];
@@ -26,27 +25,24 @@ type Props = {
 };
 
 const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
-  const { t } = useTranslation();
-  const schema = useMemo(() => {
-    return yup.object().shape({
-      trades: yup
-        .array()
-        .of(
-          yup.object().shape({
-            pl: yup
-              .number()
-              .nonNullable()
-              .required(t('commonValidations.required'))
-              .typeError(t('commonValidations.required')),
-            instrument: yup
-              .string()
-              .required(t('commonValidations.required'))
-              .oneOf(['stock', 'forex', 'crypto']),
-          })
-        )
-        .min(1),
-    });
-  }, [t]);
+  const schema = yup.object().shape({
+    trades: yup
+      .array()
+      .of(
+        yup.object().shape({
+          pl: yup
+            .number()
+            .nonNullable()
+            .required('This field is required')
+            .typeError('This field is required'),
+          instrument: yup
+            .string()
+            .required('This field is required')
+            .oneOf(['stock', 'forex', 'crypto']),
+        })
+      )
+      .min(1),
+  });
 
   const {
     control,
@@ -105,7 +101,7 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
       <Box sx={{ height: 228 }}>
         <Grid container spacing={2} alignItems="center">
           {Boolean(!fields.length) && (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography
                 component="p"
                 variant="caption"
@@ -113,20 +109,20 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
                 textAlign="center"
                 mt={2}
               >
-                {t('finances.tradingJournal.editPanel.hint')}
+                No trades found. Please add a trade to start tracking.
               </Typography>
             </Grid>
           )}
           {currentFields.map((field, index) => (
             <Fragment key={field.id}>
-              <Grid item xs={5}>
+              <Grid size={{ xs: 5 }}>
                 <Controller
                   name={`trades.${index}.pl`}
                   control={control}
                   render={({ field }) => (
                     <CurrencyField
                       {...field}
-                      label={t('finances.tradingJournal.editPanel.pl')}
+                      label={'P&L'}
                       error={!!errors.trades?.[index]?.pl}
                       helperText={errors.trades?.[index]?.pl?.message}
                       fullWidth
@@ -136,14 +132,14 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
                   )}
                 />
               </Grid>
-              <Grid item xs={5}>
+              <Grid size={{ xs: 5 }}>
                 <Controller
                   name={`trades.${index}.instrument`}
                   control={control}
                   render={({ field }) => (
                     <TextField
                       select
-                      label={t('finances.tradingJournal.editPanel.instrument')}
+                      label={'Instrument'}
                       {...field}
                       fullWidth
                       error={!!errors.trades?.[index]?.instrument}
@@ -158,7 +154,7 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
                   )}
                 />
               </Grid>
-              <Grid item xs={2}>
+              <Grid size={{ xs: 2 }}>
                 <IconButton color="error" onClick={() => remove(index)}>
                   <DeleteIcon />
                 </IconButton>
@@ -168,12 +164,12 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
         </Grid>
       </Box>
       <Grid container mt={4}>
-        <Grid item xs={4}>
+        <Grid size={{ xs: 4 }}>
           <Button onClick={handleAddOnClick} startIcon={<AddIcon />}>
-            {t('finances.tradingJournal.editPanel.addTrade')}
+            Add Trade
           </Button>
         </Grid>
-        <Grid item xs={8} textAlign="right" flexDirection="column">
+        <Grid size={{ xs: 8 }} textAlign="right" flexDirection="column">
           {fields.length > itemsPerPage - 1 && (
             <Pagination
               sx={{ display: 'flex', justifyContent: 'flex-end' }}
@@ -193,7 +189,7 @@ const EditPanel = ({ trades, onSubmit, formIsDirtyOnChange }: Props) => {
               mr: 2,
             }}
           >
-            {t('finances.tradingJournal.editPanel.submit')}
+            Submit
           </Button>
         </Grid>
       </Grid>

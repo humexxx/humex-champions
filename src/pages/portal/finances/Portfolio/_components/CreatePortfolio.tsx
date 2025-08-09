@@ -8,7 +8,6 @@ import { IPortfolioSnapshot } from '@shared/models/finances';
 import { IInstrument } from '@shared/models/instruments';
 import { Dayjs } from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { toDayjs } from 'src/utils';
 import * as yup from 'yup';
@@ -22,7 +21,6 @@ interface Props {
 
 const CreatePortfolio = ({ onSubmit, pageLoading }: Props) => {
   const { instruments, isLoading, error } = useInstruments();
-  const { t } = useTranslation();
 
   const schema = useMemo(
     () =>

@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
 import { IDebt } from '@shared/models/finances';
-import { useTranslation } from 'react-i18next';
 import { formatCurrency, formatPercentage } from 'src/utils';
 
 import DebtEditDialog from './DebtEditDialog';
@@ -17,8 +16,6 @@ interface Props {
 }
 
 const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
-  const { t } = useTranslation();
-
   const totalDebt = useMemo(() => financeUtils.getTotalDebts(debts), [debts]);
 
   const totalMinimumPayment = useMemo(
@@ -55,9 +52,7 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
           <Stack direction={'row'} gap={1} alignItems={'center'}>
             <RequestQuoteTwoToneIcon color="error" fontSize="large" />
             <Typography variant="body1" component="h3">
-              <strong>
-                {t('finances.personalFinances.header.debts.title')}
-              </strong>
+              <strong>Debts</strong>
             </Typography>
           </Stack>
 
@@ -92,8 +87,7 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
               variant="caption"
               color={canEdit ? 'text.secondary' : 'text.disabled'}
             >
-              {t('finances.personalFinances.header.debts.interest')}:{' '}
-              {formatPercentage(weightedInterest)}
+              Average Interest: {formatPercentage(weightedInterest)}
             </Typography>
           </>
         ) : (
@@ -101,7 +95,7 @@ const DebtCard = ({ debts, isLoading, update, canEdit }: Props) => {
             variant="body2"
             color={canEdit ? 'text.secondary' : 'text.disabled'}
           >
-            {t('finances.personalFinances.header.debts.noDebts')}
+            No debts configured
           </Typography>
         )}
       </CardContent>

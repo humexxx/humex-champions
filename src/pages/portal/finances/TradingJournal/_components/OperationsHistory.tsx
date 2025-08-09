@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { IOperation } from '@shared/models/finances';
 import { Dayjs } from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 
 interface HistoryRecord {
@@ -19,8 +18,6 @@ type Props = {
 };
 
 const TradingHistory = ({ operations }: Props) => {
-  const { t } = useTranslation();
-
   const rows = useMemo(
     () =>
       operations

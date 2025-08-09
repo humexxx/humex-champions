@@ -18,7 +18,6 @@ import { ELabelColorType } from '@shared/enums/ELabelColorType';
 import { IPlanner } from '@shared/models/uplift';
 import { Dayjs } from 'dayjs';
 import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 
 import LabelsDialog from './LabelsDialog';
@@ -35,8 +34,6 @@ function DailyChecklistForm({
   planner: IPlanner<Dayjs>;
   uplift: UseUplift;
 }) {
-  const { t } = useTranslation();
-
   const schema = useMemo(
     () =>
       yup.object().shape({

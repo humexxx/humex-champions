@@ -172,9 +172,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                         render={({ field }) => (
                           <TextField
                             {...field}
-                            label={t(
-                              'finances.personalFinances.header.incomes.dialog.name'
-                            )}
+                            label="Name"
                             fullWidth
                             error={!!errors?.incomes?.[indexToEdit]?.name}
                             helperText={
@@ -194,9 +192,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                         render={({ field }) => (
                           <CurrencyField
                             {...field}
-                            label={t(
-                              'finances.personalFinances.header.incomes.dialog.amount'
-                            )}
+                            label="Amount"
                             fullWidth
                             error={!!errors?.incomes?.[indexToEdit]?.amount}
                             helperText={
@@ -218,9 +214,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                           render={({ field }) => (
                             <TextField
                               {...field}
-                              label={t(
-                                'finances.personalFinances.header.incomes.dialog.period'
-                              )}
+                              label="Period"
                               fullWidth
                               select
                               error={!!errors?.incomes?.[indexToEdit]?.period}
@@ -262,9 +256,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                                       ?.message,
                                 },
                               }}
-                              label={t(
-                                'finances.personalFinances.header.incomes.dialog.date'
-                              )}
+                              label="Date"
                               views={['year', 'month', 'day']}
                             />
                           )}
@@ -338,9 +330,7 @@ const IncomeEditDialog = ({ onSubmit, data }: Props) => {
                       )}
                     />
                   }
-                  label={t(
-                    'finances.personalFinances.header.incomes.dialog.useTrading'
-                  )}
+                  label="Use Trading Profits for Income"
                 />
                 <Controller
                   name={'tradingPercentage'}

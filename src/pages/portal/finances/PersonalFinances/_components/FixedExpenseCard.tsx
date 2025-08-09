@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import { IDebt, IFixedExpense } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { formatCurrency } from 'src/utils';
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import FixedExpenseEditDialog from './FixedExpenseEditDialog';
@@ -28,8 +27,6 @@ const FixedExpenseCard = ({
   isLoading,
   update,
 }: Props) => {
-  const { t } = useTranslation();
-
   const monthlyFixedDebt = useMemo(
     () => debts.reduce((acc, debt) => acc + debt.minimumPayment, 0),
     [debts]
@@ -66,9 +63,7 @@ const FixedExpenseCard = ({
           <Stack direction={'row'} gap={1} alignItems={'center'}>
             <RequestQuoteTwoToneIcon color="warning" fontSize="large" />
             <Typography variant="body1" component="h3" mb={2}>
-              <strong>
-                {t('finances.personalFinances.header.fixedExpenses.title')}
-              </strong>
+              <strong>Fixed Expenses</strong>
             </Typography>
           </Stack>
           <FixedExpenseEditDialog
@@ -85,28 +80,18 @@ const FixedExpenseCard = ({
         ) : fixedExpenses.length || debts.length ? (
           <>
             <Typography component="h6" variant="body1" gutterBottom>
-              {t('finances.personalFinances.header.fixedExpenses.total')}:{' '}
-              {formatCurrency(total)}
+              Total: {formatCurrency(total)}
             </Typography>
 
-            <Tooltip
-              title={t(
-                'finances.personalFinances.header.fixedExpenses.fixedMonthlyDebtHint'
-              )}
-            >
+            <Tooltip title="Fixed monthly debt payments that must be made regardless of other expenses">
               <Typography variant="body2">
-                {t(
-                  'finances.personalFinances.header.fixedExpenses.fixedMonthlyDebt'
-                )}
-                : {formatCurrency(monthlyFixedDebt)}
+                Fixed Monthly Debt: {formatCurrency(monthlyFixedDebt)}
               </Typography>
             </Tooltip>
           </>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            {t(
-              'finances.personalFinances.header.fixedExpenses.noFixedExpenses'
-            )}
+            No fixed expenses configured
           </Typography>
         )}
       </CardContent>
