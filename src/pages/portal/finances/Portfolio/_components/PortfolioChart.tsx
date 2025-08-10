@@ -62,11 +62,13 @@ const PortfolioChart = ({
                 fontSize: 12,
                 fill: theme.palette.text.secondary,
               },
+              tickNumber: Math.min(5, chartLabels.length), // Máximo 5 labels
             },
           ]}
           yAxis={[
             {
               tickLabelStyle: { display: 'none' },
+              tickNumber: Math.min(5, chartLabels.length), // Máximo 5 labels
             },
           ]}
           grid={{ horizontal: false, vertical: false }}

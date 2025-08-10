@@ -4,11 +4,9 @@ import {
   IPortfolio,
   IPortfolioHolding,
   IPortfolioTransaction,
+  IPortfolioSnapshot,
 } from '@shared/models/finances';
-import {
-  convertMockDataToNewModel,
-  getDefaultPortfolioData,
-} from '@shared/utils';
+import { getDefaultPortfolioData } from '@shared/utils';
 import { getError } from '@shared/utils';
 import {
   collection,
@@ -21,37 +19,186 @@ import {
   orderBy,
   limit,
 } from 'firebase/firestore';
+import { ENVIRONMENTS } from 'src/consts';
 import { firestore } from 'src/firebase';
 import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
 
-const MOCK_PORTFOLIO_DATA = {
-  name: 'MVP',
-  totalValue: 120417.6,
+// ============= MOCK DATA =============
+
+const MOCK_PORTFOLIO: IPortfolio = {
+  id: 'portfolio_1',
+  userId: 'user_1',
+  name: 'MVP Portfolio',
+  isDraft: false,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date(),
+  currentValue: 120417.6,
   totalGain: 117084.1,
   totalGainPercentage: 3512.36,
   dailyGain: -212.58,
   dailyGainPercentage: -0.18,
-  holdings: [
-    {
-      symbol: 'BTC',
-      name: 'Bitcoin (BTC / USD)',
-      price: 116383.2,
-      quantity: 1,
-      dailyChange: -295.08,
-      dailyChangePercentage: -0.25,
-      value: 116383.2,
-    },
-    {
-      symbol: 'ADA',
-      name: 'Cardano (ADA / USD)',
-      price: 0.81,
-      quantity: 5000,
-      dailyChange: 82.5,
-      dailyChangePercentage: 2.09,
-      value: 4034.4,
-    },
-  ],
+  totalInvested: 3333.5,
+  currency: 'USD',
+  isDefault: true,
+  lastPriceUpdate: new Date(),
 };
+
+const MOCK_ASSETS: Record<string, IAsset> = {
+  BTC: {
+    id: 'BTC',
+    symbol: 'BTC',
+    name: 'Bitcoin',
+    category: 'CRYPTO',
+    type: 'CRYPTOCURRENCY',
+    currentPrice: 116383.2,
+    dayOpenPrice: 116678.28,
+    previousDayClose: 116678.28,
+    dailyChange: -295.08,
+    dailyChangePercentage: -0.25,
+    currency: 'USD',
+    exchange: 'Binance',
+    lastPriceUpdate: new Date(),
+    marketCap: 2300000000000,
+    volume24h: 15000000000,
+  },
+  ADA: {
+    id: 'ADA',
+    symbol: 'ADA',
+    name: 'Cardano',
+    category: 'CRYPTO',
+    type: 'CRYPTOCURRENCY',
+    currentPrice: 0.81,
+    dayOpenPrice: 0.79,
+    previousDayClose: 0.79,
+    dailyChange: 0.02,
+    dailyChangePercentage: 2.09,
+    currency: 'USD',
+    exchange: 'Binance',
+    lastPriceUpdate: new Date(),
+    marketCap: 28000000000,
+    volume24h: 400000000,
+  },
+};
+
+const MOCK_HOLDINGS: IPortfolioHolding[] = [
+  {
+    id: 'holding_1',
+    portfolioId: 'portfolio_1',
+    assetId: 'BTC',
+    quantity: 1,
+    averageBuyPrice: 3000,
+    totalInvested: 3000,
+    currentPrice: 116383.2,
+    currentValue: 116383.2,
+    unrealizedGain: 113383.2,
+    unrealizedGainPercentage: 3779.44,
+    firstPurchaseDate: new Date('2024-01-01'),
+    lastUpdateDate: new Date(),
+    portfolioPercentage: 96.65,
+  },
+  {
+    id: 'holding_2',
+    portfolioId: 'portfolio_1',
+    assetId: 'ADA',
+    quantity: 5000,
+    averageBuyPrice: 0.067,
+    totalInvested: 333.5,
+    currentPrice: 0.81,
+    currentValue: 4034.4,
+    unrealizedGain: 3700.9,
+    unrealizedGainPercentage: 1109.55,
+    firstPurchaseDate: new Date('2024-02-01'),
+    lastUpdateDate: new Date(),
+    portfolioPercentage: 3.35,
+  },
+];
+
+const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
+  {
+    id: 'transaction_1',
+    portfolioId: 'portfolio_1',
+    assetId: 'BTC',
+    type: 'BUY',
+    quantity: 1,
+    price: 3000,
+    totalAmount: 3000,
+    fees: 15,
+    executedAt: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    notes: 'Initial BTC purchase',
+    source: 'Binance',
+  },
+  {
+    id: 'transaction_2',
+    portfolioId: 'portfolio_1',
+    assetId: 'ADA',
+    type: 'BUY',
+    quantity: 5000,
+    price: 0.067,
+    totalAmount: 333.5,
+    fees: 1.67,
+    executedAt: new Date('2024-02-01'),
+    createdAt: new Date('2024-02-01'),
+    notes: 'ADA accumulation',
+    source: 'Binance',
+  },
+];
+
+// Helper function to generate historical snapshots
+const generateMockSnapshots = (
+  startDate: Date,
+  endDate: Date
+): IPortfolioSnapshot[] => {
+  const snapshots: IPortfolioSnapshot[] = [];
+  const currentDate = new Date(startDate);
+  const baseValue = 3333.5; // Initial investment
+  const finalValue = 120417.6; // Current value
+  const totalDays = Math.ceil(
+    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  // Generate daily snapshots with realistic growth curve
+  for (let i = 0; i <= totalDays; i += 1) {
+    const progress = i / totalDays;
+    // Use exponential growth curve with some randomness
+    const growthFactor = Math.pow(progress, 0.7) + (Math.random() - 0.5) * 0.1;
+    const value =
+      baseValue +
+      (finalValue - baseValue) * Math.max(0, Math.min(1, growthFactor));
+    const previousValue =
+      i === 0
+        ? baseValue
+        : snapshots[snapshots.length - 1]?.totalValue || baseValue;
+
+    const snapshot: IPortfolioSnapshot = {
+      id: `snapshot_${currentDate.toISOString().split('T')[0]}`,
+      portfolioId: 'portfolio_1',
+      date: new Date(currentDate),
+      totalValue: value,
+      totalGain: value - baseValue,
+      totalGainPercentage: ((value - baseValue) / baseValue) * 100,
+      dailyChange: value - previousValue,
+      dailyChangePercentage:
+        previousValue > 0 ? ((value - previousValue) / previousValue) * 100 : 0,
+      holdings: MOCK_HOLDINGS.map((holding) => ({
+        ...holding,
+        currentValue: holding.currentValue * (value / finalValue),
+        unrealizedGain: holding.unrealizedGain * (value / finalValue),
+      })),
+      createdAt: new Date(currentDate),
+    };
+
+    snapshots.push(snapshot);
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return snapshots;
+};
+
+const MOCK_SNAPSHOTS: IPortfolioSnapshot[] = generateMockSnapshots(
+  new Date('2024-01-01'),
+  new Date()
+);
 
 export const portfolioService = {
   getPortfolioCollection: (portfolioId: string) =>
@@ -159,6 +306,50 @@ export const portfolioService = {
             toDayjs
           )
         );
+
+        onSuccess(data);
+      },
+      (error) => {
+        onError(getError(error));
+      }
+    );
+  },
+
+  subscribeToSnapshots: (
+    portfolioId: string,
+    startDate: Date,
+    endDate: Date,
+    onSuccess: (snapshots: IPortfolioSnapshot[]) => void,
+    onError: (error: string) => void
+  ) => {
+    const collectionRef = portfolioService.getSnapshotsCollection(portfolioId);
+    const q = query(
+      collectionRef,
+      orderBy('date', 'asc')
+      // Note: In real implementation, add where clauses for date range
+      // where('date', '>=', startDate),
+      // where('date', '<=', endDate)
+    );
+
+    return onSnapshot(
+      q,
+      (snap) => {
+        if (snap.empty) {
+          onSuccess([]);
+          return;
+        }
+
+        const data = snap.docs
+          .map((doc) =>
+            normalizeObjectDates<IPortfolioSnapshot>(
+              { id: doc.id, ...doc.data() },
+              toDayjs
+            )
+          )
+          .filter((snapshot) => {
+            const snapshotDate = snapshot.date;
+            return snapshotDate >= startDate && snapshotDate <= endDate;
+          });
 
         onSuccess(data);
       },
@@ -332,13 +523,12 @@ export const portfolioService = {
 
 export const mockPortfolioService = {
   subscribeToPortfolio: (
-    _portfolioId: string,
+    portfolioId: string,
     onSuccess: (portfolio: IPortfolio | null) => void,
     _onError: (error: string) => void
   ) => {
     setTimeout(() => {
-      const { portfolio } = convertMockDataToNewModel(MOCK_PORTFOLIO_DATA);
-      onSuccess({ ...portfolio, id: _portfolioId } as IPortfolio);
+      onSuccess({ ...MOCK_PORTFOLIO, id: portfolioId });
     }, 1000);
 
     return () => {};
@@ -350,8 +540,7 @@ export const mockPortfolioService = {
     _onError: (error: string) => void
   ) => {
     setTimeout(() => {
-      const { holdings } = convertMockDataToNewModel(MOCK_PORTFOLIO_DATA);
-      onSuccess(holdings);
+      onSuccess(MOCK_HOLDINGS);
     }, 1000);
 
     return () => {};
@@ -364,7 +553,25 @@ export const mockPortfolioService = {
     _onError: (error: string) => void
   ) => {
     setTimeout(() => {
-      onSuccess([]);
+      onSuccess(MOCK_TRANSACTIONS.slice(0, _transactionLimit));
+    }, 1000);
+
+    return () => {};
+  },
+
+  subscribeToSnapshots: (
+    _portfolioId: string,
+    startDate: Date,
+    endDate: Date,
+    onSuccess: (snapshots: IPortfolioSnapshot[]) => void,
+    _onError: (error: string) => void
+  ) => {
+    setTimeout(() => {
+      const filteredSnapshots = MOCK_SNAPSHOTS.filter((snapshot) => {
+        const snapshotDate = snapshot.date;
+        return snapshotDate >= startDate && snapshotDate <= endDate;
+      });
+      onSuccess(filteredSnapshots);
     }, 1000);
 
     return () => {};
@@ -385,10 +592,10 @@ export const mockPortfolioService = {
     setTimeout(() => {
       onSuccess([
         {
-          id: 'portfolio_1',
-          name: 'MVP',
-          isDefault: true,
-          updatedAt: new Date(),
+          id: MOCK_PORTFOLIO.id,
+          name: MOCK_PORTFOLIO.name,
+          isDefault: MOCK_PORTFOLIO.isDefault,
+          updatedAt: MOCK_PORTFOLIO.updatedAt,
         },
       ]);
     }, 1000);
@@ -397,8 +604,7 @@ export const mockPortfolioService = {
   },
 
   getPortfolio: async (portfolioId: string): Promise<IPortfolio | null> => {
-    const { portfolio } = convertMockDataToNewModel(MOCK_PORTFOLIO_DATA);
-    return { ...portfolio, id: portfolioId } as IPortfolio;
+    return { ...MOCK_PORTFOLIO, id: portfolioId };
   },
 
   createPortfolio: async (
@@ -415,8 +621,7 @@ export const mockPortfolioService = {
   },
 
   getAsset: async (assetId: string): Promise<IAsset | null> => {
-    const { assets } = convertMockDataToNewModel(MOCK_PORTFOLIO_DATA);
-    return assets[assetId] || null;
+    return MOCK_ASSETS[assetId] || null;
   },
 
   setAsset: async (_asset: IAsset): Promise<void> => {
@@ -427,7 +632,7 @@ export const mockPortfolioService = {
 };
 
 export const createPortfolioService = (forceMock: boolean = false) => {
-  return process.env.NODE_ENV === 'development' || forceMock
+  return process.env.NODE_ENV === ENVIRONMENTS.DEVELOPMENT || forceMock
     ? mockPortfolioService
     : portfolioService;
 };

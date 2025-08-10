@@ -18,6 +18,7 @@ import {
 import { firestore } from 'src/firebase';
 import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
 import dayjs from 'dayjs';
+import { ENVIRONMENTS } from 'src/consts';
 
 // ============= MOCK DATA =============
 const firstDayOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
@@ -263,7 +264,7 @@ export const mockFinancialPlansService = {
 
 // ============= FACTORY =============
 export const createFinancialPlansService = (forceMock: boolean = false) => {
-  return process.env.NODE_ENV === 'development' || forceMock
+  return process.env.NODE_ENV === ENVIRONMENTS.DEVELOPMENT || forceMock
     ? mockFinancialPlansService
     : financialPlansService;
 };

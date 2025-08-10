@@ -4,6 +4,7 @@ import {
   IPortfolio,
   IPortfolioHolding,
   IPortfolioTransaction,
+  IPortfolioSnapshot,
   IAsset,
 } from '@shared/models/finances';
 import { CommonFetchHookProps } from 'src/_models';
@@ -14,6 +15,7 @@ interface UsePortfolio {
   portfolio: IPortfolio | null;
   holdings: IPortfolioHolding[];
   transactions: IPortfolioTransaction[];
+  snapshots: IPortfolioSnapshot[];
   userPortfolios: Array<{
     id: string;
     name: string;
@@ -46,6 +48,7 @@ const usePortfolio = (
   const [portfolio, setPortfolio] = useState<IPortfolio | null>(null);
   const [holdings, setHoldings] = useState<IPortfolioHolding[]>([]);
   const [transactions, setTransactions] = useState<IPortfolioTransaction[]>([]);
+  const [snapshots, setSnapshots] = useState<IPortfolioSnapshot[]>([]);
   const [userPortfolios, setUserPortfolios] = useState<
     Array<{
       id: string;
@@ -105,6 +108,27 @@ const usePortfolio = (
       }
     );
 
+    // Subscribe to snapshots (last year for default)
+    const now = new Date();
+    const lastYear = new Date(
+      now.getFullYear() - 1,
+      now.getMonth(),
+      now.getDate()
+    );
+    const unsubscribeSnapshots = service.subscribeToSnapshots(
+      portfolioId,
+      lastYear,
+      now,
+      (snapshotsData: IPortfolioSnapshot[]) => {
+        setSnapshots(snapshotsData);
+        setError(null);
+      },
+      (error: string) => {
+        setError(error);
+        setLoading(false);
+      }
+    );
+
     // Subscribe to user portfolios
     const unsubscribeUserPortfolios = service.subscribeToUserPortfolios(
       currentUser.uid,
@@ -130,6 +154,7 @@ const usePortfolio = (
       unsubscribePortfolio();
       unsubscribeHoldings();
       unsubscribeTransactions();
+      unsubscribeSnapshots();
       unsubscribeUserPortfolios();
     };
   }, [autoLoad, currentUser, portfolioId, service]);
@@ -179,6 +204,7 @@ const usePortfolio = (
     portfolio,
     holdings,
     transactions,
+    snapshots,
     userPortfolios,
     loading,
     error,
