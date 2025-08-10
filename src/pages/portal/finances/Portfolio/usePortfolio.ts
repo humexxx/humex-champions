@@ -8,7 +8,7 @@ import {
 } from '@shared/models/finances';
 import { CommonFetchHookProps } from 'src/_models';
 import { useAuth } from 'src/context/hooks';
-import { createPortfolioService } from 'src/services/finances/portfolioService';
+import { createPortfolioService } from 'src/services/finances';
 
 interface UsePortfolio {
   portfolio: IPortfolio | null;

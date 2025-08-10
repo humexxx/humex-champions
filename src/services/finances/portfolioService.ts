@@ -427,7 +427,9 @@ export const mockPortfolioService = {
 };
 
 export const createPortfolioService = (forceMock: boolean = false) => {
-  return forceMock ? mockPortfolioService : portfolioService;
+  return process.env.NODE_ENV === 'development' || forceMock
+    ? mockPortfolioService
+    : portfolioService;
 };
 
 export default {

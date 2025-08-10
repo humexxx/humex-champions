@@ -1,21 +1,57 @@
-# 📚 PATRÓN ESTÁNDAR MEJORADO PARA SERVICIOS Y HOOKS
+# 📚 PATRÓN ESTÁNDAR UNIFICADO PARA SERVICIOS Y HOOKS
 
-## 🎯 **MEJOR PRÁCTICA - PATRÓN ESTANDARIZADO v2.0**
+## 🎯 **PATRÓN ESTANDARIZADO v2.0 - COMPLETAMENTE UNIFICADO**
 
 ### **🚀 MEJORAS IMPLEMENTADAS:**
 
-1. **Repository Pattern** con interfaces
-2. **Error Handling** con tipos específicos
-3. **Loading States** granulares
-4. **Optimistic Updates** para mejor UX
-5. **Cache Management** con invalidación
-6. **Type Safety** mejorada
-7. **Dependency Injection** para testing
+1. **Servicios Unificados**: Mock y real en el mismo archivo
+2. **Factory Interna**: Lógica de creación dentro del servicio
+3. **Mock Data Inline**: Datos de prueba junto al código
+4. **Índice Simple**: Solo re-exports, sin lógica
+5. **Consistencia Total**: Mismo patrón para todos los servicios
+6. **Mantenimiento Fácil**: Un solo archivo por feature
 
-### **1. ESTRUCTURA DEL SERVICIO MEJORADA**
+## ✅ **PATRÓN UNIFICADO - IMPLEMENTACIÓN COMPLETADA**
+
+### **🎯 ESTADO ACTUAL (POST-UNIFICACIÓN):**
+
+```
+src/services/finances/
+├── personalFinancesService.ts     # ✅ TODO unificado
+│   ├── Mock data inline
+│   ├── Firebase service
+│   ├── Mock service
+│   └── Factory function
+├── portfolioService.ts            # ✅ TODO unificado
+│   ├── Mock data inline
+│   ├── Firebase service
+│   ├── Mock service
+│   └── Factory function
+└── index.ts                       # ✅ Solo re-exports
+    └── Imports desde archivos principales
+```
+
+### **🗑️ ARCHIVOS ELIMINADOS:**
+
+- ❌ `mockFinancialPlansService.ts` → Unificado en `personalFinancesService.ts`
+- ❌ `financeMockData.ts` → Mock data inline en servicios
+- ❌ Factory functions en `index.ts` → Movidas a archivos principales
+
+### **📈 BENEFICIOS ALCANZADOS:**
+
+1. **🗂️ Organización Simple**: Un archivo por feature, no fragmentación
+2. **🔄 Consistencia Total**: Mismo patrón en todos los servicios
+3. **🛠️ Mantenimiento Fácil**: Cambios en un solo lugar
+4. **📋 Overview Claro**: Todo el servicio visible de un vistazo
+5. **🎯 DRY Principle**: Validaciones compartidas entre mock y real
+6. **📁 Menos Archivos**: Reducción significativa de archivos de configuración
+
+### **1. ESTRUCTURA DEL SERVICIO UNIFICADA**
 
 ```typescript
-// shared/types/[feature].types.ts
+// src/services/[domain]/[feature]Service.ts
+
+// ============= TIPOS Y INTERFACES =============
 export interface ServiceError {
   code: string;
   message: string;
@@ -28,270 +64,188 @@ export interface ServiceResult<T> {
   loading?: boolean;
 }
 
-export interface PaginationOptions {
-  limit?: number;
-  cursor?: string;
-  orderBy?: string;
-  direction?: 'asc' | 'desc';
-}
-
-// shared/interfaces/[feature].interface.ts
-export interface I[Feature]Repository {
-  // Subscripciones tipadas
-  subscribe(userId: string): AsyncGenerator<IModel[], void, unknown>;
-  subscribeToItem(userId: string, id: string): AsyncGenerator<IModel | null, void, unknown>;
-
-  // CRUD con mejor tipado
-  get(userId: string, id: string): Promise<ServiceResult<IModel>>;
-  getAll(userId: string, options?: PaginationOptions): Promise<ServiceResult<IModel[]>>;
-  create(userId: string, data: Omit<IModel, 'id' | 'createdAt' | 'updatedAt'>): Promise<ServiceResult<string>>;
-  update(userId: string, id: string, data: Partial<IModel>): Promise<ServiceResult<void>>;
-  delete(userId: string, id: string): Promise<ServiceResult<void>>;
-
-  // Validaciones y utilidades
-  validate(data: Partial<IModel>): Promise<ServiceResult<IModel>>;
-  exists(userId: string, id: string): Promise<boolean>;
-}
-
-// src/services/finances/[feature]Service.ts
-class [Feature]FirebaseRepository implements I[Feature]Repository {
-  private readonly collectionPath: string;
-
-  constructor(collectionPath: string) {
-    this.collectionPath = collectionPath;
+// ============= MOCK DATA (EN EL MISMO ARCHIVO) =============
+const MOCK_DATA: IModel[] = [
+  {
+    id: 'mock-1',
+    name: 'Mock Item 1',
+    // ... datos de prueba
+  },
+  {
+    id: 'mock-2',
+    name: 'Mock Item 2',
+    // ... más datos
   }
+];
 
-  private getCollection(userId: string) {
-    return collection(firestore, FIRESTORE_PATHS[this.collectionPath](userId));
-  }
+// ============= FIREBASE SERVICE =============
+export const [feature]Service = {
+  getCollection: (userId: string) =>
+    collection(firestore, FIRESTORE_PATHS[FEATURE](userId)),
 
-  async *subscribe(userId: string): AsyncGenerator<IModel[], void, unknown> {
-    const collectionRef = this.getCollection(userId);
-    const q = query(collectionRef, orderBy('updatedAt', 'desc'));
-
-    yield* this.createSubscription(q);
-  }
-
-  private async *createSubscription<T>(query: Query): AsyncGenerator<T[], void, unknown> {
-    let unsubscribe: (() => void) | null = null;
-
-    try {
-      const channel = new BroadcastChannel(`firestore-${query.toString()}`);
-
-      unsubscribe = onSnapshot(
-        query,
-        (snapshot) => {
-          const data = snapshot.docs.map(doc =>
-            normalizeObjectDates({ id: doc.id, ...doc.data() }, toDayjs)
-          ) as T[];
-          channel.postMessage({ type: 'data', data });
-        },
-        (error) => {
-          channel.postMessage({ type: 'error', error: getError(error) });
-        }
-      );
-
-      // Listen for updates
-      while (true) {
-        const message = await new Promise<{ type: string; data?: T[]; error?: string }>(
-          resolve => {
-            const handler = (event: MessageEvent) => {
-              channel.removeEventListener('message', handler);
-              resolve(event.data);
-            };
-            channel.addEventListener('message', handler);
-          }
-        );
-
-        if (message.type === 'error') {
-          throw new Error(message.error);
-        }
-
-        if (message.data) {
-          yield message.data;
-        }
-      }
-    } finally {
-      unsubscribe?.();
-    }
-  }
-
-  async get(userId: string, id: string): Promise<ServiceResult<IModel>> {
-    try {
-      const docRef = doc(this.getCollection(userId), id);
-      const snapshot = await getDoc(docRef);
-
-      if (!snapshot.exists()) {
-        return {
-          error: {
-            code: 'NOT_FOUND',
-            message: `${this.collectionPath} with id ${id} not found`,
-          },
-        };
-      }
-
-      const data = normalizeObjectDates<IModel>(
-        { id: snapshot.id, ...snapshot.data() },
-        toDayjs
-      );
-
-      return { data };
-    } catch (error) {
-      return {
-        error: {
-          code: 'FETCH_ERROR',
-          message: getError(error),
-          details: error,
-        },
-      };
-    }
-  }
-
-  async create(
+  subscribe: (
     userId: string,
-    data: Omit<IModel, 'id' | 'createdAt' | 'updatedAt'>
-  ): Promise<ServiceResult<string>> {
-    try {
-      // Validación previa
-      const validation = await this.validate({ ...data, userId });
-      if (validation.error) {
-        return validation as ServiceResult<string>;
-      }
+    onSuccess: (data: IModel[]) => void,
+    onError: (error: string) => void
+  ) => {
+    const collectionRef = [feature]Service.getCollection(userId);
 
-      const now = new Date();
-      const docData = {
-        ...data,
-        userId,
-        createdAt: now,
-        updatedAt: now,
-      };
+    return onSnapshot(
+      collectionRef,
+      (snap) => {
+        const data = snap.docs.map(doc =>
+          normalizeObjectDates({ id: doc.id, ...doc.data() }, toDayjs)
+        );
+        onSuccess(data);
+      },
+      (error) => onError(getError(error))
+    );
+  },
 
-      const collectionRef = this.getCollection(userId);
-      const docRef = await addDoc(collectionRef, normalizeObjectDates(docData, toTimestamp));
+  get: async (userId: string, id: string): Promise<IModel> => {
+    const docRef = doc([feature]Service.getCollection(userId), id);
+    const snap = await getDoc(docRef);
 
-      return { data: docRef.id };
-    } catch (error) {
-      return {
-        error: {
-          code: 'CREATE_ERROR',
-          message: getError(error),
-          details: error,
-        },
-      };
+    if (!snap.exists()) {
+      throw new Error('No data found');
     }
-  }
 
-  async validate(data: Partial<IModel>): Promise<ServiceResult<IModel>> {
+    return normalizeObjectDates({ id: snap.id, ...snap.data() }, toDayjs);
+  },
+
+  set: async (userId: string, data: IModel): Promise<void> => {
+    const collectionRef = [feature]Service.getCollection(userId);
+    const docRef = data.id
+      ? doc(collectionRef, data.id)
+      : doc(collectionRef);
+
+    const { id, ...cleanData } = normalizeObjectDates(data, toTimestamp);
+    await setDoc(docRef, cleanData);
+  },
+
+  validate: (data: Partial<IModel>): string[] => {
     const errors: string[] = [];
 
-    // Validaciones específicas del modelo
     if (!data.name?.trim()) {
       errors.push('Name is required');
     }
 
-    if (errors.length > 0) {
-      return {
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: errors.join(', '),
-          details: errors,
-        },
-      };
-    }
-
-    return { data: data as IModel };
-  }
-}
-
-// Mock Repository
-class [Feature]MockRepository implements I[Feature]Repository {
-  private mockData: IModel[] = MOCK_DATA;
-  private delay = 1000;
-
-  async *subscribe(userId: string): AsyncGenerator<IModel[], void, unknown> {
-    while (true) {
-      await new Promise(resolve => setTimeout(resolve, this.delay));
-      yield this.mockData.filter(item => item.userId === userId);
-    }
-  }
-
-  async get(userId: string, id: string): Promise<ServiceResult<IModel>> {
-    await new Promise(resolve => setTimeout(resolve, this.delay));
-
-    const item = this.mockData.find(item => item.id === id && item.userId === userId);
-
-    if (!item) {
-      return {
-        error: {
-          code: 'NOT_FOUND',
-          message: `Item with id ${id} not found`,
-        },
-      };
-    }
-
-    return { data: item };
-  }
-
-  async create(
-    userId: string,
-    data: Omit<IModel, 'id' | 'createdAt' | 'updatedAt'>
-  ): Promise<ServiceResult<string>> {
-    await new Promise(resolve => setTimeout(resolve, this.delay));
-
-    const newId = `mock_${Date.now()}`;
-    const now = new Date();
-
-    const newItem: IModel = {
-      ...data,
-      id: newId,
-      userId,
-      createdAt: now,
-      updatedAt: now,
-    } as IModel;
-
-    this.mockData.push(newItem);
-
-    return { data: newId };
-  }
-
-  async validate(data: Partial<IModel>): Promise<ServiceResult<IModel>> {
-    // Misma validación que el servicio real
-    return new [Feature]FirebaseRepository('').validate(data);
-  }
-}
-
-// Factory con Dependency Injection
-export const create[Feature]Repository = (
-  options: {
-    forceMock?: boolean;
-    config?: {
-      collectionPath?: string;
-      mockDelay?: number;
-    };
-  } = {}
-): I[Feature]Repository => {
-  const { forceMock = false, config = {} } = options;
-
-  if (ENV.USE_MOCKED_DATA || forceMock) {
-    const mockRepo = new [Feature]MockRepository();
-    if (config.mockDelay) {
-      (mockRepo as any).delay = config.mockDelay;
-    }
-    return mockRepo;
-  }
-
-  return new [Feature]FirebaseRepository(
-    config.collectionPath || 'DEFAULT_COLLECTION_PATH'
-  );
+    // Más validaciones...
+    return errors;
+  },
 };
 
-// Exportaciones para compatibilidad
-export const [feature]Service = create[Feature]Repository();
-export const mock[Feature]Service = create[Feature]Repository({ forceMock: true });
-export const create[Feature]Service = create[Feature]Repository; // Alias
+// ============= MOCK SERVICE (MISMA INTERFAZ) =============
+let mockData = [...MOCK_DATA];
+type SubscriberCallback = (data: IModel[]) => void;
+const subscribers: Set<SubscriberCallback> = new Set();
+
+const notifySubscribers = () => {
+  subscribers.forEach((callback) => {
+    try {
+      callback([...mockData]);
+    } catch (error) {
+      console.error('Error notifying subscriber:', error);
+    }
+  });
+};
+
+export const mock[Feature]Service = {
+  subscribe: (
+    _userId: string,
+    onSuccess: (data: IModel[]) => void,
+    onError: (error: string) => void
+  ) => {
+    subscribers.add(onSuccess);
+
+    const timeoutId = setTimeout(() => {
+      try {
+        onSuccess([...mockData]);
+      } catch (error) {
+        onError('Mock error occurred');
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timeoutId);
+      subscribers.delete(onSuccess);
+    };
+  },
+
+  get: async (_userId: string, id: string): Promise<IModel> => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    const item = mockData.find(item => item.id === id);
+    if (!item) {
+      throw new Error('No data found');
+    }
+    return { ...item };
+  },
+
+  set: async (_userId: string, data: IModel): Promise<void> => {
+    await new Promise(resolve => setTimeout(resolve, 250));
+
+    if (!data.id) {
+      const newItem = { ...data, id: `mock-${Date.now()}` };
+      mockData.push(newItem);
+    } else {
+      const index = mockData.findIndex(item => item.id === data.id);
+      if (index === -1) {
+        throw new Error('Item not found for update');
+      }
+      mockData[index] = { ...data };
+    }
+
+    setTimeout(() => notifySubscribers(), 100);
+  },
+
+  validate: [feature]Service.validate, // Reutilizar validaciones
+};
+
+// ============= FACTORY PATTERN =============
+export const create[Feature]Service = (forceMock: boolean = false) => {
+  return process.env.NODE_ENV === 'development' || forceMock
+    ? mock[Feature]Service
+    : [feature]Service;
+};
 ```
 
-### **2. ESTRUCTURA DEL HOOK MEJORADA**
+### **3. ESTRUCTURA DEL ÍNDICE SIMPLIFICADA**
+
+```typescript
+// src/services/[domain]/index.ts
+
+// ✅ IMPORTAR TODO DESDE LOS ARCHIVOS PRINCIPALES
+import {
+  [feature]Service,
+  mock[Feature]Service,
+  create[Feature]Service
+} from './[feature]Service';
+
+import {
+  [otherFeature]Service,
+  mock[OtherFeature]Service,
+  create[OtherFeature]Service
+} from './[otherFeature]Service';
+
+// ✅ RE-EXPORTAR SIN LÓGICA ADICIONAL
+export {
+  [feature]Service,
+  mock[Feature]Service,
+  create[Feature]Service,
+  [otherFeature]Service,
+  mock[OtherFeature]Service,
+  create[OtherFeature]Service,
+};
+```
+
+### **🎯 PRINCIPIOS DEL PATRÓN UNIFICADO:**
+
+1. **📁 Un Archivo por Servicio**: Todo en `[feature]Service.ts`
+2. **🏭 Factory Interna**: `create[Feature]Service` dentro del mismo archivo
+3. **� Índice Simple**: Solo imports y exports, sin lógica
+4. **🔄 Validaciones Compartidas**: Mock reutiliza validaciones del real
+5. **� Mock Data Inline**: Datos de prueba dentro del archivo principal### **2. ESTRUCTURA DEL HOOK MEJORADA**
 
 ```typescript
 // src/hooks/use[Feature].ts

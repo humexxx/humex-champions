@@ -51,7 +51,6 @@ const PortfolioChart = ({
           series={[
             {
               data: chartData,
-              area: true,
               color: theme.palette.primary.main,
             },
           ]}
