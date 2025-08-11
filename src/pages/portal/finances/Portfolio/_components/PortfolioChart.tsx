@@ -1,6 +1,9 @@
 import { Box, Tab, Tabs, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { TimeFilter } from '../../../../../../shared/enums/finance/timeFilters';
+import { formatCompactNumber } from 'src/utils/number';
+import NoDataOverlay from 'src/components/graphs/NoDataOverlay';
+import LoadingOverlay from 'src/components/graphs/LoadingOverlay';
 
 interface PortfolioChartProps {
   chartData: number[];
@@ -8,6 +11,7 @@ interface PortfolioChartProps {
   selectedTimeFilter: TimeFilter;
   timeFilters: readonly TimeFilter[];
   onTimeFilterChange: (filter: TimeFilter) => void;
+  loading?: boolean;
 }
 
 const PortfolioChart = ({
@@ -16,13 +20,20 @@ const PortfolioChart = ({
   selectedTimeFilter,
   timeFilters,
   onTimeFilterChange,
+  loading = false,
 }: PortfolioChartProps) => {
   const theme = useTheme();
 
+  // Check if we have meaningful data
+  const hasData =
+    !loading &&
+    chartData &&
+    chartData.length > 0 &&
+    chartData.some((value) => value > 0);
+
   return (
     <>
-      {/* Time Filter Tabs */}
-      <Box sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box>
         <Tabs
           value={selectedTimeFilter}
           onChange={(_, newValue) => onTimeFilterChange(newValue)}
@@ -48,40 +59,57 @@ const PortfolioChart = ({
       {/* Chart */}
       <Box sx={{ width: '100%', aspectRatio: '2', mb: 3 }}>
         <LineChart
+          loading={loading}
           series={[
             {
               data: chartData,
               color: theme.palette.primary.main,
+              highlightScope: { highlight: 'item' },
+              showMark: false,
             },
           ]}
           xAxis={[
             {
+              tickInterval: (_, index) => {
+                return index % Math.ceil(chartLabels.length / 5) === 0;
+              },
               scaleType: 'point',
-              data: chartLabels,
+              data: hasData ? chartLabels : ['No Data'],
               tickLabelStyle: {
                 fontSize: 12,
                 fill: theme.palette.text.secondary,
               },
-              tickNumber: Math.min(5, chartLabels.length), // Máximo 5 labels
             },
           ]}
           yAxis={[
             {
-              tickLabelStyle: { display: 'none' },
-              tickNumber: Math.min(5, chartLabels.length), // Máximo 5 labels
+              tickLabelStyle: {
+                fontSize: 12,
+                fill: theme.palette.text.secondary,
+              },
+              valueFormatter: (value: any) => formatCompactNumber(value),
             },
           ]}
-          grid={{ horizontal: false, vertical: false }}
-          margin={{ left: 0, right: 20, top: 20, bottom: 50 }}
-          sx={{
-            height: '100%',
-            '& .MuiChartsAxis-line': {
-              display: 'none',
-            },
-            '& .MuiChartsAxis-tick': {
-              display: 'none',
-            },
-          }}
+          grid={{ horizontal: true, vertical: true }}
+          margin={{ left: 0 }}
+          slots={
+            {
+              noDataOverlay: NoDataOverlay,
+              loadingOverlay: LoadingOverlay,
+            } as any
+          }
+          slotProps={
+            {
+              noDataOverlay: {
+                message: 'No portfolio data available',
+                description:
+                  'Start by adding some transactions to see your portfolio growth',
+              },
+              loadingOverlay: {
+                message: 'Loading portfolio data...',
+              },
+            } as any
+          }
         />
       </Box>
     </>

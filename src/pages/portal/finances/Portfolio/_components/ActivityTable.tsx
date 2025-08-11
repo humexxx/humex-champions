@@ -1,40 +1,26 @@
 import {
   Box,
+  Typography,
+  Chip,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
-  Chip,
 } from '@mui/material';
+import { IPortfolioTransaction } from '@shared/models/finances';
 import { formatCurrency } from 'src/utils';
 
-interface Activity {
-  id: string;
-  type: 'buy' | 'sell';
-  symbol: string;
-  quantity: number;
-  price: number;
-  date: string;
-  total: number;
-}
-
 interface ActivityTableProps {
-  activities: Activity[];
+  transactions: IPortfolioTransaction[];
 }
 
-const ActivityTable = ({ activities }: ActivityTableProps) => {
-  if (activities.length === 0) {
+const ActivityTable = ({ transactions }: ActivityTableProps) => {
+  if (transactions.length === 0) {
     return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
-        <Typography variant="h6" color="text.secondary">
-          No recent activity
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Your portfolio activity will appear here
-        </Typography>
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Typography color="text.secondary">No recent activity</Typography>
       </Box>
     );
   }
@@ -44,49 +30,56 @@ const ActivityTable = ({ activities }: ActivityTableProps) => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>TYPE</TableCell>
-            <TableCell>SYMBOL</TableCell>
-            <TableCell align="right">QUANTITY</TableCell>
-            <TableCell align="right">PRICE</TableCell>
-            <TableCell align="right">TOTAL</TableCell>
-            <TableCell align="right">DATE</TableCell>
+            <TableCell> </TableCell>
+            <TableCell>TRANSACTION DETAILS</TableCell>
+            <TableCell align="right">TOTAL AMOUNT</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {activities.map((activity) => (
-            <TableRow key={activity.id} hover>
-              <TableCell>
+          {transactions.map((transaction, index) => (
+            <TableRow
+              key={transaction.id || index}
+              hover
+              sx={{ '&:last-child td': { border: 0 } }}
+            >
+              {/* Columna 1: Icono */}
+              <TableCell sx={{ width: 'auto', pr: 2 }}>
                 <Chip
-                  label={activity.type.toUpperCase()}
+                  label={transaction.type}
                   size="small"
-                  color={activity.type === 'buy' ? 'success' : 'error'}
+                  color={transaction.type === 'BUY' ? 'success' : 'error'}
                   variant="outlined"
                 />
               </TableCell>
-              <TableCell>
-                <Typography fontWeight={500}>{activity.symbol}</Typography>
+
+              {/* Columna 2: Detalles */}
+              <TableCell
+                sx={{
+                  flex: 1,
+                  width: '100%',
+                }}
+              >
+                <Box>
+                  <Typography variant="body2" fontWeight={500}>
+                    {transaction.type === 'BUY' ? 'Bought' : 'Sold'}{' '}
+                    {transaction.quantity} {transaction.assetId}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {transaction.executedAt.toLocaleDateString('en-US')}
+                  </Typography>
+                </Box>
               </TableCell>
-              <TableCell align="right">
-                {activity.quantity.toLocaleString()}
-              </TableCell>
-              <TableCell align="right">
-                {formatCurrency(activity.price)}
-              </TableCell>
-              <TableCell align="right">
-                <Typography
-                  sx={{
-                    color:
-                      activity.type === 'buy' ? 'error.main' : 'success.main',
-                    fontWeight: 500,
-                  }}
-                >
-                  {activity.type === 'buy' ? '-' : '+'}
-                  {formatCurrency(activity.total)}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">
-                <Typography variant="body2" color="text.secondary">
-                  {activity.date}
+
+              {/* Columna 3: Monto total (flex: 1) */}
+              <TableCell
+                align="right"
+                sx={{
+                  width: 'auto',
+                  minWidth: '150px',
+                }}
+              >
+                <Typography variant="subtitle1">
+                  {formatCurrency(transaction.quantity * transaction.price)}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -96,5 +89,4 @@ const ActivityTable = ({ activities }: ActivityTableProps) => {
     </TableContainer>
   );
 };
-
 export default ActivityTable;

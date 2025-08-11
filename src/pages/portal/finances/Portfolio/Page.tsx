@@ -1,14 +1,25 @@
-import { Grid } from '@mui/material';
+import { Grid, Box, Stack, Button } from '@mui/material';
+import {
+  CalendarToday,
+  AttachMoney,
+  Person,
+  MonetizationOn,
+  Add,
+} from '@mui/icons-material';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
 import {
   PortfolioHeader,
   PortfolioChart,
   HoldingsTable,
   PortfolioHighlights,
+  ActivityTable,
+  TableFilter,
+  SortField,
+  SortOrder,
 } from './_components';
 import { ROUTES } from 'src/consts';
 import { Page } from 'src/components/layout';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   TIME_FILTERS,
   TimeFilter,
@@ -16,9 +27,21 @@ import {
 import usePortfolio from './usePortfolio';
 
 const PortafolioPage = () => {
+  // State management - stable references prevent unnecessary re-renders
   const [selectedTimeFilter, setSelectedTimeFilter] = useState<TimeFilter>(
     TIME_FILTERS.ONE_YEAR
   );
+  const [selectedTab, setSelectedTab] = useState<'investments' | 'activity'>(
+    'investments'
+  );
+  const [sortBy, setSortBy] = useState<SortField>('date');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  // Memoized callback prevents child component re-renders
+  const handleSortChange = useCallback((field: SortField, order: SortOrder) => {
+    setSortBy(field);
+    setSortOrder(order);
+  }, []);
 
   // Using the standardized usePortfolio hook
   const {
@@ -39,28 +62,16 @@ const PortafolioPage = () => {
     forceMock: true,
   });
 
-  if (loading) {
-    return <GlobalLoader />;
-  }
-
-  if (error) {
-    return <div>Error loading portfolio: {error}</div>;
-  }
-
-  if (!portfolio) {
-    return <div>Portfolio not found</div>;
-  }
-
-  // Generate chart data from snapshots
-  const generateChartData = () => {
-    if (snapshots.length === 0) {
-      // Fallback data if no snapshots
+  // Optimized chart data generation with memoization - MOVED BEFORE EARLY RETURNS
+  const chartData = useMemo(() => {
+    if (!portfolio || snapshots.length === 0) {
+      // Fallback data if no snapshots or portfolio
       return {
         chartData: [
           portfolio?.totalInvested || 0,
           portfolio?.currentValue || 0,
         ],
-        chartLabels: ['Inicial', 'Actual'],
+        chartLabels: ['Initial', 'Current'],
       };
     }
 
@@ -102,35 +113,123 @@ const PortafolioPage = () => {
     return {
       chartData: filteredSnapshots.map((snapshot) => snapshot.totalValue),
       chartLabels: filteredSnapshots.map((snapshot) =>
-        snapshot.date.toLocaleDateString('es-ES', {
+        snapshot.date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
         })
       ),
     };
-  };
+  }, [snapshots, selectedTimeFilter, portfolio]);
 
-  const { chartData, chartLabels } = generateChartData();
+  // Optimized sorting with memoization - MOVED BEFORE EARLY RETURNS
+  const sortedTransactions = useMemo(() => {
+    return [...transactions].sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = new Date(a.executedAt).getTime();
+        const dateB = new Date(b.executedAt).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      } else if (sortBy === 'amount') {
+        const amountA = a.quantity * a.price;
+        const amountB = b.quantity * b.price;
+        return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
+      }
+      return 0;
+    });
+  }, [transactions, sortBy, sortOrder]);
 
-  // Calculate portfolio highlights from actual data
-  const portfolioHighlights = {
-    dailyGain: portfolio.dailyGain || 0,
-    dailyGainPercentage: portfolio.dailyGainPercentage || 0,
-    overallGain: portfolio.totalGain || 0,
-    overallGainPercentage: portfolio.totalGainPercentage || 0,
-    cryptoPercentage: 100, // This will be calculated from holdings
-  };
+  // Transform and sort holdings with memoization - MOVED BEFORE EARLY RETURNS
+  const sortedHoldings = useMemo(() => {
+    const mappedHoldings = holdings.map((holding) => ({
+      symbol: holding.assetId, // Will be replaced with actual asset symbol later
+      name: holding.assetId, // Will be replaced with actual asset name later
+      price: holding.currentPrice,
+      quantity: holding.quantity,
+      dailyChange: holding.unrealizedGain, // Using unrealized gain as daily change for now
+      dailyChangePercentage: holding.unrealizedGainPercentage,
+      value: holding.currentValue,
+    }));
 
-  // Transform holdings data to match component interface
-  const mappedHoldings = holdings.map((holding) => ({
-    symbol: holding.assetId, // Will be replaced with actual asset symbol later
-    name: holding.assetId, // Will be replaced with actual asset name later
-    price: holding.currentPrice,
-    quantity: holding.quantity,
-    dailyChange: holding.unrealizedGain, // Using unrealized gain as daily change for now
-    dailyChangePercentage: holding.unrealizedGainPercentage,
-    value: holding.currentValue,
-  }));
+    return [...mappedHoldings].sort((a, b) => {
+      if (sortBy === 'name') {
+        return sortOrder === 'asc'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (sortBy === 'value') {
+        return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
+      } else if (sortBy === 'date') {
+        // For holdings, we can sort by daily change as a proxy
+        return sortOrder === 'asc'
+          ? a.dailyChange - b.dailyChange
+          : b.dailyChange - a.dailyChange;
+      } else if (sortBy === 'amount') {
+        return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
+      }
+      return 0;
+    });
+  }, [holdings, sortBy, sortOrder]);
+
+  // Memoized portfolio highlights - MOVED BEFORE EARLY RETURNS
+  const portfolioHighlights = useMemo(
+    () => ({
+      dailyGain: portfolio?.dailyGain || 0,
+      dailyGainPercentage: portfolio?.dailyGainPercentage || 0,
+      overallGain: portfolio?.totalGain || 0,
+      overallGainPercentage: portfolio?.totalGainPercentage || 0,
+      cryptoPercentage: 100, // This will be calculated from holdings
+    }),
+    [portfolio]
+  );
+
+  // Memoized field definitions - MOVED BEFORE EARLY RETURNS
+  const transactionFields = useMemo(
+    () => [
+      {
+        field: 'date' as SortField,
+        label: 'date',
+        icon: <CalendarToday fontSize="small" />,
+      },
+      {
+        field: 'amount' as SortField,
+        label: 'amount',
+        icon: <AttachMoney fontSize="small" />,
+      },
+    ],
+    []
+  );
+
+  const holdingFields = useMemo(
+    () => [
+      {
+        field: 'name' as SortField,
+        label: 'name',
+        icon: <Person fontSize="small" />,
+      },
+      {
+        field: 'value' as SortField,
+        label: 'value',
+        icon: <AttachMoney fontSize="small" />,
+      },
+      {
+        field: 'date' as SortField,
+        label: 'gains',
+        icon: <MonetizationOn fontSize="small" />,
+      },
+    ],
+    []
+  );
+
+  // Early returns AFTER all hooks
+  if (loading) {
+    return <GlobalLoader />;
+  }
+
+  if (error) {
+    return <div>Error loading portfolio: {error}</div>;
+  }
+
+  if (!portfolio) {
+    return <div>Portfolio not found</div>;
+  }
 
   return (
     <Page title="Portafolio">
@@ -162,15 +261,66 @@ const PortafolioPage = () => {
         <Grid container spacing={4}>
           {/* Left Column - Main Chart and Stats */}
           <Grid size={{ xs: 12, md: 8 }}>
-            <PortfolioChart
-              chartData={chartData}
-              chartLabels={chartLabels}
-              selectedTimeFilter={selectedTimeFilter}
-              timeFilters={Object.values(TIME_FILTERS)}
-              onTimeFilterChange={setSelectedTimeFilter}
-            />
+            <Box sx={{ mb: 3 }}>
+              <PortfolioChart
+                chartData={chartData.chartData}
+                chartLabels={chartData.chartLabels}
+                selectedTimeFilter={selectedTimeFilter}
+                timeFilters={Object.values(TIME_FILTERS)}
+                onTimeFilterChange={setSelectedTimeFilter}
+                loading={false}
+              />
+            </Box>{' '}
+            {/* Holdings/Activity Tabs */}
+            <Box sx={{ mt: 3 }}>
+              <Stack direction="row" justifyContent={'space-between'}>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    color="info"
+                    variant={
+                      selectedTab === 'investments' ? 'contained' : 'outlined'
+                    }
+                    onClick={() => setSelectedTab('investments')}
+                  >
+                    Investments
+                  </Button>
+                  <Button
+                    color="info"
+                    variant={
+                      selectedTab === 'activity' ? 'contained' : 'outlined'
+                    }
+                    onClick={() => setSelectedTab('activity')}
+                  >
+                    Activity
+                  </Button>
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                  <TableFilter
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSortChange={handleSortChange}
+                    availableFields={
+                      selectedTab === 'investments'
+                        ? holdingFields
+                        : transactionFields
+                    }
+                  />
+                  <Button startIcon={<Add />} variant={'contained'}>
+                    Add Transaction
+                  </Button>
+                </Stack>
+              </Stack>
 
-            <HoldingsTable holdings={mappedHoldings} />
+              {/* Tab Content */}
+              {selectedTab === 'investments' ? (
+                <HoldingsTable
+                  holdings={sortedHoldings}
+                  transactions={sortedTransactions}
+                />
+              ) : (
+                <ActivityTable transactions={sortedTransactions} />
+              )}
+            </Box>
           </Grid>
 
           {/* Right Column - Portfolio Highlights */}
@@ -246,10 +396,15 @@ const PortafolioPage = () => {
             ))}
           </div>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            Filtro actual: <strong>{selectedTimeFilter}</strong> | Datos en
-            chart: <strong>{chartData.length}</strong> puntos | Rango:{' '}
-            <strong>${Math.min(...chartData).toLocaleString()}</strong> -{' '}
-            <strong>${Math.max(...chartData).toLocaleString()}</strong>
+            Filter: <strong>{selectedTimeFilter}</strong> | Chart data:{' '}
+            <strong>{chartData.chartData.length}</strong> points | Range:{' '}
+            <strong>
+              ${Math.min(...chartData.chartData).toLocaleString()}
+            </strong>{' '}
+            -{' '}
+            <strong>
+              ${Math.max(...chartData.chartData).toLocaleString()}
+            </strong>
           </div>
         </div>
 
@@ -439,11 +594,11 @@ const PortafolioPage = () => {
             >
               <strong>Portfolio</strong>
               <br />
-              Nombre: {portfolio?.name}
+              Name: {portfolio?.name}
               <br />
-              Valor: ${portfolio?.currentValue?.toLocaleString()}
+              Value: ${portfolio?.currentValue?.toLocaleString()}
               <br />
-              Ganancia: ${portfolio?.totalGain?.toLocaleString()}
+              Gain: ${portfolio?.totalGain?.toLocaleString()}
             </div>
             <div
               style={{
