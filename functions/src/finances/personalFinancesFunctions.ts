@@ -12,7 +12,7 @@ import { https } from 'firebase-functions/v2';
 const db = admin.firestore();
 
 export const scheduledSnapshotGeneration = pubsub
-  .schedule('0 * 1 * *') // Se ejecuta cada hora el primer día de cada mes
+  .schedule('0 * 1 * *') // Runs every hour on the first day of each month
   .onRun(async () => {
     logger.info('Financial snapshot generation started');
 
