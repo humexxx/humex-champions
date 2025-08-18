@@ -154,6 +154,56 @@ export const getAssetDetails = onCall<{ symbol: string }>(
   }
 );
 
+/**
+ * Gets current price for a specific asset
+ */
+export const getAssetPrice = onCall<{ symbol: string }>(
+  {
+    memory: '512MiB',
+    timeoutSeconds: 15,
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    const { symbol } = request.data;
+
+    if (!symbol) {
+      throw new HttpsError('invalid-argument', 'Symbol is required');
+    }
+
+    try {
+      const apiKey = await getPolygonApiKey();
+      const polygonService = new PolygonService(apiKey);
+
+      // Try to get stock price first
+      try {
+        const stockPrice = await polygonService.getStockPrice(
+          symbol.toUpperCase()
+        );
+        logger.info(
+          `Stock price retrieved for ${symbol}: $${stockPrice.price}`
+        );
+        return stockPrice;
+      } catch (stockError) {
+        // If stock fails, try crypto
+        logger.info(`Stock price failed for ${symbol}, trying crypto...`);
+        const cryptoPrice = await polygonService.getCryptoPrice(
+          symbol.toUpperCase()
+        );
+        logger.info(
+          `Crypto price retrieved for ${symbol}: $${cryptoPrice.price}`
+        );
+        return cryptoPrice;
+      }
+    } catch (error) {
+      logger.error(`Error getting price for ${symbol}:`, error);
+      throw new HttpsError('internal', 'Failed to get asset price');
+    }
+  }
+);
+
 // ==========================================
 // 2. REAL-TIME PRICES
 // ==========================================

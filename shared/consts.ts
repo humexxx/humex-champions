@@ -1,35 +1,46 @@
 export const FIRESTORE_PATHS = {
+  // ============= USER ROOT =============
   USERS: (uid: string) => `users/${uid}`,
+
+  // ============= FINANCES FEATURE (User-Centric - Private Data) =============
   FINANCES: {
+    // Personal finance planning (private, complex calculations)
     FINANCIAL_PLANS: (uid: string) => `finances/${uid}/financial-plans`,
-    PORTFOLIO: (uid: string) => `finances/${uid}/portfolio`,
-  },
-  PORTFOLIOS: {
-    ROOT: (portfolioId: string) => `portfolios/${portfolioId}`,
-    HOLDINGS: (portfolioId: string) => `portfolios/${portfolioId}/holdings`,
-    HOLDING: (portfolioId: string, assetId: string) =>
-      `portfolios/${portfolioId}/holdings/${assetId}`,
-    TRANSACTIONS: (portfolioId: string) =>
-      `portfolios/${portfolioId}/transactions`,
-    TRANSACTION: (portfolioId: string, transactionId: string) =>
-      `portfolios/${portfolioId}/transactions/${transactionId}`,
-    SNAPSHOTS: (portfolioId: string) => `portfolios/${portfolioId}/snapshots`,
-    SNAPSHOT: (portfolioId: string, date: string) =>
-      `portfolios/${portfolioId}/snapshots/${date}`,
-  },
-  ASSETS: {
-    ROOT: () => `assets`,
-    ASSET: (assetId: string) => `assets/${assetId}`,
-  },
-  USER_PORTFOLIOS: {
-    ROOT: (uid: string) => `users/${uid}/portfolios`,
+
+    // Portfolio data (private, user-specific)
+    PORTFOLIOS: (uid: string) => `finances/${uid}/portfolios`,
     PORTFOLIO: (uid: string, portfolioId: string) =>
-      `users/${uid}/portfolios/${portfolioId}`,
+      `finances/${uid}/portfolios/${portfolioId}`,
+    HOLDINGS: (uid: string, portfolioId: string) =>
+      `finances/${uid}/portfolios/${portfolioId}/holdings`,
+    HOLDING: (uid: string, portfolioId: string, assetId: string) =>
+      `finances/${uid}/portfolios/${portfolioId}/holdings/${assetId}`,
+    TRANSACTIONS: (uid: string, portfolioId: string) =>
+      `finances/${uid}/portfolios/${portfolioId}/transactions`,
+    TRANSACTION: (uid: string, portfolioId: string, transactionId: string) =>
+      `finances/${uid}/portfolios/${portfolioId}/transactions/${transactionId}`,
+    SNAPSHOTS: (uid: string, portfolioId: string) =>
+      `finances/${uid}/portfolios/${portfolioId}/snapshots`,
+    SNAPSHOT: (uid: string, portfolioId: string, date: string) =>
+      `finances/${uid}/portfolios/${portfolioId}/snapshots/${date}`,
+
+    // Trading journal (private trading data)
+    TRADING_JOURNAL: (uid: string) => `finances/${uid}/trading-journal`,
   },
+
+  // ============= UPLIFT FEATURE (User-Centric) =============
   UPLIFT: {
     INDEX: (uid: string) => `uplift/${uid}`,
     PLANNER: (uid: string) => `uplift/${uid}/planner`,
     CHECKLIST: (uid: string) => `uplift/${uid}/checklist`,
+    CALENDAR: (uid: string) => `uplift/${uid}/calendar`,
+    GOALS: (uid: string) => `uplift/${uid}/goals`,
+  },
+
+  // ============= SHARED/GLOBAL DATA =============
+  ASSETS: {
+    ROOT: () => `assets`,
+    ASSET: (assetId: string) => `assets/${assetId}`,
   },
 };
 
@@ -42,6 +53,7 @@ export const CALLABLE_FUNCTIONS = {
     updatePortfolio: 'updatePortfolio',
     deletePortfolio: 'deletePortfolio',
     addTransaction: 'addTransaction',
+    addPortfolioTransaction: 'addPortfolioTransaction',
     updateAssetPrices: 'updateAssetPrices',
     createDailySnapshot: 'createDailySnapshot',
     calculateHoldings: 'calculateHoldings',

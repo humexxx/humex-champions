@@ -1,4 +1,8 @@
-import { FIRESTORE_PATHS, PORTFOLIO_CONSTANTS } from '@shared/consts';
+import {
+  FIRESTORE_PATHS,
+  PORTFOLIO_CONSTANTS,
+  CALLABLE_FUNCTIONS,
+} from '@shared/consts';
 import {
   IAsset,
   IPortfolio,
@@ -19,9 +23,11 @@ import {
   orderBy,
   limit,
 } from 'firebase/firestore';
-import { ENVIRONMENTS } from 'src/consts';
-import { firestore } from 'src/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { firestore, functions } from 'src/firebase';
 import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
+import { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 // ============= MOCK DATA =============
 
@@ -30,8 +36,8 @@ const MOCK_PORTFOLIO: IPortfolio = {
   userId: 'user_1',
   name: 'MVP Portfolio',
   isDraft: false,
-  createdAt: new Date('2024-01-01'),
-  updatedAt: new Date(),
+  createdAt: dayjs('2024-01-01'),
+  updatedAt: dayjs(),
   currentValue: 120417.6,
   totalGain: 117084.1,
   totalGainPercentage: 3512.36,
@@ -40,7 +46,7 @@ const MOCK_PORTFOLIO: IPortfolio = {
   totalInvested: 3333.5,
   currency: 'USD',
   isDefault: true,
-  lastPriceUpdate: new Date(),
+  lastPriceUpdate: dayjs(),
 };
 
 const MOCK_ASSETS: Record<string, IAsset> = {
@@ -57,7 +63,7 @@ const MOCK_ASSETS: Record<string, IAsset> = {
     dailyChangePercentage: -0.25,
     currency: 'USD',
     exchange: 'Binance',
-    lastPriceUpdate: new Date(),
+    lastPriceUpdate: dayjs(),
     marketCap: 2300000000000,
     volume24h: 15000000000,
   },
@@ -74,7 +80,7 @@ const MOCK_ASSETS: Record<string, IAsset> = {
     dailyChangePercentage: 2.09,
     currency: 'USD',
     exchange: 'Binance',
-    lastPriceUpdate: new Date(),
+    lastPriceUpdate: dayjs(),
     marketCap: 28000000000,
     volume24h: 400000000,
   },
@@ -92,8 +98,8 @@ const MOCK_HOLDINGS: IPortfolioHolding[] = [
     currentValue: 116383.2,
     unrealizedGain: 113383.2,
     unrealizedGainPercentage: 3779.44,
-    firstPurchaseDate: new Date('2024-01-01'),
-    lastUpdateDate: new Date(),
+    firstPurchaseDate: dayjs('2024-01-01'),
+    lastUpdateDate: dayjs(),
     portfolioPercentage: 96.65,
   },
   {
@@ -107,8 +113,8 @@ const MOCK_HOLDINGS: IPortfolioHolding[] = [
     currentValue: 4034.4,
     unrealizedGain: 3700.9,
     unrealizedGainPercentage: 1109.55,
-    firstPurchaseDate: new Date('2024-02-01'),
-    lastUpdateDate: new Date(),
+    firstPurchaseDate: dayjs('2024-02-01'),
+    lastUpdateDate: dayjs(),
     portfolioPercentage: 3.35,
   },
 ];
@@ -123,8 +129,8 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     price: 3000,
     totalAmount: 3000,
     fees: 15,
-    executedAt: new Date('2024-01-01'),
-    createdAt: new Date('2024-01-01'),
+    executedAt: dayjs('2024-01-01'),
+    createdAt: dayjs('2024-01-01'),
     notes: 'Initial BTC purchase',
     source: 'Binance',
   },
@@ -137,8 +143,8 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     price: 0.067,
     totalAmount: 333.5,
     fees: 1.67,
-    executedAt: new Date('2024-02-01'),
-    createdAt: new Date('2024-02-01'),
+    executedAt: dayjs('2024-02-01'),
+    createdAt: dayjs('2024-02-01'),
     notes: 'ADA accumulation',
     source: 'Binance',
   },
@@ -146,16 +152,14 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
 
 // Helper function to generate historical snapshots
 const generateMockSnapshots = (
-  startDate: Date,
-  endDate: Date
+  startDate: Dayjs,
+  endDate: Dayjs
 ): IPortfolioSnapshot[] => {
   const snapshots: IPortfolioSnapshot[] = [];
-  const currentDate = new Date(startDate);
+  const currentDate = dayjs(startDate);
   const baseValue = 3333.5; // Initial investment
   const finalValue = 120417.6; // Current value
-  const totalDays = Math.ceil(
-    (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const totalDays = endDate.diff(startDate, 'day');
 
   // Generate daily snapshots with realistic growth curve
   for (let i = 0; i <= totalDays; i += 1) {
@@ -170,10 +174,11 @@ const generateMockSnapshots = (
         ? baseValue
         : snapshots[snapshots.length - 1]?.totalValue || baseValue;
 
+    const iterationDate = currentDate.add(i, 'day');
     const snapshot: IPortfolioSnapshot = {
-      id: `snapshot_${currentDate.toISOString().split('T')[0]}`,
+      id: `snapshot_${iterationDate.format('YYYY-MM-DD')}`,
       portfolioId: 'portfolio_1',
-      date: new Date(currentDate),
+      date: iterationDate,
       totalValue: value,
       totalGain: value - baseValue,
       totalGainPercentage: ((value - baseValue) / baseValue) * 100,
@@ -185,46 +190,55 @@ const generateMockSnapshots = (
         currentValue: holding.currentValue * (value / finalValue),
         unrealizedGain: holding.unrealizedGain * (value / finalValue),
       })),
-      createdAt: new Date(currentDate),
+      createdAt: iterationDate,
     };
 
     snapshots.push(snapshot);
-    currentDate.setDate(currentDate.getDate() + 1);
   }
 
   return snapshots;
 };
 
 const MOCK_SNAPSHOTS: IPortfolioSnapshot[] = generateMockSnapshots(
-  new Date('2024-01-01'),
-  new Date()
+  dayjs('2024-01-01'),
+  dayjs()
 );
 
 export const portfolioService = {
-  getPortfolioCollection: (portfolioId: string) =>
-    doc(firestore, FIRESTORE_PATHS.PORTFOLIOS.ROOT(portfolioId)),
+  getPortfolioCollection: (userId: string, portfolioId: string) =>
+    doc(firestore, FIRESTORE_PATHS.FINANCES.PORTFOLIO(userId, portfolioId)),
 
-  getHoldingsCollection: (portfolioId: string) =>
-    collection(firestore, FIRESTORE_PATHS.PORTFOLIOS.HOLDINGS(portfolioId)),
+  getHoldingsCollection: (userId: string, portfolioId: string) =>
+    collection(
+      firestore,
+      FIRESTORE_PATHS.FINANCES.HOLDINGS(userId, portfolioId)
+    ),
 
-  getTransactionsCollection: (portfolioId: string) =>
-    collection(firestore, FIRESTORE_PATHS.PORTFOLIOS.TRANSACTIONS(portfolioId)),
+  getTransactionsCollection: (userId: string, portfolioId: string) =>
+    collection(
+      firestore,
+      FIRESTORE_PATHS.FINANCES.TRANSACTIONS(userId, portfolioId)
+    ),
 
-  getSnapshotsCollection: (portfolioId: string) =>
-    collection(firestore, FIRESTORE_PATHS.PORTFOLIOS.SNAPSHOTS(portfolioId)),
+  getSnapshotsCollection: (userId: string, portfolioId: string) =>
+    collection(
+      firestore,
+      FIRESTORE_PATHS.FINANCES.SNAPSHOTS(userId, portfolioId)
+    ),
 
   getUserPortfoliosCollection: (userId: string) =>
-    collection(firestore, FIRESTORE_PATHS.USER_PORTFOLIOS.ROOT(userId)),
+    collection(firestore, FIRESTORE_PATHS.FINANCES.PORTFOLIOS(userId)),
 
   getAssetsCollection: () =>
     collection(firestore, FIRESTORE_PATHS.ASSETS.ROOT()),
 
   subscribeToPortfolio: (
+    userId: string,
     portfolioId: string,
     onSuccess: (portfolio: IPortfolio | null) => void,
     onError: (error: string) => void
   ) => {
-    const docRef = portfolioService.getPortfolioCollection(portfolioId);
+    const docRef = portfolioService.getPortfolioCollection(userId, portfolioId);
 
     return onSnapshot(
       docRef,
@@ -248,11 +262,15 @@ export const portfolioService = {
   },
 
   subscribeToHoldings: (
+    userId: string,
     portfolioId: string,
     onSuccess: (holdings: IPortfolioHolding[]) => void,
     onError: (error: string) => void
   ) => {
-    const collectionRef = portfolioService.getHoldingsCollection(portfolioId);
+    const collectionRef = portfolioService.getHoldingsCollection(
+      userId,
+      portfolioId
+    );
     const q = query(collectionRef, orderBy('currentValue', 'desc'));
 
     return onSnapshot(
@@ -279,13 +297,16 @@ export const portfolioService = {
   },
 
   subscribeToTransactions: (
+    userId: string,
     portfolioId: string,
     transactionLimit: number = 50,
     onSuccess: (transactions: IPortfolioTransaction[]) => void,
     onError: (error: string) => void
   ) => {
-    const collectionRef =
-      portfolioService.getTransactionsCollection(portfolioId);
+    const collectionRef = portfolioService.getTransactionsCollection(
+      userId,
+      portfolioId
+    );
     const q = query(
       collectionRef,
       orderBy('executedAt', 'desc'),
@@ -316,13 +337,17 @@ export const portfolioService = {
   },
 
   subscribeToSnapshots: (
+    userId: string,
     portfolioId: string,
-    startDate: Date,
-    endDate: Date,
+    startDate: Dayjs,
+    endDate: Dayjs,
     onSuccess: (snapshots: IPortfolioSnapshot[]) => void,
     onError: (error: string) => void
   ) => {
-    const collectionRef = portfolioService.getSnapshotsCollection(portfolioId);
+    const collectionRef = portfolioService.getSnapshotsCollection(
+      userId,
+      portfolioId
+    );
     const q = query(
       collectionRef,
       orderBy('date', 'asc')
@@ -348,7 +373,11 @@ export const portfolioService = {
           )
           .filter((snapshot) => {
             const snapshotDate = snapshot.date;
-            return snapshotDate >= startDate && snapshotDate <= endDate;
+            return (
+              (snapshotDate.isAfter(startDate) ||
+                snapshotDate.isSame(startDate)) &&
+              (snapshotDate.isBefore(endDate) || snapshotDate.isSame(endDate))
+            );
           });
 
         onSuccess(data);
@@ -358,7 +387,6 @@ export const portfolioService = {
       }
     );
   },
-
   subscribeToUserPortfolios: (
     userId: string,
     onSuccess: (
@@ -366,7 +394,7 @@ export const portfolioService = {
         id: string;
         name: string;
         isDefault?: boolean;
-        updatedAt: Date;
+        updatedAt: Dayjs;
       }>
     ) => void,
     onError: (error: string) => void
@@ -382,15 +410,14 @@ export const portfolioService = {
           return;
         }
 
-        const data = snap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Array<{
-          id: string;
-          name: string;
-          isDefault?: boolean;
-          updatedAt: Date;
-        }>;
+        const data = snap.docs.map((doc) =>
+          normalizeObjectDates<{
+            id: string;
+            name: string;
+            isDefault?: boolean;
+            updatedAt: Dayjs;
+          }>({ id: doc.id, ...doc.data() }, toDayjs)
+        );
 
         onSuccess(data);
       },
@@ -400,8 +427,11 @@ export const portfolioService = {
     );
   },
 
-  getPortfolio: async (portfolioId: string): Promise<IPortfolio | null> => {
-    const docRef = portfolioService.getPortfolioCollection(portfolioId);
+  getPortfolio: async (
+    userId: string,
+    portfolioId: string
+  ): Promise<IPortfolio | null> => {
+    const docRef = portfolioService.getPortfolioCollection(userId, portfolioId);
     const snap = await getDoc(docRef);
 
     if (!snap.exists()) {
@@ -423,44 +453,53 @@ export const portfolioService = {
 
     const collectionRef = collection(
       firestore,
-      FIRESTORE_PATHS.PORTFOLIOS.ROOT('')
+      FIRESTORE_PATHS.FINANCES.PORTFOLIOS(userId)
     );
     const docRef = await addDoc(
       collectionRef,
       normalizeObjectDates(mergedData, toTimestamp)
     );
 
-    const userPortfolioRef = doc(
-      firestore,
-      FIRESTORE_PATHS.USER_PORTFOLIOS.PORTFOLIO(userId, docRef.id)
-    );
-    await setDoc(userPortfolioRef, {
-      id: docRef.id,
-      name: portfolio.name,
-      isDefault: portfolio.isDefault || false,
-      updatedAt: new Date(),
-    });
-
     return docRef.id;
   },
 
   addTransaction: async (
+    userId: string, // Keep for interface compatibility
     transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
   ): Promise<string> => {
-    const transactionData = {
-      ...transaction,
-      createdAt: new Date(),
-    };
-
-    const collectionRef = portfolioService.getTransactionsCollection(
-      transaction.portfolioId
-    );
-    const docRef = await addDoc(
-      collectionRef,
-      normalizeObjectDates(transactionData, toTimestamp)
+    // Use callable function for robust transaction processing
+    const addPortfolioTransaction = httpsCallable(
+      functions,
+      CALLABLE_FUNCTIONS.portfolio.addPortfolioTransaction
     );
 
-    return docRef.id;
+    try {
+      const result = await addPortfolioTransaction({
+        portfolioId: transaction.portfolioId,
+        assetId: transaction.assetId,
+        symbol: transaction.assetId.toUpperCase(), // Temporary: use assetId as symbol
+        name: transaction.assetId, // Temporary: use assetId as name
+        type: 'CRYPTOCURRENCY', // Default type for now
+        category: 'CRYPTO', // Default category for now
+        transactionType: transaction.type,
+        quantity: transaction.quantity,
+        price: transaction.price,
+        fees: transaction.fees || 0,
+        executedAt: transaction.executedAt.toDate().toISOString(),
+        notes: transaction.notes || '',
+      });
+
+      const response = result.data as any;
+
+      if (!response?.success) {
+        throw new Error(response?.error || 'Failed to add transaction');
+      }
+
+      return response.data.transactionId;
+    } catch (error) {
+      console.error('Error calling addPortfolioTransaction:', error);
+      throw error;
+    }
   },
 
   getAsset: async (assetId: string): Promise<IAsset | null> => {
@@ -523,6 +562,7 @@ export const portfolioService = {
 
 export const mockPortfolioService = {
   subscribeToPortfolio: (
+    _userId: string,
     portfolioId: string,
     onSuccess: (portfolio: IPortfolio | null) => void,
     _onError: (error: string) => void
@@ -535,6 +575,7 @@ export const mockPortfolioService = {
   },
 
   subscribeToHoldings: (
+    _userId: string,
     _portfolioId: string,
     onSuccess: (holdings: IPortfolioHolding[]) => void,
     _onError: (error: string) => void
@@ -547,6 +588,7 @@ export const mockPortfolioService = {
   },
 
   subscribeToTransactions: (
+    _userId: string,
     _portfolioId: string,
     _transactionLimit: number = 50,
     onSuccess: (transactions: IPortfolioTransaction[]) => void,
@@ -560,16 +602,20 @@ export const mockPortfolioService = {
   },
 
   subscribeToSnapshots: (
+    _userId: string,
     _portfolioId: string,
-    startDate: Date,
-    endDate: Date,
+    startDate: Dayjs,
+    endDate: Dayjs,
     onSuccess: (snapshots: IPortfolioSnapshot[]) => void,
     _onError: (error: string) => void
   ) => {
     setTimeout(() => {
       const filteredSnapshots = MOCK_SNAPSHOTS.filter((snapshot) => {
         const snapshotDate = snapshot.date;
-        return snapshotDate >= startDate && snapshotDate <= endDate;
+        return (
+          (snapshotDate.isAfter(startDate) || snapshotDate.isSame(startDate)) &&
+          (snapshotDate.isBefore(endDate) || snapshotDate.isSame(endDate))
+        );
       });
       onSuccess(filteredSnapshots);
     }, 1000);
@@ -584,7 +630,7 @@ export const mockPortfolioService = {
         id: string;
         name: string;
         isDefault?: boolean;
-        updatedAt: Date;
+        updatedAt: Dayjs;
       }>
     ) => void,
     _onError: (error: string) => void
@@ -603,7 +649,10 @@ export const mockPortfolioService = {
     return () => {};
   },
 
-  getPortfolio: async (portfolioId: string): Promise<IPortfolio | null> => {
+  getPortfolio: async (
+    _userId: string,
+    portfolioId: string
+  ): Promise<IPortfolio | null> => {
     return { ...MOCK_PORTFOLIO, id: portfolioId };
   },
 
@@ -615,6 +664,7 @@ export const mockPortfolioService = {
   },
 
   addTransaction: async (
+    _userId: string,
     _transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
   ): Promise<string> => {
     return 'mock_transaction_id';
@@ -632,9 +682,7 @@ export const mockPortfolioService = {
 };
 
 export const createPortfolioService = (forceMock: boolean = false) => {
-  return process.env.NODE_ENV === ENVIRONMENTS.DEVELOPMENT || forceMock
-    ? mockPortfolioService
-    : portfolioService;
+  return forceMock ? mockPortfolioService : portfolioService;
 };
 
 export default {

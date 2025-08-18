@@ -264,7 +264,5 @@ export const mockFinancialPlansService = {
 
 // ============= FACTORY =============
 export const createFinancialPlansService = (forceMock: boolean = false) => {
-  return process.env.NODE_ENV === ENVIRONMENTS.DEVELOPMENT || forceMock
-    ? mockFinancialPlansService
-    : financialPlansService;
+  return forceMock ? mockFinancialPlansService : financialPlansService;
 };

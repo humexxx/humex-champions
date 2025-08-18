@@ -5,6 +5,7 @@ import {
   IAsset,
 } from '../models/finances';
 import { PORTFOLIO_CONSTANTS } from '../consts';
+import dayjs, { Dayjs } from 'dayjs';
 
 export function calculateHoldingsFromTransactions(
   transactions: IPortfolioTransaction[],
@@ -15,14 +16,13 @@ export function calculateHoldingsFromTransactions(
     {
       quantity: number;
       totalInvested: number;
-      firstPurchaseDate: Date;
-      lastUpdateDate: Date;
+      firstPurchaseDate: Dayjs;
+      lastUpdateDate: Dayjs;
     }
   > = {};
 
   const sortedTransactions = transactions.sort(
-    (a, b) =>
-      new Date(a.executedAt).getTime() - new Date(b.executedAt).getTime()
+    (a, b) => a.executedAt.valueOf() - b.executedAt.valueOf()
   );
 
   for (const transaction of sortedTransactions) {
@@ -32,8 +32,8 @@ export function calculateHoldingsFromTransactions(
       holdingsMap[assetId] = {
         quantity: 0,
         totalInvested: 0,
-        firstPurchaseDate: new Date(transaction.executedAt),
-        lastUpdateDate: new Date(transaction.executedAt),
+        firstPurchaseDate: transaction.executedAt,
+        lastUpdateDate: transaction.executedAt,
       };
     }
 
@@ -66,7 +66,7 @@ export function calculateHoldingsFromTransactions(
         break;
     }
 
-    holding.lastUpdateDate = new Date(transaction.executedAt);
+    holding.lastUpdateDate = transaction.executedAt;
 
     if (holding.quantity <= 0.0001) {
       delete holdingsMap[assetId];
@@ -180,7 +180,7 @@ export function convertMockDataToNewModel(mockData: any): {
   holdings: IPortfolioHolding[];
   assets: Record<string, IAsset>;
 } {
-  const now = new Date();
+  const now = dayjs();
 
   const portfolio: Partial<IPortfolio> = {
     id: 'portfolio_1',
@@ -243,7 +243,7 @@ export function convertMockDataToNewModel(mockData: any): {
           totalInvested > 0
             ? ((mockHolding.value - totalInvested) / totalInvested) * 100
             : 0,
-        firstPurchaseDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+        firstPurchaseDate: now.subtract(30, 'day'),
         lastUpdateDate: now,
         portfolioPercentage: (mockHolding.value / mockData.totalValue) * 100,
       });
@@ -311,7 +311,7 @@ export function getDefaultPortfolioData(
   userId: string,
   name: string
 ): Partial<IPortfolio> {
-  const now = new Date();
+  const now = dayjs();
   return {
     userId,
     name,

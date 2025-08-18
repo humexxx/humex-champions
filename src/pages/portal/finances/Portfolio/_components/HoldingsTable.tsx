@@ -213,8 +213,8 @@ const HoldingsTable = ({ holdings, transactions = [] }: HoldingsTableProps) => {
                                 {assetTransactions.map((transaction, index) => (
                                   <TableRow key={transaction.id || index}>
                                     <TableCell>
-                                      {transaction.executedAt.toLocaleDateString(
-                                        'en-US'
+                                      {transaction.executedAt.format(
+                                        'YYYY-MM-DD'
                                       )}
                                     </TableCell>
                                     <TableCell align="right">

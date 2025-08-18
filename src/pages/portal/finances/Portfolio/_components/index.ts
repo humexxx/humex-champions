@@ -4,4 +4,6 @@ export { default as HoldingsTable } from './HoldingsTable';
 export { default as PortfolioHighlights } from './PortfolioHighlights';
 export { default as ActivityTable } from './ActivityTable';
 export { default as TableFilter } from './TableFilter';
+export { default as CreatePortfolioDialog } from './CreatePortfolioDialog';
+export { default as EmptyPortfolioState } from './EmptyPortfolioState';
 export type { SortField, SortOrder } from './TableFilter';

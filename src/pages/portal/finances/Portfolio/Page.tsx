@@ -6,6 +6,7 @@ import {
   MonetizationOn,
   Add,
 } from '@mui/icons-material';
+import dayjs from 'dayjs';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
 import {
   PortfolioHeader,
@@ -16,10 +17,13 @@ import {
   TableFilter,
   SortField,
   SortOrder,
+  CreatePortfolioDialog,
+  EmptyPortfolioState,
 } from './_components';
+import TransactionDialog from './_components/TransactionDialog';
 import { ROUTES } from 'src/consts';
 import { Page } from 'src/components/layout';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   TIME_FILTERS,
   TimeFilter,
@@ -36,6 +40,9 @@ const PortafolioPage = () => {
   );
   const [sortBy, setSortBy] = useState<SortField>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
+  const [createPortfolioDialogOpen, setCreatePortfolioDialogOpen] =
+    useState(false);
 
   // Memoized callback prevents child component re-renders
   const handleSortChange = useCallback((field: SortField, order: SortOrder) => {
@@ -43,7 +50,7 @@ const PortafolioPage = () => {
     setSortOrder(order);
   }, []);
 
-  // Using the standardized usePortfolio hook
+  // Using the updated usePortfolio hook that brings all portfolios
   const {
     portfolio,
     holdings,
@@ -54,18 +61,193 @@ const PortafolioPage = () => {
     error,
     createPortfolio,
     addTransaction,
-    getAsset,
-    setAsset,
-    validateTransaction,
-  } = usePortfolio('portfolio_1', {
+    loadPortfolioData,
+  } = usePortfolio({
     autoLoad: true,
-    forceMock: true,
+    forceMock: false,
   });
 
-  // Optimized chart data generation with memoization - MOVED BEFORE EARLY RETURNS
+  // Seleccionar automáticamente el primer portfolio cuando se cargan
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(
+    null
+  );
+
+  // Efecto para seleccionar el primer portfolio automáticamente
+  useEffect(() => {
+    if (userPortfolios.length > 0 && !selectedPortfolioId) {
+      const defaultPortfolio = userPortfolios.find((p) => p.isDefault);
+      const firstPortfolio = defaultPortfolio || userPortfolios[0];
+      setSelectedPortfolioId(firstPortfolio.id);
+      loadPortfolioData(firstPortfolio.id);
+    }
+  }, [userPortfolios, selectedPortfolioId, loadPortfolioData]);
+
+  // Handle transaction dialog submission
+  const handleTransactionSubmit = useCallback(
+    async (transactionData: any) => {
+      if (!selectedPortfolioId) {
+        throw new Error('No portfolio selected');
+      }
+
+      try {
+        const totalAmount = transactionData.quantity * transactionData.price;
+        const result = await addTransaction(selectedPortfolioId, {
+          assetId: transactionData.assetId,
+          type: transactionData.type as 'BUY' | 'SELL',
+          quantity: transactionData.quantity,
+          price: transactionData.price,
+          totalAmount: totalAmount,
+          fees: 0, // Default to 0 fees for now
+          executedAt: dayjs(transactionData.executedAt),
+          notes: transactionData.notes || '',
+        });
+
+        console.log('Transaction added successfully:', result);
+
+        // Force reload portfolio data to ensure UI updates immediately
+        // This helps with cases where the snapshot creation might take a moment
+        setTimeout(() => {
+          loadPortfolioData(selectedPortfolioId);
+        }, 1000); // Small delay to allow Firebase function to complete
+      } catch (error) {
+        console.error('Error adding transaction:', error);
+        throw error; // Re-throw so the dialog can handle it
+      }
+    },
+    [selectedPortfolioId, addTransaction, loadPortfolioData]
+  );
+
+  // Handle portfolio creation
+  const handleCreatePortfolio = useCallback(
+    async (portfolioData: {
+      name: string;
+      currency: string;
+      isDefault: boolean;
+    }) => {
+      try {
+        const result = await createPortfolio({
+          userId: '', // Will be set by the service
+          name: portfolioData.name,
+          currency: portfolioData.currency,
+          isDraft: false,
+          currentValue: 0,
+          totalGain: 0,
+          totalGainPercentage: 0,
+          dailyGain: 0,
+          dailyGainPercentage: 0,
+          totalInvested: 0,
+          isDefault: portfolioData.isDefault,
+        });
+
+        console.log('Portfolio created successfully:', result);
+        // The UI will automatically update due to the usePortfolio hook
+      } catch (error) {
+        console.error('Error creating portfolio:', error);
+        throw error;
+      }
+    },
+    [createPortfolio]
+  );
+
+  // Enhanced chart data generation with baseline snapshots
   const chartData = useMemo(() => {
-    if (!portfolio || snapshots.length === 0) {
-      // Fallback data if no snapshots or portfolio
+    const now = dayjs();
+    let startDate = dayjs();
+
+    // Determine the time range based on filter
+    switch (selectedTimeFilter) {
+      case TIME_FILTERS.FIVE_DAYS:
+        startDate = now.subtract(5, 'day');
+        break;
+      case TIME_FILTERS.ONE_MONTH:
+        startDate = now.subtract(1, 'month');
+        break;
+      case TIME_FILTERS.SIX_MONTHS:
+        startDate = now.subtract(6, 'month');
+        break;
+      case TIME_FILTERS.YTD:
+        startDate = now.startOf('year');
+        break;
+      case TIME_FILTERS.ONE_YEAR:
+        startDate = now.subtract(1, 'year');
+        break;
+      case TIME_FILTERS.FIVE_YEARS:
+        startDate = now.subtract(5, 'year');
+        break;
+      case TIME_FILTERS.MAX:
+        // For MAX, use all available data or fall back to 1 year
+        if (snapshots.length > 0) {
+          const earliestSnapshot = snapshots.reduce((earliest, current) =>
+            current.date.isBefore(earliest.date) ? current : earliest
+          );
+          startDate = earliestSnapshot.date;
+        } else {
+          startDate = now.subtract(1, 'year');
+        }
+        break;
+      default:
+        startDate = now.subtract(1, 'year');
+    }
+
+    // Filter existing snapshots within the time range
+    const filteredSnapshots = snapshots.filter(
+      (snapshot) =>
+        snapshot.date.isAfter(startDate) ||
+        snapshot.date.isSame(startDate, 'day')
+    );
+
+    // Create baseline data points if we don't have enough snapshots
+    const dataPoints: Array<{
+      date: dayjs.Dayjs;
+      value: number;
+      label: string;
+    }> = [];
+
+    // Add baseline snapshot at the start date if no snapshots exist there
+    const hasStartSnapshot = filteredSnapshots.some((snapshot) =>
+      snapshot.date.isSame(startDate, 'day')
+    );
+
+    if (!hasStartSnapshot && portfolio) {
+      // Create a baseline snapshot with zero or initial investment to show growth
+      const baselineValue =
+        portfolio.totalInvested > 0 ? portfolio.totalInvested : 0;
+      dataPoints.push({
+        date: startDate,
+        value: baselineValue,
+        label: startDate.format('MMM D'),
+      });
+    }
+
+    // Add actual snapshots
+    filteredSnapshots.forEach((snapshot) => {
+      dataPoints.push({
+        date: snapshot.date,
+        value: snapshot.totalValue,
+        label: snapshot.date.format('MMM D'),
+      });
+    });
+
+    // If we still don't have recent data, add current portfolio value
+    if (portfolio && dataPoints.length > 0) {
+      const latestDataPoint = dataPoints[dataPoints.length - 1];
+      const daysSinceLatest = now.diff(latestDataPoint.date, 'day');
+
+      // If the latest data is more than 2 days old, add current value
+      if (daysSinceLatest > 2) {
+        dataPoints.push({
+          date: now,
+          value: portfolio.currentValue,
+          label: now.format('MMM D'),
+        });
+      }
+    }
+
+    // Sort by date
+    dataPoints.sort((a, b) => a.date.valueOf() - b.date.valueOf());
+
+    // Fallback if no meaningful data
+    if (dataPoints.length === 0) {
       return {
         chartData: [
           portfolio?.totalInvested || 0,
@@ -75,49 +257,9 @@ const PortafolioPage = () => {
       };
     }
 
-    // Filter snapshots based on selected time filter
-    const filterSnapshots = () => {
-      const now = new Date();
-      let startDate = new Date();
-
-      switch (selectedTimeFilter) {
-        case TIME_FILTERS.FIVE_DAYS:
-          startDate.setDate(now.getDate() - 5);
-          break;
-        case TIME_FILTERS.ONE_MONTH:
-          startDate.setMonth(now.getMonth() - 1);
-          break;
-        case TIME_FILTERS.SIX_MONTHS:
-          startDate.setMonth(now.getMonth() - 6);
-          break;
-        case TIME_FILTERS.YTD:
-          startDate = new Date(now.getFullYear(), 0, 1);
-          break;
-        case TIME_FILTERS.ONE_YEAR:
-          startDate.setFullYear(now.getFullYear() - 1);
-          break;
-        case TIME_FILTERS.FIVE_YEARS:
-          startDate.setFullYear(now.getFullYear() - 5);
-          break;
-        case TIME_FILTERS.MAX:
-          return snapshots;
-        default:
-          startDate.setFullYear(now.getFullYear() - 1);
-      }
-
-      return snapshots.filter((snapshot) => snapshot.date >= startDate);
-    };
-
-    const filteredSnapshots = filterSnapshots();
-
     return {
-      chartData: filteredSnapshots.map((snapshot) => snapshot.totalValue),
-      chartLabels: filteredSnapshots.map((snapshot) =>
-        snapshot.date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        })
-      ),
+      chartData: dataPoints.map((point) => point.value),
+      chartLabels: dataPoints.map((point) => point.label),
     };
   }, [snapshots, selectedTimeFilter, portfolio]);
 
@@ -125,8 +267,8 @@ const PortafolioPage = () => {
   const sortedTransactions = useMemo(() => {
     return [...transactions].sort((a, b) => {
       if (sortBy === 'date') {
-        const dateA = new Date(a.executedAt).getTime();
-        const dateB = new Date(b.executedAt).getTime();
+        const dateA = a.executedAt.valueOf();
+        const dateB = b.executedAt.valueOf();
         return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
       } else if (sortBy === 'amount') {
         const amountA = a.quantity * a.price;
@@ -227,8 +369,39 @@ const PortafolioPage = () => {
     return <div>Error loading portfolio: {error}</div>;
   }
 
+  if (userPortfolios.length === 0 && !loading) {
+    return (
+      <Page title="Portafolio">
+        <PageHeader
+          title={'Portfolio'}
+          navigator={{
+            breadcrumb: [{ title: 'Portfolio', route: 'portfolio' }],
+            link: {
+              title: 'Finances',
+              route: ROUTES.PORTAL.FINANCES.INDEX,
+            },
+          }}
+        />
+        <PageContent>
+          <EmptyPortfolioState
+            onCreatePortfolio={() => setCreatePortfolioDialogOpen(true)}
+            loading={loading}
+          />
+
+          <CreatePortfolioDialog
+            open={createPortfolioDialogOpen}
+            onClose={() => setCreatePortfolioDialogOpen(false)}
+            onSubmit={handleCreatePortfolio}
+            loading={loading}
+          />
+        </PageContent>
+      </Page>
+    );
+  }
+
+  // Check if portfolio is selected and loaded
   if (!portfolio) {
-    return <div>Portfolio not found</div>;
+    return <GlobalLoader />;
   }
 
   return (
@@ -305,7 +478,11 @@ const PortafolioPage = () => {
                         : transactionFields
                     }
                   />
-                  <Button startIcon={<Add />} variant={'contained'}>
+                  <Button
+                    startIcon={<Add />}
+                    variant={'contained'}
+                    onClick={() => setTransactionDialogOpen(true)}
+                  >
                     Add Transaction
                   </Button>
                 </Stack>
@@ -336,319 +513,21 @@ const PortafolioPage = () => {
         </Grid>
       </PageContent>
 
-      {/* ==== TEMPORARY DEMO SECTION - DELETE AFTER REVIEW ==== */}
-      <div
-        style={{
-          marginTop: '32px',
-          padding: '24px',
-          backgroundColor: '#f5f5f5',
-          border: '2px dashed #ccc',
-        }}
-      >
-        <h2>🧪 Demo de Funcionalidades del Portfolio Service</h2>
+      {/* Transaction Dialog */}
+      <TransactionDialog
+        open={transactionDialogOpen}
+        onClose={() => setTransactionDialogOpen(false)}
+        onSubmit={handleTransactionSubmit}
+        portfolioId={portfolio?.id || 'default'}
+      />
 
-        {/* Demo: Transactions */}
-        <div style={{ marginBottom: '20px' }}>
-          <h3>📊 Transacciones ({transactions.length})</h3>
-          {transactions.slice(0, 3).map((tx, index) => (
-            <div
-              key={index}
-              style={{
-                padding: '8px',
-                border: '1px solid #ddd',
-                margin: '4px 0',
-              }}
-            >
-              <strong>{tx.type}</strong> {tx.quantity} {tx.assetId} @ $
-              {tx.price}
-              <small> - {tx.executedAt.toLocaleDateString()}</small>
-            </div>
-          ))}
-        </div>
-
-        {/* Demo: Snapshots */}
-        <div style={{ marginBottom: '20px' }}>
-          <h3>📈 Snapshots Históricos ({snapshots.length})</h3>
-          <div
-            style={{
-              display: 'flex',
-              gap: '10px',
-              flexWrap: 'wrap',
-              marginBottom: '10px',
-            }}
-          >
-            {Object.values(TIME_FILTERS).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setSelectedTimeFilter(filter)}
-                style={{
-                  padding: '4px 8px',
-                  backgroundColor:
-                    selectedTimeFilter === filter ? '#2196F3' : '#f0f0f0',
-                  color: selectedTimeFilter === filter ? 'white' : 'black',
-                  border: 'none',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                }}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-          <div style={{ fontSize: '12px', color: '#666' }}>
-            Filter: <strong>{selectedTimeFilter}</strong> | Chart data:{' '}
-            <strong>{chartData.chartData.length}</strong> points | Range:{' '}
-            <strong>
-              ${Math.min(...chartData.chartData).toLocaleString()}
-            </strong>{' '}
-            -{' '}
-            <strong>
-              ${Math.max(...chartData.chartData).toLocaleString()}
-            </strong>
-          </div>
-        </div>
-
-        {/* Demo: User Portfolios */}
-        <div style={{ marginBottom: '20px' }}>
-          <h3>👤 Portfolios del Usuario ({userPortfolios.length})</h3>
-          {userPortfolios.map((p, index) => (
-            <div
-              key={index}
-              style={{
-                padding: '8px',
-                border: '1px solid #ddd',
-                margin: '4px 0',
-              }}
-            >
-              <strong>{p.name}</strong> {p.isDefault && '⭐'}
-              <small> - Actualizado: {p.updatedAt.toLocaleDateString()}</small>
-            </div>
-          ))}
-        </div>
-
-        {/* Demo: Action Buttons */}
-        <div style={{ marginBottom: '20px' }}>
-          <h3>⚡ Acciones Disponibles</h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={async () => {
-                try {
-                  const newPortfolioId = await createPortfolio({
-                    name: 'Demo Portfolio',
-                    userId: 'user_1',
-                    isDraft: false,
-                    currentValue: 0,
-                    totalGain: 0,
-                    totalGainPercentage: 0,
-                    dailyGain: 0,
-                    dailyGainPercentage: 0,
-                    totalInvested: 0,
-                    currency: 'USD',
-                  });
-                  alert(`✅ Portfolio creado con ID: ${newPortfolioId}`);
-                } catch (error) {
-                  alert(`❌ Error: ${error}`);
-                }
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-              }}
-            >
-              🆕 Crear Portfolio
-            </button>
-
-            <button
-              onClick={async () => {
-                try {
-                  const txId = await addTransaction({
-                    portfolioId: 'portfolio_1',
-                    assetId: 'ETH',
-                    type: 'BUY',
-                    quantity: 0.5,
-                    price: 2500,
-                    totalAmount: 1250,
-                    fees: 6.25,
-                    executedAt: new Date(),
-                  });
-                  alert(`✅ Transacción agregada con ID: ${txId}`);
-                } catch (error) {
-                  alert(`❌ Error: ${error}`);
-                }
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#2196F3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-              }}
-            >
-              💰 Agregar Transacción
-            </button>
-
-            <button
-              onClick={async () => {
-                try {
-                  const asset = await getAsset('BTC');
-                  alert(
-                    `📈 Asset encontrado: ${asset?.name} - $${asset?.currentPrice}`
-                  );
-                } catch (error) {
-                  alert(`❌ Error: ${error}`);
-                }
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#FF9800',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-              }}
-            >
-              🔍 Obtener Asset BTC
-            </button>
-
-            <button
-              onClick={async () => {
-                try {
-                  await setAsset({
-                    id: 'ETH',
-                    symbol: 'ETH',
-                    name: 'Ethereum',
-                    category: 'CRYPTO',
-                    type: 'CRYPTOCURRENCY',
-                    currentPrice: 2500,
-                    dayOpenPrice: 2480,
-                    previousDayClose: 2480,
-                    dailyChange: 20,
-                    dailyChangePercentage: 0.81,
-                    currency: 'USD',
-                    lastPriceUpdate: new Date(),
-                  });
-                  alert('✅ Asset ETH actualizado');
-                } catch (error) {
-                  alert(`❌ Error: ${error}`);
-                }
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#9C27B0',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-              }}
-            >
-              💾 Actualizar Asset ETH
-            </button>
-          </div>
-        </div>
-
-        {/* Demo: Validation */}
-        <div style={{ marginBottom: '20px' }}>
-          <h3>✅ Validación de Transacciones</h3>
-          <button
-            onClick={() => {
-              const errors = validateTransaction({
-                portfolioId: '',
-                assetId: 'BTC',
-                type: 'BUY',
-                quantity: -1,
-                price: 0,
-              });
-              alert(
-                `Errores encontrados: ${errors.length > 0 ? errors.join(', ') : 'Ninguno'}`
-              );
-            }}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#f44336',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-            }}
-          >
-            🧪 Probar Validación (con errores)
-          </button>
-        </div>
-
-        {/* Demo: Current Data Summary */}
-        <div>
-          <h3>📋 Resumen de Datos Actuales</h3>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px',
-            }}
-          >
-            <div
-              style={{
-                padding: '16px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-              }}
-            >
-              <strong>Portfolio</strong>
-              <br />
-              Name: {portfolio?.name}
-              <br />
-              Value: ${portfolio?.currentValue?.toLocaleString()}
-              <br />
-              Gain: ${portfolio?.totalGain?.toLocaleString()}
-            </div>
-            <div
-              style={{
-                padding: '16px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-              }}
-            >
-              <strong>Holdings</strong>
-              <br />
-              Total: {holdings.length}
-              <br />
-              Assets: {holdings.map((h) => h.assetId).join(', ')}
-            </div>
-            <div
-              style={{
-                padding: '16px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-              }}
-            >
-              <strong>Transacciones</strong>
-              <br />
-              Total: {transactions.length}
-              <br />
-              Última: {transactions[0]?.executedAt?.toLocaleDateString()}
-            </div>
-            <div
-              style={{
-                padding: '16px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-              }}
-            >
-              <strong>Estado</strong>
-              <br />
-              Loading: {loading ? '🔄' : '✅'}
-              <br />
-              Error: {error || 'Ninguno'}
-            </div>
-          </div>
-        </div>
-
-        <p style={{ marginTop: '20px', fontStyle: 'italic', color: '#666' }}>
-          💡 Esta sección demuestra todas las funcionalidades disponibles del
-          usePortfolio hook y portfolioService. Puedes borrar toda esta sección
-          cuando hayas terminado de revisar.
-        </p>
-      </div>
-      {/* ==== END TEMPORARY DEMO SECTION ==== */}
+      {/* Create Portfolio Dialog */}
+      <CreatePortfolioDialog
+        open={createPortfolioDialogOpen}
+        onClose={() => setCreatePortfolioDialogOpen(false)}
+        onSubmit={handleCreatePortfolio}
+        loading={loading}
+      />
     </Page>
   );
 };

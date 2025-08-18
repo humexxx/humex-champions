@@ -65,7 +65,7 @@ const ActivityTable = ({ transactions }: ActivityTableProps) => {
                     {transaction.quantity} {transaction.assetId}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {transaction.executedAt.toLocaleDateString('en-US')}
+                    {transaction.executedAt.format('MMM D, YYYY')}
                   </Typography>
                 </Box>
               </TableCell>

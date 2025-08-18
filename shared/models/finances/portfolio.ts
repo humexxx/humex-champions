@@ -1,14 +1,15 @@
 import { IInstrument } from '../instruments';
+import { Dayjs } from 'dayjs';
 
 // ============= PORTFOLIO MODELS =============
 
-export interface IPortfolio<Timestamp = Date> {
+export interface IPortfolio {
   id: string;
   userId: string;
   name: string;
   isDraft: boolean;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt: Dayjs;
+  updatedAt: Dayjs;
 
   currentValue: number;
   totalGain: number;
@@ -19,13 +20,13 @@ export interface IPortfolio<Timestamp = Date> {
 
   currency: string;
   isDefault?: boolean;
-  lastPriceUpdate?: Timestamp;
+  lastPriceUpdate?: Dayjs;
 }
 
-export interface IPortfolioSnapshot<Timestamp = Date> {
+export interface IPortfolioSnapshot {
   id: string;
   portfolioId: string;
-  date: Timestamp;
+  date: Dayjs;
 
   totalValue: number;
   totalGain: number;
@@ -34,12 +35,12 @@ export interface IPortfolioSnapshot<Timestamp = Date> {
   dailyChangePercentage: number;
 
   holdings: IPortfolioHolding[];
-  createdAt: Timestamp;
+  createdAt: Dayjs;
 }
 
 // ============= HOLDINGS (POSICIONES ACTUALES) =============
 
-export interface IPortfolioHolding<Timestamp = Date> {
+export interface IPortfolioHolding {
   id: string;
   portfolioId: string;
   assetId: string;
@@ -53,14 +54,14 @@ export interface IPortfolioHolding<Timestamp = Date> {
   unrealizedGain: number;
   unrealizedGainPercentage: number;
 
-  firstPurchaseDate: Timestamp;
-  lastUpdateDate: Timestamp;
+  firstPurchaseDate: Dayjs;
+  lastUpdateDate: Dayjs;
   portfolioPercentage: number;
 }
 
 // ============= ASSET MODELS =============
 
-export interface IAsset<Timestamp = Date> {
+export interface IAsset {
   id: string;
   symbol: string;
   name: string;
@@ -78,7 +79,7 @@ export interface IAsset<Timestamp = Date> {
 
   currency: string;
   exchange?: string;
-  lastPriceUpdate: Timestamp;
+  lastPriceUpdate: Dayjs;
 
   marketCap?: number;
   volume24h?: number;
@@ -96,7 +97,7 @@ export type AssetType =
 
 // ============= ORDER/TRANSACTION MODELS =============
 
-export interface IPortfolioTransaction<Timestamp = Date> {
+export interface IPortfolioTransaction {
   id: string;
   portfolioId: string;
   assetId: string;
@@ -107,8 +108,8 @@ export interface IPortfolioTransaction<Timestamp = Date> {
   totalAmount: number;
   fees: number;
 
-  executedAt: Timestamp;
-  createdAt: Timestamp;
+  executedAt: Dayjs;
+  createdAt: Dayjs;
 
   notes?: string;
   source?: string;
