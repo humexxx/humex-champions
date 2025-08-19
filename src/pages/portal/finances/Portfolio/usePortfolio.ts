@@ -12,6 +12,7 @@ import {
 import { CommonFetchHookProps } from 'src/_models';
 import { useAuth } from 'src/context/hooks';
 import { createPortfolioService } from 'src/services/finances';
+import { TimeFilter, TIME_FILTERS } from '@shared/enums/finance/timeFilters';
 
 interface UsePortfolio {
   // Datos de un portfolio específico (null si no hay ninguno seleccionado)
@@ -49,10 +50,50 @@ interface UsePortfolio {
   loadPortfolioData: (portfolioId: string) => void;
 }
 
+interface UsePortfolioOptions extends CommonFetchHookProps {
+  // Dependencies that will trigger snapshot re-fetching
+  snapshotDeps?: any[];
+  // Current time filter for dynamic snapshot date range
+  timeFilter?: TimeFilter;
+}
+
+// Helper function to get date range based on time filter
+const getDateRangeFromTimeFilter = (
+  timeFilter: TimeFilter
+): { startDate: Dayjs; endDate: Dayjs } => {
+  const now = dayjs();
+
+  switch (timeFilter) {
+    case TIME_FILTERS.FIVE_DAYS:
+      return { startDate: now.subtract(5, 'days'), endDate: now };
+    case TIME_FILTERS.ONE_MONTH:
+      return { startDate: now.subtract(1, 'month'), endDate: now };
+    case TIME_FILTERS.SIX_MONTHS:
+      return { startDate: now.subtract(6, 'months'), endDate: now };
+    case TIME_FILTERS.YTD:
+      return { startDate: now.startOf('year'), endDate: now };
+    case TIME_FILTERS.ONE_YEAR:
+      return { startDate: now.subtract(1, 'year'), endDate: now };
+    case TIME_FILTERS.FIVE_YEARS:
+      return { startDate: now.subtract(5, 'years'), endDate: now };
+    case TIME_FILTERS.MAX:
+      return { startDate: now.subtract(10, 'years'), endDate: now }; // Reasonable "max" range
+    default:
+      return { startDate: now.subtract(1, 'year'), endDate: now };
+  }
+};
+
 const usePortfolio = (
-  { autoLoad, forceMock }: CommonFetchHookProps = {
+  {
+    autoLoad,
+    forceMock,
+    snapshotDeps = [],
+    timeFilter = TIME_FILTERS.ONE_YEAR,
+  }: UsePortfolioOptions = {
     autoLoad: true,
     forceMock: false,
+    snapshotDeps: [],
+    timeFilter: TIME_FILTERS.ONE_YEAR,
   }
 ): UsePortfolio => {
   const { currentUser } = useAuth();
@@ -70,6 +111,9 @@ const usePortfolio = (
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPortfolioId, setCurrentPortfolioId] = useState<string | null>(
+    null
+  );
 
   // Crear el servicio basado en la configuración
   const service = useMemo(() => createPortfolioService(forceMock), [forceMock]);
@@ -106,12 +150,39 @@ const usePortfolio = (
     };
   }, [autoLoad, currentUser, service]);
 
+  // Effect to reload snapshots when timeFilter or snapshotDeps change
+  useEffect(() => {
+    if (!currentPortfolioId || !currentUser) return;
+
+    // Only reload snapshots, not all data
+    const { startDate, endDate } = getDateRangeFromTimeFilter(timeFilter);
+    const unsubscribeSnapshots = service.subscribeToSnapshots(
+      currentUser.uid,
+      currentPortfolioId,
+      startDate,
+      endDate,
+      (snapshotsData: IPortfolioSnapshot[]) => {
+        setSnapshots(snapshotsData);
+        setError(null);
+      },
+      (error: string) => {
+        setError(error);
+      }
+    );
+
+    return () => {
+      unsubscribeSnapshots();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser, service, timeFilter, currentPortfolioId, ...snapshotDeps]);
+
   // Función para cargar datos de un portfolio específico
   const loadPortfolioData = useCallback(
     (portfolioId: string) => {
       if (!currentUser) return;
 
       setLoading(true);
+      setCurrentPortfolioId(portfolioId);
 
       // Subscribe to portfolio
       const unsubscribePortfolio = service.subscribeToPortfolio(
@@ -156,14 +227,13 @@ const usePortfolio = (
         }
       );
 
-      // Subscribe to snapshots (last year for default)
-      const now = dayjs();
-      const lastYear = now.subtract(1, 'year');
+      // Subscribe to snapshots with dynamic date range based on timeFilter
+      const { startDate, endDate } = getDateRangeFromTimeFilter(timeFilter);
       const unsubscribeSnapshots = service.subscribeToSnapshots(
         currentUser.uid,
         portfolioId,
-        lastYear,
-        now,
+        startDate,
+        endDate,
         (snapshotsData: IPortfolioSnapshot[]) => {
           setSnapshots(snapshotsData);
           setLoading(false);
@@ -182,7 +252,7 @@ const usePortfolio = (
         unsubscribeSnapshots();
       };
     },
-    [currentUser, service]
+    [currentUser, service, timeFilter]
   );
 
   const createPortfolio = useCallback(

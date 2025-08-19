@@ -65,6 +65,8 @@ const PortafolioPage = () => {
   } = usePortfolio({
     autoLoad: true,
     forceMock: false,
+    timeFilter: selectedTimeFilter, // Pass the current time filter
+    snapshotDeps: [selectedTimeFilter], // Dependencies that trigger snapshot reload
   });
 
   // Seleccionar automáticamente el primer portfolio cuando se cargan
@@ -149,119 +151,35 @@ const PortafolioPage = () => {
     [createPortfolio]
   );
 
-  // Enhanced chart data generation with baseline snapshots
+  // Simple chart data generation - use snapshots + current data point
   const chartData = useMemo(() => {
     const now = dayjs();
-    let startDate = dayjs();
-
-    // Determine the time range based on filter
-    switch (selectedTimeFilter) {
-      case TIME_FILTERS.FIVE_DAYS:
-        startDate = now.subtract(5, 'day');
-        break;
-      case TIME_FILTERS.ONE_MONTH:
-        startDate = now.subtract(1, 'month');
-        break;
-      case TIME_FILTERS.SIX_MONTHS:
-        startDate = now.subtract(6, 'month');
-        break;
-      case TIME_FILTERS.YTD:
-        startDate = now.startOf('year');
-        break;
-      case TIME_FILTERS.ONE_YEAR:
-        startDate = now.subtract(1, 'year');
-        break;
-      case TIME_FILTERS.FIVE_YEARS:
-        startDate = now.subtract(5, 'year');
-        break;
-      case TIME_FILTERS.MAX:
-        // For MAX, use all available data or fall back to 1 year
-        if (snapshots.length > 0) {
-          const earliestSnapshot = snapshots.reduce((earliest, current) =>
-            current.date.isBefore(earliest.date) ? current : earliest
-          );
-          startDate = earliestSnapshot.date;
-        } else {
-          startDate = now.subtract(1, 'year');
-        }
-        break;
-      default:
-        startDate = now.subtract(1, 'year');
-    }
-
-    // Filter existing snapshots within the time range
-    const filteredSnapshots = snapshots.filter(
-      (snapshot) =>
-        snapshot.date.isAfter(startDate) ||
-        snapshot.date.isSame(startDate, 'day')
-    );
-
-    // Create baseline data points if we don't have enough snapshots
     const dataPoints: Array<{
-      date: dayjs.Dayjs;
-      value: number;
-      label: string;
+      date: Date;
+      portfolioTotal: number;
     }> = [];
 
-    // Add baseline snapshot at the start date if no snapshots exist there
-    const hasStartSnapshot = filteredSnapshots.some((snapshot) =>
-      snapshot.date.isSame(startDate, 'day')
-    );
-
-    if (!hasStartSnapshot && portfolio) {
-      // Create a baseline snapshot with zero or initial investment to show growth
-      const baselineValue =
-        portfolio.totalInvested > 0 ? portfolio.totalInvested : 0;
+    // Add all snapshots
+    snapshots.forEach((snapshot) => {
       dataPoints.push({
-        date: startDate,
-        value: baselineValue,
-        label: startDate.format('MMM D'),
-      });
-    }
-
-    // Add actual snapshots
-    filteredSnapshots.forEach((snapshot) => {
-      dataPoints.push({
-        date: snapshot.date,
-        value: snapshot.totalValue,
-        label: snapshot.date.format('MMM D'),
+        date: snapshot.date.toDate(),
+        portfolioTotal: snapshot.totalValue,
       });
     });
 
-    // If we still don't have recent data, add current portfolio value
-    if (portfolio && dataPoints.length > 0) {
-      const latestDataPoint = dataPoints[dataPoints.length - 1];
-      const daysSinceLatest = now.diff(latestDataPoint.date, 'day');
-
-      // If the latest data is more than 2 days old, add current value
-      if (daysSinceLatest > 2) {
-        dataPoints.push({
-          date: now,
-          value: portfolio.currentValue,
-          label: now.format('MMM D'),
-        });
-      }
+    // Always add current data point
+    if (portfolio) {
+      dataPoints.push({
+        date: now.toDate(),
+        portfolioTotal: portfolio.currentValue,
+      });
     }
 
     // Sort by date
-    dataPoints.sort((a, b) => a.date.valueOf() - b.date.valueOf());
+    dataPoints.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    // Fallback if no meaningful data
-    if (dataPoints.length === 0) {
-      return {
-        chartData: [
-          portfolio?.totalInvested || 0,
-          portfolio?.currentValue || 0,
-        ],
-        chartLabels: ['Initial', 'Current'],
-      };
-    }
-
-    return {
-      chartData: dataPoints.map((point) => point.value),
-      chartLabels: dataPoints.map((point) => point.label),
-    };
-  }, [snapshots, selectedTimeFilter, portfolio]);
+    return dataPoints;
+  }, [snapshots, portfolio]);
 
   // Optimized sorting with memoization - MOVED BEFORE EARLY RETURNS
   const sortedTransactions = useMemo(() => {
@@ -436,8 +354,7 @@ const PortafolioPage = () => {
           <Grid size={{ xs: 12, md: 8 }}>
             <Box sx={{ mb: 3 }}>
               <PortfolioChart
-                chartData={chartData.chartData}
-                chartLabels={chartData.chartLabels}
+                chartData={chartData}
                 selectedTimeFilter={selectedTimeFilter}
                 timeFilters={Object.values(TIME_FILTERS)}
                 onTimeFilterChange={setSelectedTimeFilter}

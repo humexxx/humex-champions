@@ -1,13 +1,14 @@
 import { Box, Tab, Tabs, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { TimeFilter } from '../../../../../../shared/enums/finance/timeFilters';
-import { formatCompactNumber } from 'src/utils/number';
+import { formatCompactNumber, formatCurrency } from 'src/utils/number';
 import NoDataOverlay from 'src/components/graphs/NoDataOverlay';
 import LoadingOverlay from 'src/components/graphs/LoadingOverlay';
+import { AxisValueFormatterContext } from '@mui/x-charts';
+import dayjs from 'dayjs';
 
 interface PortfolioChartProps {
-  chartData: number[];
-  chartLabels: string[];
+  chartData: { date: Date; portfolioTotal: number }[];
   selectedTimeFilter: TimeFilter;
   timeFilters: readonly TimeFilter[];
   onTimeFilterChange: (filter: TimeFilter) => void;
@@ -16,7 +17,6 @@ interface PortfolioChartProps {
 
 const PortfolioChart = ({
   chartData,
-  chartLabels,
   selectedTimeFilter,
   timeFilters,
   onTimeFilterChange,
@@ -25,11 +25,7 @@ const PortfolioChart = ({
   const theme = useTheme();
 
   // Check if we have meaningful data
-  const hasData =
-    !loading &&
-    chartData &&
-    chartData.length > 0 &&
-    chartData.some((value) => value > 0);
+  const hasData = !loading && chartData && chartData.length > 1;
 
   return (
     <>
@@ -60,37 +56,48 @@ const PortfolioChart = ({
       <Box sx={{ width: '100%', aspectRatio: '2', mb: 3 }}>
         <LineChart
           loading={loading}
+          dataset={hasData ? chartData : []}
           series={[
             {
-              data: chartData,
+              label: 'Total',
               color: theme.palette.primary.main,
-              highlightScope: { highlight: 'item' },
+              dataKey: 'portfolioTotal',
               showMark: false,
+              area: true, // Enable area chart
+              valueFormatter: (value: any) => formatCurrency(value),
             },
           ]}
+          sx={{
+            // Add gradient styling for the area
+            '& .MuiAreaElement-root': {
+              fill: "url('#portfolioGradient')",
+            },
+          }}
           xAxis={[
             {
-              tickInterval: (_, index) => {
-                return index % Math.ceil(chartLabels.length / 5) === 0;
-              },
-              scaleType: 'point',
-              data: hasData ? chartLabels : ['No Data'],
-              tickLabelStyle: {
-                fontSize: 12,
-                fill: theme.palette.text.secondary,
+              dataKey: 'date',
+              scaleType: 'time',
+              tickNumber: 4,
+              domainLimit: 'strict',
+              valueFormatter: (
+                value: Date,
+                context: AxisValueFormatterContext<'time'>
+              ) => {
+                if (context.location === 'tick') {
+                  return dayjs(value).format('DD MMM');
+                }
+                return dayjs(value).format('MMM YYYY');
               },
             },
           ]}
           yAxis={[
             {
-              tickLabelStyle: {
-                fontSize: 12,
-                fill: theme.palette.text.secondary,
-              },
-              valueFormatter: (value: any) => formatCompactNumber(value),
+              min: 0,
+              valueFormatter: (value: number) => formatCompactNumber(value),
             },
           ]}
-          grid={{ horizontal: true, vertical: true }}
+          hideLegend
+          grid={{ horizontal: true, vertical: false }}
           margin={{ left: 0 }}
           slots={
             {
@@ -110,7 +117,39 @@ const PortfolioChart = ({
               },
             } as any
           }
-        />
+        >
+          {/* SVG Gradient Definition */}
+          <defs>
+            <linearGradient
+              id="portfolioGradient"
+              x1="0%"
+              y1="0%"
+              x2="0%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                stopColor={theme.palette.primary.main}
+                stopOpacity={0.5}
+              />
+              <stop
+                offset="25%"
+                stopColor={theme.palette.primary.main}
+                stopOpacity={0.4}
+              />
+              <stop
+                offset="50%"
+                stopColor={theme.palette.primary.main}
+                stopOpacity={0.1}
+              />
+              <stop
+                offset="100%"
+                stopColor={theme.palette.primary.main}
+                stopOpacity={0.02}
+              />
+            </linearGradient>
+          </defs>
+        </LineChart>
       </Box>
     </>
   );
