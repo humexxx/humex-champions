@@ -3,7 +3,7 @@ import { RaceCalendar, StandingsTable, ResultsTable } from './';
 
 interface F1Data {
   currentSeason: string;
-  nextRace: {
+  nextRace?: {
     name: string;
     date: string;
     circuit: string;
@@ -12,6 +12,7 @@ interface F1Data {
     drivers: any[];
     constructors: any[];
   };
+  news: any[];
 }
 
 interface F1ContentProps {

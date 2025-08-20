@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { PageContent, PageHeader } from 'src/components';
 import { Page } from 'src/components/layout';
 import { F1Header, F1Content } from './_components';
+import { F1Service } from 'src/services/f1Service';
 
 interface F1Data {
   currentSeason: string;
-  nextRace: {
+  nextRace?: {
     name: string;
     date: string;
     circuit: string;
@@ -14,6 +15,7 @@ interface F1Data {
     drivers: any[];
     constructors: any[];
   };
+  news: any[];
 }
 
 const F1Page = () => {
@@ -27,27 +29,56 @@ const F1Page = () => {
   useEffect(() => {
     const fetchF1Data = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        // TODO: Implement F1 API integration
-        // For now, using mock data
-        const mockData: F1Data = {
-          currentSeason: '2025',
-          nextRace: {
-            name: 'Monaco Grand Prix',
-            date: '2025-05-25',
-            circuit: 'Circuit de Monaco',
-          },
+        console.log('🏎️ Fetching F1 data...');
+
+        // Use the F1 service to get comprehensive page data
+        const pageData = await F1Service.getF1PageData();
+
+        // Transform the data to match our component's expected structure
+        const transformedData: F1Data = {
+          currentSeason: pageData.currentSeason,
+          nextRace:
+            (pageData.nextRace as any)?.success &&
+            (pageData.nextRace as any)?.data
+              ? {
+                  name: (pageData.nextRace as any).data.name || 'Unknown Race',
+                  date: (pageData.nextRace as any).data.date || '',
+                  circuit:
+                    (pageData.nextRace as any).data.circuit?.name ||
+                    'Unknown Circuit',
+                }
+              : undefined,
           standings: {
-            drivers: [],
-            constructors: [],
+            drivers: (pageData.drivers as any)?.success
+              ? (pageData.drivers as any).data
+              : [],
+            constructors: (pageData.constructors as any)?.success
+              ? (pageData.constructors as any).data
+              : [],
           },
+          news: (pageData.news as any)?.success
+            ? (pageData.news as any).data
+            : [],
         };
 
-        setF1Data(mockData);
+        setF1Data(transformedData);
+        console.log('✅ F1 data loaded successfully', transformedData);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'Failed to fetch F1 data'
-        );
+        console.error('❌ Error fetching F1 data:', err);
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to fetch F1 data';
+        setError(errorMessage);
+
+        // Fallback to basic data structure
+        setF1Data({
+          currentSeason: new Date().getFullYear().toString(),
+          nextRace: undefined,
+          standings: { drivers: [], constructors: [] },
+          news: [],
+        });
       } finally {
         setLoading(false);
       }
@@ -70,7 +101,9 @@ const F1Page = () => {
       />
       <PageContent>
         <F1Header
-          currentSeason={f1Data?.currentSeason || '2025'}
+          currentSeason={
+            f1Data?.currentSeason || new Date().getFullYear().toString()
+          }
           nextRace={f1Data?.nextRace}
           selectedTab={selectedTab}
           onTabChange={handleTabChange}

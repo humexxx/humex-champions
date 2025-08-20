@@ -42,6 +42,76 @@ export const FIRESTORE_PATHS = {
     ROOT: () => `assets`,
     ASSET: (assetId: string) => `assets/${assetId}`,
   },
+
+  // ============= THIRD PARTY / EXTERNAL APIS =============
+  THIRD_PARTY: {
+    F1: {
+      ROOT: () => `third-party/f1`,
+
+      // Standings cache (by year) - fixed to have even number of path segments
+      DRIVER_STANDINGS: (year: number) =>
+        `third-party/f1/standings/drivers-${year}`,
+      CONSTRUCTOR_STANDINGS: (year: number) =>
+        `third-party/f1/standings/constructors-${year}`,
+
+      // Schedule cache (by year)
+      SCHEDULE: (year: number) => `third-party/f1/schedules/year-${year}`,
+
+      // News cache (time-based)
+      NEWS: () => `third-party/f1/cache/news`,
+      NEWS_ARTICLE: (articleId: string) => `third-party/f1/news/${articleId}`,
+
+      // Driver data cache
+      DRIVERS: () => `third-party/f1/cache/drivers`,
+      DRIVER_INFO: (driverId: string) => `third-party/f1/drivers/${driverId}`,
+      DRIVER_STATS: (driverId: string) =>
+        `third-party/f1/driver-stats/${driverId}`,
+      DRIVER_RESULTS: (driverId: string, year: number) =>
+        `third-party/f1/driver-results/${driverId}-${year}`,
+      DRIVER_PHOTOS: (driverId: string) =>
+        `third-party/f1/driver-photos/${driverId}`,
+
+      // Cache metadata
+      CACHE_META: () => `third-party/f1/cache/metadata`,
+      CACHE_META_ITEM: (key: string) => `third-party/f1/cache-meta/${key}`,
+    },
+  },
+
+  // ============= ENTERTAINMENT FEATURE (Deprecated - use THIRD_PARTY.F1) =============
+  ENTERTAINMENT: {
+    F1: {
+      ROOT: () => `entertainment/f1`,
+
+      // Standings cache (by year)
+      DRIVER_STANDINGS: (year: number) =>
+        `entertainment/f1/standings/drivers/${year}`,
+      CONSTRUCTOR_STANDINGS: (year: number) =>
+        `entertainment/f1/standings/constructors/${year}`,
+
+      // Schedule cache (by year)
+      SCHEDULE: (year: number) => `entertainment/f1/schedule/${year}`,
+
+      // News cache (time-based)
+      NEWS: () => `entertainment/f1/news`,
+      NEWS_ARTICLE: (articleId: string) => `entertainment/f1/news/${articleId}`,
+
+      // Driver data cache
+      DRIVERS: () => `entertainment/f1/drivers`,
+      DRIVER_INFO: (driverId: string) =>
+        `entertainment/f1/drivers/${driverId}/info`,
+      DRIVER_STATS: (driverId: string) =>
+        `entertainment/f1/drivers/${driverId}/stats`,
+      DRIVER_RESULTS: (driverId: string, year: number) =>
+        `entertainment/f1/drivers/${driverId}/results/${year}`,
+      DRIVER_PHOTOS: (driverId: string) =>
+        `entertainment/f1/drivers/${driverId}/photos`,
+
+      // Cache metadata
+      CACHE_META: () => `entertainment/f1/cache-metadata`,
+      CACHE_META_ITEM: (key: string) =>
+        `entertainment/f1/cache-metadata/${key}`,
+    },
+  },
 };
 
 export const CALLABLE_FUNCTIONS = {
@@ -67,6 +137,24 @@ export const CALLABLE_FUNCTIONS = {
     updateAssetPrices: 'updateAssetPrices',
     createDailySnapshot: 'createDailySnapshot',
     calculateHoldings: 'calculateHoldings',
+  },
+  entertainment: {
+    f1: {
+      // Core data functions
+      getDriverStandings: 'getF1DriverStandings',
+      getConstructorStandings: 'getF1ConstructorStandings',
+      getNextRace: 'getF1NextRace',
+      getSchedule: 'getF1Schedule',
+      getNews: 'getF1News',
+
+      // Driver-specific functions
+      getDriverInfo: 'getF1DriverInfo',
+      getDriverRaceResults: 'getF1DriverRaceResults',
+      getDriverStats: 'getF1DriverStats',
+
+      // Scheduled functions
+      updateDailyNews: 'updateF1DailyNews',
+    },
   },
 };
 
