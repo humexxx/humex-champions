@@ -26,7 +26,15 @@ import { ROUTES } from 'src/consts';
 
 import { MAIN_HEADER_HEIGHT } from './Header';
 
-const Sidebar = ({ title, version }: { title: string; version: string }) => {
+const Sidebar = ({
+  title,
+  version,
+  closeSidebar,
+}: {
+  title: string;
+  version: string;
+  closeSidebar: () => void;
+}) => {
   const location = useLocation();
 
   const statisticsRoutes = useMemo(
@@ -111,6 +119,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
+              onClick={closeSidebar}
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -132,6 +141,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
+              onClick={closeSidebar}
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -153,6 +163,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
               selected={location.pathname.includes(path)}
               component={NavLink}
               to={path}
+              onClick={closeSidebar}
             >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={text} />
@@ -169,6 +180,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
               selected={location.pathname.includes(ROUTES.PORTAL.ADMIN.INDEX)}
               component={NavLink}
               to={ROUTES.PORTAL.ADMIN.INDEX}
+              onClick={closeSidebar}
             >
               <ListItemIcon>
                 <AdminPanelSettingsIcon />
@@ -183,6 +195,7 @@ const Sidebar = ({ title, version }: { title: string; version: string }) => {
             selected={location.pathname.includes(ROUTES.PORTAL.SETTINGS)}
             component={NavLink}
             to={ROUTES.PORTAL.SETTINGS}
+            onClick={closeSidebar}
           >
             <ListItemIcon>
               <SettingsIcon />

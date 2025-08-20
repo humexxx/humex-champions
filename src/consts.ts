@@ -71,9 +71,10 @@ export const ROUTES = {
       PLANNER: '/portal/uplift/planner',
     },
     ENTERTAINMENT: {
-      INDEX: '/portal/entretainment',
-      YOUTUBE: '/portal/entretainment/youtube',
-      TRIPS: '/portal/entretainment/trips',
+      INDEX: '/portal/entertainment',
+      YOUTUBE: '/portal/entertainment/youtube',
+      TRIPS: '/portal/entertainment/trips',
+      F1: '/portal/entertainment/f1',
     },
     SOCIAL: {
       INDEX: '/portal/social',

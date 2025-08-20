@@ -26,3 +26,4 @@ export * from './userFunctions';
 
 export * from './finances';
 export * from './uplift';
+export * from './entertainmentFunctions';

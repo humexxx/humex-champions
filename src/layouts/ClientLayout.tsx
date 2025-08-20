@@ -63,7 +63,11 @@ function ClientLayout() {
             },
           }}
         >
-          <Sidebar title="Champions" version={ENV.APP_VERSION} />
+          <Sidebar
+            title="Champions"
+            version={ENV.APP_VERSION}
+            closeSidebar={() => setMobileOpen(false)}
+          />
         </Drawer>
         <Drawer
           variant="permanent"
@@ -77,7 +81,11 @@ function ClientLayout() {
           }}
           open
         >
-          <Sidebar title="Champions" version={ENV.APP_VERSION} />
+          <Sidebar
+            title="Champions"
+            version={ENV.APP_VERSION}
+            closeSidebar={() => setMobileOpen(false)}
+          />
         </Drawer>
       </Box>
       <Box

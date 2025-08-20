@@ -32,19 +32,22 @@ export class ApiClientFactory {
       },
     },
 
-    // F1 DATA API - Racing Data
+    // F1 DATA API - RapidAPI F1 Motorsport Data
     f1: {
-      name: 'F1-API',
-      baseURL: 'https://ergast.com/api/f1',
-      timeout: 8000,
-      retries: 2, // API gratuita, no tan crítica
-      retryDelay: 500,
-      exponentialBackoff: false, // Linear backoff
+      name: 'F1-RapidAPI',
+      baseURL: 'https://f1-motorsport-data.p.rapidapi.com',
+      timeout: 10000,
+      retries: 3,
+      retryDelay: 800,
+      exponentialBackoff: true,
       rateLimit: {
-        requests: 10,
-        per: 'minute', // Más permisiva
+        requests: 100, // RapidAPI typically has higher limits
+        per: 'minute',
+        burstLimit: 10,
       },
       headers: {
+        'X-RapidAPI-Host': 'f1-motorsport-data.p.rapidapi.com',
+        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
         'User-Agent': 'Humex-Champions-F1/1.0',
         Accept: 'application/json',
       },
