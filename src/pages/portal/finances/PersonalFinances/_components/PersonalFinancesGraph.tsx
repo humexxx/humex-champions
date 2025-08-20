@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 import { formatCompactNumber, normalizeObjectDates, toDayjs } from 'src/utils';
 import { financeUtils } from '@shared/utils';
 import { CustomAnimatedLine } from 'src/components/graphs';
-import { EPayoffMethodType } from '@shared/enums/finance';
 
 const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
   sm: 6,
@@ -91,7 +90,7 @@ const PersonalFinancesGraph = ({
       const avalancheSnapshots =
         financeUtils.generateMonthlyFinancialSnapshotsPredictions(
           lastSnapshot,
-          EPayoffMethodType.AVALANCHE,
+          'AVALANCHE',
           NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
         );
 
@@ -112,7 +111,7 @@ const PersonalFinancesGraph = ({
       const snowballSnapshots =
         financeUtils.generateMonthlyFinancialSnapshotsPredictions(
           lastSnapshot,
-          EPayoffMethodType.SNOWBALL,
+          'SNOWBALL',
           NUMBER_OF_MONTHS_FUTURE_TO_SHOW[viewSize]
         );
 

@@ -6,10 +6,17 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
+    "serve:debug": "npm run build && firebase emulators:start --only functions --inspect-functions",
+    "serve:ui": "npm run build && firebase emulators:start --inspect-functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "deploy:prod": "firebase use prod && firebase deploy --only functions",
+    "deploy:dev": "firebase use dev && firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "logs:tail": "firebase functions:log --only",
+    "test": "npm run build && firebase emulators:exec --only functions 'npm run test:unit'",
+    "test:unit": "echo 'Add your test command here'"
   },
   "engines": {
     "node": "18"

@@ -1,4 +1,9 @@
-import { EPayoffMethodType, EPeriodType } from '@shared/enums/finance';
+import {
+  PeriodType,
+  PayoffMethod,
+  PERIOD_TYPES,
+  PAYOFF_METHODS,
+} from '@shared/enums/finance';
 import {
   IDebt,
   IFinancialSnapshot,
@@ -34,13 +39,13 @@ function getTotalMonthlyIncome(
     (acc, income) =>
       acc +
       ((income: IIncome) => {
-        switch (income.period as EPeriodType) {
-          case EPeriodType.SINGLE:
+        switch (income.period as PeriodType) {
+          case PERIOD_TYPES.SINGLE:
             return dayjs(income.date).month() === date.month() &&
               dayjs(income.date).year() === date.year()
               ? income.amount
               : 0;
-          case EPeriodType.WEEKLY: {
+          case PERIOD_TYPES.WEEKLY: {
             const firstDayOfMonth = dayjs(date).startOf('month');
             const lastDayOfMonth = dayjs(date).endOf('month');
             let count = 0;
@@ -57,9 +62,9 @@ function getTotalMonthlyIncome(
             }
             return income.amount * count;
           }
-          case EPeriodType.MONTHLY:
+          case PERIOD_TYPES.MONTHLY:
             return income.amount;
-          case EPeriodType.YEARLY:
+          case PERIOD_TYPES.YEARLY:
             return dayjs(income.date).month() === date.month()
               ? income.amount
               : 0;
@@ -153,7 +158,7 @@ function applySnowballMethod(
 
 function generateMonthlyFinancialSnapshotsPredictions(
   data: IFinancialSnapshot,
-  type: EPayoffMethodType,
+  type: PayoffMethod,
   maxMonths: number = 12
 ): IFinancialSnapshot[] {
   // Si no hay deudas, retornar array vacío inmediatamente
@@ -193,8 +198,8 @@ function generateMonthlyFinancialSnapshotsPredictions(
     let surplus = totalIncome - totalFixedExpenses - totalMinimumPayments;
 
     // TODO: Usar el total de sobrante en el futuro
-    const { newDebts, surplus: totalSurplus } =
-      type === EPayoffMethodType.AVALANCHE
+    const { newDebts } =
+      type === PAYOFF_METHODS.AVALANCHE
         ? applyAvalancheMethod(updatedDebts, surplus)
         : applySnowballMethod(updatedDebts, surplus);
 

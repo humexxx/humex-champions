@@ -1,135 +1,456 @@
-import { Alert } from '@mui/material';
-import { IPortfolioSnapshot } from '@shared/models/finances';
-import { Dayjs } from 'dayjs';
+import { Grid, Box, Stack, Button } from '@mui/material';
+import {
+  CalendarToday,
+  AttachMoney,
+  Person,
+  MonetizationOn,
+  Add,
+} from '@mui/icons-material';
+import dayjs from 'dayjs';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
+import {
+  PortfolioHeader,
+  PortfolioChart,
+  HoldingsTable,
+  PortfolioHighlights,
+  ActivityTable,
+  TableFilter,
+  SortField,
+  SortOrder,
+  CreatePortfolioDialog,
+  EmptyPortfolioState,
+  AdminTestingSection,
+} from './_components';
+import TransactionDialog from './_components/TransactionDialog';
 import { ROUTES } from 'src/consts';
-import { toDayjs } from 'src/utils';
+import { Page } from 'src/components/layout';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import {
+  TIME_FILTERS,
+  TimeFilter,
+} from '../../../../../shared/enums/finance/timeFilters';
+import usePortfolio from './usePortfolio';
 
-import { CreatePortfolio, PortfolioView } from './_components';
-import { usePortfolio } from './hooks';
+const PortafolioPage = () => {
+  // State management - stable references prevent unnecessary re-renders
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState<TimeFilter>(
+    TIME_FILTERS.ONE_YEAR
+  );
+  const [selectedTab, setSelectedTab] = useState<'investments' | 'activity'>(
+    'investments'
+  );
+  const [sortBy, setSortBy] = useState<SortField>('date');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
+  const [createPortfolioDialogOpen, setCreatePortfolioDialogOpen] =
+    useState(false);
 
-const mockData: IPortfolioSnapshot<Dayjs>[] = [
-  {
-    date: toDayjs(new Date('2021-01-01')),
-    id: '1',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 50,
-        value: 1000,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 50,
-        value: 1000,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
-  },
-  {
-    date: toDayjs(new Date('2021-04-01')),
-    id: '2',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 60,
-        value: 1200,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 40,
-        value: 800,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
-  },
-  {
-    date: toDayjs(new Date('2021-08-01')),
-    id: '3',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 70,
-        value: 1400,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 30,
-        value: 600,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
-  },
-  {
-    date: toDayjs(new Date('2021-12-01')),
-    id: '4',
-    instruments: [
-      {
-        id: '1',
-        name: 'Stocks',
-        positionPercentage: 80,
-        value: 1600,
-      },
-      {
-        id: '2',
-        name: 'Bonds',
-        positionPercentage: 20,
-        value: 400,
-      },
-    ],
-    totalValue: 2000,
-    totalProfit: 0,
-    totalProfitPercentage: 0,
-  },
-];
+  // Memoized callback prevents child component re-renders
+  const handleSortChange = useCallback((field: SortField, order: SortOrder) => {
+    setSortBy(field);
+    setSortOrder(order);
+  }, []);
 
-const Page = () => {
-  const { error, isLoading, portfolioSnapshots, initPortfolio } =
-    usePortfolio();
+  // Using the updated usePortfolio hook that brings all portfolios
+  const {
+    portfolio,
+    holdings,
+    transactions,
+    snapshots,
+    userPortfolios,
+    loading,
+    error,
+    createPortfolio,
+    addTransaction,
+    loadPortfolioData,
+  } = usePortfolio({
+    autoLoad: true,
+    forceMock: false,
+    timeFilter: selectedTimeFilter, // Pass the current time filter
+    snapshotDeps: [selectedTimeFilter], // Dependencies that trigger snapshot reload
+  });
+
+  // Seleccionar automáticamente el primer portfolio cuando se cargan
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(
+    null
+  );
+
+  // Efecto para seleccionar el primer portfolio automáticamente
+  useEffect(() => {
+    if (userPortfolios.length > 0 && !selectedPortfolioId) {
+      const defaultPortfolio = userPortfolios.find((p) => p.isDefault);
+      const firstPortfolio = defaultPortfolio || userPortfolios[0];
+      setSelectedPortfolioId(firstPortfolio.id);
+      loadPortfolioData(firstPortfolio.id);
+    }
+  }, [userPortfolios, selectedPortfolioId, loadPortfolioData]);
+
+  // Handle transaction dialog submission
+  const handleTransactionSubmit = useCallback(
+    async (transactionData: any) => {
+      if (!selectedPortfolioId) {
+        throw new Error('No portfolio selected');
+      }
+
+      try {
+        const totalAmount = transactionData.quantity * transactionData.price;
+        const result = await addTransaction(selectedPortfolioId, {
+          assetId: transactionData.assetId,
+          type: transactionData.type as 'BUY' | 'SELL',
+          quantity: transactionData.quantity,
+          price: transactionData.price,
+          totalAmount: totalAmount,
+          fees: 0, // Default to 0 fees for now
+          executedAt: dayjs(transactionData.executedAt),
+          notes: transactionData.notes || '',
+        });
+
+        console.log('Transaction added successfully:', result);
+
+        // Force reload portfolio data to ensure UI updates immediately
+        // This helps with cases where the snapshot creation might take a moment
+        setTimeout(() => {
+          loadPortfolioData(selectedPortfolioId);
+        }, 1000); // Small delay to allow Firebase function to complete
+      } catch (error) {
+        console.error('Error adding transaction:', error);
+        throw error; // Re-throw so the dialog can handle it
+      }
+    },
+    [selectedPortfolioId, addTransaction, loadPortfolioData]
+  );
+
+  // Handle portfolio creation
+  const handleCreatePortfolio = useCallback(
+    async (portfolioData: {
+      name: string;
+      currency: string;
+      isDefault: boolean;
+    }) => {
+      try {
+        const result = await createPortfolio({
+          userId: '', // Will be set by the service
+          name: portfolioData.name,
+          currency: portfolioData.currency,
+          isDraft: false,
+          currentValue: 0,
+          totalGain: 0,
+          totalGainPercentage: 0,
+          dailyGain: 0,
+          dailyGainPercentage: 0,
+          totalInvested: 0,
+          isDefault: portfolioData.isDefault,
+        });
+
+        console.log('Portfolio created successfully:', result);
+        // The UI will automatically update due to the usePortfolio hook
+      } catch (error) {
+        console.error('Error creating portfolio:', error);
+        throw error;
+      }
+    },
+    [createPortfolio]
+  );
+
+  // Simple chart data generation - use snapshots + current data point
+  const chartData = useMemo(() => {
+    const now = dayjs();
+    const dataPoints: Array<{
+      date: Date;
+      portfolioTotal: number;
+    }> = [];
+
+    // Add all snapshots
+    snapshots.forEach((snapshot) => {
+      dataPoints.push({
+        date: snapshot.date.toDate(),
+        portfolioTotal: snapshot.totalValue,
+      });
+    });
+
+    // Always add current data point
+    if (portfolio) {
+      dataPoints.push({
+        date: now.toDate(),
+        portfolioTotal: portfolio.currentValue,
+      });
+    }
+
+    // Sort by date
+    dataPoints.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    return dataPoints;
+  }, [snapshots, portfolio]);
+
+  // Optimized sorting with memoization - MOVED BEFORE EARLY RETURNS
+  const sortedTransactions = useMemo(() => {
+    return [...transactions].sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = a.executedAt.valueOf();
+        const dateB = b.executedAt.valueOf();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      } else if (sortBy === 'amount') {
+        const amountA = a.quantity * a.price;
+        const amountB = b.quantity * b.price;
+        return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
+      }
+      return 0;
+    });
+  }, [transactions, sortBy, sortOrder]);
+
+  // Transform and sort holdings with memoization - MOVED BEFORE EARLY RETURNS
+  const sortedHoldings = useMemo(() => {
+    const mappedHoldings = holdings.map((holding) => ({
+      symbol: holding.assetId, // Will be replaced with actual asset symbol later
+      name: holding.assetId, // Will be replaced with actual asset name later
+      price: holding.currentPrice,
+      quantity: holding.quantity,
+      totalGain: holding.unrealizedGain, // Using unrealized gain as total gain
+      totalGainPercentage: holding.unrealizedGainPercentage,
+      value: holding.currentValue,
+    }));
+
+    return [...mappedHoldings].sort((a, b) => {
+      if (sortBy === 'name') {
+        return sortOrder === 'asc'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (sortBy === 'value') {
+        return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
+      } else if (sortBy === 'date') {
+        // For holdings, we can sort by total gain as a proxy
+        return sortOrder === 'asc'
+          ? a.totalGain - b.totalGain
+          : b.totalGain - a.totalGain;
+      } else if (sortBy === 'amount') {
+        return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
+      }
+      return 0;
+    });
+  }, [holdings, sortBy, sortOrder]);
+
+  // Memoized portfolio highlights - MOVED BEFORE EARLY RETURNS
+  const portfolioHighlights = useMemo(
+    () => ({
+      dailyGain: portfolio?.dailyGain || 0,
+      dailyGainPercentage: portfolio?.dailyGainPercentage || 0,
+      overallGain: portfolio?.totalGain || 0,
+      overallGainPercentage: portfolio?.totalGainPercentage || 0,
+      cryptoPercentage: 100, // This will be calculated from holdings
+    }),
+    [portfolio]
+  );
+
+  // Memoized field definitions - MOVED BEFORE EARLY RETURNS
+  const transactionFields = useMemo(
+    () => [
+      {
+        field: 'date' as SortField,
+        label: 'date',
+        icon: <CalendarToday fontSize="small" />,
+      },
+      {
+        field: 'amount' as SortField,
+        label: 'amount',
+        icon: <AttachMoney fontSize="small" />,
+      },
+    ],
+    []
+  );
+
+  const holdingFields = useMemo(
+    () => [
+      {
+        field: 'name' as SortField,
+        label: 'name',
+        icon: <Person fontSize="small" />,
+      },
+      {
+        field: 'value' as SortField,
+        label: 'value',
+        icon: <AttachMoney fontSize="small" />,
+      },
+      {
+        field: 'date' as SortField,
+        label: 'gains',
+        icon: <MonetizationOn fontSize="small" />,
+      },
+    ],
+    []
+  );
+
+  // Early returns AFTER all hooks
+  if (loading) {
+    return <GlobalLoader />;
+  }
 
   if (error) {
-    return <Alert severity="error">{error.message}</Alert>;
+    return <div>Error loading portfolio: {error}</div>;
+  }
+
+  if (userPortfolios.length === 0 && !loading) {
+    return (
+      <Page title="Portafolio">
+        <PageHeader
+          title={'Portfolio'}
+          navigator={{
+            breadcrumb: [{ title: 'Portfolio', route: 'portfolio' }],
+            link: {
+              title: 'Finances',
+              route: ROUTES.PORTAL.FINANCES.INDEX,
+            },
+          }}
+        />
+        <PageContent>
+          <EmptyPortfolioState
+            onCreatePortfolio={() => setCreatePortfolioDialogOpen(true)}
+            loading={loading}
+          />
+
+          <CreatePortfolioDialog
+            open={createPortfolioDialogOpen}
+            onClose={() => setCreatePortfolioDialogOpen(false)}
+            onSubmit={handleCreatePortfolio}
+            loading={loading}
+          />
+        </PageContent>
+      </Page>
+    );
+  }
+
+  // Check if portfolio is selected and loaded
+  if (!portfolio) {
+    return <GlobalLoader />;
   }
 
   return (
-    <>
+    <Page title="Portafolio">
       <PageHeader
         title={'Portfolio'}
-        breadcrumb={[
-          {
+        navigator={{
+          breadcrumb: [{ title: 'Portfolio', route: 'portfolio' }],
+          link: {
             title: 'Finances',
             route: ROUTES.PORTAL.FINANCES.INDEX,
           },
-          {
-            title: 'Portfolio',
-            route: 'portfolio',
-          },
-        ]}
+        }}
       />
 
       <PageContent>
-        {isLoading ? (
-          <GlobalLoader />
-        ) : portfolioSnapshots.length ? (
-          <PortfolioView portfolioSnapshots={mockData} />
-        ) : (
-          <CreatePortfolio onSubmit={initPortfolio} pageLoading={isLoading} />
-        )}
+        <PortfolioHeader
+          name={portfolio.name}
+          totalValue={portfolio.currentValue}
+          totalGain={portfolio.totalGain}
+          totalGainPercentage={portfolio.totalGainPercentage}
+          lastUpdate={
+            portfolio.lastPriceUpdate
+              ? portfolio.lastPriceUpdate.toString()
+              : new Date().toISOString()
+          }
+          selectedTimeFilter={selectedTimeFilter}
+        />
+
+        <Grid container spacing={4}>
+          {/* Left Column - Main Chart and Stats */}
+          <Grid size={{ xs: 12, md: 8 }}>
+            <Box sx={{ mb: 3 }}>
+              <PortfolioChart
+                chartData={chartData}
+                selectedTimeFilter={selectedTimeFilter}
+                timeFilters={Object.values(TIME_FILTERS)}
+                onTimeFilterChange={setSelectedTimeFilter}
+                loading={false}
+              />
+            </Box>{' '}
+            {/* Holdings/Activity Tabs */}
+            <Box sx={{ mt: 3 }}>
+              <Stack direction="row" justifyContent={'space-between'}>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    color="info"
+                    variant={
+                      selectedTab === 'investments' ? 'contained' : 'outlined'
+                    }
+                    onClick={() => setSelectedTab('investments')}
+                  >
+                    Investments
+                  </Button>
+                  <Button
+                    color="info"
+                    variant={
+                      selectedTab === 'activity' ? 'contained' : 'outlined'
+                    }
+                    onClick={() => setSelectedTab('activity')}
+                  >
+                    Activity
+                  </Button>
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                  <TableFilter
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSortChange={handleSortChange}
+                    availableFields={
+                      selectedTab === 'investments'
+                        ? holdingFields
+                        : transactionFields
+                    }
+                  />
+                  <Button
+                    startIcon={<Add />}
+                    variant={'contained'}
+                    onClick={() => setTransactionDialogOpen(true)}
+                  >
+                    Add Transaction
+                  </Button>
+                </Stack>
+              </Stack>
+
+              {/* Tab Content */}
+              {selectedTab === 'investments' ? (
+                <HoldingsTable
+                  holdings={sortedHoldings}
+                  transactions={sortedTransactions}
+                />
+              ) : (
+                <ActivityTable transactions={sortedTransactions} />
+              )}
+            </Box>
+          </Grid>
+
+          {/* Right Column - Portfolio Highlights */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <PortfolioHighlights
+              dailyGain={portfolioHighlights.dailyGain}
+              dailyGainPercentage={portfolioHighlights.dailyGainPercentage}
+              overallGain={portfolioHighlights.overallGain}
+              overallGainPercentage={portfolioHighlights.overallGainPercentage}
+              cryptoPercentage={portfolioHighlights.cryptoPercentage}
+            />
+          </Grid>
+        </Grid>
+
+        {/* Admin Testing Section */}
+        <AdminTestingSection />
       </PageContent>
-    </>
+
+      {/* Transaction Dialog */}
+      <TransactionDialog
+        open={transactionDialogOpen}
+        onClose={() => setTransactionDialogOpen(false)}
+        onSubmit={handleTransactionSubmit}
+        portfolioId={portfolio?.id || 'default'}
+      />
+
+      {/* Create Portfolio Dialog */}
+      <CreatePortfolioDialog
+        open={createPortfolioDialogOpen}
+        onClose={() => setCreatePortfolioDialogOpen(false)}
+        onSubmit={handleCreatePortfolio}
+        loading={loading}
+      />
+    </Page>
   );
 };
 
-export default Page;
+export default PortafolioPage;

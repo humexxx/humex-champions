@@ -10,9 +10,9 @@ import {
   Tooltip,
 } from '@mui/material';
 import { IFinancialPlan } from '@shared/models/finances';
+import { PAYOFF_METHODS, PayoffMethod } from '@shared/enums/finance';
 import { financeUtils } from '@shared/utils';
 import { SYSTEM } from 'src/consts';
-import { EPayoffMethodType } from '@shared/enums/finance';
 import {
   DataGrid,
   GridColDef,
@@ -27,7 +27,9 @@ interface Props {
 }
 
 const PersonalFinancesGrid = ({ financialPlan }: Props) => {
-  const [payoffMethod, setPayoffMethod] = useState('snowball');
+  const [payoffMethod, setPayoffMethod] = useState<PayoffMethod>(
+    PAYOFF_METHODS.SNOWBALL
+  );
 
   const columnGroupingModel: GridColumnGroupingModel = useMemo(
     () => [
@@ -45,7 +47,7 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
             children: [
               {
                 field:
-                  payoffMethod === 'snowball'
+                  payoffMethod === PAYOFF_METHODS.SNOWBALL
                     ? 'totalDebtsWidthSnowball'
                     : 'totalDebtsWidthAvalanche',
               },
@@ -88,10 +90,13 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
       })),
       {
         field:
-          payoffMethod === 'snowball'
+          payoffMethod === PAYOFF_METHODS.SNOWBALL
             ? 'totalDebtsWidthSnowball'
             : 'totalDebtsWidthAvalanche',
-        headerName: payoffMethod === 'snowball' ? '(Snowball)' : '(Avalanche)',
+        headerName:
+          payoffMethod === PAYOFF_METHODS.SNOWBALL
+            ? '(Snowball)'
+            : '(Avalanche)',
         width: 150,
         valueFormatter: (value: number) => formatCurrency(value),
       },
@@ -112,12 +117,12 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
   );
 
   const _avalancheFinancialPlan = useMemo(() => {
-    if (payoffMethod !== 'avalanche') return null;
+    if (payoffMethod !== PAYOFF_METHODS.AVALANCHE) return null;
 
     const generatedFinancialSnapshots =
       financeUtils.generateMonthlyFinancialSnapshotsPredictions(
         financialPlan.financialSnapshots.at(-1)!,
-        EPayoffMethodType.AVALANCHE,
+        PAYOFF_METHODS.AVALANCHE,
         12
       );
 
@@ -129,12 +134,12 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
   }, [financialPlan, payoffMethod]);
 
   const _snowballFinancialPlan = useMemo(() => {
-    if (payoffMethod !== 'snowball') return null;
+    if (payoffMethod !== PAYOFF_METHODS.SNOWBALL) return null;
 
     const generatedFinancialSnapshots =
       financeUtils.generateMonthlyFinancialSnapshotsPredictions(
         financialPlan.financialSnapshots.at(-1)!,
-        EPayoffMethodType.SNOWBALL,
+        PAYOFF_METHODS.SNOWBALL,
         12
       );
 
@@ -183,7 +188,7 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
 
     const calculatedRows = [];
     const selectedPlan =
-      payoffMethod === 'snowball'
+      payoffMethod === PAYOFF_METHODS.SNOWBALL
         ? _snowballFinancialPlan
         : _avalancheFinancialPlan;
 
@@ -208,7 +213,7 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
           },
           {} as Record<string, number>
         ),
-        [payoffMethod === 'snowball'
+        [payoffMethod === PAYOFF_METHODS.SNOWBALL
           ? 'totalDebtsWidthSnowball'
           : 'totalDebtsWidthAvalanche']: financeUtils.getTotalDebts(
           selectedPlan!.financialSnapshots[i].debts
@@ -237,12 +242,12 @@ const PersonalFinancesGrid = ({ financialPlan }: Props) => {
           aria-label="Payoff Method"
         >
           <Tooltip title="Snowball Method" placement="top">
-            <ToggleButton value="snowball">
+            <ToggleButton value={PAYOFF_METHODS.SNOWBALL}>
               <AcUnitIcon />
             </ToggleButton>
           </Tooltip>
           <Tooltip title="Avalanche Method" placement="top">
-            <ToggleButton value="avalanche">
+            <ToggleButton value={PAYOFF_METHODS.AVALANCHE}>
               <SleddingIcon />
             </ToggleButton>
           </Tooltip>

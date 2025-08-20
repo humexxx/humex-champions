@@ -122,7 +122,7 @@ const ValidateMainFinantialSnapshotDialog = ({
         >
           {fields.map((item, index) => (
             <Fragment key={item.id}>
-              <Grid item xs={6} textAlign="right">
+              <Grid size={{ xs: 6 }} textAlign="right">
                 <Typography component="span" variant="subtitle2" marginTop={1}>
                   <strong>
                     {formatCurrency(prevSnapshot!.debts[index].pendingDebt)}
@@ -133,7 +133,7 @@ const ValidateMainFinantialSnapshotDialog = ({
                   sx={{ mr: 1, ml: 2, pt: '10px' }}
                 />
               </Grid>
-              <Grid item xs={6} justifyContent="center">
+              <Grid size={{ xs: 6 }} justifyContent="center">
                 <Controller
                   name={`debts.${index}.pendingDebt`}
                   control={control}
@@ -166,7 +166,7 @@ const ValidateMainFinantialSnapshotDialog = ({
             maxWidth: '100%',
           }}
         >
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Typography variant="body1" textAlign="right">
               Total Previous Debt:{' '}
               <strong>
@@ -179,7 +179,7 @@ const ValidateMainFinantialSnapshotDialog = ({
               </strong>
             </Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <Typography variant="body1">
               Total New Debt:{' '}
               <strong>{formatCurrency(totalNewDebt ?? 0)}</strong>
