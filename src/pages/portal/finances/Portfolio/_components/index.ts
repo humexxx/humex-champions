@@ -6,4 +6,5 @@ export { default as ActivityTable } from './ActivityTable';
 export { default as TableFilter } from './TableFilter';
 export { default as CreatePortfolioDialog } from './CreatePortfolioDialog';
 export { default as EmptyPortfolioState } from './EmptyPortfolioState';
+export { default as AdminTestingSection } from './AdminTestingSection';
 export type { SortField, SortOrder } from './TableFilter';

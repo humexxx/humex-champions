@@ -1,5 +1,5 @@
 import { Box, Typography, Stack } from '@mui/material';
-import { TrendingUp } from '@mui/icons-material';
+import { TrendingUp, TrendingDown } from '@mui/icons-material';
 import { formatCurrency, formatPercentage } from 'src/utils';
 import {
   TimeFilter,
@@ -23,6 +23,10 @@ const PortfolioHeader = ({
   lastUpdate,
   selectedTimeFilter,
 }: PortfolioHeaderProps) => {
+  const isPositive = totalGain >= 0;
+  const colorScheme = isPositive ? 'success.main' : 'error.main';
+  const TrendIcon = isPositive ? TrendingUp : TrendingDown;
+
   return (
     <>
       <Box
@@ -43,13 +47,14 @@ const PortfolioHeader = ({
             {formatCurrency(totalValue)}
           </Typography>
           <Stack direction="row" alignItems="center" spacing={0.5}>
-            <TrendingUp sx={{ color: 'success.main', fontSize: 16 }} />
-            <Typography sx={{ color: 'success.main', fontWeight: 500 }}>
-              {formatPercentage(totalGainPercentage)}
+            <TrendIcon sx={{ color: colorScheme, fontSize: 16 }} />
+            <Typography sx={{ color: colorScheme, fontWeight: 500 }}>
+              {formatPercentage(Math.abs(totalGainPercentage))}
             </Typography>
           </Stack>
-          <Typography sx={{ color: 'success.main', fontWeight: 500 }}>
-            +{formatCurrency(totalGain)} {getTimeFilterText(selectedTimeFilter)}
+          <Typography sx={{ color: colorScheme, fontWeight: 500 }}>
+            {isPositive ? '+' : ''}
+            {formatCurrency(totalGain)} {getTimeFilterText(selectedTimeFilter)}
           </Typography>
         </Stack>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>

@@ -104,9 +104,16 @@ export interface IPortfolioTransaction {
 
   type: TransactionType;
   quantity: number;
-  price: number;
+  price: number; // Original purchase price
   totalAmount: number;
   fees: number;
+
+  // Current market data (updated by portfolio calculations)
+  currentPrice?: number; // Current market price per unit
+  currentValue?: number; // Current total market value (quantity * currentPrice)
+  gainLoss?: number; // Current gain/loss in currency
+  gainLossPercentage?: number; // Current gain/loss percentage
+  lastPriceUpdate?: Dayjs; // When prices were last updated
 
   executedAt: Dayjs;
   createdAt: Dayjs;

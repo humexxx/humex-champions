@@ -19,6 +19,7 @@ import {
   SortOrder,
   CreatePortfolioDialog,
   EmptyPortfolioState,
+  AdminTestingSection,
 } from './_components';
 import TransactionDialog from './_components/TransactionDialog';
 import { ROUTES } from 'src/consts';
@@ -204,8 +205,8 @@ const PortafolioPage = () => {
       name: holding.assetId, // Will be replaced with actual asset name later
       price: holding.currentPrice,
       quantity: holding.quantity,
-      dailyChange: holding.unrealizedGain, // Using unrealized gain as daily change for now
-      dailyChangePercentage: holding.unrealizedGainPercentage,
+      totalGain: holding.unrealizedGain, // Using unrealized gain as total gain
+      totalGainPercentage: holding.unrealizedGainPercentage,
       value: holding.currentValue,
     }));
 
@@ -217,10 +218,10 @@ const PortafolioPage = () => {
       } else if (sortBy === 'value') {
         return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
       } else if (sortBy === 'date') {
-        // For holdings, we can sort by daily change as a proxy
+        // For holdings, we can sort by total gain as a proxy
         return sortOrder === 'asc'
-          ? a.dailyChange - b.dailyChange
-          : b.dailyChange - a.dailyChange;
+          ? a.totalGain - b.totalGain
+          : b.totalGain - a.totalGain;
       } else if (sortBy === 'amount') {
         return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
       }
@@ -428,6 +429,9 @@ const PortafolioPage = () => {
             />
           </Grid>
         </Grid>
+
+        {/* Admin Testing Section */}
+        <AdminTestingSection />
       </PageContent>
 
       {/* Transaction Dialog */}

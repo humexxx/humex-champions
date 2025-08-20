@@ -79,8 +79,26 @@ const ActivityTable = ({ transactions }: ActivityTableProps) => {
                 }}
               >
                 <Typography variant="subtitle1">
-                  {formatCurrency(transaction.quantity * transaction.price)}
+                  {formatCurrency(
+                    transaction.currentValue ??
+                      transaction.quantity * transaction.price
+                  )}
                 </Typography>
+                {transaction.gainLoss !== undefined && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color:
+                        transaction.gainLoss >= 0
+                          ? 'success.main'
+                          : 'error.main',
+                      display: 'block',
+                    }}
+                  >
+                    {transaction.gainLoss >= 0 ? '+' : ''}
+                    {formatCurrency(transaction.gainLoss)}
+                  </Typography>
+                )}
               </TableCell>
             </TableRow>
           ))}

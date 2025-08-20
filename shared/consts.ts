@@ -49,11 +49,21 @@ export const CALLABLE_FUNCTIONS = {
     summary: 'dashboardSummary',
   },
   portfolio: {
+    // Transaction functions
+    addPortfolioTransaction: 'addPortfolioTransaction',
+
+    // Calculation functions
+    adminRecalculatePortfolio: 'adminRecalculatePortfolio',
+
+    // Scheduled function admin triggers
+    adminUpdateAssetPrices: 'adminUpdateAssetPrices',
+    adminUpdatePortfolioSnapshots: 'adminUpdatePortfolioSnapshots',
+
+    // Legacy functions (to be removed)
     createPortfolio: 'createPortfolio',
     updatePortfolio: 'updatePortfolio',
     deletePortfolio: 'deletePortfolio',
     addTransaction: 'addTransaction',
-    addPortfolioTransaction: 'addPortfolioTransaction',
     updateAssetPrices: 'updateAssetPrices',
     createDailySnapshot: 'createDailySnapshot',
     calculateHoldings: 'calculateHoldings',

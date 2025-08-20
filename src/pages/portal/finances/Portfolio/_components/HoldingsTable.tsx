@@ -26,8 +26,8 @@ interface Holding {
   name: string;
   price: number;
   quantity: number;
-  dailyChange: number;
-  dailyChangePercentage: number;
+  totalGain: number; // All-time gain/loss amount
+  totalGainPercentage: number; // All-time gain/loss percentage
   value: number;
 }
 
@@ -72,7 +72,6 @@ const HoldingsTable = ({ holdings, transactions = [] }: HoldingsTableProps) => {
             <TableCell>SYMBOL</TableCell>
             <TableCell align="right">PRICE</TableCell>
             <TableCell align="right">QTY</TableCell>
-            <TableCell align="right">DAY P&L</TableCell>
             <TableCell align="right">VALUE</TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -106,54 +105,6 @@ const HoldingsTable = ({ holdings, transactions = [] }: HoldingsTableProps) => {
                   </TableCell>
                   <TableCell align="right">
                     {holding.quantity.toLocaleString()}
-                  </TableCell>
-                  <TableCell align="right">
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'flex-end',
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color:
-                            holding.dailyChange >= 0
-                              ? 'success.main'
-                              : 'error.main',
-                          fontWeight: 500,
-                        }}
-                      >
-                        {holding.dailyChange >= 0 ? '+' : ''}
-                        {formatCurrency(holding.dailyChange)}
-                      </Typography>
-                      <Box
-                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-                      >
-                        {holding.dailyChange >= 0 ? (
-                          <TrendingUp
-                            sx={{ fontSize: 14, color: 'success.main' }}
-                          />
-                        ) : (
-                          <TrendingDown
-                            sx={{ fontSize: 14, color: 'error.main' }}
-                          />
-                        )}
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color:
-                              holding.dailyChange >= 0
-                                ? 'success.main'
-                                : 'error.main',
-                          }}
-                        >
-                          {formatPercentage(
-                            Math.abs(holding.dailyChangePercentage)
-                          )}
-                        </Typography>
-                      </Box>
-                    </Box>
                   </TableCell>
                   <TableCell align="right">
                     <Typography fontWeight={500}>
@@ -226,20 +177,33 @@ const HoldingsTable = ({ holdings, transactions = [] }: HoldingsTableProps) => {
                                     <TableCell align="right">
                                       <Typography
                                         sx={{
-                                          color: 'success.main',
+                                          color:
+                                            (transaction.gainLoss ??
+                                              (holding.price -
+                                                transaction.price) *
+                                                transaction.quantity) >= 0
+                                              ? 'success.main'
+                                              : 'error.main',
                                           fontWeight: 500,
                                         }}
                                       >
-                                        +
-                                        {formatCurrency(
+                                        {(transaction.gainLoss ??
                                           (holding.price - transaction.price) *
-                                            transaction.quantity
+                                            transaction.quantity) >= 0
+                                          ? '+'
+                                          : ''}
+                                        {formatCurrency(
+                                          transaction.gainLoss ??
+                                            (holding.price -
+                                              transaction.price) *
+                                              transaction.quantity
                                         )}
                                       </Typography>
                                     </TableCell>
                                     <TableCell align="right">
                                       {formatCurrency(
-                                        holding.price * transaction.quantity
+                                        transaction.currentValue ??
+                                          holding.price * transaction.quantity
                                       )}
                                     </TableCell>
                                     <TableCell>

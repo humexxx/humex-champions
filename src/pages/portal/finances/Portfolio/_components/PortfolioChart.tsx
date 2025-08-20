@@ -86,7 +86,7 @@ const PortfolioChart = ({
                 if (context.location === 'tick') {
                   return dayjs(value).format('DD MMM');
                 }
-                return dayjs(value).format('MMM YYYY');
+                return dayjs(value).format('DD MMM');
               },
             },
           ]}
