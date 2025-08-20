@@ -11,6 +11,7 @@ import {
   EntertainmentPage,
   TripsPage,
   YouTubePage,
+  F1Page,
 } from './pages/portal/entertainment';
 import {
   PersonalFinancesPage,
@@ -97,73 +98,66 @@ const entertainmentRoutes = [
     path: ROUTES.PORTAL.ENTERTAINMENT.TRIPS,
     element: <TripsPage />,
   },
+  {
+    path: ROUTES.PORTAL.ENTERTAINMENT.F1,
+    element: <F1Page />,
+  },
 ];
 
-export const router = createBrowserRouter(
-  [
-    {
-      path: '/',
-      element: <LandingPage />,
-      errorElement: <ErrorPage />,
-    },
-    {
-      path: ROUTES.AUTH.SIGN_UP,
-      element: (
-        <AutoLogRoute>
-          <SignUpPage />
-        </AutoLogRoute>
-      ),
-    },
-    {
-      path: ROUTES.AUTH.SIGN_IN,
-      element: <Navigate replace to={ROUTES.AUTH.LOGIN} />,
-    },
-    {
-      path: ROUTES.AUTH.LOGIN,
-      element: (
-        <AutoLogRoute>
-          <SignInPage />
-        </AutoLogRoute>
-      ),
-    },
-    {
-      path: ROUTES.AUTH.FORGOT_PASSWORD,
-      element: (
-        <AutoLogRoute>
-          <ForgotPasswordPage />
-        </AutoLogRoute>
-      ),
-    },
-    {
-      path: ROUTES.PORTAL.INDEX,
-      element: <ClientLayout />,
-      children: [
-        {
-          path: ROUTES.PORTAL.DASHBOARD,
-          element: <DashboardPage />,
-        },
-        {
-          path: ROUTES.PORTAL.ADMIN.INDEX,
-          element: <AdminPage />,
-        },
-        {
-          path: ROUTES.PORTAL.SETTINGS,
-          element: <SettingsPage />,
-        },
-        ...financeRoutes,
-        ...healthRoutes,
-        ...upliftRoutes,
-        ...entertainmentRoutes,
-      ],
-    },
-  ],
+export const router = createBrowserRouter([
   {
-    future: {
-      v7_fetcherPersist: true,
-      v7_normalizeFormMethod: true,
-      v7_partialHydration: true,
-      v7_relativeSplatPath: true,
-      v7_skipActionErrorRevalidation: true,
-    },
-  }
-);
+    path: '/',
+    element: <LandingPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: ROUTES.AUTH.SIGN_UP,
+    element: (
+      <AutoLogRoute>
+        <SignUpPage />
+      </AutoLogRoute>
+    ),
+  },
+  {
+    path: ROUTES.AUTH.SIGN_IN,
+    element: <Navigate replace to={ROUTES.AUTH.LOGIN} />,
+  },
+  {
+    path: ROUTES.AUTH.LOGIN,
+    element: (
+      <AutoLogRoute>
+        <SignInPage />
+      </AutoLogRoute>
+    ),
+  },
+  {
+    path: ROUTES.AUTH.FORGOT_PASSWORD,
+    element: (
+      <AutoLogRoute>
+        <ForgotPasswordPage />
+      </AutoLogRoute>
+    ),
+  },
+  {
+    path: ROUTES.PORTAL.INDEX,
+    element: <ClientLayout />,
+    children: [
+      {
+        path: ROUTES.PORTAL.DASHBOARD,
+        element: <DashboardPage />,
+      },
+      {
+        path: ROUTES.PORTAL.ADMIN.INDEX,
+        element: <AdminPage />,
+      },
+      {
+        path: ROUTES.PORTAL.SETTINGS,
+        element: <SettingsPage />,
+      },
+      ...financeRoutes,
+      ...healthRoutes,
+      ...upliftRoutes,
+      ...entertainmentRoutes,
+    ],
+  },
+]);

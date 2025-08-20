@@ -4,19 +4,29 @@ import ModeOfTravelIcon from '@mui/icons-material/ModeOfTravel';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import { Grid } from '@mui/material';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
+import { Page } from 'src/components/layout';
 
-const Page = () => {
+import { Toys } from '@mui/icons-material';
+import { ROUTES } from 'src/consts';
+
+const EntertainmentPage = () => {
   const options = useMemo(
     () => [
       {
-        route: 'youtube',
+        route: ROUTES.PORTAL.ENTERTAINMENT.F1.split('/').at(-1) as string,
+        label: 'F1',
+        description: 'View F1 results, news, and more',
+        Icon: Toys,
+      },
+      {
+        route: ROUTES.PORTAL.ENTERTAINMENT.YOUTUBE.split('/').at(-1) as string,
         label: 'YouTube',
         description: 'Manage your YouTube content and playlists',
         Icon: YouTubeIcon,
       },
 
       {
-        route: 'trips',
+        route: ROUTES.PORTAL.ENTERTAINMENT.TRIPS.split('/').at(-1) as string,
         label: 'Trips',
         description: 'Plan and track your travel adventures',
         Icon: ModeOfTravelIcon,
@@ -26,7 +36,7 @@ const Page = () => {
   );
 
   return (
-    <>
+    <Page title="Entertainment">
       <PageHeader
         title="Entertainment"
         description="Manage your entertainment and leisure activities"
@@ -34,7 +44,7 @@ const Page = () => {
       <PageContent>
         <Grid container spacing={4}>
           {options.map(({ route, Icon, description, label }) => (
-            <Grid item xs={12} md={4} key={route}>
+            <Grid size={{ xs: 12, md: 4 }} key={route}>
               <LinkOptionCard
                 route={route}
                 label={label}
@@ -45,8 +55,8 @@ const Page = () => {
           ))}
         </Grid>
       </PageContent>
-    </>
+    </Page>
   );
 };
 
-export default Page;
+export default EntertainmentPage;
