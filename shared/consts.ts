@@ -75,6 +75,46 @@ export const FIRESTORE_PATHS = {
       CACHE_META: () => `third-party/f1/cache/metadata`,
       CACHE_META_ITEM: (key: string) => `third-party/f1/cache-meta/${key}`,
     },
+
+    SOCCER: {
+      ROOT: () => `third-party/soccer`,
+
+      // League standings cache (by league and season)
+      STANDINGS: (leagueId: string, season: string) =>
+        `third-party/soccer/standings/${leagueId}-${season}`,
+
+      // Team data cache
+      TEAMS: (leagueId: string) =>
+        `third-party/soccer/teams/league-${leagueId}`,
+      TEAM_INFO: (teamId: string) => `third-party/soccer/teams/${teamId}`,
+      TEAM_PLAYERS: (teamId: string) =>
+        `third-party/soccer/team-players/${teamId}`,
+
+      // Player data cache
+      PLAYERS: () => `third-party/soccer/cache/players`,
+      PLAYER_INFO: (playerId: string) =>
+        `third-party/soccer/players/${playerId}`,
+
+      // Match/Event data cache
+      MATCHES_NEXT: (leagueId: string) =>
+        `third-party/soccer/matches/next-${leagueId}`,
+      MATCHES_PREVIOUS: (leagueId: string) =>
+        `third-party/soccer/matches/previous-${leagueId}`,
+      MATCHES_SEASON: (leagueId: string, season: string) =>
+        `third-party/soccer/matches/${leagueId}-${season}`,
+      MATCHES_DATE: (date: string) => `third-party/soccer/matches/date-${date}`,
+
+      // League data cache
+      LEAGUES: () => `third-party/soccer/cache/leagues`,
+      LEAGUE_INFO: (leagueId: string) =>
+        `third-party/soccer/leagues/${leagueId}`,
+      LEAGUE_SEASONS: (leagueId: string) =>
+        `third-party/soccer/league-seasons/${leagueId}`,
+
+      // Cache metadata
+      CACHE_META: () => `third-party/soccer/cache/metadata`,
+      CACHE_META_ITEM: (key: string) => `third-party/soccer/cache-meta/${key}`,
+    },
   },
 
   // ============= ENTERTAINMENT FEATURE (Deprecated - use THIRD_PARTY.F1) =============
@@ -154,6 +194,37 @@ export const CALLABLE_FUNCTIONS = {
 
       // Scheduled functions
       updateDailyNews: 'updateF1DailyNews',
+    },
+    soccer: {
+      // Core data functions
+      getLeagueStandings: 'getSoccerLeagueStandings',
+      getLeagueTeams: 'getSoccerLeagueTeams',
+      getNextMatches: 'getSoccerNextMatches',
+      getPreviousMatches: 'getSoccerPreviousMatches',
+      getCombinedMatches: 'getSoccerCombinedMatches',
+      getMatchesByDate: 'getSoccerMatchesByDate',
+      getSeasonMatches: 'getSoccerSeasonMatches',
+
+      // Team-specific functions
+      getTeamInfo: 'getSoccerTeamInfo',
+      getTeamPlayers: 'getSoccerTeamPlayers',
+      getTeamNextMatches: 'getSoccerTeamNextMatches',
+      getTeamPreviousMatches: 'getSoccerTeamPreviousMatches',
+
+      // Player-specific functions
+      getPlayerInfo: 'getSoccerPlayerInfo',
+
+      // League-specific functions
+      getLeagueInfo: 'getSoccerLeagueInfo',
+      getLeagueSeasons: 'getSoccerLeagueSeasons',
+      searchLeagues: 'searchSoccerLeagues',
+
+      // Search functions
+      searchTeams: 'searchSoccerTeams',
+      searchPlayers: 'searchSoccerPlayers',
+
+      // Scheduled functions
+      updateDailyMatches: 'updateSoccerDailyMatches',
     },
   },
 };

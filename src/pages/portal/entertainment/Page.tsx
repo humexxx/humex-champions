@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import ModeOfTravelIcon from '@mui/icons-material/ModeOfTravel';
 import YouTubeIcon from '@mui/icons-material/YouTube';
+import SportsIcon from '@mui/icons-material/Sports';
 import { Grid } from '@mui/material';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
 import { Page } from 'src/components/layout';
@@ -17,6 +18,12 @@ const EntertainmentPage = () => {
         label: 'F1',
         description: 'View F1 results, news, and more',
         Icon: Toys,
+      },
+      {
+        route: ROUTES.PORTAL.ENTERTAINMENT.SOCCER.split('/').at(-1) as string,
+        label: 'Soccer',
+        description: 'Live soccer standings, matches, and team information',
+        Icon: SportsIcon,
       },
       {
         route: ROUTES.PORTAL.ENTERTAINMENT.YOUTUBE.split('/').at(-1) as string,

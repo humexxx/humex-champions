@@ -12,6 +12,7 @@ import {
   TripsPage,
   YouTubePage,
   F1Page,
+  SoccerPage,
 } from './pages/portal/entertainment';
 import {
   PersonalFinancesPage,
@@ -101,6 +102,10 @@ const entertainmentRoutes = [
   {
     path: ROUTES.PORTAL.ENTERTAINMENT.F1,
     element: <F1Page />,
+  },
+  {
+    path: ROUTES.PORTAL.ENTERTAINMENT.SOCCER,
+    element: <SoccerPage />,
   },
 ];
 
