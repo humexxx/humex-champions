@@ -75,6 +75,7 @@ export const ROUTES = {
       YOUTUBE: '/portal/entertainment/youtube',
       TRIPS: '/portal/entertainment/trips',
       F1: '/portal/entertainment/f1',
+      SOCCER: '/portal/entertainment/soccer',
     },
     SOCIAL: {
       INDEX: '/portal/social',
