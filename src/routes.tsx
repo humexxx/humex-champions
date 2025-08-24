@@ -27,7 +27,12 @@ import {
   NutritionPage,
   TrainingProgramPage,
 } from './pages/portal/health';
-import { PlannerPage, PathwayPage, UpliftPage } from './pages/portal/uplift';
+import {
+  PlannerPage,
+  PathwayPage,
+  UpliftPage,
+  AnalyticsPage,
+} from './pages/portal/uplift';
 
 const financeRoutes = [
   {
@@ -83,6 +88,10 @@ const upliftRoutes = [
   {
     path: ROUTES.PORTAL.UPLIFT.PLANNER,
     element: <PlannerPage />,
+  },
+  {
+    path: ROUTES.PORTAL.UPLIFT.ANALYTICS,
+    element: <AnalyticsPage />,
   },
 ];
 

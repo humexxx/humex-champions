@@ -1,185 +1,235 @@
-import React, { useState } from 'react';
+import { useState, useMemo } from 'react';
 
-import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Box,
-  Grid,
-  Checkbox,
+  Container,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
+  Card,
+  CardContent,
+  CardActions,
   Button,
-  Tabs,
-  Tab,
-  Divider,
+  Chip,
+  Avatar,
 } from '@mui/material';
-import { PieChart } from '@mui/x-charts/PieChart';
-import { useForm, Controller } from 'react-hook-form';
-import * as yup from 'yup';
+import RouteIcon from '@mui/icons-material/Route';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import { PageContent, PageHeader } from 'src/components';
+import { ROUTES } from 'src/consts';
+import { useUpliftService } from 'src/services/upliftService';
+import { EPathwayDifficulty } from '@shared/models/uplift';
+import { Page } from 'src/components/layout';
 
-interface TaskFormData {
-  description: string;
-  frequency: string;
-}
+const PathwayPage = () => {
+  const upliftService = useUpliftService();
+  const [pathways] = useState([]); // TODO: Load from service
 
-interface Task extends TaskFormData {
-  completed: boolean;
-}
+  const pathwayTemplates = useMemo(
+    () => upliftService.getPathwayTemplates(),
+    [upliftService]
+  );
 
-const taskSchema = yup.object().shape({
-  description: yup.string().required('Task description is required'),
-  frequency: yup.string().required('Frequency is required'),
-});
-
-const Page: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [tabValue, setTabValue] = useState(0);
-
-  const { control, handleSubmit, reset } = useForm({
-    resolver: yupResolver(taskSchema),
-    defaultValues: {
-      description: '',
-      frequency: 'daily',
-    },
-  });
-
-  const handleAddTask = (data: TaskFormData) => {
-    setTasks([...tasks, { ...data, completed: false }]);
-    reset();
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'FitnessCenter':
+        return <FitnessCenterIcon />;
+      case 'SelfImprovement':
+        return <SelfImprovementIcon />;
+      case 'Restaurant':
+        return <RestaurantIcon />;
+      default:
+        return <RouteIcon />;
+    }
   };
-
-  const handleToggleTask = (index: number) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].completed = !updatedTasks[index].completed;
-    setTasks(updatedTasks);
-  };
-
-  // Calculate the data for the pie chart
-  const completedTasks = tasks.filter((task) => task.completed).length;
-  const totalTasks = tasks.length;
-  const data = [
-    { name: 'Completed', value: completedTasks },
-    { name: 'Pending', value: totalTasks - completedTasks },
-  ];
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Tabs
-        value={tabValue}
-        onChange={(_, newValue) => setTabValue(newValue)}
-        aria-label="Goals Tabs"
-      >
-        <Tab label="Tasks" />
-        <Tab label="Add Task" />
-      </Tabs>
-      {tabValue === 0 && (
-        <Box sx={{ mt: 2 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} paddingRight={'23px'}>
-              <Typography variant="h6">Your Tasks</Typography>
-              {tasks.map((task, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    mt: 1,
-                    transition: 'all 0.3s ease-in-out',
-                    transform: task.completed ? 'scale(0.98)' : 'scale(1)',
-                    opacity: task.completed ? 0.6 : 1,
-                  }}
-                >
-                  <Checkbox
-                    checked={task.completed}
-                    onChange={() => handleToggleTask(index)}
-                    sx={{
-                      transform: 'scale(1.5)',
-                      color: task.completed ? 'success.main' : 'primary.main',
-                    }}
-                  />
-                  <Typography>{task.description}</Typography>
-                </Box>
-              ))}
-            </Grid>
+    <Page title="Growth Pathways">
+      <PageHeader
+        title="Growth Pathways"
+        navigator={{
+          breadcrumb: [
+            {
+              title: 'Growth Pathways',
+              route: ROUTES.PORTAL.UPLIFT.PATHWAY.split('/').pop()!,
+            },
+          ],
+          link: {
+            title: 'Uplift',
+            route: ROUTES.PORTAL.UPLIFT.INDEX,
+          },
+        }}
+      />
 
-            <Divider orientation="vertical" flexItem sx={{ mr: '-1px' }} />
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6">Progress</Typography>
-              <PieChart
-                height={300}
-                series={[
-                  {
-                    startAngle: -90,
-                    endAngle: 90,
-                    data,
-                    innerRadius: 80,
+      <PageContent>
+        <Container maxWidth="xl">
+          {/* Hero Section */}
+          <Box
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: 4,
+              color: 'white',
+              p: 6,
+              mb: 4,
+              textAlign: 'center',
+            }}
+          >
+            <Typography variant="h3" fontWeight="bold" gutterBottom>
+              Your Growth Journey
+            </Typography>
+            <Typography variant="h6" sx={{ opacity: 0.9 }}>
+              Choose a pathway that aligns with your personal development goals
+            </Typography>
+          </Box>
+
+          {/* Pathway Templates */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              },
+              gap: 3,
+              mb: 6,
+            }}
+          >
+            {pathwayTemplates.map((template) => (
+              <Card
+                key={template.id}
+                sx={{
+                  borderRadius: 3,
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                   },
-                ]}
-              />
-              <Typography variant="body1" sx={{ mt: 2 }}>
-                {totalTasks > 0
-                  ? `You have completed ${completedTasks} out of ${totalTasks} tasks (${((completedTasks / totalTasks) * 100).toFixed(1)}%).`
-                  : 'No tasks added yet.'}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Box>
-      )}
-      {tabValue === 1 && (
-        <Box sx={{ mt: 2 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} paddingRight={'23px'}>
-              Agregar datos valiosos en el futuro
-            </Grid>
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: template.color || 'primary.main',
+                        mr: 2,
+                        width: 56,
+                        height: 56,
+                      }}
+                    >
+                      {getIcon(template.icon)}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h6" fontWeight="600" gutterBottom>
+                        {template.title}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Chip
+                          label={template.difficulty}
+                          size="small"
+                          color={
+                            template.difficulty === EPathwayDifficulty.BEGINNER
+                              ? 'success'
+                              : template.difficulty ===
+                                  EPathwayDifficulty.INTERMEDIATE
+                                ? 'warning'
+                                : 'error'
+                          }
+                        />
+                        <Chip
+                          label={`${template.estimatedDuration} weeks`}
+                          size="small"
+                          variant="outlined"
+                        />
+                      </Box>
+                    </Box>
+                  </Box>
 
-            <Divider orientation="vertical" flexItem sx={{ mr: '-1px' }} />
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6">Add New Task</Typography>
-              <form onSubmit={handleSubmit(handleAddTask)}>
-                <Controller
-                  name="description"
-                  control={control}
-                  render={({ field, fieldState: { error } }) => (
-                    <TextField
-                      {...field}
-                      label="Task Description"
-                      fullWidth
-                      sx={{ mb: 2 }}
-                      error={!!error}
-                      helperText={error ? error.message : ''}
-                    />
-                  )}
-                />
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                  <InputLabel>Frequency</InputLabel>
-                  <Controller
-                    name="frequency"
-                    control={control}
-                    render={({ field }) => (
-                      <Select {...field} label="Frequency">
-                        <MenuItem value="daily">Daily</MenuItem>
-                        <MenuItem value="everyOtherDay">
-                          Every Other Day
-                        </MenuItem>
-                        <MenuItem value="weekly">Weekly</MenuItem>
-                        <MenuItem value="monthly">Monthly</MenuItem>
-                      </Select>
-                    )}
-                  />
-                </FormControl>
-                <Button type="submit" variant="contained">
-                  Add Task
-                </Button>
-              </form>
-            </Grid>
-          </Grid>
-        </Box>
-      )}
-    </Box>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    {template.description}
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
+                    Category: {template.category}
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    Goals: {template.goals.length} objectives
+                  </Typography>
+                </CardContent>
+
+                <CardActions sx={{ p: 3, pt: 0 }}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                    }}
+                    onClick={() => {
+                      // TODO: Start pathway
+                      console.log('Starting pathway:', template.id);
+                    }}
+                  >
+                    Start Journey
+                  </Button>
+                </CardActions>
+              </Card>
+            ))}
+          </Box>
+
+          {/* Current Pathways */}
+          {pathways.length > 0 && (
+            <Box>
+              <Typography variant="h5" fontWeight="600" gutterBottom>
+                Your Active Pathways
+              </Typography>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                  gap: 3,
+                }}
+              >
+                {pathways.map((pathway: any) => (
+                  <Card key={pathway.id} sx={{ borderRadius: 3 }}>
+                    <CardContent sx={{ p: 3 }}>
+                      <Typography variant="h6" fontWeight="600" gutterBottom>
+                        {pathway.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 2 }}
+                      >
+                        Progress: {pathway.progress}% Complete
+                      </Typography>
+                      <Button variant="outlined" size="small">
+                        Continue
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </Box>
+          )}
+        </Container>
+      </PageContent>
+    </Page>
   );
 };
 
-export default Page;
+export default PathwayPage;

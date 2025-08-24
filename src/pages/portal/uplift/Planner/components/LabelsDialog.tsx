@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,17 +26,10 @@ import * as yup from 'yup';
 import { UseUplift } from '../../hooks/useUplift';
 
 const LabelsDialog = ({ uplift }: { uplift: UseUplift }) => {
-  const schema = useMemo(
-    () =>
-      yup.object().shape({
-        title: yup
-          .string()
-          .nonNullable()
-          .required(t('commonValidations.required')),
-        color: yup.string().oneOf(Object.values(ELabelColorType)),
-      }),
-    [t]
-  );
+  const schema = yup.object().shape({
+    title: yup.string().nonNullable().required('This field is required'),
+    color: yup.string().oneOf(Object.values(ELabelColorType)).required(),
+  });
 
   const [loading, setLoading] = useState(false);
   const [labels, setLabels] = useState(uplift.data?.labels ?? []);
@@ -52,7 +45,12 @@ const LabelsDialog = ({ uplift }: { uplift: UseUplift }) => {
   });
 
   const _handleSubmit = handleSubmit((data) => {
-    setLabels((prev) => [...prev, data as ILabel]);
+    const newLabel: ILabel = {
+      id: `label-${Date.now()}`, // Generate a simple ID
+      title: data.title,
+      color: data.color || ELabelColorType.PRIMARY,
+    };
+    setLabels((prev) => [...prev, newLabel]);
     reset();
     setTimeout(() => setFocus('title'), 10);
   });

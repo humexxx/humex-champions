@@ -15,7 +15,7 @@ import {
   Chip,
 } from '@mui/material';
 import { ELabelColorType } from '@shared/enums/ELabelColorType';
-import { IPlanner } from '@shared/models/uplift';
+import { IPlanner } from '@shared/models/uplift/planner';
 import { Dayjs } from 'dayjs';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -34,28 +34,21 @@ function DailyChecklistForm({
   planner: IPlanner<Dayjs>;
   uplift: UseUplift;
 }) {
-  const schema = useMemo(
-    () =>
-      yup.object().shape({
-        title: yup
-          .string()
-          .nonNullable()
-          .required(t('commonValidations.required')),
-        labels: yup
-          .array()
-          .of(
-            yup.object().shape({
-              title: yup.string().default(''),
-              color: yup
-                .string()
-                .oneOf(Object.values(ELabelColorType))
-                .default(ELabelColorType.PRIMARY),
-            })
-          )
-          .default([]),
-      }),
-    [t]
-  );
+  const schema = yup.object().shape({
+    title: yup.string().nonNullable().required('This field is required'),
+    labels: yup
+      .array()
+      .of(
+        yup.object().shape({
+          title: yup.string().default(''),
+          color: yup
+            .string()
+            .oneOf(Object.values(ELabelColorType))
+            .default(ELabelColorType.PRIMARY),
+        })
+      )
+      .default([]),
+  });
 
   const { set, error, loading } = usePlannerSetter();
 
@@ -83,7 +76,7 @@ function DailyChecklistForm({
   return (
     <Stack component={'form'} onSubmit={handleSubmit(onSubmit)} gap={2}>
       <TextField
-        label={t('uplift.planner.form.newTask')}
+        label="New Task"
         {...register('title')}
         error={!!error}
         helperText={error}
