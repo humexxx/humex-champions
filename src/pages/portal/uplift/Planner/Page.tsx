@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 
 import dayjs, { Dayjs } from 'dayjs';
+import { Box, Container, Typography } from '@mui/material';
 import { PageContent, PageHeader } from 'src/components';
 import { ROUTES } from 'src/consts';
 
 import { WeekDays } from './components';
+import { Page } from 'src/components/layout';
 
 function getDaysOfCurrentWeek(): Dayjs[] {
   const today = dayjs();
@@ -18,24 +20,60 @@ function getDaysOfCurrentWeek(): Dayjs[] {
   return days;
 }
 
-const Page = () => {
+const PlannerPage = () => {
   const daysOfCurrentWeek = useMemo(getDaysOfCurrentWeek, []);
 
   return (
-    <>
+    <Page title="Daily Planner">
       <PageHeader
-        title={'Life Planner'}
-        breadcrumb={[
-          { title: 'Uplift', route: ROUTES.PORTAL.UPLIFT.INDEX },
-          { title: 'Life Planner', route: 'planner' },
-        ]}
-        description={t('uplift.planner.description')}
+        title="Daily Planner"
+        navigator={{
+          breadcrumb: [
+            {
+              title: 'Daily Planner',
+              route: ROUTES.PORTAL.UPLIFT.PLANNER.split('/').pop()!,
+            },
+          ],
+          link: { title: 'Uplift', route: ROUTES.PORTAL.UPLIFT.INDEX },
+        }}
+        description="Organize your daily tasks with smart categorization and progress tracking"
       />
       <PageContent>
-        <WeekDays days={daysOfCurrentWeek} />
+        <Container maxWidth="xl">
+          {/* Hero Section */}
+          <Box
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: 3,
+              p: 4,
+              mb: 4,
+              color: 'white',
+              textAlign: 'center',
+            }}
+          >
+            <Typography
+              variant="h4"
+              component="h1"
+              fontWeight="bold"
+              gutterBottom
+            >
+              Daily Task Planner
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{ opacity: 0.9, maxWidth: '600px', mx: 'auto' }}
+            >
+              Organize your daily tasks, track progress, and build productive
+              habits
+            </Typography>
+          </Box>
+
+          {/* Week View */}
+          <WeekDays days={daysOfCurrentWeek} />
+        </Container>
       </PageContent>
-    </>
+    </Page>
   );
 };
 
-export default Page;
+export default PlannerPage;

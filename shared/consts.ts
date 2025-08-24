@@ -227,6 +227,13 @@ export const CALLABLE_FUNCTIONS = {
       updateDailyMatches: 'updateSoccerDailyMatches',
     },
   },
+  uplift: {
+    // Statistics functions
+    getDailyStats: 'getUpliftDailyStats',
+    getWeeklyStats: 'getUpliftWeeklyStats',
+    getMonthlyStats: 'getUpliftMonthlyStats',
+    getOverallStats: 'getUpliftOverallStats',
+  },
 };
 
 export const PORTFOLIO_CONSTANTS = {

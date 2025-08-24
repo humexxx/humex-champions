@@ -69,6 +69,7 @@ export const ROUTES = {
       INDEX: '/portal/uplift',
       PATHWAY: '/portal/uplift/pathway',
       PLANNER: '/portal/uplift/planner',
+      ANALYTICS: '/portal/uplift/analytics',
     },
     ENTERTAINMENT: {
       INDEX: '/portal/entertainment',

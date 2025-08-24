@@ -3,7 +3,7 @@ import { ELabelColorType } from '@shared/enums/ELabelColorType';
 export interface IPlannerItem {
   title: string;
   completed: boolean;
-  labels: ILabel[];
+  labels: IPlannerLabel[];
 }
 
 export interface IPlanner<Timestamp = Date> {
@@ -13,7 +13,7 @@ export interface IPlanner<Timestamp = Date> {
   completionPercentage?: number;
 }
 
-export interface ILabel {
+export interface IPlannerLabel {
   title: string;
   color: ELabelColorType;
 }
