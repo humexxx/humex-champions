@@ -41,6 +41,7 @@ const Sidebar = () => {
         text: 'Health',
         icon: <DirectionsRunIcon />,
         path: ROUTES.PORTAL.HEALTH.INDEX,
+        disabled: true,
       },
       {
         text: 'Uplift',
@@ -73,7 +74,10 @@ const Sidebar = () => {
         top: 0,
         left: 0,
         width: SIDEBAR_WIDTH,
-        bgcolor: '#f7f8fa',
+        bgcolor: (theme) =>
+          theme.palette.mode === 'dark'
+            ? theme.palette.grey[900]
+            : theme.palette.grey[100],
         zIndex: 1200,
       }}
     >
@@ -91,7 +95,7 @@ const Sidebar = () => {
 
       {/* Main navigation icons */}
       <List sx={{ py: 2, flex: 1, overflow: 'auto' }}>
-        {mainRoutes.map(({ text, icon, path }) => (
+        {mainRoutes.map(({ text, icon, path, disabled }) => (
           <ListItem key={text} sx={{ px: 1, py: 0.5 }}>
             <Tooltip title={text} placement="right">
               <ListItemButton
@@ -112,6 +116,7 @@ const Sidebar = () => {
                 }}
                 component={NavLink}
                 to={path}
+                disabled={disabled}
               >
                 <ListItemIcon
                   sx={{

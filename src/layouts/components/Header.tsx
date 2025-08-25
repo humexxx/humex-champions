@@ -5,7 +5,6 @@ import {
   AppBar,
   Avatar,
   Box,
-  Container,
   Divider,
   IconButton,
   Menu,
@@ -48,6 +47,7 @@ const Header = () => {
           {
             label: 'Trading Journal',
             path: ROUTES.PORTAL.FINANCES.TRADING_JOURNAL,
+            disabled: true,
           },
           {
             label: 'Compound Calculator',
@@ -158,48 +158,45 @@ const Header = () => {
         }}
       >
         {getSubRoutes && (
-          <Container maxWidth="md">
-            <Tabs
-              value={getCurrentTabValue()}
-              onChange={handleTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                ml: 2,
-                '& .MuiTab-root': {
-                  textTransform: 'none',
-                  minWidth: 'auto',
-                  px: 2,
-                  fontSize: '0.875rem',
-                  minHeight: 48,
-                },
-              }}
-            >
-              {getSubRoutes.routes.map((route) => (
-                <Tab key={route.path} label={route.label} />
-              ))}
-            </Tabs>
-          </Container>
+          <Tabs
+            value={getCurrentTabValue()}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              ml: 2,
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                minWidth: 'auto',
+                px: 2,
+                fontSize: '0.875rem',
+                minHeight: 48,
+              },
+            }}
+          >
+            {getSubRoutes.routes.map((route) => (
+              <Tab
+                key={route.path}
+                label={route.label}
+                disabled={(route as any).disabled}
+              />
+            ))}
+          </Tabs>
         )}
         <Box sx={{ flexGrow: 1 }} />
-        <IconButton
-          color="inherit"
-          onClick={themeContext.toggleColorMode}
-          sx={{ ml: 2 }}
-        >
+        <IconButton color="inherit" onClick={themeContext.toggleColorMode}>
           {theme.palette.mode === 'dark' ? (
             <Brightness4Icon />
           ) : (
             <Brightness7Icon />
           )}
         </IconButton>
-        <IconButton onClick={handleAvatarClick} sx={{ ml: 2 }}>
+        <IconButton onClick={handleAvatarClick}>
           <Avatar
             sx={{
-              width: 32,
-              height: 32,
+              width: 48,
+              height: 48,
               bgcolor: 'primary.main',
-              fontSize: '0.875rem',
             }}
           >
             U

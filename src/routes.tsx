@@ -112,11 +112,15 @@ class ErrorBoundary extends Component<
   { children: React.ReactNode; resetOnLocationChange?: boolean },
   { hasError: boolean; lastLocation?: string }
 > {
-  constructor(props: { children: React.ReactNode; resetOnLocationChange?: boolean }) {
+  constructor(props: {
+    children: React.ReactNode;
+    resetOnLocationChange?: boolean;
+  }) {
     super(props);
-    this.state = { 
+    this.state = {
       hasError: false,
-      lastLocation: typeof window !== 'undefined' ? window.location.pathname : undefined
+      lastLocation:
+        typeof window !== 'undefined' ? window.location.pathname : undefined,
     };
   }
 
@@ -145,9 +149,9 @@ class ErrorBoundary extends Component<
       const currentLocation = window.location.pathname;
       if (this.state.lastLocation !== currentLocation && this.state.hasError) {
         console.log('Location changed, resetting error boundary');
-        this.setState({ 
-          hasError: false, 
-          lastLocation: currentLocation 
+        this.setState({
+          hasError: false,
+          lastLocation: currentLocation,
         });
       } else if (this.state.lastLocation !== currentLocation) {
         this.setState({ lastLocation: currentLocation });

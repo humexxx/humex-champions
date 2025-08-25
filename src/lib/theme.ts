@@ -8,7 +8,7 @@ function getTheme(mode: EThemeType) {
     },
     typography: {
       fontFamily: '"Google Sans", "Roboto", "Helvetica", "Arial", sans-serif',
-      fontSize: 11, // Reduced even more to match Google's lighter feel
+      fontSize: 12, // Reduced even more to match Google's lighter feel
       h1: {
         fontSize: '1.875rem', // Much smaller for Google-like subtlety
         fontWeight: 300, // Lighter weight like Google
