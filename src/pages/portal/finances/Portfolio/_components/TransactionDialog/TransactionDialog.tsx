@@ -80,7 +80,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   // Asset search state
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<
-    'all' | 'stock' | 'etf' | 'crypto'
+    'all' | 'stock' | 'etf' | 'crypto' | 'system'
   >('all');
   const [assetDetailsLoading, setAssetDetailsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,13 +111,18 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
 
     setValue('assetId', asset.symbol);
 
-    // If we have a price from search, use it
+    // If it's a system asset or we have a price from search, use it
     if (asset.price) {
       setValue('price', asset.price);
       return;
     }
 
-    // Otherwise, fetch detailed price
+    // For system assets, don't fetch price as it's fixed
+    if (asset.isSystemAsset) {
+      return;
+    }
+
+    // Otherwise, fetch detailed price for external assets
     setAssetDetailsLoading(true);
     try {
       const result = await getAssetPrice({ symbol: asset.symbol });

@@ -25,6 +25,11 @@ import {
   ListItemText,
   Stack,
   Typography,
+  FormControlLabel,
+  Switch,
+  Chip,
+  Collapse,
+  Alert,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IFixedExpense } from '@shared/models/finances';
@@ -58,7 +63,10 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
         expenseType: yup
           .string()
           .nonNullable()
-          .oneOf(['primary', 'secondary', 'single'], 'Invalid type')
+          .oneOf(
+            ['primary', 'secondary', 'single', 'investment'],
+            'Invalid type'
+          )
           .required('This field is required'),
         date: yupDayjs.nonNullable(),
       })
@@ -66,6 +74,19 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
   });
 
   const [open, setOpen] = useState(false);
+
+  // System assets for investment expenses
+  const systemAssets = [
+    { symbol: 'HUMEX-YIELD', name: 'HumEx Yield Fund' },
+    { symbol: 'HUMEX-GROWTH', name: 'HumEx Growth Fund' },
+    { symbol: 'HUMEX-STABLE', name: 'HumEx Stable Fund' },
+  ];
+
+  // Mock portfolios - in real app, fetch from usePortfolio hook
+  const mockPortfolios = [
+    { id: 'portfolio-1', name: 'Main Investment Portfolio' },
+    { id: 'portfolio-2', name: 'Retirement Fund' },
+  ];
 
   const {
     control,
@@ -102,11 +123,11 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
 
   const expenses = watch('expenses');
 
-  function _handleSubmit(_data: { expenses?: IFixedExpense[] }) {
+  function _handleSubmit(_data: any) {
     if (!_data.expenses) return;
 
     setOpen(false);
-    onSubmit(normalizeObjectDates<IFixedExpense[]>(_data.expenses, toDayjs));
+    onSubmit(_data.expenses as IFixedExpense[]);
   }
 
   function handleOnNewExpense() {
@@ -114,7 +135,7 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
       amount: 0,
       expenseType: 'primary',
       name: `Fixed Expense ${fields.length + 1}`,
-    });
+    } as any); // Type assertion for form handling
     setIndexToEdit(fields.length);
   }
 
@@ -224,6 +245,22 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
                               <MenuItem value="single">Single</MenuItem>
                               <MenuItem value="primary">Primary</MenuItem>
                               <MenuItem value="secondary">Secondary</MenuItem>
+                              <MenuItem value="investment">
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                  }}
+                                >
+                                  Investment
+                                  <Chip
+                                    size="small"
+                                    label="Auto"
+                                    color="primary"
+                                  />
+                                </Box>
+                              </MenuItem>
                             </TextField>
                           )}
                         />
@@ -253,6 +290,104 @@ const FixedExpenseEditDialog = ({ onSubmit, data }: Props) => {
                           )}
                         />
                       </Stack>
+
+                      {/* Portfolio Investment Configuration */}
+                      {expenses?.[indexToEdit]?.expenseType ===
+                        'investment' && (
+                        <Collapse in={true}>
+                          <Card
+                            variant="outlined"
+                            sx={{ mt: 2, bgcolor: 'primary.50' }}
+                          >
+                            <CardContent>
+                              <Typography variant="subtitle2" gutterBottom>
+                                Investment Configuration (Preview)
+                              </Typography>
+
+                              <Alert severity="info" sx={{ mb: 2 }}>
+                                This will create automatic monthly transactions
+                                that require admin approval.
+                              </Alert>
+
+                              <Stack spacing={2}>
+                                {/* Portfolio Selection */}
+                                <TextField
+                                  select
+                                  label="Target Portfolio"
+                                  value=""
+                                  fullWidth
+                                  disabled
+                                  helperText="Will be available when portfolio configuration is implemented"
+                                >
+                                  {mockPortfolios.map((portfolio) => (
+                                    <MenuItem
+                                      key={portfolio.id}
+                                      value={portfolio.id}
+                                    >
+                                      {portfolio.name}
+                                    </MenuItem>
+                                  ))}
+                                </TextField>
+
+                                {/* Asset Selection */}
+                                <TextField
+                                  select
+                                  label="HumEx Product"
+                                  value=""
+                                  fullWidth
+                                  disabled
+                                  helperText="System assets integration coming soon"
+                                >
+                                  {systemAssets.map((asset) => (
+                                    <MenuItem
+                                      key={asset.symbol}
+                                      value={asset.symbol}
+                                    >
+                                      {asset.symbol} - {asset.name}
+                                    </MenuItem>
+                                  ))}
+                                </TextField>
+
+                                {/* Investment Settings */}
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={true}
+                                      disabled
+                                      color="primary"
+                                    />
+                                  }
+                                  label="Active (will generate transactions)"
+                                />
+
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    gap: 1,
+                                    flexWrap: 'wrap',
+                                  }}
+                                >
+                                  <Chip
+                                    label="Auto-Execute Monthly"
+                                    color="primary"
+                                    size="small"
+                                  />
+                                  <Chip
+                                    label="Requires Admin Approval"
+                                    color="warning"
+                                    size="small"
+                                  />
+                                  <Chip
+                                    label="System Assets Only"
+                                    color="info"
+                                    size="small"
+                                  />
+                                </Box>
+                              </Stack>
+                            </CardContent>
+                          </Card>
+                        </Collapse>
+                      )}
                     </CardContent>
                   </Card>
                 ) : (

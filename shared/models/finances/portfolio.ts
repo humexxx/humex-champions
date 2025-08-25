@@ -120,7 +120,17 @@ export interface IPortfolioTransaction {
 
   notes?: string;
   source?: string;
+
+  // Approval workflow for system assets
+  status?: TransactionStatus; // Default 'approved' for regular transactions
+  sourceExpenseId?: string; // Link to the fixed expense that generated this
+  requiresApproval?: boolean; // True for system asset transactions
+  adminNotes?: string;
+  approvedBy?: string;
+  approvedAt?: Dayjs;
 }
+
+export type TransactionStatus = 'pending' | 'approved' | 'rejected';
 
 export type TransactionType =
   | 'BUY'

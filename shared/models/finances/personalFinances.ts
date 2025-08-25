@@ -28,9 +28,20 @@ export interface IDebt {
 
 export interface IFixedExpense {
   amount: number;
-  expenseType: 'single' | 'primary' | 'secondary';
+  expenseType: 'single' | 'primary' | 'secondary' | 'investment';
   name: string;
   date?: Dayjs;
+
+  // Portfolio Investment Configuration
+  portfolioConfig?: {
+    portfolioId: string;
+    assetSymbol: string; // System asset symbol (e.g., 'HUMEX-YIELD')
+    transactionType: 'BUY'; // Only BUY for now
+    autoExecute: boolean; // Whether to automatically execute monthly
+    requiresApproval: boolean; // Always true for system assets
+    nextExecutionDate?: Dayjs; // When the next transaction should occur
+    isActive: boolean; // Whether the recurring investment is active
+  };
 }
 
 export interface IFinancialSnapshot {
