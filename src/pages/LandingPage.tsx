@@ -348,11 +348,13 @@ const LandingPage = () => {
               <Box
                 sx={{
                   position: 'absolute',
-                  top: -32,
-                  right: -32,
+                  top: -24,
+                  right: -24,
                   bgcolor: 'white',
                   borderRadius: '50%',
                   boxShadow: 2,
+                  width: 56,
+                  height: 56,
                   p: 1,
                 }}
               >

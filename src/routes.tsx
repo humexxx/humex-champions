@@ -360,16 +360,20 @@ export const router = createBrowserRouter([
     element: <LandingPage />,
     errorElement: <ErrorPage />,
   },
+  {
+    path: '/landing',
+    element: <Navigate replace to="/" />,
+  },
 
   // Authentication routes (public)
   {
     path: ROUTES.AUTH.SIGN_UP,
     element: (
-      <AutoLogRoute>
-        <LazyWrapper>
+      <LazyWrapper>
+        <AutoLogRoute>
           <SignUpPage />
-        </LazyWrapper>
-      </AutoLogRoute>
+        </AutoLogRoute>
+      </LazyWrapper>
     ),
     errorElement: <ErrorPage />,
   },
@@ -380,22 +384,22 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.AUTH.LOGIN,
     element: (
-      <AutoLogRoute>
-        <LazyWrapper>
+      <LazyWrapper>
+        <AutoLogRoute>
           <SignInPage />
-        </LazyWrapper>
-      </AutoLogRoute>
+        </AutoLogRoute>
+      </LazyWrapper>
     ),
     errorElement: <ErrorPage />,
   },
   {
     path: ROUTES.AUTH.FORGOT_PASSWORD,
     element: (
-      <AutoLogRoute>
-        <LazyWrapper>
+      <LazyWrapper>
+        <AutoLogRoute>
           <ForgotPasswordPage />
-        </LazyWrapper>
-      </AutoLogRoute>
+        </AutoLogRoute>
+      </LazyWrapper>
     ),
     errorElement: <ErrorPage />,
   },
