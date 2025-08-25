@@ -24,6 +24,13 @@
 
 > **Important**: All timestamps in the application are converted to Day.js objects using utility functions. When working with dates, always use `toDayjs()` utility for consistency and `normalizeObjectDates()` for bulk conversions.
 
+## Code Quality Standards
+
+- **Language**: English-only codebase (variables, functions, comments, documentation)
+- **Comments**: Minimal and purposeful - only explain complex business logic
+- **TypeScript**: Strict typing preferred over comments for documentation
+- **Self-documenting**: Use descriptive names that explain intent
+
 ---
 
 ## Application Architecture
@@ -270,6 +277,13 @@ npm run lint
 
 ## Development Guidelines
 
+### Code Standards
+
+- **Language**: All code must be written in **English** (variables, functions, comments, documentation)
+- **Comments**: Minimal commenting - only add comments for complex business logic or function explanations when necessary
+- **Naming**: Use descriptive, self-documenting variable and function names
+- **TypeScript**: Leverage strict typing to make code self-explanatory
+
 ### Adding New Routes
 
 1. **Define route constant** in `src/consts.ts`
@@ -306,6 +320,31 @@ navigateToRoute(ROUTES.PORTAL.HEALTH.NUTRITION);
 
 // Breadcrumb navigation for UX
 <BreadcrumbNavigation />;
+```
+
+### Component Development
+
+- **English only**: All component names, props, variables, and functions in English
+- **Self-documenting code**: Prefer descriptive names over comments
+- **Minimal comments**: Only explain complex business logic, not obvious code
+- **TypeScript first**: Use types to document interfaces and expected behavior
+
+```tsx
+// Good: Self-documenting code
+const calculateCompoundInterest = (
+  principal: number,
+  rate: number,
+  years: number
+) => {
+  return principal * Math.pow(1 + rate, years);
+};
+
+// Avoid: Over-commented obvious code
+// const calculateCompoundInterest = (principal: number, rate: number, years: number) => {
+//   // Calculate compound interest using the formula
+//   // principal * (1 + rate)^years
+//   return principal * Math.pow(1 + rate, years);
+// };
 ```
 
 ---
@@ -351,8 +390,18 @@ This document serves as the **primary context reference** for all AI interaction
 
 - **Architecture patterns**: Follow established routing, state management, and component patterns
 - **Code style**: Maintain TypeScript strict typing and modern React patterns
+- **Language requirement**: All generated code must be in **English** (variables, functions, comments)
+- **Comment policy**: Minimal comments - only for complex business logic explanations
 - **Platform awareness**: Windows development environment with PowerShell commands
 - **Testing approach**: Focus on implementation; developer handles runtime testing
+
+### Code Generation Rules
+
+1. **English only**: All identifiers, variables, functions, and comments in English
+2. **Self-documenting**: Use descriptive names instead of excessive comments
+3. **TypeScript strict**: Leverage type system for documentation
+4. **Modern patterns**: Use latest React and TypeScript features
+5. **Clean code**: Prefer readability over clever solutions
 
 ### Quick Reference
 
