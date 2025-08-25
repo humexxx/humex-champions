@@ -153,33 +153,31 @@ const Header = () => {
           maxWidth="xl"
           sx={{ display: 'flex', justifyContent: 'space-between' }}
         >
-          {getSubRoutes && (
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 3,
-                ml: 2,
-                alignItems: 'center',
-              }}
-            >
-              {getSubRoutes.routes.map((route) => (
-                <Link
-                  key={route.path}
-                  component={RouterLink}
-                  to={route.path}
-                  sx={{
-                    textDecoration: 'none',
-                    color: 'text.primary',
-                    fontWeight: isRouteActive(route.path) ? 600 : 400,
-                    opacity: (route as any).disabled ? 0.5 : 1,
-                    pointerEvents: (route as any).disabled ? 'none' : 'auto',
-                  }}
-                >
-                  {route.label}
-                </Link>
-              ))}
-            </Box>
-          )}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 3,
+              ml: 2,
+              alignItems: 'center',
+            }}
+          >
+            {getSubRoutes?.routes.map((route) => (
+              <Link
+                key={route.path}
+                component={RouterLink}
+                to={route.path}
+                sx={{
+                  textDecoration: 'none',
+                  color: 'text.primary',
+                  fontWeight: isRouteActive(route.path) ? 600 : 400,
+                  opacity: (route as any).disabled ? 0.5 : 1,
+                  pointerEvents: (route as any).disabled ? 'none' : 'auto',
+                }}
+              >
+                {route.label}
+              </Link>
+            ))}
+          </Box>
           <Box>
             <IconButton color="inherit" onClick={themeContext.toggleColorMode}>
               {theme.palette.mode === 'dark' ? (
