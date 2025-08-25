@@ -41,6 +41,9 @@ export const LOCAL_STORAGE_KEYS = {
   THEME: 'theme',
 };
 
+// Route types for better type safety
+export type RouteKeys = typeof ROUTES;
+
 export const ROUTES = {
   AUTH: {
     LOGIN: '/login',
@@ -87,4 +90,56 @@ export const ROUTES = {
       INDEX: '/portal/admin',
     },
   },
-};
+} as const;
+
+// Route metadata for navigation and SEO
+export const ROUTE_METADATA = {
+  [ROUTES.PORTAL.DASHBOARD]: {
+    title: 'Dashboard',
+    icon: 'Dashboard',
+    description: 'Overview of your HumEx Champions progress',
+    category: 'core',
+  },
+  [ROUTES.PORTAL.FINANCES.INDEX]: {
+    title: 'Finances',
+    icon: 'AccountBalance',
+    description: 'Manage your financial portfolio and investments',
+    category: 'finances',
+  },
+  [ROUTES.PORTAL.FINANCES.PERSONAL_FINANCES]: {
+    title: 'Personal Finances',
+    icon: 'MonetizationOn',
+    description: 'Track your personal income and expenses',
+    category: 'finances',
+  },
+  [ROUTES.PORTAL.FINANCES.PORTFOLIO]: {
+    title: 'Portfolio',
+    icon: 'TrendingUp',
+    description: 'Investment portfolio management and tracking',
+    category: 'finances',
+  },
+  [ROUTES.PORTAL.FINANCES.TRADING_JOURNAL]: {
+    title: 'Trading Journal',
+    icon: 'Assessment',
+    description: 'Record and analyze your trading activities',
+    category: 'finances',
+  },
+  [ROUTES.PORTAL.HEALTH.INDEX]: {
+    title: 'Health',
+    icon: 'LocalHospital',
+    description: 'Track your health and wellness journey',
+    category: 'health',
+  },
+  [ROUTES.PORTAL.UPLIFT.INDEX]: {
+    title: 'Uplift',
+    icon: 'TrendingUp',
+    description: 'Personal development and goal tracking',
+    category: 'uplift',
+  },
+  [ROUTES.PORTAL.ENTERTAINMENT.INDEX]: {
+    title: 'Entertainment',
+    icon: 'Sports',
+    description: 'Sports, trips and entertainment tracking',
+    category: 'entertainment',
+  },
+} as const;

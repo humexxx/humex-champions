@@ -6,3 +6,4 @@ export { default as ButtonOptionCard } from './ButtonOptionCard';
 export { default as PageContent } from './layout/PageContent';
 export { default as GlobalLoader } from './GlobalLoader';
 export { default as OnlineStatus } from './OnlineStatus';
+export { default as BreadcrumbNavigation } from './BreadcrumbNavigation';

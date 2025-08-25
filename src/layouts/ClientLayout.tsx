@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Box, Drawer } from '@mui/material';
 import { Outlet } from 'react-router-dom';
+import { BreadcrumbNavigation } from 'src/components';
 import { PrivateRoute } from 'src/components/auth';
 import { ENV } from 'src/consts';
 import { useThemeContext } from 'src/context/hooks';
@@ -99,6 +100,7 @@ function ClientLayout() {
           paddingBottom: '2rem',
         }}
       >
+        <BreadcrumbNavigation sx={{ px: 3, pt: 2 }} />
         <Outlet />
       </Box>
     </Box>
