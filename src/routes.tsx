@@ -1,11 +1,11 @@
+import { Component, lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
 
+import { GlobalLoader } from './components';
 import { AutoLogRoute } from './components/auth';
 import { ROUTES } from './consts';
 import ClientLayout from './layouts/ClientLayout';
-import { LandingPage, ErrorPage } from './pages';
-import { GlobalLoader } from './components';
+import { ErrorPage, LandingPage } from './pages';
 
 // Lazy load pages
 const AdminPage = lazy(() =>
@@ -30,11 +30,6 @@ const SettingsPage = lazy(() =>
 );
 
 // Entertainment pages
-const EntertainmentPage = lazy(() =>
-  import('./pages/portal/entertainment').then((module) => ({
-    default: module.EntertainmentPage,
-  }))
-);
 const TripsPage = lazy(() =>
   import('./pages/portal/entertainment').then((module) => ({
     default: module.TripsPage,
@@ -77,21 +72,11 @@ const CompoundCalculatorPage = lazy(() =>
     default: module.CompoundCalculatorPage,
   }))
 );
-const FinancesPage = lazy(() =>
-  import('./pages/portal/finances').then((module) => ({
-    default: module.FinancesPage,
-  }))
-);
 
 // Health pages
 const HealthCalculatorPage = lazy(() =>
   import('./pages/portal/health').then((module) => ({
     default: module.HealthCalculatorPage,
-  }))
-);
-const HealthPage = lazy(() =>
-  import('./pages/portal/health').then((module) => ({
-    default: module.HealthPage,
   }))
 );
 const NutritionPage = lazy(() =>
@@ -116,20 +101,82 @@ const PathwayPage = lazy(() =>
     default: module.PathwayPage,
   }))
 );
-const UpliftPage = lazy(() =>
-  import('./pages/portal/uplift').then((module) => ({
-    default: module.UpliftPage,
-  }))
-);
 const AnalyticsPage = lazy(() =>
   import('./pages/portal/uplift').then((module) => ({
     default: module.AnalyticsPage,
   }))
 );
 
-// Lazy wrapper component
+// Error boundary for catching context errors during hot reload
+class ErrorBoundary extends Component<
+  { children: React.ReactNode; resetOnLocationChange?: boolean },
+  { hasError: boolean; lastLocation?: string }
+> {
+  constructor(props: { children: React.ReactNode; resetOnLocationChange?: boolean }) {
+    super(props);
+    this.state = { 
+      hasError: false,
+      lastLocation: typeof window !== 'undefined' ? window.location.pathname : undefined
+    };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    // Check if this is a context-related error during hot reload
+    if (
+      error.message.includes('useAuth must be used within an AuthProvider') ||
+      error.message.includes('Context is not available')
+    ) {
+      // In development, these are usually hot reload issues
+      // Let React handle retries naturally without forcing refreshes
+      if (import.meta.env.DEV) {
+        console.warn(
+          'Hot reload context error caught, letting React retry...',
+          error
+        );
+        return { hasError: false };
+      }
+    }
+    return { hasError: true };
+  }
+
+  componentDidUpdate() {
+    // Reset error state when location changes
+    if (this.props.resetOnLocationChange && typeof window !== 'undefined') {
+      const currentLocation = window.location.pathname;
+      if (this.state.lastLocation !== currentLocation && this.state.hasError) {
+        console.log('Location changed, resetting error boundary');
+        this.setState({ 
+          hasError: false, 
+          lastLocation: currentLocation 
+        });
+      } else if (this.state.lastLocation !== currentLocation) {
+        this.setState({ lastLocation: currentLocation });
+      }
+    }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    if (
+      !error.message.includes('useAuth must be used within an AuthProvider')
+    ) {
+      console.error('Route error boundary caught an error:', error, errorInfo);
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorPage />;
+    }
+
+    return this.props.children;
+  }
+}
+
+// Lazy wrapper component with error boundary
 const LazyWrapper = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<GlobalLoader />}>{children}</Suspense>
+  <ErrorBoundary resetOnLocationChange={true}>
+    <Suspense fallback={<GlobalLoader />}>{children}</Suspense>
+  </ErrorBoundary>
 );
 
 // Route configuration types
@@ -147,12 +194,7 @@ interface RouteConfig {
 const financeRoutes: RouteConfig[] = [
   {
     path: ROUTES.PORTAL.FINANCES.INDEX,
-    element: (
-      <LazyWrapper>
-        <FinancesPage />
-      </LazyWrapper>
-    ),
-    meta: { title: 'Finances - HumEx Champions' },
+    element: <Navigate replace to={ROUTES.PORTAL.FINANCES.PERSONAL_FINANCES} />,
   },
   {
     path: ROUTES.PORTAL.FINANCES.PERSONAL_FINANCES,
@@ -196,12 +238,7 @@ const financeRoutes: RouteConfig[] = [
 const healthRoutes: RouteConfig[] = [
   {
     path: ROUTES.PORTAL.HEALTH.INDEX,
-    element: (
-      <LazyWrapper>
-        <HealthPage />
-      </LazyWrapper>
-    ),
-    meta: { title: 'Health - HumEx Champions' },
+    element: <Navigate replace to={ROUTES.PORTAL.HEALTH.CALCULATOR} />,
   },
   {
     path: ROUTES.PORTAL.HEALTH.CALCULATOR,
@@ -236,12 +273,7 @@ const healthRoutes: RouteConfig[] = [
 const upliftRoutes: RouteConfig[] = [
   {
     path: ROUTES.PORTAL.UPLIFT.INDEX,
-    element: (
-      <LazyWrapper>
-        <UpliftPage />
-      </LazyWrapper>
-    ),
-    meta: { title: 'Uplift - HumEx Champions' },
+    element: <Navigate replace to={ROUTES.PORTAL.UPLIFT.PATHWAY} />,
   },
   {
     path: ROUTES.PORTAL.UPLIFT.PATHWAY,
@@ -276,12 +308,7 @@ const upliftRoutes: RouteConfig[] = [
 const entertainmentRoutes: RouteConfig[] = [
   {
     path: ROUTES.PORTAL.ENTERTAINMENT.INDEX,
-    element: (
-      <LazyWrapper>
-        <EntertainmentPage />
-      </LazyWrapper>
-    ),
-    meta: { title: 'Entertainment - HumEx Champions' },
+    element: <Navigate replace to={ROUTES.PORTAL.ENTERTAINMENT.YOUTUBE} />,
   },
   {
     path: ROUTES.PORTAL.ENTERTAINMENT.YOUTUBE,
