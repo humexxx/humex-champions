@@ -1,20 +1,14 @@
 import { Typography } from '@mui/material';
-import { PageContent, PageHeader } from 'src/components';
+import { PageContainer } from '../../../../components/layout';
 
-const Page = () => {
+const HealthCalculatorPage = () => {
   return (
-    <>
-      <PageHeader
-        title="Health Calculator"
-        description="Calculate BMI, calories, and other health metrics"
-      />
-      <PageContent>
-        <Typography variant="h6" component="h2" gutterBottom>
-          Under construction
-        </Typography>
-      </PageContent>
-    </>
+    <PageContainer title="Health Calculator">
+      <Typography variant="h6" component="h2" gutterBottom>
+        Under construction
+      </Typography>
+    </PageContainer>
   );
 };
 
-export default Page;
+export default HealthCalculatorPage;

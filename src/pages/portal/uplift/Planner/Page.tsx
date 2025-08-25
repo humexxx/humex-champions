@@ -2,8 +2,6 @@ import { useMemo } from 'react';
 
 import { Box, Container, Typography } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
-import { PageContent, PageHeader } from 'src/components';
-import { ROUTES } from 'src/consts';
 
 import { PageContainer } from '../../../../components/layout';
 import { WeekDays } from './components';
@@ -25,53 +23,38 @@ const PlannerPage = () => {
 
   return (
     <PageContainer title="Daily Planner">
-      <PageHeader
-        title="Daily Planner"
-        navigator={{
-          breadcrumb: [
-            {
-              title: 'Daily Planner',
-              route: ROUTES.PORTAL.UPLIFT.PLANNER.split('/').pop()!,
-            },
-          ],
-          link: { title: 'Uplift', route: ROUTES.PORTAL.UPLIFT.INDEX },
-        }}
-        description="Organize your daily tasks with smart categorization and progress tracking"
-      />
-      <PageContent>
-        <Container maxWidth="xl">
-          {/* Hero Section */}
-          <Box
-            sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: 3,
-              p: 4,
-              mb: 4,
-              color: 'white',
-              textAlign: 'center',
-            }}
+      <Container maxWidth="xl">
+        {/* Hero Section */}
+        <Box
+          sx={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: 3,
+            p: 4,
+            mb: 4,
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
+          <Typography
+            variant="h4"
+            component="h1"
+            fontWeight="bold"
+            gutterBottom
           >
-            <Typography
-              variant="h4"
-              component="h1"
-              fontWeight="bold"
-              gutterBottom
-            >
-              Daily Task Planner
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{ opacity: 0.9, maxWidth: '600px', mx: 'auto' }}
-            >
-              Organize your daily tasks, track progress, and build productive
-              habits
-            </Typography>
-          </Box>
+            Daily Task Planner
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ opacity: 0.9, maxWidth: '600px', mx: 'auto' }}
+          >
+            Organize your daily tasks, track progress, and build productive
+            habits
+          </Typography>
+        </Box>
 
-          {/* Week View */}
-          <WeekDays days={daysOfCurrentWeek} />
-        </Container>
-      </PageContent>
+        {/* Week View */}
+        <WeekDays days={daysOfCurrentWeek} />
+      </Container>
     </PageContainer>
   );
 };

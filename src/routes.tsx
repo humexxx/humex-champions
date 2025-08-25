@@ -30,16 +30,6 @@ const SettingsPage = lazy(() =>
 );
 
 // Entertainment pages
-const TripsPage = lazy(() =>
-  import('./pages/portal/entertainment').then((module) => ({
-    default: module.TripsPage,
-  }))
-);
-const YouTubePage = lazy(() =>
-  import('./pages/portal/entertainment').then((module) => ({
-    default: module.YouTubePage,
-  }))
-);
 const F1Page = lazy(() =>
   import('./pages/portal/entertainment').then((module) => ({
     default: module.F1Page,
@@ -313,24 +303,6 @@ const entertainmentRoutes: RouteConfig[] = [
   {
     path: ROUTES.PORTAL.ENTERTAINMENT.INDEX,
     element: <Navigate replace to={ROUTES.PORTAL.ENTERTAINMENT.YOUTUBE} />,
-  },
-  {
-    path: ROUTES.PORTAL.ENTERTAINMENT.YOUTUBE,
-    element: (
-      <LazyWrapper>
-        <YouTubePage />
-      </LazyWrapper>
-    ),
-    meta: { title: 'YouTube - HumEx Champions' },
-  },
-  {
-    path: ROUTES.PORTAL.ENTERTAINMENT.TRIPS,
-    element: (
-      <LazyWrapper>
-        <TripsPage />
-      </LazyWrapper>
-    ),
-    meta: { title: 'Trips - HumEx Champions' },
   },
   {
     path: ROUTES.PORTAL.ENTERTAINMENT.F1,

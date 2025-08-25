@@ -11,11 +11,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-// Imágenes libres de Unsplash para ilustrar la landing
-const heroImage =
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
-const benefitImage =
-  'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80';
 
 import {
   ArrowForward as ArrowForwardIcon,

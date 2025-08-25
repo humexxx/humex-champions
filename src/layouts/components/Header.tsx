@@ -17,7 +17,7 @@ import { useTheme } from '@mui/material/styles';
 import { useMemo, useState } from 'react';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from 'src/consts';
-import { useThemeContext } from 'src/context/hooks';
+import { useAuth, useThemeContext } from 'src/context/hooks';
 import { auth } from 'src/firebase';
 
 import { SIDEBAR_WIDTH } from './Sidebar';
@@ -27,6 +27,7 @@ export const MAIN_HEADER_HEIGHT = 88;
 const Header = () => {
   const theme = useTheme();
   const themeContext = useThemeContext();
+  const { currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -188,13 +189,16 @@ const Header = () => {
             </IconButton>
             <IconButton onClick={handleAvatarClick}>
               <Avatar
+                src={currentUser?.photoURL || undefined}
                 sx={{
-                  width: 48,
-                  height: 48,
+                  width: 36,
+                  height: 36,
                   bgcolor: 'primary.main',
                 }}
               >
-                U
+                {currentUser?.displayName?.[0] ||
+                  currentUser?.email?.[0] ||
+                  'U'}
               </Avatar>
             </IconButton>
             <Menu

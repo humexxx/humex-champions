@@ -1,10 +1,4 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, PropsWithChildren, useEffect, useState } from 'react';
 
 import { EProviderType } from '@shared/enums';
 import { IdTokenResult, onAuthStateChanged, User } from 'firebase/auth';
@@ -44,43 +38,11 @@ const saveAuthStateToStorage = (user: User | null, isAdmin: boolean) => {
   }
 };
 
-const loadAuthStateFromStorage = () => {
-  if (import.meta.env.DEV && typeof window !== 'undefined') {
-    try {
-      const userStr = sessionStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-      const isAdminStr = sessionStorage.getItem(STORAGE_KEYS.IS_ADMIN);
-      const hasInitialized =
-        sessionStorage.getItem(STORAGE_KEYS.HAS_INITIALIZED) === 'true';
-
-      if (hasInitialized && userStr && isAdminStr) {
-        return {
-          currentUser: JSON.parse(userStr),
-          isAdmin: JSON.parse(isAdminStr),
-          hasInitialized: true,
-        };
-      }
-    } catch (error) {
-      console.warn('Failed to load auth state from sessionStorage:', error);
-    }
-  }
-  return null;
-};
-
 export function AuthProvider({ children }: PropsWithChildren) {
-  // Try to load saved state from sessionStorage in dev - but only on initial load
-  const savedState = useMemo(() => {
-    if (import.meta.env.DEV) {
-      return loadAuthStateFromStorage();
-    }
-    return null;
-  }, []); // Empty dependency array - only run once
-
-  const [currentUser, setCurrentUser] = useState<User | null>(
-    savedState?.currentUser || null
-  );
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [token, setToken] = useState<IdTokenResult | null>(null);
-  const [isAdmin, setIsAdmin] = useState(savedState?.isAdmin || false);
-  const [loading, setLoading] = useState(!savedState?.hasInitialized);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (ENV.USE_MOCKED_USER) {
