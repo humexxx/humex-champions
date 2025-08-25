@@ -2,11 +2,16 @@
 export interface Asset {
   symbol: string;
   name: string;
-  type: 'stock' | 'etf' | 'crypto';
+  type: 'stock' | 'etf' | 'crypto' | 'system';
   exchange?: string;
   price?: number;
   change?: number;
   changePercent?: number;
+  // Para instrumentos del sistema
+  isSystemAsset?: boolean;
+  monthlyYield?: number; // 0.007 para 0.7% mensual
+  description?: string;
+  riskLevel?: 'low' | 'medium' | 'high';
 }
 
 // Transaction form data
@@ -23,8 +28,12 @@ export interface TransactionFormData {
 export interface AssetSearchAutocompleteProps {
   selectedAsset: Asset | null;
   onAssetSelect: (asset: Asset | null) => void;
-  selectedFilter: 'all' | 'stock' | 'etf' | 'crypto';
-  onFilterChange: (filter: 'all' | 'stock' | 'etf' | 'crypto') => void;
+  selectedFilter: 'all' | 'stock' | 'etf' | 'crypto' | 'system';
+  onFilterChange: (
+    filter: 'all' | 'stock' | 'etf' | 'crypto' | 'system'
+  ) => void;
+  showSystemAssets?: boolean;
+  onToggleSystemAssets?: (show: boolean) => void;
   loading?: boolean;
   error?: string | null;
 }
@@ -43,6 +52,7 @@ export const ASSET_TYPES = [
   { value: 'stock', label: 'Stocks' },
   { value: 'etf', label: 'ETFs' },
   { value: 'crypto', label: 'Crypto' },
+  { value: 'system', label: 'HumEx Products' },
 ] as const;
 
 export type AssetType = (typeof ASSET_TYPES)[number]['value'];

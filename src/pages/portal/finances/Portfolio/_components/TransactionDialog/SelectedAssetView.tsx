@@ -38,17 +38,38 @@ const SelectedAssetView: React.FC<SelectedAssetViewProps> = ({ asset }) => {
                 label={asset.type.toUpperCase()}
                 size="small"
                 color={
-                  asset.type === 'crypto'
-                    ? 'warning'
-                    : asset.type === 'etf'
-                      ? 'info'
-                      : 'default'
+                  asset.type === 'system'
+                    ? 'primary'
+                    : asset.type === 'crypto'
+                      ? 'warning'
+                      : asset.type === 'etf'
+                        ? 'info'
+                        : 'default'
                 }
               />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               {asset.name}
             </Typography>
+            {asset.isSystemAsset && asset.description && (
+              <Typography
+                variant="body2"
+                color="primary.main"
+                sx={{ mb: 1, fontStyle: 'italic' }}
+              >
+                {asset.description}
+              </Typography>
+            )}
+            {asset.isSystemAsset && asset.monthlyYield && (
+              <Typography
+                variant="body2"
+                color="success.main"
+                sx={{ mb: 1, fontWeight: 'medium' }}
+              >
+                Monthly Yield: {(asset.monthlyYield * 100).toFixed(2)}% • Risk
+                Level: {asset.riskLevel}
+              </Typography>
+            )}
             {asset.exchange && (
               <Typography variant="body2" color="text.secondary">
                 Exchange: {asset.exchange}
@@ -60,8 +81,17 @@ const SelectedAssetView: React.FC<SelectedAssetViewProps> = ({ asset }) => {
             <Box sx={{ textAlign: 'right' }}>
               <Typography variant="h6" component="div">
                 ${asset.price.toFixed(2)}
+                {asset.isSystemAsset && (
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block' }}
+                  >
+                    Base Price
+                  </Typography>
+                )}
               </Typography>
-              {asset.changePercent !== undefined && (
+              {asset.changePercent !== undefined && !asset.isSystemAsset && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   {asset.changePercent >= 0 ? (
                     <TrendingUpIcon color="success" fontSize="small" />
