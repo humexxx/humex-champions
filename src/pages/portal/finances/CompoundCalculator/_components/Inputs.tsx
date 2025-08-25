@@ -35,21 +35,21 @@ const Inputs = ({ onChange, customData, onRemove }: Props) => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item>
+      <Grid>
         <CurrencyField
           label="Initial Investment"
           value={initialInvestment}
           onChange={forceNumberOnInputChange(setInitialInvestment)}
         />
       </Grid>
-      <Grid item>
+      <Grid>
         <CurrencyField
           label="Monthly Contribution"
           value={monthlyContribution}
           onChange={forceNumberOnInputChange(setMonthlyContribution)}
         />
       </Grid>
-      <Grid item>
+      <Grid>
         <PercentageField
           label="Interest Rate"
           value={interestRate}
@@ -57,7 +57,7 @@ const Inputs = ({ onChange, customData, onRemove }: Props) => {
         />
       </Grid>
       {Boolean(onRemove) && (
-        <Grid item justifyContent="center" display="flex">
+        <Grid sx={{ justifyContent: 'center', display: 'flex' }}>
           <IconButton onClick={onRemove}>
             <DeleteIcon color="error" />
           </IconButton>

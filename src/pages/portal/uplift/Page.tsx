@@ -5,16 +5,16 @@ import InsightsIcon from '@mui/icons-material/Insights';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import {
   Box,
-  Container,
-  Typography,
-  Grid,
   Card,
   CardContent,
   Chip,
+  Container,
+  Grid,
+  Typography,
 } from '@mui/material';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
+import { PageContainer } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
-import { Page } from 'src/components/layout';
 
 const UpliftPage = () => {
   const options = useMemo(
@@ -52,7 +52,7 @@ const UpliftPage = () => {
   ];
 
   return (
-    <Page title="Personal Growth Hub">
+    <PageContainer title="Personal Growth Hub">
       <PageHeader
         title="Personal Growth Hub"
         description="Transform your daily habits and achieve your goals with our comprehensive toolkit"
@@ -250,7 +250,7 @@ const UpliftPage = () => {
           </Card>
         </Container>
       </PageContent>
-    </Page>
+    </PageContainer>
   );
 };
 

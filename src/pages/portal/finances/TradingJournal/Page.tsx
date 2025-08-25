@@ -19,11 +19,11 @@ import {
   BalanceTracker,
   Calendar,
   EditPanel,
-  SummaryPanel,
   OperationsHistory,
   OperationsHistoryChart,
-  Timeline,
   Quote,
+  SummaryPanel,
+  Timeline,
 } from './_components';
 
 const TradingJournalPage = () => {
@@ -105,7 +105,7 @@ const TradingJournalPage = () => {
       </Breadcrumbs>
       <Box mt={4}>
         <Grid container columnSpacing={4}>
-          <Grid item xs={6} textAlign="center">
+          <Grid size={{ xs: 6 }} sx={{ textAlign: 'center' }}>
             <ButtonGroup aria-label="filter" disableElevation>
               <Button
                 variant={filter === 'day' ? 'contained' : 'outlined'}
@@ -127,7 +127,7 @@ const TradingJournalPage = () => {
               </Button>
             </ButtonGroup>
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <BalanceTracker
               operations={operations}
               onUpdate={(operation) => updateTradingJournal(journal, operation)}
@@ -135,7 +135,7 @@ const TradingJournalPage = () => {
               day={day}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Calendar
               day={day}
               onChange={setDay}
@@ -144,7 +144,7 @@ const TradingJournalPage = () => {
               hasNoTrades={!trades.length}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             {filter === 'day' ? (
               <EditPanel
                 formIsDirtyOnChange={setFormIsDirty}
@@ -162,7 +162,7 @@ const TradingJournalPage = () => {
               <OperationsHistory operations={operations} />
             )}
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             {filter === 'day' ? (
               <Quote />
             ) : (
@@ -172,10 +172,10 @@ const TradingJournalPage = () => {
               />
             )}
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Timeline operations={operations} />
           </Grid>
-          <Grid item xs={12} mt={4}>
+          <Grid size={12} mt={4}>
             <SummaryPanel
               amount={10}
               monthlyGrowth={10}

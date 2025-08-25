@@ -32,7 +32,7 @@ const Calendar = ({
       showDaysOutsideCurrentMonth
       disableFuture
       value={day}
-      onChange={onChange}
+      onChange={(value) => value && onChange(value)}
       slots={{
         day: (props) => (
           <Day
@@ -62,7 +62,7 @@ const Calendar = ({
 };
 
 function Day(
-  props: PickersDayProps<Dayjs> & {
+  props: PickersDayProps & {
     selectedDay?: Dayjs | null;
     hoveredDay?: Dayjs | null;
     filter: 'day' | 'week' | 'month';
@@ -137,7 +137,7 @@ function Day(
   );
 }
 
-interface CustomPickerDayProps extends PickersDayProps<Dayjs> {
+interface CustomPickerDayProps extends PickersDayProps {
   isSelected: boolean;
   isHovered: boolean;
   isFirstFromGroup: boolean;
@@ -217,6 +217,6 @@ const CustomPickersDay = styled(PickersDay, {
     }),
     padding: '0 !important',
   })
-) as React.ComponentType<CustomPickerDayProps>;
+) as unknown as React.ComponentType<CustomPickerDayProps>;
 
 export default Calendar;

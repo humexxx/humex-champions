@@ -41,7 +41,7 @@ const Page = () => {
       <PageContent>
         <Grid container spacing={4}>
           {options.map(({ route, Icon, description, label }) => (
-            <Grid item xs={12} md={4} key={route}>
+            <Grid size={{ xs: 12, md: 4 }} key={route}>
               <LinkOptionCard
                 route={route}
                 label={label}

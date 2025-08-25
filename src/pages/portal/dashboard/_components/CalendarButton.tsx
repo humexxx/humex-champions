@@ -18,7 +18,7 @@ const Page = () => {
   return (
     <>
       {settings?.useGoogleCalendar && (
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Button
             variant="contained"
             color="primary"

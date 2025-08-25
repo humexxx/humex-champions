@@ -46,12 +46,12 @@ const Page = () => {
       <PageHeader title="Admin Panel" />
       <PageContent>
         <Grid container spacing={4}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography variant="h4" gutterBottom>
               Finances
             </Typography>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <ButtonOptionCard
               loading={
                 isLoading &&
@@ -68,7 +68,7 @@ const Page = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <ButtonOptionCard
               loading={
                 isLoading &&
@@ -83,12 +83,12 @@ const Page = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography variant="h4" gutterBottom>
               Self Development
             </Typography>
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <ButtonOptionCard
               loading={
                 isLoading &&

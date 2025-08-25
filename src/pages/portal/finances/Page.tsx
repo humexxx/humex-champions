@@ -6,7 +6,7 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Grid } from '@mui/material';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
-import { Page } from 'src/components/layout';
+import { PageContainer } from 'src/components/layout';
 
 const FinancesPage = () => {
   const options = useMemo(
@@ -41,7 +41,7 @@ const FinancesPage = () => {
   );
 
   return (
-    <Page title="Finances">
+    <PageContainer title="Finances">
       <PageHeader
         title="Finances"
         description="Manage your financial planning and tracking"
@@ -61,7 +61,7 @@ const FinancesPage = () => {
           ))}
         </Grid>
       </PageContent>
-    </Page>
+    </PageContainer>
   );
 };
 

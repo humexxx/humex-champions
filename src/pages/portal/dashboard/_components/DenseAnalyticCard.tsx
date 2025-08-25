@@ -31,13 +31,13 @@ export default function DenseAnalyticCard({
             {title}
           </Typography>
           <Grid container alignItems="center">
-            <Grid item>
+            <Grid>
               <Typography variant="h4" color="inherit">
                 {count}
               </Typography>
             </Grid>
             {percentage && (
-              <Grid item>
+              <Grid>
                 <Chip
                   variant="filled"
                   color={isLoss ? 'error' : 'success'}

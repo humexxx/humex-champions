@@ -7,6 +7,7 @@ import { PageContent, PageHeader } from 'src/components';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 import { MULTIPLE_GRAPH_COLORS, ROUTES } from 'src/consts';
 
+import { PageContainer } from '../../../../components/layout';
 import { Graph, Inputs } from './_components';
 
 const MAX_INVESTMENTS = 10;
@@ -67,19 +68,21 @@ const CompoundInterestCalculatorPage = () => {
   }
 
   return (
-    <>
+    <PageContainer title={'Compound Calculator'}>
       <PageHeader
         title="Compound Calculator"
-        breadcrumb={[
-          {
-            title: 'Finances',
-            route: ROUTES.PORTAL.FINANCES.INDEX,
-          },
-          {
+        navigator={{
+          breadcrumb: [
+            {
+              title: 'Finances',
+              route: ROUTES.PORTAL.FINANCES.INDEX,
+            },
+          ],
+          link: {
             title: 'Compound Calculator',
             route: 'compound-calculator',
           },
-        ]}
+        }}
       />
 
       <PageContent>
@@ -174,7 +177,7 @@ const CompoundInterestCalculatorPage = () => {
           />
         </Box>
       </PageContent>
-    </>
+    </PageContainer>
   );
 };
 

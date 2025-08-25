@@ -1,25 +1,25 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import RouteIcon from '@mui/icons-material/Route';
+import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
 import {
+  Avatar,
   Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
   Container,
   Typography,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Chip,
-  Avatar,
 } from '@mui/material';
-import RouteIcon from '@mui/icons-material/Route';
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
+import { EPathwayDifficulty } from '@shared/models/uplift';
 import { PageContent, PageHeader } from 'src/components';
+import { PageContainer } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
 import { useUpliftService } from 'src/services/upliftService';
-import { EPathwayDifficulty } from '@shared/models/uplift';
-import { Page } from 'src/components/layout';
 
 const PathwayPage = () => {
   const upliftService = useUpliftService();
@@ -44,7 +44,7 @@ const PathwayPage = () => {
   };
 
   return (
-    <Page title="Growth Pathways">
+    <PageContainer title="Growth Pathways">
       <PageHeader
         title="Growth Pathways"
         navigator={{
@@ -228,7 +228,7 @@ const PathwayPage = () => {
           )}
         </Container>
       </PageContent>
-    </Page>
+    </PageContainer>
   );
 };
 

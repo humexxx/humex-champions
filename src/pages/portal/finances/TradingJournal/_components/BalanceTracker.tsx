@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
@@ -20,6 +20,9 @@ import { Controller, useForm } from 'react-hook-form';
 import { CurrencyField } from 'src/components/forms';
 import { useDialogFullScreen } from 'src/hooks';
 import * as yup from 'yup';
+
+// Temporary translation function
+const t = (key: string) => key.split('.').pop() || key;
 
 type Props = {
   operations: IOperation[];
@@ -111,7 +114,7 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
             Add a new transaction to track your balance changes.
           </DialogContentText>
           <Grid container spacing={2} my={4}>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Controller
                 name="amount"
                 control={control}
@@ -130,7 +133,7 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
                 )}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Controller
                 name="type"
                 control={control}
@@ -161,7 +164,7 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
                 )}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Controller
                 name="notes"
                 control={control}
@@ -194,14 +197,14 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
         </DialogActions>
       </Dialog>
       <Grid container spacing={2}>
-        <Grid item xs={5}>
+        <Grid size={{ xs: 5 }}>
           <CurrencyField
             label={'Balance Start'}
             value={startOperation?.balanceStart ?? 0}
             disabled
           />
         </Grid>
-        <Grid item xs={5}>
+        <Grid size={{ xs: 5 }}>
           <CurrencyField
             label={'Balance End'}
             value={endOperation?.balanceEnd ?? 0}
@@ -209,7 +212,7 @@ const BalanceTracker = ({ operations, onUpdate, day, filter }: Props) => {
           />
         </Grid>
         {Boolean(canAddTransaction) && (
-          <Grid item xs={2}>
+          <Grid size={{ xs: 2 }}>
             <IconButton color="primary" onClick={() => setOpen(true)}>
               <PriceChangeIcon />
             </IconButton>

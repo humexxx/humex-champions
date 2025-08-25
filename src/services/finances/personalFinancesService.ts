@@ -1,24 +1,23 @@
 import { FIRESTORE_PATHS } from '@shared/consts';
+import { PERIOD_TYPES } from '@shared/enums/finance';
 import {
-  IFinancialPlan,
   IDebt,
+  IFinancialPlan,
   IFixedExpense,
   IIncome,
 } from '@shared/models/finances';
 import { getError } from '@shared/utils';
-import { PERIOD_TYPES } from '@shared/enums/finance';
+import dayjs from 'dayjs';
 import {
   collection,
-  getDocs,
   doc,
-  setDoc,
-  onSnapshot,
   getDoc,
+  getDocs,
+  onSnapshot,
+  setDoc,
 } from 'firebase/firestore';
 import { firestore } from 'src/firebase';
 import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
-import dayjs from 'dayjs';
-import { ENVIRONMENTS } from 'src/consts';
 
 // ============= MOCK DATA =============
 const firstDayOfLastMonth = dayjs().subtract(1, 'month').startOf('month');

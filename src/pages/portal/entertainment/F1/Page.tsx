@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PageContent, PageHeader } from 'src/components';
-import { Page } from 'src/components/layout';
-import { F1Header, F1Content } from './_components';
+import { PageContainer } from 'src/components/layout';
 import { F1Service } from 'src/services/f1Service';
+import { F1Content, F1Header } from './_components';
 
 interface F1Data {
   currentSeason: string;
@@ -94,7 +94,7 @@ const F1Page = () => {
 
   // 4. Render structure
   return (
-    <Page title="Formula 1">
+    <PageContainer title="Formula 1">
       <PageHeader
         title="Formula 1"
         description="Track races, standings, and results for the current F1 season"
@@ -117,7 +117,7 @@ const F1Page = () => {
           error={error}
         />
       </PageContent>
-    </Page>
+    </PageContainer>
   );
 };
 

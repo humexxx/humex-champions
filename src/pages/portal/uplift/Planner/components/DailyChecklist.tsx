@@ -18,9 +18,9 @@ import {
 import { IPlanner } from '@shared/models/uplift';
 import { Dayjs } from 'dayjs';
 
-import DailyChecklistForm from './DailyChecklistForm';
 import { UseUplift } from '../../hooks/useUplift';
 import { usePlannerSetter } from '../hooks';
+import DailyChecklistForm from './DailyChecklistForm';
 
 const DailyChecklist = ({
   day,
@@ -62,7 +62,7 @@ const DailyChecklist = ({
             />
           </Box>
           <List>
-            {data?.items.map((item, index) => (
+            {data?.items.map((item: any, index: number) => (
               <ListItem
                 key={index}
                 disablePadding
@@ -94,7 +94,7 @@ const DailyChecklist = ({
                     primary={item.title}
                     secondary={
                       <Stack direction={'row'} gap={1} mt={0.5}>
-                        {item.labels.map((label) => (
+                        {item.labels.map((label: any) => (
                           <Chip
                             key={label.title}
                             label={label.title}

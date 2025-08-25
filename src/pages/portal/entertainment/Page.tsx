@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
 import ModeOfTravelIcon from '@mui/icons-material/ModeOfTravel';
-import YouTubeIcon from '@mui/icons-material/YouTube';
 import SportsIcon from '@mui/icons-material/Sports';
+import YouTubeIcon from '@mui/icons-material/YouTube';
 import { Grid } from '@mui/material';
 import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
-import { Page } from 'src/components/layout';
+import { PageContainer } from 'src/components/layout';
 
 import { Toys } from '@mui/icons-material';
 import { ROUTES } from 'src/consts';
@@ -43,7 +43,7 @@ const EntertainmentPage = () => {
   );
 
   return (
-    <Page title="Entertainment">
+    <PageContainer title="Entertainment">
       <PageHeader
         title="Entertainment"
         description="Manage your entertainment and leisure activities"
@@ -62,7 +62,7 @@ const EntertainmentPage = () => {
           ))}
         </Grid>
       </PageContent>
-    </Page>
+    </PageContainer>
   );
 };
 

@@ -1,40 +1,39 @@
-import { useState, useEffect } from 'react';
 import {
-  Box,
-  Container,
-  Tabs,
-  Tab,
-  CircularProgress,
-  Alert,
-  Typography,
-  Card,
-  CardContent,
-  Avatar,
-  Button,
-  Chip,
-  ToggleButton,
-  ToggleButtonGroup,
-} from '@mui/material';
-import {
-  Sports,
-  Stadium,
   EmojiEvents,
-  TrendingUp,
+  History,
   People,
   Schedule,
-  History,
+  Sports,
+  Stadium,
+  TrendingUp,
 } from '@mui/icons-material';
+import {
+  Alert,
+  Avatar,
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Container,
+  Tab,
+  Tabs,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 import useDocumentMetadata from 'src/hooks/useDocumentMetadata';
 import {
-  SoccerService,
-  SoccerPageData,
   POPULAR_SOCCER_LEAGUES,
+  SoccerPageData,
+  SoccerService,
 } from 'src/services/soccerService';
 import {
+  LeagueSelector,
+  MatchesTable,
   StandingsTable,
   TeamsTable,
-  MatchesTable,
-  LeagueSelector,
 } from './components';
 
 /**

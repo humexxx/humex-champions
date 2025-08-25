@@ -12,13 +12,12 @@ import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router-dom';
 import { GoogleLoginButton } from 'src/components/auth';
 import * as yup from 'yup';
 
-import { SignInProps, SignInFormInputs } from './SignIn.types';
-
+import { SignInFormInputs, SignInProps } from './SignIn.types';
 
 const schema = yup.object().shape({
   email: yup
@@ -136,12 +135,12 @@ export default function SignIn({ handleOnSubmit }: SignInProps) {
         <Divider sx={{ my: 4 }}>or</Divider>
         <GoogleLoginButton />
         <Grid container>
-          <Grid item xs>
+          <Grid size="grow">
             <Link component={RouterLink} to="/forgot-password" variant="body2">
               Forgot password?
             </Link>
           </Grid>
-          <Grid item>
+          <Grid>
             <Link component={RouterLink} to="/sign-up" variant="body2">
               {"Don't have an account? Sign Up"}
             </Link>

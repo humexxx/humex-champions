@@ -1,34 +1,34 @@
-import { Grid, Box, Stack, Button } from '@mui/material';
 import {
-  CalendarToday,
-  AttachMoney,
-  Person,
-  MonetizationOn,
   Add,
+  AttachMoney,
+  CalendarToday,
+  MonetizationOn,
+  Person,
 } from '@mui/icons-material';
+import { Box, Button, Grid, Stack } from '@mui/material';
 import dayjs from 'dayjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GlobalLoader, PageContent, PageHeader } from 'src/components';
-import {
-  PortfolioHeader,
-  PortfolioChart,
-  HoldingsTable,
-  PortfolioHighlights,
-  ActivityTable,
-  TableFilter,
-  SortField,
-  SortOrder,
-  CreatePortfolioDialog,
-  EmptyPortfolioState,
-  AdminTestingSection,
-} from './_components';
-import TransactionDialog from './_components/TransactionDialog';
+import { PageContainer } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
-import { Page } from 'src/components/layout';
-import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   TIME_FILTERS,
   TimeFilter,
 } from '../../../../../shared/enums/finance/timeFilters';
+import {
+  ActivityTable,
+  AdminTestingSection,
+  CreatePortfolioDialog,
+  EmptyPortfolioState,
+  HoldingsTable,
+  PortfolioChart,
+  PortfolioHeader,
+  PortfolioHighlights,
+  SortField,
+  SortOrder,
+  TableFilter,
+} from './_components';
+import TransactionDialog from './_components/TransactionDialog';
 import usePortfolio from './usePortfolio';
 
 const PortafolioPage = () => {
@@ -290,7 +290,7 @@ const PortafolioPage = () => {
 
   if (userPortfolios.length === 0 && !loading) {
     return (
-      <Page title="Portafolio">
+      <PageContainer title="Portafolio">
         <PageHeader
           title={'Portfolio'}
           navigator={{
@@ -314,7 +314,7 @@ const PortafolioPage = () => {
             loading={loading}
           />
         </PageContent>
-      </Page>
+      </PageContainer>
     );
   }
 
@@ -324,7 +324,7 @@ const PortafolioPage = () => {
   }
 
   return (
-    <Page title="Portafolio">
+    <PageContainer title="Portafolio">
       <PageHeader
         title={'Portfolio'}
         navigator={{
@@ -449,7 +449,7 @@ const PortafolioPage = () => {
         onSubmit={handleCreatePortfolio}
         loading={loading}
       />
-    </Page>
+    </PageContainer>
   );
 };
 

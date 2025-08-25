@@ -5,17 +5,17 @@ import {
   AppBar,
   Avatar,
   Box,
+  Container,
   Divider,
   IconButton,
+  Link,
   Menu,
   MenuItem,
-  Tab,
-  Tabs,
   Toolbar,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from 'src/consts';
 import { useThemeContext } from 'src/context/hooks';
 import { auth } from 'src/firebase';
@@ -97,17 +97,8 @@ const Header = () => {
     return null;
   }, [location.pathname]);
 
-  const getCurrentTabValue = () => {
-    if (!getSubRoutes) return false;
-    return getSubRoutes.routes.findIndex(
-      (route) => route.path === location.pathname
-    );
-  };
-
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    if (getSubRoutes && getSubRoutes.routes[newValue]) {
-      navigate(getSubRoutes.routes[newValue].path);
-    }
+  const isRouteActive = (routePath: string) => {
+    return location.pathname === routePath;
   };
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -154,69 +145,77 @@ const Header = () => {
         sx={{
           minHeight: `${MAIN_HEADER_HEIGHT}px !important`,
           height: MAIN_HEADER_HEIGHT,
-          gap: 2,
+          gap: 1,
+          p: '0 !important',
         }}
       >
-        {getSubRoutes && (
-          <Tabs
-            value={getCurrentTabValue()}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              ml: 2,
-              '& .MuiTab-root': {
-                textTransform: 'none',
-                minWidth: 'auto',
-                px: 2,
-                fontSize: '0.875rem',
-                minHeight: 48,
-              },
-            }}
-          >
-            {getSubRoutes.routes.map((route) => (
-              <Tab
-                key={route.path}
-                label={route.label}
-                disabled={(route as any).disabled}
-              />
-            ))}
-          </Tabs>
-        )}
-        <Box sx={{ flexGrow: 1 }} />
-        <IconButton color="inherit" onClick={themeContext.toggleColorMode}>
-          {theme.palette.mode === 'dark' ? (
-            <Brightness4Icon />
-          ) : (
-            <Brightness7Icon />
-          )}
-        </IconButton>
-        <IconButton onClick={handleAvatarClick}>
-          <Avatar
-            sx={{
-              width: 48,
-              height: 48,
-              bgcolor: 'primary.main',
-            }}
-          >
-            U
-          </Avatar>
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          onClick={handleClose}
-          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        <Container
+          maxWidth="xl"
+          sx={{ display: 'flex', justifyContent: 'space-between' }}
         >
-          <MenuItem onClick={handleSettings}>Settings</MenuItem>
-          <Divider />
-          <MenuItem onClick={handleLogout}>
-            <LogoutIcon sx={{ mr: 1 }} />
-            Logout
-          </MenuItem>
-        </Menu>
+          {getSubRoutes && (
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 3,
+                ml: 2,
+                alignItems: 'center',
+              }}
+            >
+              {getSubRoutes.routes.map((route) => (
+                <Link
+                  key={route.path}
+                  component={RouterLink}
+                  to={route.path}
+                  sx={{
+                    textDecoration: 'none',
+                    color: 'text.primary',
+                    fontWeight: isRouteActive(route.path) ? 600 : 400,
+                    opacity: (route as any).disabled ? 0.5 : 1,
+                    pointerEvents: (route as any).disabled ? 'none' : 'auto',
+                  }}
+                >
+                  {route.label}
+                </Link>
+              ))}
+            </Box>
+          )}
+          <Box>
+            <IconButton color="inherit" onClick={themeContext.toggleColorMode}>
+              {theme.palette.mode === 'dark' ? (
+                <Brightness4Icon />
+              ) : (
+                <Brightness7Icon />
+              )}
+            </IconButton>
+            <IconButton onClick={handleAvatarClick}>
+              <Avatar
+                sx={{
+                  width: 48,
+                  height: 48,
+                  bgcolor: 'primary.main',
+                }}
+              >
+                U
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              onClick={handleClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem onClick={handleSettings}>Settings</MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <LogoutIcon sx={{ mr: 1 }} />
+                Logout
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Container>
       </Toolbar>
     </AppBar>
   );

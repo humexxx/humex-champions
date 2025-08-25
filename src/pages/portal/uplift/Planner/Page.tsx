@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 
-import dayjs, { Dayjs } from 'dayjs';
 import { Box, Container, Typography } from '@mui/material';
+import dayjs, { Dayjs } from 'dayjs';
 import { PageContent, PageHeader } from 'src/components';
 import { ROUTES } from 'src/consts';
 
+import { PageContainer } from '../../../../components/layout';
 import { WeekDays } from './components';
-import { Page } from 'src/components/layout';
 
 function getDaysOfCurrentWeek(): Dayjs[] {
   const today = dayjs();
@@ -24,7 +24,7 @@ const PlannerPage = () => {
   const daysOfCurrentWeek = useMemo(getDaysOfCurrentWeek, []);
 
   return (
-    <Page title="Daily Planner">
+    <PageContainer title="Daily Planner">
       <PageHeader
         title="Daily Planner"
         navigator={{
@@ -72,7 +72,7 @@ const PlannerPage = () => {
           <WeekDays days={daysOfCurrentWeek} />
         </Container>
       </PageContent>
-    </Page>
+    </PageContainer>
   );
 };
 

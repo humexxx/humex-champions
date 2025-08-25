@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { PageContent, PageHeader } from 'src/components';
 import { GoogleLoginButton } from 'src/components/auth';
 import { useAuth } from 'src/context/hooks';
@@ -81,16 +81,14 @@ const Page = () => {
           />
 
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <Typography variant="h6" component="h2" gutterBottom>
                 {hasGoogleProvider
                   ? 'Google Account Connected'
                   : 'Google Account Not Connected'}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              {!hasGoogleProvider && <GoogleLoginButton />}
-            </Grid>
+            <Grid size={6}>{!hasGoogleProvider && <GoogleLoginButton />}</Grid>
           </Grid>
           <Box>
             <Button type="submit" variant="contained" sx={{ mt: 2 }}>

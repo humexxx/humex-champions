@@ -9,57 +9,6 @@ function getTheme(mode: EThemeType) {
     typography: {
       fontFamily: '"Google Sans", "Roboto", "Helvetica", "Arial", sans-serif',
       fontSize: 12, // Reduced even more to match Google's lighter feel
-      h1: {
-        fontSize: '1.875rem', // Much smaller for Google-like subtlety
-        fontWeight: 300, // Lighter weight like Google
-        lineHeight: 1.2,
-      },
-      h2: {
-        fontSize: '1.5rem',
-        fontWeight: 300,
-        lineHeight: 1.3,
-      },
-      h3: {
-        fontSize: '1.25rem',
-        fontWeight: 400,
-        lineHeight: 1.3,
-      },
-      h4: {
-        fontSize: '1.125rem',
-        fontWeight: 400,
-        lineHeight: 1.4,
-      },
-      h5: {
-        fontSize: '1rem',
-        fontWeight: 400,
-        lineHeight: 1.4,
-      },
-      h6: {
-        fontSize: '0.9375rem', // Smaller and lighter
-        fontWeight: 400, // Less bold than before
-        lineHeight: 1.4,
-      },
-      body1: {
-        fontSize: '0.8125rem', // Smaller body text like Google
-        lineHeight: 1.5,
-        fontWeight: 400,
-      },
-      body2: {
-        fontSize: '0.75rem', // Even smaller for secondary text
-        lineHeight: 1.5,
-        fontWeight: 400,
-      },
-      button: {
-        textTransform: 'none',
-        fontWeight: 400, // Much lighter, not bold like Google
-        fontSize: '0.75rem', // Smaller buttons
-        lineHeight: 1.5,
-      },
-      caption: {
-        fontSize: '0.6875rem',
-        lineHeight: 1.4,
-        fontWeight: 300, // Very light for captions
-      },
     },
     shape: {
       borderRadius: 8, // Google uses more rounded corners
@@ -71,8 +20,6 @@ function getTheme(mode: EThemeType) {
           root: {
             borderRadius: 24, // Google's pill-shaped buttons
             textTransform: 'none',
-            fontWeight: 500,
-            padding: '8px 24px',
             boxShadow: 'none',
             '&:hover': {
               boxShadow:
@@ -142,8 +89,6 @@ function getTheme(mode: EThemeType) {
         styleOverrides: {
           root: {
             textTransform: 'none',
-            fontWeight: 400, // Much lighter like Google
-            fontSize: '0.6875rem', // Even smaller to match Google's subtle style
             minHeight: 36, // More compact
             padding: '6px 12px', // Tighter padding
             '&.Mui-selected': {
@@ -155,6 +100,8 @@ function getTheme(mode: EThemeType) {
       MuiTabs: {
         styleOverrides: {
           root: {
+            marginLeft: 0,
+            fontSize: '0.6875rem',
             '& .MuiTabs-indicator': {
               height: 3,
               borderRadius: '3px 3px 0 0',

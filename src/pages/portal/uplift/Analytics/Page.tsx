@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import {
   Box,
-  Container,
-  Typography,
   Card,
   CardContent,
-  CircularProgress,
   Chip,
+  CircularProgress,
+  Container,
+  Typography,
 } from '@mui/material';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
+import { IDailyStats, IOverallStats } from '@shared/models/uplift';
 import { PageContent, PageHeader } from 'src/components';
+import { PageContainer } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
 import { useUpliftService } from 'src/services/upliftService';
-import { IDailyStats, IOverallStats } from '@shared/models/uplift';
-import { Page } from 'src/components/layout';
 
 const AnalyticsPage = () => {
   const upliftService = useUpliftService();
@@ -43,7 +43,7 @@ const AnalyticsPage = () => {
   }, [upliftService]);
 
   return (
-    <Page title="Progress Analytics">
+    <PageContainer title="Progress Analytics">
       <PageHeader
         title="Progress Analytics"
         navigator={{
@@ -261,7 +261,7 @@ const AnalyticsPage = () => {
           )}
         </Container>
       </PageContent>
-    </Page>
+    </PageContainer>
   );
 };
 

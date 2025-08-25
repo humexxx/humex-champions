@@ -1,6 +1,6 @@
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import { Box, Container, Grid, Stack, Typography } from '@mui/material';
-import { Page } from 'src/components/layout';
+import { PageContainer } from 'src/components/layout';
 import { ROUTES } from 'src/consts';
 
 import { MetricsCard } from './_components';
@@ -12,7 +12,7 @@ const DashboardPage = () => {
   console.log(data);
 
   return (
-    <Page title="Dashboard" useContainer={false}>
+    <PageContainer title="Dashboard" useContainer={false}>
       <Box
         component={'section'}
         sx={{
@@ -71,7 +71,7 @@ const DashboardPage = () => {
           </Container>
         </Box>
       </Box>
-    </Page>
+    </PageContainer>
   );
 };
 
