@@ -12,13 +12,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-import { PageContent, PageHeader } from 'src/components';
+import { Controller, useForm } from 'react-hook-form';
 import { GoogleLoginButton } from 'src/components/auth';
 import { useAuth } from 'src/context/hooks';
 import { getFullTimezone } from 'src/utils';
 import * as yup from 'yup';
 
+import { PageContainer } from '../../../components/layout';
 import { useUserSettings } from './hooks';
 
 const schema = yup.object().shape({
@@ -26,7 +26,7 @@ const schema = yup.object().shape({
   useGoogleCalendar: yup.boolean(),
 });
 
-const Page = () => {
+const SettingsPage = () => {
   const { hasGoogleProvider } = useAuth();
 
   const { settings, update } = useUserSettings();
@@ -54,53 +54,44 @@ const Page = () => {
   }, [settings, setValue]);
 
   return (
-    <>
-      <PageHeader
-        title="Settings"
-        description="Configure your application settings"
-      ></PageHeader>
+    <PageContainer title="Settings">
+      <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap={4}>
+        <Controller
+          name="timezone"
+          control={control}
+          render={({ field }) => <TextField {...field} disabled />}
+        />
+        <Controller
+          name="useGoogleCalendar"
+          control={control}
+          render={({ field }) => (
+            <FormGroup aria-label="position" row>
+              <FormControlLabel
+                label="Use Google Calendar"
+                control={<Checkbox {...field} checked={field.value} />}
+              />
+            </FormGroup>
+          )}
+        />
 
-      <PageContent>
-        <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap={4}>
-          <Controller
-            name="timezone"
-            control={control}
-            render={({ field }) => <TextField {...field} disabled />}
-          />
-          <Controller
-            name="useGoogleCalendar"
-            control={control}
-            render={({ field }) => (
-              <FormGroup aria-label="position" row>
-                <FormControlLabel
-                  label="Use Google Calendar"
-                  control={<Checkbox {...field} checked={field.value} />}
-                />
-              </FormGroup>
-            )}
-          />
-
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Typography variant="h6" component="h2" gutterBottom>
-                {hasGoogleProvider
-                  ? 'Google Account Connected'
-                  : 'Google Account Not Connected'}
-              </Typography>
-            </Grid>
-            <Grid item xs={6}>
-              {!hasGoogleProvider && <GoogleLoginButton />}
-            </Grid>
+        <Grid container spacing={2}>
+          <Grid size={6}>
+            <Typography variant="h6" component="h2" gutterBottom>
+              {hasGoogleProvider
+                ? 'Google Account Connected'
+                : 'Google Account Not Connected'}
+            </Typography>
           </Grid>
-          <Box>
-            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-              Save
-            </Button>
-          </Box>
-        </Stack>
-      </PageContent>
-    </>
+          <Grid size={6}>{!hasGoogleProvider && <GoogleLoginButton />}</Grid>
+        </Grid>
+        <Box>
+          <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+            Save
+          </Button>
+        </Box>
+      </Stack>
+    </PageContainer>
   );
 };
 
-export default Page;
+export default SettingsPage;

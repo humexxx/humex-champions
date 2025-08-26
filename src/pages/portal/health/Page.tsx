@@ -4,9 +4,10 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import { Grid } from '@mui/material';
-import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
+import { LinkOptionCard } from 'src/components';
+import { PageContainer } from '../../../components/layout';
 
-const Page = () => {
+const HealthPage = () => {
   const options = useMemo(
     () => [
       {
@@ -33,27 +34,21 @@ const Page = () => {
   );
 
   return (
-    <>
-      <PageHeader
-        title="Health & Fitness"
-        description="Track your health, fitness, and nutrition goals"
-      />
-      <PageContent>
-        <Grid container spacing={4}>
-          {options.map(({ route, Icon, description, label }) => (
-            <Grid item xs={12} md={4} key={route}>
-              <LinkOptionCard
-                route={route}
-                label={label}
-                description={description}
-                icon={<Icon color="primary" />}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </PageContent>
-    </>
+    <PageContainer title="Health & Fitness">
+      <Grid container spacing={4}>
+        {options.map(({ route, Icon, description, label }) => (
+          <Grid size={{ xs: 12, md: 4 }} key={route}>
+            <LinkOptionCard
+              route={route}
+              label={label}
+              description={description}
+              icon={<Icon color="primary" />}
+            />
+          </Grid>
+        ))}
+      </Grid>
+    </PageContainer>
   );
 };
 
-export default Page;
+export default HealthPage;

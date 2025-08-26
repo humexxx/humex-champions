@@ -1,18 +1,17 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { TIME_FILTERS, TimeFilter } from '@shared/enums/finance/timeFilters';
 import {
+  IAsset,
   IPortfolio,
   IPortfolioHolding,
-  IPortfolioTransaction,
   IPortfolioSnapshot,
-  IAsset,
+  IPortfolioTransaction,
 } from '@shared/models/finances';
 import { CommonFetchHookProps } from 'src/_models';
 import { useAuth } from 'src/context/hooks';
 import { createPortfolioService } from 'src/services/finances';
-import { TimeFilter, TIME_FILTERS } from '@shared/enums/finance/timeFilters';
 
 interface UsePortfolio {
   // Datos de un portfolio específico (null si no hay ninguno seleccionado)
@@ -284,7 +283,7 @@ const usePortfolio = (
         portfolioId: portfolioId,
       };
 
-      return await service.addTransaction(currentUser.uid, completeTransaction);
+      return await (service.addTransaction as any)(completeTransaction);
     },
     [currentUser, service]
   );

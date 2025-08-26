@@ -2,36 +2,36 @@ import { useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
-  Edit as EditIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  Edit as EditIcon,
 } from '@mui/icons-material';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  IconButton,
-  Grid,
+  Alert,
   Box,
-  TextField,
-  Stack,
-  List,
+  Button,
   Card,
   CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  List,
   ListItem,
   ListItemButton,
   ListItemText,
   Snackbar,
-  Alert,
   SnackbarCloseReason,
+  Stack,
+  TextField,
   Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { IDebt } from '@shared/models/finances';
 import dayjs from 'dayjs';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
@@ -141,7 +141,7 @@ const DebtEditDialog = ({ onSubmit, data, disabled }: Props) => {
   }
 
   const handleAlertClose = (
-    event?: React.SyntheticEvent | Event,
+    _event?: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason
   ) => {
     if (reason === 'clickaway') {

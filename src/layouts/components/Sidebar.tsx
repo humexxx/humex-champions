@@ -6,50 +6,32 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import FlagIcon from '@mui/icons-material/Flag';
-import GroupIcon from '@mui/icons-material/Group';
-import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
-  Divider,
+  Box,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
-  Box,
-  Toolbar,
-  Typography,
+  Tooltip,
 } from '@mui/material';
 import { NavLink, useLocation } from 'react-router-dom';
+import ChampionsLogo from 'src/assets/images/Logo';
 import AdminGuard from 'src/components/auth/AdminGuard';
 import { ROUTES } from 'src/consts';
 
 import { MAIN_HEADER_HEIGHT } from './Header';
 
-const Sidebar = ({
-  title,
-  version,
-  closeSidebar,
-}: {
-  title: string;
-  version: string;
-  closeSidebar: () => void;
-}) => {
+const Sidebar = () => {
   const location = useLocation();
 
-  const statisticsRoutes = useMemo(
+  const mainRoutes = useMemo(
     () => [
       {
         text: 'Dashboard',
         icon: <DashboardIcon />,
         path: ROUTES.PORTAL.DASHBOARD,
       },
-    ],
-    []
-  );
-
-  const selfDevelopmentRoutes = useMemo(
-    () => [
       {
         text: 'Finances',
         icon: <AccountBalanceIcon />,
@@ -59,6 +41,7 @@ const Sidebar = ({
         text: 'Health',
         icon: <DirectionsRunIcon />,
         path: ROUTES.PORTAL.HEALTH.INDEX,
+        disabled: true,
       },
       {
         text: 'Uplift',
@@ -74,140 +57,151 @@ const Sidebar = ({
     []
   );
 
-  const socialRoutes = useMemo(
-    () => [
-      {
-        text: 'Members',
-        icon: <PeopleIcon />,
-        path: ROUTES.PORTAL.SOCIAL.MEMBERS,
-      },
-      {
-        text: 'Groups',
-        icon: <GroupIcon />,
-        path: ROUTES.PORTAL.SOCIAL.GROUPS,
-      },
-    ],
-    []
-  );
+  const isRouteActive = (path: string) => {
+    if (path === ROUTES.PORTAL.DASHBOARD) {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Toolbar
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: SIDEBAR_WIDTH,
+        bgcolor: (theme) =>
+          theme.palette.mode === 'dark'
+            ? theme.palette.grey[900]
+            : theme.palette.grey[100],
+        zIndex: 1200,
+      }}
+    >
+      {/* Logo section */}
+      <Box
         sx={{
-          minHeight: `${MAIN_HEADER_HEIGHT}px !important`,
           height: MAIN_HEADER_HEIGHT,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <Typography variant="h6" component="div" sx={{ position: 'relative' }}>
-          {title}{' '}
-          <Typography
-            mb={2}
-            variant="caption"
-            sx={{ position: 'absolute', top: 2, ml: 1 }}
-          >
-            ({version})
-          </Typography>
-        </Typography>
-      </Toolbar>
-      <Divider />
+        <ChampionsLogo width={60} height={40} />
+      </Box>
 
-      <List dense>
-        {statisticsRoutes.map(({ text, icon, path }) => (
-          <ListItem key={text}>
-            <ListItemButton
-              sx={{ borderRadius: 2 }}
-              selected={location.pathname.includes(path)}
-              component={NavLink}
-              to={path}
-              onClick={closeSidebar}
-            >
-              <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
+      {/* Main navigation icons */}
+      <List sx={{ py: 2, flex: 1, overflow: 'auto' }}>
+        {mainRoutes.map(({ text, icon, path, disabled }) => (
+          <ListItem key={text} sx={{ px: 1, py: 0.5 }}>
+            <Tooltip title={text} placement="right">
+              <ListItemButton
+                sx={{
+                  borderRadius: 2,
+                  minHeight: 48,
+                  justifyContent: 'center',
+                  px: 2,
+                  bgcolor: isRouteActive(path) ? 'primary.main' : 'transparent',
+                  color: isRouteActive(path)
+                    ? 'primary.contrastText'
+                    : 'text.primary',
+                  '&:hover': {
+                    bgcolor: isRouteActive(path)
+                      ? 'primary.dark'
+                      : 'action.hover',
+                  },
+                }}
+                component={NavLink}
+                to={path}
+                disabled={disabled}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    color: 'inherit',
+                  }}
+                >
+                  {icon}
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
           </ListItem>
         ))}
       </List>
 
-      <List dense>
-        <ListItem>
-          <Typography variant="caption" ml={2}>
-            Self Development
-          </Typography>
-        </ListItem>
-        {selfDevelopmentRoutes.map(({ text, icon, path }) => (
-          <ListItem key={text}>
-            <ListItemButton
-              sx={{ borderRadius: 2 }}
-              selected={location.pathname.includes(path)}
-              component={NavLink}
-              to={path}
-              onClick={closeSidebar}
-            >
-              <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      {/* Bottom settings and admin */}
+      <Box sx={{ pb: 2 }}>
+        <List>
+          <AdminGuard>
+            <ListItem sx={{ px: 1, py: 0.5 }}>
+              <Tooltip title="Admin" placement="right">
+                <ListItemButton
+                  sx={{
+                    borderRadius: 2,
+                    minHeight: 48,
+                    justifyContent: 'center',
+                    px: 2,
+                    bgcolor: isRouteActive(ROUTES.PORTAL.ADMIN.INDEX)
+                      ? 'primary.main'
+                      : 'transparent',
+                    color: isRouteActive(ROUTES.PORTAL.ADMIN.INDEX)
+                      ? 'primary.contrastText'
+                      : 'text.primary',
+                    '&:hover': {
+                      bgcolor: isRouteActive(ROUTES.PORTAL.ADMIN.INDEX)
+                        ? 'primary.dark'
+                        : 'action.hover',
+                    },
+                  }}
+                  component={NavLink}
+                  to={ROUTES.PORTAL.ADMIN.INDEX}
+                >
+                  <ListItemIcon sx={{ minWidth: 0, color: 'inherit' }}>
+                    <AdminPanelSettingsIcon />
+                  </ListItemIcon>
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+          </AdminGuard>
 
-      <List sx={{ flexGrow: 1 }} dense>
-        <ListItem>
-          <Typography variant="caption" ml={2}>
-            Social
-          </Typography>
-        </ListItem>
-        {socialRoutes.map(({ text, icon, path }) => (
-          <ListItem key={text}>
-            <ListItemButton
-              sx={{ borderRadius: 2 }}
-              selected={location.pathname.includes(path)}
-              component={NavLink}
-              to={path}
-              onClick={closeSidebar}
-            >
-              <ListItemIcon>{icon}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
+          <ListItem sx={{ px: 1, py: 0.5 }}>
+            <Tooltip title="Settings" placement="right">
+              <ListItemButton
+                sx={{
+                  borderRadius: 2,
+                  minHeight: 48,
+                  justifyContent: 'center',
+                  px: 2,
+                  bgcolor: isRouteActive(ROUTES.PORTAL.SETTINGS)
+                    ? 'primary.main'
+                    : 'transparent',
+                  color: isRouteActive(ROUTES.PORTAL.SETTINGS)
+                    ? 'primary.contrastText'
+                    : 'text.primary',
+                  '&:hover': {
+                    bgcolor: isRouteActive(ROUTES.PORTAL.SETTINGS)
+                      ? 'primary.dark'
+                      : 'action.hover',
+                  },
+                }}
+                component={NavLink}
+                to={ROUTES.PORTAL.SETTINGS}
+              >
+                <ListItemIcon sx={{ minWidth: 0, color: 'inherit' }}>
+                  <SettingsIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
           </ListItem>
-        ))}
-      </List>
-
-      <List dense>
-        <AdminGuard>
-          <ListItem>
-            <ListItemButton
-              sx={{ borderRadius: 2 }}
-              selected={location.pathname.includes(ROUTES.PORTAL.ADMIN.INDEX)}
-              component={NavLink}
-              to={ROUTES.PORTAL.ADMIN.INDEX}
-              onClick={closeSidebar}
-            >
-              <ListItemIcon>
-                <AdminPanelSettingsIcon />
-              </ListItemIcon>
-              <ListItemText primary="Admin" />
-            </ListItemButton>
-          </ListItem>
-        </AdminGuard>
-        <ListItem>
-          <ListItemButton
-            sx={{ borderRadius: 2 }}
-            selected={location.pathname.includes(ROUTES.PORTAL.SETTINGS)}
-            component={NavLink}
-            to={ROUTES.PORTAL.SETTINGS}
-            onClick={closeSidebar}
-          >
-            <ListItemIcon>
-              <SettingsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItemButton>
-        </ListItem>
-      </List>
+        </List>
+      </Box>
     </Box>
   );
 };
 
-export const SIDEBAR_WIDTH = 240;
+export const SIDEBAR_WIDTH = 72; // Reduced width for icon-only sidebar
 
 export default Sidebar;

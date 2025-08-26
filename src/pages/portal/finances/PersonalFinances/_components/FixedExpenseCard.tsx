@@ -1,17 +1,17 @@
 import { useMemo } from 'react';
 
+import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import {
   Card,
   CardContent,
   Skeleton,
-  Typography,
-  Tooltip,
   Stack,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import { IDebt, IFixedExpense } from '@shared/models/finances';
 import dayjs from 'dayjs';
 import { formatCurrency } from 'src/utils';
-import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
 import FixedExpenseEditDialog from './FixedExpenseEditDialog';
 
 interface Props {
@@ -46,6 +46,8 @@ const FixedExpenseCard = ({
             return acc + fixedExpense.amount;
           case 'secondary':
             return acc + fixedExpense.amount;
+          default:
+            return acc;
         }
       }, 0) + monthlyFixedDebt,
     [fixedExpenses, monthlyFixedDebt]

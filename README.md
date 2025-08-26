@@ -1,4 +1,20 @@
-# React + TypeScript + Vite
+# HumEx Champions
+
+A comprehensive personal development and financial management platform.
+
+## 🤖 AI Development Context
+
+**For AI assistants working on this project**: Please reference [`docs/ai/AI_CONTEXT.md`](./docs/ai/AI_CONTEXT.md) for comprehensive architecture, patterns, and development guidelines.
+
+## Tech Stack
+
+- **React 18** with TypeScript
+- **Vite** for build tooling
+- **Firebase** for backend services
+- **Material-UI** for UI components
+- **React Router v6** for navigation
+
+## Development Setup
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
@@ -22,7 +38,7 @@ export default {
     project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
     tsconfigRootDir: __dirname,
   },
-}
+};
 ```
 
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`

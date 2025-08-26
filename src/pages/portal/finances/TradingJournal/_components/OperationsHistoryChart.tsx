@@ -4,6 +4,9 @@ import { Box, Button, ButtonGroup } from '@mui/material';
 import { LineChart } from '@mui/x-charts';
 import { IOperation } from '@shared/models/finances';
 
+// Temporary translation function
+const t = (key: string) => key.split('.').pop() || key;
+
 type Props = {
   operations: IOperation[];
   periodFilter: 'day' | 'week' | 'month';

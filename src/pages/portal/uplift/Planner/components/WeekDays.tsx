@@ -5,9 +5,9 @@ import { Alert, Box, Tab, Typography } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
 import { OnlineStatus } from 'src/components';
 
-import DailyChecklist from './DailyChecklist';
 import { useUplift } from '../../hooks';
 import { usePlanner } from '../hooks';
+import DailyChecklist from './DailyChecklist';
 
 const WeekDays = ({ days }: { days: Dayjs[] }) => {
   const [value, setValue] = useState(dayjs().date().toString());
@@ -28,7 +28,7 @@ const WeekDays = ({ days }: { days: Dayjs[] }) => {
   function getCompletedTasksFormated(day: Dayjs) {
     const _planner = planner(day);
     if (!_planner?.items.length) return '- / -';
-    return `${_planner.items.filter((x) => x.completed).length} / ${
+    return `${_planner.items.filter((x: any) => x.completed).length} / ${
       _planner.items.length
     }`;
   }

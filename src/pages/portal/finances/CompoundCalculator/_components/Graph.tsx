@@ -66,7 +66,7 @@ const Graph = ({ data, years }: Props) => {
         ]}
         yAxis={[
           {
-            valueFormatter: (value) =>
+            valueFormatter: (value: number) =>
               value > 99999999 ? 'Infinite $$' : `$${value.toLocaleString()}`,
           },
         ]}
@@ -80,11 +80,7 @@ const Graph = ({ data, years }: Props) => {
         }))}
         margin={{ left: 80 }}
         grid={{ horizontal: true }}
-        slotProps={{
-          legend: {
-            hidden: true,
-          },
-        }}
+        hideLegend
       />
     </Box>
   );

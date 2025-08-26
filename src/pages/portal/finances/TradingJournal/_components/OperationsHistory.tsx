@@ -6,6 +6,9 @@ import { IOperation } from '@shared/models/finances';
 import { Dayjs } from 'dayjs';
 import { formatCurrency } from 'src/utils';
 
+// Temporary translation function
+const t = (key: string) => key.split('.').pop() || key;
+
 interface HistoryRecord {
   id: string;
   operation: string;

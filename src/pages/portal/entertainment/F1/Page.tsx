@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import { PageContent, PageHeader } from 'src/components';
-import { Page } from 'src/components/layout';
-import { F1Header, F1Content } from './_components';
+import { useEffect, useState } from 'react';
+import { PageContainer } from 'src/components/layout';
 import { F1Service } from 'src/services/f1Service';
+import { F1Content, F1Header } from './_components';
 
 interface F1Data {
   currentSeason: string;
@@ -94,30 +93,24 @@ const F1Page = () => {
 
   // 4. Render structure
   return (
-    <Page title="Formula 1">
-      <PageHeader
-        title="Formula 1"
-        description="Track races, standings, and results for the current F1 season"
+    <PageContainer title="Formula 1">
+      <F1Header
+        currentSeason={
+          f1Data?.currentSeason || new Date().getFullYear().toString()
+        }
+        nextRace={f1Data?.nextRace}
+        selectedTab={selectedTab}
+        onTabChange={handleTabChange}
+        loading={loading}
       />
-      <PageContent>
-        <F1Header
-          currentSeason={
-            f1Data?.currentSeason || new Date().getFullYear().toString()
-          }
-          nextRace={f1Data?.nextRace}
-          selectedTab={selectedTab}
-          onTabChange={handleTabChange}
-          loading={loading}
-        />
 
-        <F1Content
-          f1Data={f1Data}
-          selectedTab={selectedTab}
-          loading={loading}
-          error={error}
-        />
-      </PageContent>
-    </Page>
+      <F1Content
+        f1Data={f1Data}
+        selectedTab={selectedTab}
+        loading={loading}
+        error={error}
+      />
+    </PageContainer>
   );
 };
 

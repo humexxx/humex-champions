@@ -10,15 +10,14 @@ import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router-dom';
 import * as yup from 'yup';
 
 import {
-  ForgotPasswordProps,
   ForgotPasswordFormInputs,
+  ForgotPasswordProps,
 } from './ForgotPassword.types';
-
 
 // Define the validation schema
 const schema = yup.object().shape({
@@ -113,12 +112,12 @@ export default function ForgotPassword({
           Send Reset Link
         </LoadingButton>
         <Grid container>
-          <Grid item xs>
+          <Grid size="grow">
             <Link component={RouterLink} to="/sign-in" variant="body2">
               Back to Sign In
             </Link>
           </Grid>
-          <Grid item>
+          <Grid>
             <Link component={RouterLink} to="/sign-up" variant="body2">
               {"Don't have an account? Sign Up"}
             </Link>

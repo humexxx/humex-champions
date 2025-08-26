@@ -1,33 +1,31 @@
 import {
+  CALLABLE_FUNCTIONS,
   FIRESTORE_PATHS,
   PORTFOLIO_CONSTANTS,
-  CALLABLE_FUNCTIONS,
 } from '@shared/consts';
 import {
   IAsset,
   IPortfolio,
   IPortfolioHolding,
-  IPortfolioTransaction,
   IPortfolioSnapshot,
+  IPortfolioTransaction,
 } from '@shared/models/finances';
-import { getDefaultPortfolioData } from '@shared/utils';
-import { getError } from '@shared/utils';
+import { getDefaultPortfolioData, getError } from '@shared/utils';
+import dayjs, { Dayjs } from 'dayjs';
 import {
+  addDoc,
   collection,
   doc,
-  setDoc,
-  onSnapshot,
   getDoc,
-  addDoc,
-  query,
-  orderBy,
   limit,
+  onSnapshot,
+  orderBy,
+  query,
+  setDoc,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { firestore, functions } from 'src/firebase';
 import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
-import { Dayjs } from 'dayjs';
-import dayjs from 'dayjs';
 
 // ============= MOCK DATA =============
 
@@ -464,7 +462,6 @@ export const portfolioService = {
   },
 
   addTransaction: async (
-    userId: string, // Keep for interface compatibility
     transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
   ): Promise<string> => {
     // Use callable function for robust transaction processing

@@ -1,11 +1,9 @@
-import { Theme } from '@emotion/react';
-import { SxProps } from '@mui/material';
 import {
-  useDrawingArea,
-  useXScale,
-  useChartId,
   AnimatedLine,
   AnimatedLineProps,
+  useChartId,
+  useDrawingArea,
+  useXScale,
 } from '@mui/x-charts';
 
 interface Props extends AnimatedLineProps {

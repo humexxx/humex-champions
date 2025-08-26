@@ -1,25 +1,20 @@
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import {
   Box,
+  Chip,
+  Collapse,
+  IconButton,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
   Typography,
-  Collapse,
-  IconButton,
 } from '@mui/material';
-import {
-  TrendingUp,
-  TrendingDown,
-  ExpandMore,
-  ExpandLess,
-} from '@mui/icons-material';
-import { formatCurrency, formatPercentage } from 'src/utils';
 import { IPortfolioTransaction } from '@shared/models/finances';
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { formatCurrency } from 'src/utils';
 
 interface Holding {
   symbol: string;

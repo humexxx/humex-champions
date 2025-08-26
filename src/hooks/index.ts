@@ -2,3 +2,4 @@ export { default as useLocalStorage } from './useLocalStorage';
 export { default as useDocumentMetadata } from './useDocumentMetadata';
 export { default as useDialogFullScreen } from './useDialogFullScreen';
 export { default as useViewports } from './useViewports';
+export { default as useRoutes } from './useRoutes';

@@ -1,6 +1,6 @@
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { Box, Grid, Paper, Typography, Divider } from '@mui/material';
+import { Box, Divider, Grid, Paper, Typography } from '@mui/material';
 
 interface Props {
   trades: number;
@@ -17,7 +17,7 @@ const SummaryPanel = ({ trades, percentage, amount, monthlyGrowth }: Props) => {
       </Typography>
       <Divider />
       <Grid container spacing={4} mt={2}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Box textAlign="center">
             <Typography variant="h6" color="textSecondary">
               Trades
@@ -30,7 +30,7 @@ const SummaryPanel = ({ trades, percentage, amount, monthlyGrowth }: Props) => {
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Box textAlign="center">
             <Typography variant="h6" color="textSecondary">
               Amount
@@ -40,7 +40,7 @@ const SummaryPanel = ({ trades, percentage, amount, monthlyGrowth }: Props) => {
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Box textAlign="center">
             <Typography variant="h6" color="textSecondary">
               Monthly Growth

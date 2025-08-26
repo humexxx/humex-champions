@@ -10,13 +10,12 @@ import Grid from '@mui/material/Grid';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router-dom';
 import { GoogleLoginButton } from 'src/components/auth';
 import * as yup from 'yup';
 
 import { SignUpFormInputs } from './SignUp.types';
-
 
 // Define the validation schema
 const schema = yup.object().shape({
@@ -161,7 +160,7 @@ export default function SignUp({ handleOnSubmit }: Props) {
         <Divider sx={{ my: 4 }}>or</Divider>
         <GoogleLoginButton />
         <Grid container>
-          <Grid item xs>
+          <Grid size="grow">
             <Link component={RouterLink} to="/sign-in" variant="body2">
               {'Already have an account? Sign In'}
             </Link>

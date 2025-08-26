@@ -6,42 +6,44 @@ function getTheme(mode: EThemeType) {
     palette: {
       mode,
     },
-    // palette: {
-    //   mode: 'light', // o 'dark' si prefieres estilo nocturno
-    //   primary: {
-    //     main: '#000000', // Negro Uber
-    //     contrastText: '#FFFFFF',
-    //   },
-    //   secondary: {
-    //     main: '#F6F6F6', // Gris claro
-    //     contrastText: '#000000',
-    //   },
-    //   background: {
-    //     default: '#FFFFFF',
-    //     paper: '#FAFAFA', // fondos para tarjetas, inputs, etc.
-    //   },
-    //   text: {
-    //     primary: '#1C1C1C',
-    //     secondary: '#6B6B6B',
-    //   },
-    // },
     typography: {
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-      fontSize: 12,
-      button: {
-        textTransform: 'none',
-        fontWeight: 500,
-      },
+      fontFamily: '"Google Sans", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontSize: 12, // Reduced even more to match Google's lighter feel
     },
     shape: {
-      borderRadius: 8,
+      borderRadius: 8, // Google uses more rounded corners
     },
+    spacing: 8, // Google's 8px spacing system
     components: {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
+            borderRadius: 24, // Google's pill-shaped buttons
+            textTransform: 'none',
             boxShadow: 'none',
+            '&:hover': {
+              boxShadow:
+                '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+            },
+          },
+          contained: {
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+            '&:hover': {
+              boxShadow:
+                '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+            },
+          },
+          outlined: {
+            borderWidth: '1px',
+            '&:hover': {
+              borderWidth: '1px',
+              backgroundColor: 'rgba(0,0,0,0.04)',
+            },
+          },
+          text: {
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.04)',
+            },
           },
         },
       },
@@ -52,18 +54,110 @@ function getTheme(mode: EThemeType) {
         styleOverrides: {
           root: {
             borderRadius: 12,
+            border: '1px solid rgba(0,0,0,0.12)',
+            boxShadow: 'none',
+            '&:hover': {
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            },
           },
         },
       },
       MuiTextField: {
         defaultProps: {
-          variant: 'filled',
-          margin: 'dense',
-          size: 'small',
+          variant: 'outlined',
+          margin: 'normal',
+          size: 'medium',
         },
         styleOverrides: {
           root: {
-            backgroundColor: '#fff',
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 8,
+              '& fieldset': {
+                borderColor: 'rgba(0,0,0,0.23)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(0,0,0,0.87)',
+              },
+              '&.Mui-focused fieldset': {
+                borderWidth: '2px',
+              },
+            },
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            minHeight: 36, // More compact
+            padding: '6px 12px', // Tighter padding
+            '&.Mui-selected': {
+              fontWeight: 400, // Don't make bold when selected
+            },
+          },
+        },
+      },
+      MuiTabs: {
+        styleOverrides: {
+          root: {
+            marginLeft: 0,
+            fontSize: '0.6875rem',
+            '& .MuiTabs-indicator': {
+              height: 3,
+              borderRadius: '3px 3px 0 0',
+            },
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: 16,
+            fontSize: '0.6875rem', // Match the smaller typography
+            fontWeight: 300, // Much lighter like Google
+          },
+        },
+      },
+      MuiPaper: {
+        defaultProps: {
+          elevation: 0,
+        },
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+          },
+          elevation1: {
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+          },
+          elevation2: {
+            boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+          },
+          elevation3: {
+            boxShadow:
+              '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+          },
+        },
+      },
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          },
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.04)',
+            },
+            '&.Mui-selected': {
+              backgroundColor: 'rgba(0,0,0,0.08)',
+              '&:hover': {
+                backgroundColor: 'rgba(0,0,0,0.12)',
+              },
+            },
           },
         },
       },

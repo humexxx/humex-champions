@@ -1,34 +1,33 @@
-import { Grid, Box, Stack, Button } from '@mui/material';
 import {
-  CalendarToday,
-  AttachMoney,
-  Person,
-  MonetizationOn,
   Add,
+  AttachMoney,
+  CalendarToday,
+  MonetizationOn,
+  Person,
 } from '@mui/icons-material';
+import { Box, Button, Grid, Stack } from '@mui/material';
 import dayjs from 'dayjs';
-import { GlobalLoader, PageContent, PageHeader } from 'src/components';
-import {
-  PortfolioHeader,
-  PortfolioChart,
-  HoldingsTable,
-  PortfolioHighlights,
-  ActivityTable,
-  TableFilter,
-  SortField,
-  SortOrder,
-  CreatePortfolioDialog,
-  EmptyPortfolioState,
-  AdminTestingSection,
-} from './_components';
-import TransactionDialog from './_components/TransactionDialog';
-import { ROUTES } from 'src/consts';
-import { Page } from 'src/components/layout';
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { GlobalLoader } from 'src/components';
+import { PageContainer } from 'src/components/layout';
 import {
   TIME_FILTERS,
   TimeFilter,
 } from '../../../../../shared/enums/finance/timeFilters';
+import {
+  ActivityTable,
+  AdminTestingSection,
+  CreatePortfolioDialog,
+  EmptyPortfolioState,
+  HoldingsTable,
+  PortfolioChart,
+  PortfolioHeader,
+  PortfolioHighlights,
+  SortField,
+  SortOrder,
+  TableFilter,
+} from './_components';
+import TransactionDialog from './_components/TransactionDialog';
 import usePortfolio from './usePortfolio';
 
 const PortafolioPage = () => {
@@ -290,31 +289,19 @@ const PortafolioPage = () => {
 
   if (userPortfolios.length === 0 && !loading) {
     return (
-      <Page title="Portafolio">
-        <PageHeader
-          title={'Portfolio'}
-          navigator={{
-            breadcrumb: [{ title: 'Portfolio', route: 'portfolio' }],
-            link: {
-              title: 'Finances',
-              route: ROUTES.PORTAL.FINANCES.INDEX,
-            },
-          }}
+      <PageContainer title="Portafolio">
+        <EmptyPortfolioState
+          onCreatePortfolio={() => setCreatePortfolioDialogOpen(true)}
+          loading={loading}
         />
-        <PageContent>
-          <EmptyPortfolioState
-            onCreatePortfolio={() => setCreatePortfolioDialogOpen(true)}
-            loading={loading}
-          />
 
-          <CreatePortfolioDialog
-            open={createPortfolioDialogOpen}
-            onClose={() => setCreatePortfolioDialogOpen(false)}
-            onSubmit={handleCreatePortfolio}
-            loading={loading}
-          />
-        </PageContent>
-      </Page>
+        <CreatePortfolioDialog
+          open={createPortfolioDialogOpen}
+          onClose={() => setCreatePortfolioDialogOpen(false)}
+          onSubmit={handleCreatePortfolio}
+          loading={loading}
+        />
+      </PageContainer>
     );
   }
 
@@ -324,115 +311,102 @@ const PortafolioPage = () => {
   }
 
   return (
-    <Page title="Portafolio">
-      <PageHeader
-        title={'Portfolio'}
-        navigator={{
-          breadcrumb: [{ title: 'Portfolio', route: 'portfolio' }],
-          link: {
-            title: 'Finances',
-            route: ROUTES.PORTAL.FINANCES.INDEX,
-          },
-        }}
+    <PageContainer title="Portafolio">
+      <PortfolioHeader
+        name={portfolio.name}
+        totalValue={portfolio.currentValue}
+        totalGain={portfolio.totalGain}
+        totalGainPercentage={portfolio.totalGainPercentage}
+        lastUpdate={
+          portfolio.lastPriceUpdate
+            ? portfolio.lastPriceUpdate.toString()
+            : new Date().toISOString()
+        }
+        selectedTimeFilter={selectedTimeFilter}
       />
 
-      <PageContent>
-        <PortfolioHeader
-          name={portfolio.name}
-          totalValue={portfolio.currentValue}
-          totalGain={portfolio.totalGain}
-          totalGainPercentage={portfolio.totalGainPercentage}
-          lastUpdate={
-            portfolio.lastPriceUpdate
-              ? portfolio.lastPriceUpdate.toString()
-              : new Date().toISOString()
-          }
-          selectedTimeFilter={selectedTimeFilter}
-        />
-
-        <Grid container spacing={4}>
-          {/* Left Column - Main Chart and Stats */}
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Box sx={{ mb: 3 }}>
-              <PortfolioChart
-                chartData={chartData}
-                selectedTimeFilter={selectedTimeFilter}
-                timeFilters={Object.values(TIME_FILTERS)}
-                onTimeFilterChange={setSelectedTimeFilter}
-                loading={false}
-              />
-            </Box>{' '}
-            {/* Holdings/Activity Tabs */}
-            <Box sx={{ mt: 3 }}>
-              <Stack direction="row" justifyContent={'space-between'}>
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    color="info"
-                    variant={
-                      selectedTab === 'investments' ? 'contained' : 'outlined'
-                    }
-                    onClick={() => setSelectedTab('investments')}
-                  >
-                    Investments
-                  </Button>
-                  <Button
-                    color="info"
-                    variant={
-                      selectedTab === 'activity' ? 'contained' : 'outlined'
-                    }
-                    onClick={() => setSelectedTab('activity')}
-                  >
-                    Activity
-                  </Button>
-                </Stack>
-                <Stack direction="row" spacing={1}>
-                  <TableFilter
-                    sortBy={sortBy}
-                    sortOrder={sortOrder}
-                    onSortChange={handleSortChange}
-                    availableFields={
-                      selectedTab === 'investments'
-                        ? holdingFields
-                        : transactionFields
-                    }
-                  />
-                  <Button
-                    startIcon={<Add />}
-                    variant={'contained'}
-                    onClick={() => setTransactionDialogOpen(true)}
-                  >
-                    Add Transaction
-                  </Button>
-                </Stack>
-              </Stack>
-
-              {/* Tab Content */}
-              {selectedTab === 'investments' ? (
-                <HoldingsTable
-                  holdings={sortedHoldings}
-                  transactions={sortedTransactions}
-                />
-              ) : (
-                <ActivityTable transactions={sortedTransactions} />
-              )}
-            </Box>
-          </Grid>
-
-          {/* Right Column - Portfolio Highlights */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <PortfolioHighlights
-              dailyGain={portfolioHighlights.dailyGain}
-              dailyGainPercentage={portfolioHighlights.dailyGainPercentage}
-              overallGain={portfolioHighlights.overallGain}
-              overallGainPercentage={portfolioHighlights.overallGainPercentage}
-              cryptoPercentage={portfolioHighlights.cryptoPercentage}
+      <Grid container spacing={4}>
+        {/* Left Column - Main Chart and Stats */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Box sx={{ mb: 3 }}>
+            <PortfolioChart
+              chartData={chartData}
+              selectedTimeFilter={selectedTimeFilter}
+              timeFilters={Object.values(TIME_FILTERS)}
+              onTimeFilterChange={setSelectedTimeFilter}
+              loading={false}
             />
-          </Grid>
+          </Box>{' '}
+          {/* Holdings/Activity Tabs */}
+          <Box sx={{ mt: 3 }}>
+            <Stack direction="row" justifyContent={'space-between'}>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  color="info"
+                  variant={
+                    selectedTab === 'investments' ? 'contained' : 'outlined'
+                  }
+                  onClick={() => setSelectedTab('investments')}
+                >
+                  Investments
+                </Button>
+                <Button
+                  color="info"
+                  variant={
+                    selectedTab === 'activity' ? 'contained' : 'outlined'
+                  }
+                  onClick={() => setSelectedTab('activity')}
+                >
+                  Activity
+                </Button>
+              </Stack>
+              <Stack direction="row" spacing={1}>
+                <TableFilter
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSortChange={handleSortChange}
+                  availableFields={
+                    selectedTab === 'investments'
+                      ? holdingFields
+                      : transactionFields
+                  }
+                />
+                <Button
+                  startIcon={<Add />}
+                  variant={'contained'}
+                  onClick={() => setTransactionDialogOpen(true)}
+                >
+                  Add Transaction
+                </Button>
+              </Stack>
+            </Stack>
+
+            {/* Tab Content */}
+            {selectedTab === 'investments' ? (
+              <HoldingsTable
+                holdings={sortedHoldings}
+                transactions={sortedTransactions}
+              />
+            ) : (
+              <ActivityTable transactions={sortedTransactions} />
+            )}
+          </Box>
         </Grid>
 
-        {/* Admin Testing Section */}
-        <AdminTestingSection />
-      </PageContent>
+        {/* Right Column - Portfolio Highlights */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <PortfolioHighlights
+            dailyGain={portfolioHighlights.dailyGain}
+            dailyGainPercentage={portfolioHighlights.dailyGainPercentage}
+            overallGain={portfolioHighlights.overallGain}
+            overallGainPercentage={portfolioHighlights.overallGainPercentage}
+            cryptoPercentage={portfolioHighlights.cryptoPercentage}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Admin Testing Section */}
+      <AdminTestingSection />
 
       {/* Transaction Dialog */}
       <TransactionDialog
@@ -449,7 +423,7 @@ const PortafolioPage = () => {
         onSubmit={handleCreatePortfolio}
         loading={loading}
       />
-    </Page>
+    </PageContainer>
   );
 };
 

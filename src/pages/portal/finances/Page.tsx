@@ -5,8 +5,8 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Grid } from '@mui/material';
-import { LinkOptionCard, PageContent, PageHeader } from 'src/components';
-import { Page } from 'src/components/layout';
+import { LinkOptionCard } from 'src/components';
+import { PageContainer } from 'src/components/layout';
 
 const FinancesPage = () => {
   const options = useMemo(
@@ -41,27 +41,20 @@ const FinancesPage = () => {
   );
 
   return (
-    <Page title="Finances">
-      <PageHeader
-        title="Finances"
-        description="Manage your financial planning and tracking"
-      />
-
-      <PageContent>
-        <Grid container spacing={4}>
-          {options.map(({ route, Icon, description, label }) => (
-            <Grid size={{ xs: 12, md: 4 }} key={route}>
-              <LinkOptionCard
-                route={route}
-                label={label}
-                description={description}
-                icon={<Icon color="primary" />}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </PageContent>
-    </Page>
+    <PageContainer title="Finances">
+      <Grid container spacing={4}>
+        {options.map(({ route, Icon, description, label }) => (
+          <Grid size={{ xs: 12, md: 4 }} key={route}>
+            <LinkOptionCard
+              route={route}
+              label={label}
+              description={description}
+              icon={<Icon color="primary" />}
+            />
+          </Grid>
+        ))}
+      </Grid>
+    </PageContainer>
   );
 };
 
