@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 
 import { alpha, Box, useMediaQuery, useTheme } from '@mui/material';
-import { LineChart } from '@mui/x-charts';
+import { LineChart, LineSeries } from '@mui/x-charts';
 import { IFinancialPlan } from '@shared/models/finances';
-import dayjs from 'dayjs';
-import { formatCompactNumber, normalizeObjectDates, toDayjs } from 'src/utils';
 import { financeUtils } from '@shared/utils';
+import dayjs from 'dayjs';
 import { CustomAnimatedLine } from 'src/components/graphs';
+import { formatCompactNumber, normalizeObjectDates, toDayjs } from 'src/utils';
 
 const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
   sm: 6,
@@ -103,7 +103,7 @@ const PersonalFinancesGraph = ({
           typeof baseColor === 'string'
             ? baseColor
             : theme.palette.primary.main,
-          0.7
+          0.5
         ),
       };
 
@@ -213,7 +213,7 @@ const PersonalFinancesGraph = ({
 
   const series = useMemo(() => {
     // Crear todas las series: planes originales + predicciones
-    const allSeries: any[] = [];
+    const allSeries: LineSeries[] = [];
 
     // Primero añadir los planes originales (solo si tienen datos históricos válidos)
     _clonedFinancialPlans.forEach((plan, index) => {
