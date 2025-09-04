@@ -2,14 +2,18 @@ import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { user } from 'firebase-functions/v1/auth';
 
+import { db } from '../../core/firebase';
+
+/**
+ * Creates a user document when a new user is created in Firebase Auth
+ */
 export const createUserDocument = user().onCreate(async (user) => {
   const { uid, email } = user;
 
   logger.info(`Creating user document: ${uid}`);
 
   try {
-    await admin
-      .firestore()
+    await db()
       .collection('users')
       .doc(uid)
       .set({
