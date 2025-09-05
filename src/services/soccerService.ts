@@ -1,5 +1,5 @@
+import { CALLABLE_FUNCTION_NAMES } from '@shared/consts/callableFunctions';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { CALLABLE_FUNCTIONS } from '@shared/consts';
 
 // Initialize Firebase Functions
 const functions = getFunctions(undefined, 'us-central1');
@@ -17,7 +17,7 @@ export class SoccerService {
   static async getLeagueStandings(leagueId: string, season?: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getLeagueStandings
+      CALLABLE_FUNCTION_NAMES.getSoccerStandings
     );
     const result = await fn({ leagueId, season });
     return result.data;
@@ -28,10 +28,7 @@ export class SoccerService {
    * @param leagueName - League name (required, e.g., "English Premier League")
    */
   static async getLeagueTeams(leagueName: string) {
-    const fn = httpsCallable(
-      functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getLeagueTeams
-    );
+    const fn = httpsCallable(functions, CALLABLE_FUNCTION_NAMES.getSoccerTeams);
     const result = await fn({ leagueName });
     return result.data;
   }
@@ -43,7 +40,7 @@ export class SoccerService {
   static async getCombinedMatches(leagueId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getCombinedMatches
+      CALLABLE_FUNCTION_NAMES.getSoccerCombinedMatches
     );
     const result = await fn({ leagueId });
     return result.data;
@@ -56,7 +53,7 @@ export class SoccerService {
   static async getNextMatches(leagueId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getNextMatches
+      CALLABLE_FUNCTION_NAMES.getSoccerNextMatches
     );
     const result = await fn({ leagueId });
     return result.data;
@@ -69,7 +66,7 @@ export class SoccerService {
   static async getPreviousMatches(leagueId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getPreviousMatches
+      CALLABLE_FUNCTION_NAMES.getSoccerPreviousMatches
     );
     const result = await fn({ leagueId });
     return result.data;
@@ -83,7 +80,7 @@ export class SoccerService {
   static async getMatchesByDate(date: string, sport?: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getMatchesByDate
+      CALLABLE_FUNCTION_NAMES.getSoccerMatchesByDate
     );
     const result = await fn({ date, sport });
     return result.data;
@@ -96,7 +93,7 @@ export class SoccerService {
   static async getTeamInfo(teamId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getTeamInfo
+      CALLABLE_FUNCTION_NAMES.getSoccerTeamInfo
     );
     const result = await fn({ teamId });
     return result.data;
@@ -109,7 +106,7 @@ export class SoccerService {
   static async getTeamPlayers(teamId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getTeamPlayers
+      CALLABLE_FUNCTION_NAMES.getSoccerPlayers
     );
     const result = await fn({ teamId });
     return result.data;
@@ -122,7 +119,7 @@ export class SoccerService {
   static async getPlayerInfo(playerId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.getPlayerInfo
+      CALLABLE_FUNCTION_NAMES.getSoccerPlayerInfo
     );
     const result = await fn({ playerId });
     return result.data;
@@ -135,7 +132,7 @@ export class SoccerService {
   static async searchTeams(teamName: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.searchTeams
+      CALLABLE_FUNCTION_NAMES.searchSoccerTeams
     );
     const result = await fn({ teamName });
     return result.data;
@@ -148,7 +145,7 @@ export class SoccerService {
   static async searchPlayers(playerName: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.soccer.searchPlayers
+      CALLABLE_FUNCTION_NAMES.searchSoccerPlayers
     );
     const result = await fn({ playerName });
     return result.data;

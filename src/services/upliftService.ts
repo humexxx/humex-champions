@@ -1,29 +1,29 @@
-import { CALLABLE_FUNCTIONS } from '@shared/consts';
+import { CALLABLE_FUNCTION_NAMES } from '@shared/consts/callableFunctions';
 import {
+  EPathwayCategory,
+  ETodoCategory,
   IDailyStats,
   IOverallStats,
-  ITodoList,
-  ITodoItem,
   IPathway,
   IPathwayTemplate,
-  ETodoCategory,
-  EPathwayCategory,
+  ITodoItem,
+  ITodoList,
 } from '@shared/models/uplift';
-import { httpsCallable } from 'firebase/functions';
 import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
-  query,
+  doc,
+  getDoc,
+  getDocs,
   orderBy,
+  query,
   Timestamp,
+  updateDoc,
 } from 'firebase/firestore';
-import { firestore as db, functions } from 'src/firebase';
+import { httpsCallable } from 'firebase/functions';
 import useAuth from 'src/context/hooks/useAuth';
+import { firestore as db, functions } from 'src/firebase';
 
 class UpliftService {
   private uid: string;
@@ -36,7 +36,7 @@ class UpliftService {
   async getDailyStats(date?: Date): Promise<IDailyStats> {
     const getDailyStats = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.uplift.getDailyStats
+      CALLABLE_FUNCTION_NAMES.getUpliftDailyStats
     );
     const result = await getDailyStats({ date: date?.toISOString() });
     return (result.data as any).data;
@@ -45,7 +45,7 @@ class UpliftService {
   async getOverallStats(): Promise<IOverallStats> {
     const getOverallStats = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.uplift.getOverallStats
+      CALLABLE_FUNCTION_NAMES.getUpliftOverallStats
     );
     const result = await getOverallStats({});
     return (result.data as any).data;

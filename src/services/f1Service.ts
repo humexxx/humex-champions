@@ -1,5 +1,5 @@
+import { CALLABLE_FUNCTION_NAMES } from '@shared/consts/callableFunctions';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { CALLABLE_FUNCTIONS } from '@shared/consts';
 
 // Initialize Firebase Functions
 const functions = getFunctions(undefined, 'us-central1');
@@ -16,7 +16,7 @@ export class F1Service {
   static async getDriverStandings(year?: number) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getDriverStandings
+      CALLABLE_FUNCTION_NAMES.getF1DriverStandings
     );
     const result = await fn({ year });
     return result.data;
@@ -29,7 +29,7 @@ export class F1Service {
   static async getConstructorStandings(year?: number) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getConstructorStandings
+      CALLABLE_FUNCTION_NAMES.getF1ConstructorStandings
     );
     const result = await fn({ year });
     return result.data;
@@ -39,10 +39,7 @@ export class F1Service {
    * Get information about the next upcoming race
    */
   static async getNextRace() {
-    const fn = httpsCallable(
-      functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getNextRace
-    );
+    const fn = httpsCallable(functions, CALLABLE_FUNCTION_NAMES.getF1NextRace);
     const result = await fn();
     return result.data;
   }
@@ -52,10 +49,7 @@ export class F1Service {
    * @param year - Year to get schedule for (optional, defaults to current year)
    */
   static async getSchedule(year?: number) {
-    const fn = httpsCallable(
-      functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getSchedule
-    );
+    const fn = httpsCallable(functions, CALLABLE_FUNCTION_NAMES.getF1Schedule);
     const result = await fn({ year });
     return result.data;
   }
@@ -65,10 +59,7 @@ export class F1Service {
    * @param limit - Number of articles to retrieve (optional, defaults to 25)
    */
   static async getNews(limit?: number) {
-    const fn = httpsCallable(
-      functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getNews
-    );
+    const fn = httpsCallable(functions, CALLABLE_FUNCTION_NAMES.getF1News);
     const result = await fn({ limit });
     return result.data;
   }
@@ -80,7 +71,7 @@ export class F1Service {
   static async getDriverInfo(driverId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getDriverInfo
+      CALLABLE_FUNCTION_NAMES.getF1DriverInfo
     );
     const result = await fn({ driverId });
     return result.data;
@@ -94,7 +85,7 @@ export class F1Service {
   static async getDriverRaceResults(driverId: string, year?: number) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getDriverRaceResults
+      CALLABLE_FUNCTION_NAMES.getF1DriverResults
     );
     const result = await fn({ driverId, year });
     return result.data;
@@ -107,7 +98,7 @@ export class F1Service {
   static async getDriverStats(driverId: string) {
     const fn = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.entertainment.f1.getDriverStats
+      CALLABLE_FUNCTION_NAMES.getF1DriverStats
     );
     const result = await fn({ driverId });
     return result.data;

@@ -10,6 +10,34 @@ Location: docs/architecture/firebase-functions.md
 
 If this repo only holds Functions, you may also surface a link from ARCHITECTURE.md at the root.
 
+## Constants Management
+
+**IMPORTANT**: When adding new callable functions, update the constants file at:
+`shared/consts/callableFunctions.ts`
+
+This file maintains the mapping between function names and their exported names, organized by module structure. Follow these steps when adding a new callable function:
+
+1. **Add the function export name** to the appropriate module/submodule section in `CALLABLE_FUNCTIONS`
+2. **Add the flattened version** to `CALLABLE_FUNCTION_NAMES` for easy access
+3. **Follow the naming convention**: `[functionName]Callable` for the export name
+4. **Maintain the hierarchical structure** that mirrors the functions/src/modules/ directory structure
+
+Example:
+
+```typescript
+// In CALLABLE_FUNCTIONS
+entertainment: {
+  sports: {
+    f1: {
+      getDriverInfo: 'getF1DriverInfoCallable', // matches export name
+    }
+  }
+}
+
+// In CALLABLE_FUNCTION_NAMES
+getF1DriverInfo: CALLABLE_FUNCTIONS.entertainment.sports.f1.getDriverInfo,
+```
+
 Core Principles
 
 1. **Domain First**: Each module owns its business logic (\*.service.ts), validation, and endpoints (callables / PubSub / schedulers).
@@ -327,6 +355,11 @@ Expansion Guidelines
 4. **Create handler**: New `*.callable.ts` in appropriate `http/` folder
 
 5. **Update exports**: Add to relevant `index.ts` files
+
+6. **Update constants**: Add function name to `shared/consts/callableFunctions.ts`
+   - Add to appropriate section in `CALLABLE_FUNCTIONS`
+   - Add flattened version to `CALLABLE_FUNCTION_NAMES`
+   - Follow naming convention: `[functionName]Callable` for export name
 
 ## Adding Third-Party Integrations
 

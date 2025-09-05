@@ -1,8 +1,4 @@
-import {
-  CALLABLE_FUNCTIONS,
-  FIRESTORE_PATHS,
-  PORTFOLIO_CONSTANTS,
-} from '@shared/consts';
+import { FIRESTORE_PATHS, PORTFOLIO_CONSTANTS } from '@shared/consts';
 import {
   IAsset,
   IPortfolio,
@@ -23,8 +19,7 @@ import {
   query,
   setDoc,
 } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { firestore, functions } from 'src/firebase';
+import { firestore } from 'src/firebase';
 import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
 
 // ============= MOCK DATA =============
@@ -461,13 +456,21 @@ export const portfolioService = {
     return docRef.id;
   },
 
+  // DEPRECATED: Function not implemented in Firebase Functions
+  // TODO: Implement addPortfolioTransaction callable function in backend
   addTransaction: async (
     transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
   ): Promise<string> => {
-    // Use callable function for robust transaction processing
+    // Placeholder implementation - function needs to be created in Firebase Functions
+    throw new Error(
+      'addPortfolioTransaction function not implemented in backend. Please implement in functions/src/modules/finances/'
+    );
+
+    /*
+    // Use callable function for robust transaction processing (COMMENTED OUT - FUNCTION DOESN'T EXIST)
     const addPortfolioTransaction = httpsCallable(
       functions,
-      CALLABLE_FUNCTIONS.portfolio.addPortfolioTransaction
+      CALLABLE_FUNCTION_NAMES.addPortfolioTransaction
     );
 
     try {
@@ -497,6 +500,7 @@ export const portfolioService = {
       console.error('Error calling addPortfolioTransaction:', error);
       throw error;
     }
+    */
   },
 
   getAsset: async (assetId: string): Promise<IAsset | null> => {
