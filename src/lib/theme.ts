@@ -21,24 +21,9 @@ function getTheme(mode: EThemeType) {
             borderRadius: 24, // Google's pill-shaped buttons
             textTransform: 'none',
             boxShadow: 'none',
-            '&:hover': {
-              boxShadow:
-                '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-            },
-          },
-          contained: {
-            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-            '&:hover': {
-              boxShadow:
-                '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
-            },
           },
           outlined: {
             borderWidth: '1px',
-            '&:hover': {
-              borderWidth: '1px',
-              backgroundColor: 'rgba(0,0,0,0.04)',
-            },
           },
           text: {
             '&:hover': {
@@ -56,9 +41,6 @@ function getTheme(mode: EThemeType) {
             borderRadius: 12,
             border: '1px solid rgba(0,0,0,0.12)',
             boxShadow: 'none',
-            '&:hover': {
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            },
           },
         },
       },

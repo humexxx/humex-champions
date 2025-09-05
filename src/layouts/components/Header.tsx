@@ -5,10 +5,10 @@ import {
   AppBar,
   Avatar,
   Box,
+  Button,
   Container,
   Divider,
   IconButton,
-  Link,
   Menu,
   MenuItem,
   Toolbar,
@@ -163,20 +163,22 @@ const Header = () => {
             }}
           >
             {getSubRoutes?.routes.map((route) => (
-              <Link
+              <Button
                 key={route.path}
                 component={RouterLink}
                 to={route.path}
+                variant={isRouteActive(route.path) ? 'contained' : 'text'}
+                disabled={(route as any).disabled}
+                disableElevation
                 sx={{
+                  borderRadius: 2,
+                  fontWeight: 600,
                   textDecoration: 'none',
-                  color: 'text.primary',
-                  fontWeight: isRouteActive(route.path) ? 600 : 400,
-                  opacity: (route as any).disabled ? 0.5 : 1,
                   pointerEvents: (route as any).disabled ? 'none' : 'auto',
                 }}
               >
                 {route.label}
-              </Link>
+              </Button>
             ))}
           </Box>
           <Box>
