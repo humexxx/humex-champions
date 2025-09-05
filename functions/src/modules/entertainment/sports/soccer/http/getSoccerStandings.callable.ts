@@ -1,9 +1,9 @@
 import { onCall } from 'firebase-functions/v2/https';
 
-import { requireAuth } from '../../../core/auth';
-import { mapToHttpsError } from '../../../core/errors';
-import { parseOrThrow } from '../../../core/validation';
-import { GetSoccerStandingsInput } from '../entertainment.validators';
+import { requireAuth } from '../../../../../core/auth';
+import { mapToHttpsError } from '../../../../../core/errors';
+import { parseOrThrow } from '../../../../../core/validation';
+import { GetSoccerStandingsInput } from '../../../entertainment.validators';
 import { getSoccerStandings } from '../soccer.service';
 
 export const getSoccerStandingsCallable = onCall(

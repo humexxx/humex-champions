@@ -1,11 +1,11 @@
 import { ICallableRequest, ICallableResponse } from '@shared/models';
 import { onCall } from 'firebase-functions/v2/https';
 
-import { requireAuth } from '../../../core/auth';
-import { runtime } from '../../../core/config';
-import { mapToHttpsError } from '../../../core/errors';
-import { parseOrThrow } from '../../../core/validation';
-import { GetF1ScheduleInput } from '../entertainment.validators';
+import { requireAuth } from '../../../../../core/auth';
+import { runtime } from '../../../../../core/config';
+import { mapToHttpsError } from '../../../../../core/errors';
+import { parseOrThrow } from '../../../../../core/validation';
+import { GetF1ScheduleInput } from '../../../entertainment.validators';
 import { getF1Schedule } from '../f1.service';
 
 export const getF1ScheduleCallable = onCall<

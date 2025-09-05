@@ -1,7 +1,7 @@
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 
-import { schedulerRuntime } from '../../../core/config';
-import { log } from '../../../core/logger';
+import { schedulerRuntime } from '../../../../../core/config';
+import { log } from '../../../../../core/logger';
 import { updateF1NextRaceCache } from '../f1.service';
 
 /**

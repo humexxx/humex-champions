@@ -1,9 +1,9 @@
 import { onCall } from 'firebase-functions/v2/https';
 
-import { requireAuth } from '../../../core/auth';
-import { mapToHttpsError } from '../../../core/errors';
-import { parseOrThrow } from '../../../core/validation';
-import { SearchSoccerInput } from '../entertainment.validators';
+import { requireAuth } from '../../../../../core/auth';
+import { mapToHttpsError } from '../../../../../core/errors';
+import { parseOrThrow } from '../../../../../core/validation';
+import { SearchSoccerInput } from '../../../entertainment.validators';
 import { searchSoccer } from '../soccer.service';
 
 export const searchSoccerCallable = onCall(
