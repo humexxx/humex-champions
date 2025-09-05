@@ -1,27 +1,27 @@
-import { useState } from 'react';
+import { AccountBalance, ExpandMore, Refresh } from '@mui/icons-material';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Typography,
-  Alert,
-  Stack,
-  CircularProgress,
   Chip,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  CircularProgress,
   List,
   ListItem,
   ListItemText,
+  Stack,
+  Typography,
 } from '@mui/material';
-import { ExpandMore, Refresh, AccountBalance } from '@mui/icons-material';
 import { httpsCallable } from 'firebase/functions';
+import { useState } from 'react';
 
-import { functions } from 'src/firebase';
-import { CALLABLE_FUNCTIONS } from '@shared/consts';
+import { CALLABLE_FUNCTION_NAMES } from '@shared/consts';
 import { useAuth } from 'src/context/hooks';
+import { functions } from 'src/firebase';
 
 // No props needed - component manages its own admin check
 const AdminTestingSection = () => {
@@ -42,9 +42,10 @@ const AdminTestingSection = () => {
     setErrors((prev) => ({ ...prev, prices: '' }));
 
     try {
+      // TODO: Replace with actual refresh asset prices function
       const updatePrices = httpsCallable(
         functions,
-        CALLABLE_FUNCTIONS.portfolio.adminUpdateAssetPrices
+        CALLABLE_FUNCTION_NAMES.refreshAssetPrices
       );
 
       const result = await updatePrices({});
@@ -82,9 +83,10 @@ const AdminTestingSection = () => {
     setErrors((prev) => ({ ...prev, snapshots: '' }));
 
     try {
+      // TODO: Replace with actual admin generate snapshots function
       const updateSnapshots = httpsCallable(
         functions,
-        CALLABLE_FUNCTIONS.portfolio.adminUpdatePortfolioSnapshots
+        CALLABLE_FUNCTION_NAMES.adminGenerateSnapshots
       );
 
       const result = await updateSnapshots({});

@@ -16,6 +16,11 @@ export const CALLABLE_FUNCTIONS = {
     addAdminClaim: 'addAdminClaimCallable',
   },
 
+  // ============= DASHBOARD MODULE =============
+  dashboard: {
+    summary: 'dashboardSummaryCallable',
+  },
+
   // ============= FINANCES MODULE =============
   finances: {
     // Core finance functions (shared level)
@@ -76,6 +81,7 @@ export const CALLABLE_FUNCTIONS = {
         // Search functions
         search: 'searchSoccerCallable',
         searchTeams: 'searchSoccerTeamsCallable',
+        searchPlayers: 'searchSoccerPlayersCallable',
       },
     },
   },
@@ -100,6 +106,9 @@ export type CallableFunctionPaths = {
 export const CALLABLE_FUNCTION_NAMES = {
   // Admin
   addAdminClaim: CALLABLE_FUNCTIONS.admin.addAdminClaim,
+
+  // Dashboard
+  dashboardSummary: CALLABLE_FUNCTIONS.dashboard.summary,
 
   // Finances
   getAssetPrice: CALLABLE_FUNCTIONS.finances.getAssetPrice,
@@ -144,6 +153,8 @@ export const CALLABLE_FUNCTION_NAMES = {
     CALLABLE_FUNCTIONS.entertainment.sports.soccer.getPlayerInfo,
   searchSoccer: CALLABLE_FUNCTIONS.entertainment.sports.soccer.search,
   searchSoccerTeams: CALLABLE_FUNCTIONS.entertainment.sports.soccer.searchTeams,
+  searchSoccerPlayers:
+    CALLABLE_FUNCTIONS.entertainment.sports.soccer.searchPlayers,
 
   // Uplift
   getUpliftDailyStats: CALLABLE_FUNCTIONS.uplift.getDailyStats,

@@ -459,7 +459,7 @@ export const portfolioService = {
   // DEPRECATED: Function not implemented in Firebase Functions
   // TODO: Implement addPortfolioTransaction callable function in backend
   addTransaction: async (
-    transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
+    _transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
   ): Promise<string> => {
     // Placeholder implementation - function needs to be created in Firebase Functions
     throw new Error(

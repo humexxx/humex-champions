@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 
-import { CALLABLE_FUNCTIONS } from '@shared/consts';
+import { CALLABLE_FUNCTION_NAMES } from '@shared/consts/callableFunctions';
+import { ICallableRequest, ICallableResponse } from '@shared/models';
+import { ISummary } from '@shared/models/dashboard';
+import { httpsCallable } from 'firebase/functions';
 import { CommonFetchHookProps } from 'src/_models';
 import { ENV } from 'src/consts';
 import { useAuth } from 'src/context/hooks';
 import { functions } from 'src/firebase';
-import { ISummary } from '@shared/models/dashboard';
-import { ICallableRequest, ICallableResponse } from '@shared/models';
-import { httpsCallable } from 'firebase/functions';
 import { MOCKED_SUMMARY } from 'src/mock/dashboardMockData';
 
 type Props = {
@@ -20,7 +20,7 @@ type Props = {
 const _dashboardSummaryCallable = httpsCallable<
   ICallableRequest,
   ICallableResponse<ISummary>
->(functions, CALLABLE_FUNCTIONS.dashboard.summary);
+>(functions, CALLABLE_FUNCTION_NAMES.dashboardSummary);
 
 const useSummary = (
   { autoLoad, forceMock }: CommonFetchHookProps = {
