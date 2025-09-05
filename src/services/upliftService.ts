@@ -1,4 +1,4 @@
-import { CALLABLE_FUNCTION_NAMES } from '@shared/consts/callableFunctions';
+import { CALLABLE_FUNCTIONS } from '@shared/consts';
 import {
   EPathwayCategory,
   ETodoCategory,
@@ -36,7 +36,7 @@ class UpliftService {
   async getDailyStats(date?: Date): Promise<IDailyStats> {
     const getDailyStats = httpsCallable(
       functions,
-      CALLABLE_FUNCTION_NAMES.getUpliftDailyStats
+      CALLABLE_FUNCTIONS.uplift.getDailyStats
     );
     const result = await getDailyStats({ date: date?.toISOString() });
     return (result.data as any).data;
@@ -45,7 +45,7 @@ class UpliftService {
   async getOverallStats(): Promise<IOverallStats> {
     const getOverallStats = httpsCallable(
       functions,
-      CALLABLE_FUNCTION_NAMES.getUpliftOverallStats
+      CALLABLE_FUNCTIONS.uplift.getOverallStats
     );
     const result = await getOverallStats({});
     return (result.data as any).data;

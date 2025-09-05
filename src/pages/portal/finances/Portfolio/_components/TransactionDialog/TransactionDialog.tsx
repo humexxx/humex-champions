@@ -1,31 +1,34 @@
-import React, { useState, useMemo } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box,
-  Typography,
-  InputAdornment,
-  Alert,
-  CircularProgress,
-} from '@mui/material';
-import { AttachMoney as MoneyIcon } from '@mui/icons-material';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../../../../../firebase';
-import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { AttachMoney as MoneyIcon } from '@mui/icons-material';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  FormControlLabel,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Switch,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { PORTFOLIO_CONSTANTS } from '@shared/consts';
+import { httpsCallable } from 'firebase/functions';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { functions } from '../../../../../../firebase';
 import AssetSearchAutocomplete from './AssetSearchAutocomplete';
 import SelectedAssetView from './SelectedAssetView';
-import { Asset, TransactionFormData, TransactionDialogProps } from './types';
+import { Asset, TransactionDialogProps, TransactionFormData } from './types';
 
 // Firebase Functions
 const getAssetPrice = httpsCallable(functions, 'getAssetPrice');
@@ -82,6 +85,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'stock' | 'etf' | 'crypto' | 'system'
   >('all');
+  const [showInternalProducts, setShowInternalProducts] = useState(true);
   const [assetDetailsLoading, setAssetDetailsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,6 +101,13 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
     }
     return 0;
   }, [watchedQuantity, watchedPrice]);
+
+  // Auto-set transaction type to BUY when HumEx products are selected
+  useEffect(() => {
+    if (showInternalProducts) {
+      setValue('type', 'BUY');
+    }
+  }, [showInternalProducts, setValue]);
 
   // Handle asset selection
   const handleAssetSelect = async (asset: Asset | null) => {
@@ -163,6 +174,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
     reset();
     setSelectedAsset(null);
     setSelectedFilter('all');
+    setShowInternalProducts(true);
     setError(null);
     onClose();
   };
@@ -197,6 +209,34 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
           )}
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Internal vs External Products Toggle */}
+            <Box sx={{ mb: 1 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showInternalProducts}
+                    onChange={(e) => setShowInternalProducts(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="body2">
+                      {showInternalProducts
+                        ? 'Internal Products'
+                        : 'External Assets'}
+                    </Typography>
+                    <Chip
+                      label={showInternalProducts ? 'HumEx' : 'Market'}
+                      size="small"
+                      color={showInternalProducts ? 'primary' : 'default'}
+                      variant={showInternalProducts ? 'filled' : 'outlined'}
+                    />
+                  </Box>
+                }
+              />
+            </Box>
+
             {/* Asset Selection */}
             {selectedAsset ? (
               <SelectedAssetView asset={selectedAsset} />
@@ -206,151 +246,168 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
                 onAssetSelect={handleAssetSelect}
                 selectedFilter={selectedFilter}
                 onFilterChange={setSelectedFilter}
+                showInternalProducts={showInternalProducts}
                 loading={assetDetailsLoading}
                 error={error}
               />
             )}
 
-            {/* Transaction Type and Date */}
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 2,
-                flexDirection: { xs: 'column', sm: 'row' },
-              }}
-            >
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel>Transaction Type</InputLabel>
-                <Controller
-                  name="type"
-                  control={control}
-                  render={({ field }) => (
-                    <Select {...field} label="Transaction Type">
-                      <MenuItem value="BUY">Buy</MenuItem>
-                      <MenuItem value="SELL">Sell</MenuItem>
-                    </Select>
-                  )}
-                />
-              </FormControl>
-
-              <Controller
-                name="executedAt"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Date"
-                    type="date"
-                    sx={{ flex: 1 }}
-                    slotProps={{
-                      inputLabel: {
-                        shrink: true,
-                      },
-                    }}
-                    error={!!errors.executedAt}
-                    helperText={errors.executedAt?.message}
-                  />
-                )}
-              />
-            </Box>
-
-            {/* Quantity and Price */}
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 2,
-                flexDirection: { xs: 'column', sm: 'row' },
-              }}
-            >
-              <Controller
-                name="quantity"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Quantity"
-                    type="number"
-                    sx={{ flex: 1 }}
-                    slotProps={{
-                      htmlInput: {
-                        min: 0,
-                        step: 0.000001,
-                      },
-                    }}
-                    error={!!errors.quantity}
-                    helperText={errors.quantity?.message}
-                  />
-                )}
-              />
-
-              <Controller
-                name="price"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Price per Unit"
-                    type="number"
-                    sx={{ flex: 1 }}
-                    inputProps={{ min: 0, step: 0.01 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <MoneyIcon />
-                        </InputAdornment>
-                      ),
-                      endAdornment: assetDetailsLoading && (
-                        <InputAdornment position="end">
-                          <CircularProgress size={20} />
-                        </InputAdornment>
-                      ),
-                    }}
-                    error={!!errors.price}
-                    helperText={errors.price?.message}
-                  />
-                )}
-              />
-            </Box>
-
-            {/* Total Value Display */}
-            {totalValue > 0 && (
+            <Box display={selectedAsset ? 'block' : 'none'}>
+              {/* Transaction Type and Date */}
               <Box
                 sx={{
-                  p: 2,
-                  bgcolor: 'grey.50',
-                  borderRadius: 1,
-                  border: '1px solid',
-                  borderColor: 'grey.200',
+                  display: 'flex',
+                  gap: 2,
+                  flexDirection: { xs: 'column', sm: 'row' },
                 }}
               >
-                <Typography variant="h6" color="primary">
-                  Total Value: $
-                  {totalValue.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {watchedType} {watchedQuantity} shares at ${watchedPrice} each
-                </Typography>
-              </Box>
-            )}
+                <FormControl sx={{ flex: 1 }}>
+                  <InputLabel>Transaction Type</InputLabel>
+                  <Controller
+                    name="type"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        label="Transaction Type"
+                        disabled={showInternalProducts}
+                      >
+                        <MenuItem value="BUY">Buy</MenuItem>
+                        <MenuItem value="SELL">Sell</MenuItem>
+                      </Select>
+                    )}
+                  />
+                  {showInternalProducts && (
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 0.5 }}
+                    >
+                      HumEx products can only be purchased (BUY)
+                    </Typography>
+                  )}
+                </FormControl>
 
-            {/* Notes */}
-            <Controller
-              name="notes"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Notes (Optional)"
-                  multiline
-                  rows={3}
-                  fullWidth
-                  placeholder="Add any additional notes about this transaction..."
+                <Controller
+                  name="executedAt"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Date"
+                      type="date"
+                      sx={{ flex: 1 }}
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                      error={!!errors.executedAt}
+                      helperText={errors.executedAt?.message}
+                    />
+                  )}
                 />
+              </Box>
+
+              {/* Quantity and Price */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  flexDirection: { xs: 'column', sm: 'row' },
+                }}
+              >
+                <Controller
+                  name="quantity"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Quantity"
+                      type="number"
+                      sx={{ flex: 1 }}
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                          step: 0.000001,
+                        },
+                      }}
+                      error={!!errors.quantity}
+                      helperText={errors.quantity?.message}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="price"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Price per Unit"
+                      type="number"
+                      sx={{ flex: 1 }}
+                      inputProps={{ min: 0, step: 0.01 }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <MoneyIcon />
+                          </InputAdornment>
+                        ),
+                        endAdornment: assetDetailsLoading && (
+                          <InputAdornment position="end">
+                            <CircularProgress size={20} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      error={!!errors.price}
+                      helperText={errors.price?.message}
+                    />
+                  )}
+                />
+              </Box>
+
+              {/* Total Value Display */}
+              {totalValue > 0 && (
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: 'grey.50',
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'grey.200',
+                  }}
+                >
+                  <Typography variant="h6" color="primary">
+                    Total Value: $
+                    {totalValue.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {watchedType} {watchedQuantity} shares at ${watchedPrice}{' '}
+                    each
+                  </Typography>
+                </Box>
               )}
-            />
+
+              {/* Notes */}
+              <Controller
+                name="notes"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Notes (Optional)"
+                    multiline
+                    rows={3}
+                    fullWidth
+                    placeholder="Add any additional notes about this transaction..."
+                  />
+                )}
+              />
+            </Box>
           </Box>
         </Box>
       </DialogContent>

@@ -32,8 +32,7 @@ export interface AssetSearchAutocompleteProps {
   onFilterChange: (
     filter: 'all' | 'stock' | 'etf' | 'crypto' | 'system'
   ) => void;
-  showSystemAssets?: boolean;
-  onToggleSystemAssets?: (show: boolean) => void;
+  showInternalProducts: boolean;
   loading?: boolean;
   error?: string | null;
 }

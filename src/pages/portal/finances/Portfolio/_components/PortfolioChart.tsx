@@ -1,11 +1,11 @@
 import { Box, Tab, Tabs, useTheme } from '@mui/material';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { TimeFilter } from '../../../../../../shared/enums/finance/timeFilters';
-import { formatCompactNumber, formatCurrency } from 'src/utils/number';
-import NoDataOverlay from 'src/components/graphs/NoDataOverlay';
-import LoadingOverlay from 'src/components/graphs/LoadingOverlay';
 import { AxisValueFormatterContext } from '@mui/x-charts';
+import { LineChart } from '@mui/x-charts/LineChart';
 import dayjs from 'dayjs';
+import LoadingOverlay from 'src/components/graphs/LoadingOverlay';
+import NoDataOverlay from 'src/components/graphs/NoDataOverlay';
+import { formatCompactNumber, formatCurrency } from 'src/utils/number';
+import { TimeFilter } from '../../../../../../shared/enums/finance/timeFilters';
 
 interface PortfolioChartProps {
   chartData: { date: Date; portfolioTotal: number }[];
@@ -63,7 +63,8 @@ const PortfolioChart = ({
               color: theme.palette.primary.main,
               dataKey: 'portfolioTotal',
               showMark: false,
-              area: true, // Enable area chart
+              area: true,
+              curve: 'linear',
               valueFormatter: (value: any) => formatCurrency(value),
             },
           ]}
@@ -92,7 +93,6 @@ const PortfolioChart = ({
           ]}
           yAxis={[
             {
-              min: 0,
               valueFormatter: (value: number) => formatCompactNumber(value),
             },
           ]}

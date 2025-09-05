@@ -1,36 +1,42 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Autocomplete,
-  TextField,
-  Box,
-  Typography,
-  InputAdornment,
-  Chip,
-  CircularProgress,
-  Button,
-  Paper,
-  Divider,
-  Switch,
-  FormControlLabel,
-} from '@mui/material';
 import {
   Search as SearchIcon,
-  TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
+  TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Divider,
+  InputAdornment,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { CALLABLE_FUNCTIONS } from '@shared/consts';
 import { httpsCallable } from 'firebase/functions';
+import React, { useEffect, useMemo, useState } from 'react';
 import { functions } from '../../../../../../firebase';
-import { Asset, AssetSearchAutocompleteProps, ASSET_TYPES } from './types';
+import { Asset, ASSET_TYPES, AssetSearchAutocompleteProps } from './types';
 
 // Firebase Functions
-const searchTradableAssets = httpsCallable(functions, 'searchTradableAssets');
-const getSystemAssets = httpsCallable(functions, 'getSystemAssets');
+const searchTradableAssets = httpsCallable(
+  functions,
+  CALLABLE_FUNCTIONS.finances.searchTradableAssets
+);
+const getSystemAssets = httpsCallable(
+  functions,
+  CALLABLE_FUNCTIONS.finances.getSystemAssets
+);
 
 const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   selectedAsset,
   onAssetSelect,
   selectedFilter,
   onFilterChange,
+  showInternalProducts,
   loading: externalLoading = false,
   error: externalError = null,
 }) => {
@@ -38,7 +44,6 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   const [assetSearchQuery, setAssetSearchQuery] = useState('');
   const [availableAssets, setAvailableAssets] = useState<Asset[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [showInternalProducts, setShowInternalProducts] = useState(true); // Default to internal
   const [searchCache, setSearchCache] = useState<Map<string, Asset[]>>(
     new Map()
   );
@@ -186,9 +191,9 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
     HTMLDivElement,
     React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }
   >((props, ref) => (
-    <Paper ref={ref} {...props}>
+    <Paper ref={ref} {...props} elevation={1}>
       {/* Filter Section Inside Dropdown */}
-      {!showInternalProducts && (
+      {!showInternalProducts && filteredAssets.length > 0 && (
         <>
           <Box
             sx={{
@@ -271,32 +276,6 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
 
   return (
     <Box>
-      {/* Internal vs External Products Toggle */}
-      <Box sx={{ mb: 2 }}>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={showInternalProducts}
-              onChange={(e) => setShowInternalProducts(e.target.checked)}
-              color="primary"
-            />
-          }
-          label={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2">
-                {showInternalProducts ? 'Internal Products' : 'External Assets'}
-              </Typography>
-              <Chip
-                label={showInternalProducts ? 'HumEx' : 'Market'}
-                size="small"
-                color={showInternalProducts ? 'primary' : 'default'}
-                variant={showInternalProducts ? 'filled' : 'outlined'}
-              />
-            </Box>
-          }
-        />
-      </Box>
-
       <Autocomplete
         options={filteredAssets}
         getOptionLabel={(option) => `${option.symbol} - ${option.name}`}
@@ -440,14 +419,6 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
                 : 'No external assets found'
         }
       />
-
-      {/* Results Summary */}
-      {availableAssets.length > 0 && (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Showing {filteredAssets.length} of {availableAssets.length} results
-          {filteredAssets.length !== availableAssets.length && ' (filtered)'}
-        </Typography>
-      )}
     </Box>
   );
 };

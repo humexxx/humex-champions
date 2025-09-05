@@ -467,7 +467,7 @@ export const portfolioService = {
     );
 
     /*
-    // Use callable function for robust transaction processing (COMMENTED OUT - FUNCTION DOESN'T EXIST)
+    Use callable function for robust transaction processing (COMMENTED OUT - FUNCTION DOESN'T EXIST)
     const addPortfolioTransaction = httpsCallable(
       functions,
       CALLABLE_FUNCTION_NAMES.addPortfolioTransaction

@@ -18,9 +18,7 @@ If this repo only holds Functions, you may also surface a link from ARCHITECTURE
 This file maintains the mapping between function names and their exported names, organized by module structure. Follow these steps when adding a new callable function:
 
 1. **Add the function export name** to the appropriate module/submodule section in `CALLABLE_FUNCTIONS`
-2. **Add the flattened version** to `CALLABLE_FUNCTION_NAMES` for easy access
-3. **Follow the naming convention**: `[functionName]Callable` for the export name
-4. **Maintain the hierarchical structure** that mirrors the functions/src/modules/ directory structure
+2. **Maintain the hierarchical structure** that mirrors the functions/src/modules/ directory structure
 
 Example:
 
@@ -33,9 +31,6 @@ entertainment: {
     }
   }
 }
-
-// In CALLABLE_FUNCTION_NAMES
-getF1DriverInfo: CALLABLE_FUNCTIONS.entertainment.sports.f1.getDriverInfo,
 ```
 
 Core Principles
@@ -358,8 +353,6 @@ Expansion Guidelines
 
 6. **Update constants**: Add function name to `shared/consts/callableFunctions.ts`
    - Add to appropriate section in `CALLABLE_FUNCTIONS`
-   - Add flattened version to `CALLABLE_FUNCTION_NAMES`
-   - Follow naming convention: `[functionName]Callable` for export name
 
 ## Adding Third-Party Integrations
 

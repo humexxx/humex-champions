@@ -11,6 +11,3 @@ export * from './portafolio';
 
 // Scheduled Functions
 export { refreshPopularAssetPrices } from './schedulers/refreshPopularAssets.scheduler';
-
-// Legacy exports (to be migrated)
-export * from '../finances';

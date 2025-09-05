@@ -24,6 +24,7 @@ export const CALLABLE_FUNCTIONS = {
   // ============= FINANCES MODULE =============
   finances: {
     // Core finance functions (shared level)
+    getSystemAssets: 'getSystemAssetsCallable',
     getAssetPrice: 'getAssetPriceCallable',
     getAssetDetails: 'getAssetDetailsCallable',
     getMarketData: 'getMarketDataCallable',
@@ -101,63 +102,3 @@ export const CALLABLE_FUNCTIONS = {
 export type CallableFunctionPaths = {
   readonly [K in keyof typeof CALLABLE_FUNCTIONS]: (typeof CALLABLE_FUNCTIONS)[K];
 };
-
-// Flattened version for easy access (auto-generated from the structure above)
-export const CALLABLE_FUNCTION_NAMES = {
-  // Admin
-  addAdminClaim: CALLABLE_FUNCTIONS.admin.addAdminClaim,
-
-  // Dashboard
-  dashboardSummary: CALLABLE_FUNCTIONS.dashboard.summary,
-
-  // Finances
-  getAssetPrice: CALLABLE_FUNCTIONS.finances.getAssetPrice,
-  getAssetDetails: CALLABLE_FUNCTIONS.finances.getAssetDetails,
-  getMarketData: CALLABLE_FUNCTIONS.finances.getMarketData,
-  searchTradableAssets: CALLABLE_FUNCTIONS.finances.searchTradableAssets,
-  refreshAssetPrices: CALLABLE_FUNCTIONS.finances.refreshAssetPrices,
-  updatePortfolioPrices:
-    CALLABLE_FUNCTIONS.finances.portfolio.updatePortfolioPrices,
-  getWatchlistPrices: CALLABLE_FUNCTIONS.finances.portfolio.getWatchlistPrices,
-  adminGenerateSnapshots:
-    CALLABLE_FUNCTIONS.finances.personalFinances.adminGenerateSnapshots,
-
-  // Entertainment F1
-  getF1DriverStandings:
-    CALLABLE_FUNCTIONS.entertainment.sports.f1.getDriverStandings,
-  getF1ConstructorStandings:
-    CALLABLE_FUNCTIONS.entertainment.sports.f1.getConstructorStandings,
-  getF1NextRace: CALLABLE_FUNCTIONS.entertainment.sports.f1.getNextRace,
-  getF1Schedule: CALLABLE_FUNCTIONS.entertainment.sports.f1.getSchedule,
-  getF1News: CALLABLE_FUNCTIONS.entertainment.sports.f1.getNews,
-  getF1DriverInfo: CALLABLE_FUNCTIONS.entertainment.sports.f1.getDriverInfo,
-  getF1DriverResults:
-    CALLABLE_FUNCTIONS.entertainment.sports.f1.getDriverResults,
-  getF1DriverStats: CALLABLE_FUNCTIONS.entertainment.sports.f1.getDriverStats,
-
-  // Entertainment Soccer
-  getSoccerStandings:
-    CALLABLE_FUNCTIONS.entertainment.sports.soccer.getStandings,
-  getSoccerTeams: CALLABLE_FUNCTIONS.entertainment.sports.soccer.getTeams,
-  getSoccerNextMatches:
-    CALLABLE_FUNCTIONS.entertainment.sports.soccer.getNextMatches,
-  getSoccerPreviousMatches:
-    CALLABLE_FUNCTIONS.entertainment.sports.soccer.getPreviousMatches,
-  getSoccerCombinedMatches:
-    CALLABLE_FUNCTIONS.entertainment.sports.soccer.getCombinedMatches,
-  getSoccerMatchesByDate:
-    CALLABLE_FUNCTIONS.entertainment.sports.soccer.getMatchesByDate,
-  getSoccerTeamInfo: CALLABLE_FUNCTIONS.entertainment.sports.soccer.getTeamInfo,
-  getSoccerPlayers: CALLABLE_FUNCTIONS.entertainment.sports.soccer.getPlayers,
-  getSoccerPlayerInfo:
-    CALLABLE_FUNCTIONS.entertainment.sports.soccer.getPlayerInfo,
-  searchSoccer: CALLABLE_FUNCTIONS.entertainment.sports.soccer.search,
-  searchSoccerTeams: CALLABLE_FUNCTIONS.entertainment.sports.soccer.searchTeams,
-  searchSoccerPlayers:
-    CALLABLE_FUNCTIONS.entertainment.sports.soccer.searchPlayers,
-
-  // Uplift
-  getUpliftDailyStats: CALLABLE_FUNCTIONS.uplift.getDailyStats,
-  getUpliftOverallStats: CALLABLE_FUNCTIONS.uplift.getOverallStats,
-  adminChecklistReport: CALLABLE_FUNCTIONS.uplift.adminChecklistReport,
-} as const;

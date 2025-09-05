@@ -163,7 +163,7 @@ const PortafolioPage = () => {
     snapshots.forEach((snapshot: any) => {
       dataPoints.push({
         date: snapshot.date.toDate(),
-        portfolioTotal: snapshot.totalValue ?? snapshot.totalInvested,
+        portfolioTotal: snapshot.currentValue ?? snapshot.totalInvested,
       });
     });
 

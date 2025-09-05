@@ -19,7 +19,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
 
-import { CALLABLE_FUNCTION_NAMES } from '@shared/consts';
+import { CALLABLE_FUNCTIONS } from '@shared/consts';
 import { useAuth } from 'src/context/hooks';
 import { functions } from 'src/firebase';
 
@@ -45,7 +45,7 @@ const AdminTestingSection = () => {
       // TODO: Replace with actual refresh asset prices function
       const updatePrices = httpsCallable(
         functions,
-        CALLABLE_FUNCTION_NAMES.refreshAssetPrices
+        CALLABLE_FUNCTIONS.finances.refreshAssetPrices
       );
 
       const result = await updatePrices({});
@@ -86,7 +86,7 @@ const AdminTestingSection = () => {
       // TODO: Replace with actual admin generate snapshots function
       const updateSnapshots = httpsCallable(
         functions,
-        CALLABLE_FUNCTION_NAMES.adminGenerateSnapshots
+        CALLABLE_FUNCTIONS.finances.personalFinances.adminGenerateSnapshots
       );
 
       const result = await updateSnapshots({});

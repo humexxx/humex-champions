@@ -5,9 +5,9 @@ import './fixPaths';
 initializeFirebase();
 
 // New modular exports
-export * as admin from './modules/admin';
-export * as auth from './modules/auth';
-export * as dashboard from './modules/dashboard';
-export * as entertainment from './modules/entertainment';
-export * as finances from './modules/finances';
-export * as uplift from './modules/uplift';
+export * from './modules/admin';
+export * from './modules/auth';
+export * from './modules/dashboard';
+export * from './modules/entertainment';
+export * from './modules/finances';
+export * from './modules/uplift';
