@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { FIRESTORE_PATHS } from '@shared/consts';
-import { IPlanner } from '@shared/models/uplift';
+import { IPlanner } from '@shared/types/uplift';
 import { Dayjs } from 'dayjs';
-import { doc, collection, addDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
 import { normalizeObjectDates, toTimestamp } from 'src/utils';

@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
-import { IOperation, ITradingJournal } from '@shared/models/finances';
+import { IOperation, ITradingJournal } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import {
   addDoc,

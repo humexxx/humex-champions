@@ -1,5 +1,10 @@
+import { ICallableRequest, ICallableResponse } from '@shared/types';
 import { logger } from 'firebase-functions';
-import { HttpsError, onCall } from 'firebase-functions/v2/https';
+import { onCall } from 'firebase-functions/v2/https';
+
+import { requireAuth } from '../../../../core/auth';
+import { runtime } from '../../../../core/config';
+import { mapToHttpsError } from '../../../../core/errors';
 
 // System assets definition - later this will come from database
 const SYSTEM_ASSETS = [
@@ -49,27 +54,41 @@ const SYSTEM_ASSETS = [
  * Get system assets available for investment
  * These are internal HumEx investment products
  */
-export const getSystemAssetsCallable = onCall(async () => {
-  try {
-    logger.info('Getting system assets');
+export const getSystemAssetsCallable = onCall<ICallableRequest<undefined>>(
+  { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
+  async (
+    req
+  ): Promise<
+    ICallableResponse<{ assets: typeof SYSTEM_ASSETS; count: number }>
+  > => {
+    try {
+      requireAuth(req);
 
-    // In the future, this will query the database
-    // For now, return the static array
-    const assets = SYSTEM_ASSETS.map((asset) => ({
-      ...asset,
-      // You could add real-time data here if needed
-      lastUpdated: new Date().toISOString(),
-    }));
+      logger.info('Getting system assets');
 
-    logger.info(`Found ${assets.length} system assets`);
+      // In the future, this will query the database
+      // For now, return the static array
+      const assets = SYSTEM_ASSETS.map((asset) => ({
+        ...asset,
+        // You could add real-time data here if needed
+        lastUpdated: new Date().toISOString(),
+      }));
 
-    return {
-      success: true,
-      assets,
-      count: assets.length,
-    };
-  } catch (error) {
-    logger.error('Error getting system assets:', error);
-    throw new HttpsError('internal', 'Failed to get system assets');
+      logger.info(`Found ${assets.length} system assets`);
+
+      return {
+        success: true,
+        data: {
+          assets,
+          count: assets.length,
+        },
+      };
+    } catch (error) {
+      const httpsError = mapToHttpsError(error);
+      return {
+        success: false,
+        error: httpsError.message,
+      };
+    }
   }
-});
+);

@@ -2,42 +2,42 @@ import { useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
-  Edit as EditIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  Edit as EditIcon,
 } from '@mui/icons-material';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  IconButton,
-  Grid,
+  Alert,
   Box,
-  MenuItem,
+  Button,
   Card,
   CardContent,
+  Chip,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Grid,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
+  MenuItem,
   Stack,
-  Typography,
-  FormControlLabel,
   Switch,
-  Chip,
-  Collapse,
-  Alert,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { IFixedExpense } from '@shared/models/finances';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { IFixedExpense } from '@shared/types/finances';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { CurrencyField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
-import * as yup from 'yup';
 import { yupDayjs } from 'src/yup';
+import * as yup from 'yup';
 
 interface Props {
   onSubmit: (data: IFixedExpense[]) => void;

@@ -15,7 +15,7 @@ import {
   Container,
   Typography,
 } from '@mui/material';
-import { EPathwayDifficulty } from '@shared/models/uplift';
+import { EPathwayDifficulty } from '@shared/types/uplift';
 import { PageContainer } from 'src/components/layout';
 import { useUpliftService } from 'src/services/upliftService';
 

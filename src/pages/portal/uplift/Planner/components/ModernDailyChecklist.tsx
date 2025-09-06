@@ -1,32 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
+  Button,
   Card,
   CardContent,
-  Typography,
+  Checkbox,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  IconButton,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Checkbox,
-  Chip,
-  IconButton,
-  Button,
-  TextField,
-  Select,
   MenuItem,
-  FormControl,
-  InputLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { ITodoList, ETodoCategory, ETodoPriority } from '@shared/models/uplift';
+import { ETodoCategory, ETodoPriority, ITodoList } from '@shared/types/uplift';
 import { useUpliftService } from 'src/services/upliftService';
 
 interface ModernDailyChecklistProps {

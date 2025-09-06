@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
-import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
-import { IDebt } from '@shared/models/finances';
+import { Card, CardContent, Skeleton, Stack, Typography } from '@mui/material';
+import { IDebt } from '@shared/types/finances';
 import { formatCurrency, formatPercentage } from 'src/utils';
 
-import DebtEditDialog from './DebtEditDialog';
 import { financeUtils } from '@shared/utils';
+import DebtEditDialog from './DebtEditDialog';
 
 interface Props {
   debts: IDebt[];

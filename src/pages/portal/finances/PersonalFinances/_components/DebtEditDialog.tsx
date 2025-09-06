@@ -29,7 +29,7 @@ import {
   Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { IDebt } from '@shared/models/finances';
+import { IDebt } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { CurrencyField, PercentageField } from 'src/components/forms';

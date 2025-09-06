@@ -9,7 +9,7 @@ import TimelineOppositeContent, {
   timelineOppositeContentClasses,
 } from '@mui/lab/TimelineOppositeContent';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import { IOperation } from '@shared/models/finances';
+import { IOperation } from '@shared/types/finances';
 
 type Props = {
   operations: IOperation[];

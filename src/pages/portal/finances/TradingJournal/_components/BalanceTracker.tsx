@@ -14,7 +14,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
-import { IOperation, ITransaction } from '@shared/models/finances';
+import { IOperation, ITransaction } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
 import { CurrencyField } from 'src/components/forms';

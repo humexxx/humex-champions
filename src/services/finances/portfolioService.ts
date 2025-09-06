@@ -5,7 +5,7 @@ import {
   IPortfolioHolding,
   IPortfolioSnapshot,
   IPortfolioTransaction,
-} from '@shared/models/finances';
+} from '@shared/types/finances';
 import { getDefaultPortfolioData, getError } from '@shared/utils';
 import dayjs, { Dayjs } from 'dayjs';
 import {

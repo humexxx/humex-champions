@@ -1,12 +1,12 @@
 import {
-  SoccerTeamsResponse,
-  SoccerPlayersResponse,
-  SoccerMatchesResponse,
-  SoccerStandingsResponse,
   SoccerLeaguesResponse,
+  SoccerMatchesResponse,
+  SoccerPlayersResponse,
   SoccerSeasonsResponse,
+  SoccerStandingsResponse,
+  SoccerTeamsResponse,
   SoccerVenuesResponse,
-} from '@shared/models/entertainment/soccer';
+} from '@shared/types/entertainment/soccer';
 import { logger } from 'firebase-functions/v2';
 
 /**

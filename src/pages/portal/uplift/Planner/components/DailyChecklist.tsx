@@ -15,7 +15,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { IPlanner } from '@shared/models/uplift';
+import { IPlanner } from '@shared/types/uplift';
 import { Dayjs } from 'dayjs';
 
 import { UseUplift } from '../../hooks/useUplift';

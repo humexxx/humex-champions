@@ -1,69 +1,146 @@
-/**
- * Transaction-related types for portfolio module
- */
+import { Dayjs } from 'dayjs';
 
-// Transaction form data for UI forms
-export interface TransactionFormData {
-  assetId: string;
-  type: TransactionType;
-  quantity: number;
-  price: number;
-  executedAt: string;
-  notes: string;
+export interface SearchTradableAssetsInput {
+  query: string;
+  type?: 'all' | 'stocks' | 'etfs' | 'crypto';
+  limit?: number;
 }
 
-// Transaction type enumeration
+export type AssetType = 'stock' | 'etf' | 'crypto' | 'system';
+export type AssetCategory =
+  | 'CRYPTO'
+  | 'STOCK'
+  | 'ETF'
+  | 'COMMODITY'
+  | 'FOREX'
+  | 'SYSTEM';
+export type RiskLevel = 'low' | 'medium' | 'high';
+export type AssetFilterType = 'all' | 'stock' | 'etf' | 'crypto' | 'system';
+
 export type TransactionType = 'BUY' | 'SELL';
-
-// Transaction status for approval workflow
-export type TransactionStatus = 'pending' | 'approved' | 'rejected';
-
-// Extended transaction types for different operations
 export type ExtendedTransactionType =
   | TransactionType
   | 'DIVIDEND'
   | 'SPLIT'
   | 'TRANSFER_IN'
   | 'TRANSFER_OUT';
+export type TransactionStatus = 'pending' | 'approved' | 'rejected';
 
-/**
- * Asset-related types for portfolio module
- */
-
-// Core asset interface
-export interface Asset {
+export interface IAsset {
+  id?: string;
   symbol: string;
   name: string;
+  category?: AssetCategory;
   type: AssetType;
+
+  currentPrice?: number;
+  dayOpenPrice?: number;
+  dayClosePrice?: number;
+  previousDayClose?: number;
+  dailyChange?: number;
+  dailyChangePercentage?: number;
+
+  currency?: string;
   exchange?: string;
+  lastPriceUpdate?: Dayjs;
+
+  marketCap?: number;
+  volume24h?: number;
+  sector?: string;
+  industry?: string;
+
+  isSystemAsset?: boolean;
+  monthlyYield?: number;
+  description?: string;
+  riskLevel?: RiskLevel;
   price?: number;
   change?: number;
   changePercent?: number;
-
-  // System asset properties
-  isSystemAsset?: boolean;
-  monthlyYield?: number; // 0.007 para 0.7% mensual
-  description?: string;
-  riskLevel?: RiskLevel;
 }
 
-// Asset type enumeration
-export type AssetType = 'stock' | 'etf' | 'crypto' | 'system';
+export interface IPortfolio {
+  id: string;
+  userId: string;
+  name: string;
+  isDraft: boolean;
+  createdAt: Dayjs;
+  updatedAt: Dayjs;
 
-// Risk level enumeration
-export type RiskLevel = 'low' | 'medium' | 'high';
+  currentValue: number;
+  totalGain: number;
+  totalGainPercentage: number;
+  dailyGain: number;
+  dailyGainPercentage: number;
+  totalInvested: number;
 
-// Asset filter type for search/filtering
-export type AssetFilterType = 'all' | 'stock' | 'etf' | 'crypto' | 'system';
+  currency: string;
+  isDefault?: boolean;
+  lastPriceUpdate?: Dayjs;
+}
 
-// Asset type options for UI components
-export const ASSET_TYPES = [
-  { value: 'all' as const, label: 'All' },
-  { value: 'stock' as const, label: 'Stocks' },
-  { value: 'etf' as const, label: 'ETFs' },
-  { value: 'crypto' as const, label: 'Crypto' },
-  { value: 'system' as const, label: 'HumEx Products' },
-] as const;
+export interface IPortfolioSnapshot {
+  id: string;
+  portfolioId: string;
+  date: Dayjs;
 
-// Asset category for better organization
-export type AssetCategory = 'external' | 'internal';
+  totalValue: number;
+  totalGain: number;
+  totalGainPercentage: number;
+  dailyChange: number;
+  dailyChangePercentage: number;
+
+  holdings: IPortfolioHolding[];
+  createdAt: Dayjs;
+}
+
+export interface IPortfolioHolding {
+  id: string;
+  portfolioId: string;
+  assetId: string;
+
+  quantity: number;
+  averageBuyPrice: number;
+  totalInvested: number;
+
+  currentPrice: number;
+  currentValue: number;
+  unrealizedGain: number;
+  unrealizedGainPercentage: number;
+
+  firstPurchaseDate: Dayjs;
+  lastUpdateDate: Dayjs;
+  portfolioPercentage: number;
+}
+
+export interface IPortfolioTransaction {
+  id: string;
+  portfolioId: string;
+  assetId: string;
+
+  type: ExtendedTransactionType;
+  quantity: number;
+  price: number; // Original purchase price
+  totalAmount: number;
+  fees: number;
+
+  // Current market data (updated by portfolio calculations)
+  currentPrice?: number; // Current market price per unit
+  currentValue?: number; // Current total market value (quantity * currentPrice)
+  gainLoss?: number; // Current gain/loss in currency
+  gainLossPercentage?: number; // Current gain/loss percentage
+  lastPriceUpdate?: Dayjs; // When prices were last updated
+
+  executedAt: Dayjs;
+  createdAt: Dayjs;
+
+  notes?: string;
+  source?: string;
+
+  // Approval workflow for system assets
+  status?: TransactionStatus; // Default 'approved' for regular transactions
+  sourceExpenseId?: string; // Link to the fixed expense that generated this
+  requiresApproval?: boolean; // True for system asset transactions
+  adminNotes?: string;
+  approvedBy?: string;
+  approvedAt?: Dayjs;
+}

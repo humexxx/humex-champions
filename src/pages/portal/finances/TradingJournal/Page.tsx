@@ -8,7 +8,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import { IOperation, ITrade } from '@shared/models/finances';
+import { IOperation, ITrade } from '@shared/types/finances';
 import dayjs, { Dayjs } from 'dayjs';
 import { Link } from 'react-router-dom';
 import { ConfirmDialog } from 'src/components';

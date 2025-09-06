@@ -12,7 +12,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { IPortfolioTransaction } from '@shared/models/finances';
+import { IPortfolioTransaction } from '@shared/types/finances';
 import React, { useCallback, useMemo, useState } from 'react';
 import { formatCurrency } from 'src/utils';
 

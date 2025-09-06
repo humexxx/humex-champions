@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
 import RequestQuoteTwoToneIcon from '@mui/icons-material/RequestQuoteTwoTone';
-import { Card, CardContent, Typography, Skeleton, Stack } from '@mui/material';
-import { IIncome } from '@shared/models/finances';
+import { Card, CardContent, Skeleton, Stack, Typography } from '@mui/material';
+import { IIncome } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import { formatCurrency } from 'src/utils';
 
-import IncomeEditDialog from './IncomeEditDialog';
 import { financeUtils } from '@shared/utils';
+import IncomeEditDialog from './IncomeEditDialog';
 
 interface Props {
   incomes: IIncome[];

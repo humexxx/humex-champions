@@ -1,22 +1,22 @@
 import { Fragment, useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ITrade } from '@shared/models/finances';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
-  Grid,
-  Typography,
-  TextField,
-  MenuItem,
-  IconButton,
   Button,
+  Grid,
+  IconButton,
+  MenuItem,
   Pagination,
+  TextField,
+  Typography,
 } from '@mui/material';
+import { ITrade } from '@shared/types/finances';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { CurrencyField } from 'src/components/forms';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
+import * as yup from 'yup';
 
 type Props = {
   trades: ITrade[];

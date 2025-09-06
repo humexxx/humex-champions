@@ -11,7 +11,7 @@ import {
   Container,
   Typography,
 } from '@mui/material';
-import { IDailyStats, IOverallStats } from '@shared/models/uplift';
+import { IDailyStats, IOverallStats } from '@shared/types/uplift';
 import { PageContainer } from 'src/components/layout';
 import { useUpliftService } from 'src/services/upliftService';
 

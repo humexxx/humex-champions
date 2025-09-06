@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { alpha, Box, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart, LineSeries } from '@mui/x-charts';
-import { IFinancialPlan } from '@shared/models/finances';
+import { IFinancialPlan } from '@shared/types/finances';
 import { financeUtils } from '@shared/utils';
 import dayjs from 'dayjs';
 import { CustomAnimatedLine } from 'src/components/graphs';

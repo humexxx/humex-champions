@@ -6,7 +6,7 @@ import {
   IDailyStats,
   IOverallStats,
   IRecommendation,
-} from '@shared/models/uplift';
+} from '@shared/types/uplift';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';

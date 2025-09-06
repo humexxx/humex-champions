@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { FIRESTORE_PATHS } from '@shared/consts';
-import { IUpliftDoc } from '@shared/models/uplift';
+import { IUpliftDoc } from '@shared/types/uplift';
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';

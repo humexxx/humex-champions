@@ -9,7 +9,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { IDebt, IFixedExpense } from '@shared/models/finances';
+import { IDebt, IFixedExpense } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import { formatCurrency } from 'src/utils';
 import FixedExpenseEditDialog from './FixedExpenseEditDialog';

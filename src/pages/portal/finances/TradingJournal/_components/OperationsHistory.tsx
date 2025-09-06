@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { Box } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { IOperation } from '@shared/models/finances';
+import { IOperation } from '@shared/types/finances';
 import { Dayjs } from 'dayjs';
 import { formatCurrency } from 'src/utils';
 

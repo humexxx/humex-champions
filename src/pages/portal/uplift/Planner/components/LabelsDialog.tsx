@@ -19,7 +19,7 @@ import {
   TextField,
 } from '@mui/material';
 import { ELabelColorType } from '@shared/enums/ELabelColorType';
-import { ILabel } from '@shared/models/uplift';
+import { ILabel } from '@shared/types/uplift';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 

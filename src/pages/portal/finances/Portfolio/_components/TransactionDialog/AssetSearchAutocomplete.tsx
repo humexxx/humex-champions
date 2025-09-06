@@ -16,16 +16,20 @@ import {
   Typography,
 } from '@mui/material';
 import { CALLABLE_FUNCTIONS } from '@shared/consts';
-import {
-  Asset,
-  ASSET_TYPES,
-  AssetFilterType,
-} from '@shared/types/finances/portfolio';
+import { ICallableResponse } from '@shared/types';
+import { Asset, AssetFilterType } from '@shared/types/finances/portfolio';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
-import { functions } from '../../../../../../firebase';
+import { functions } from 'src/firebase';
 
-// Component props interface
+export const ASSET_TYPES: { value: AssetFilterType; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'stock', label: 'Stocks' },
+  { value: 'etf', label: 'ETFs' },
+  { value: 'crypto', label: 'Crypto' },
+  { value: 'system', label: 'HumEx Products' },
+];
+
 interface AssetSearchAutocompleteProps {
   selectedAsset: Asset | null;
   onAssetSelect: (asset: Asset | null) => void;
@@ -37,14 +41,15 @@ interface AssetSearchAutocompleteProps {
 }
 
 // Firebase Functions
-const searchTradableAssets = httpsCallable(
-  functions,
-  CALLABLE_FUNCTIONS.finances.searchTradableAssets
-);
-const getSystemAssets = httpsCallable(
-  functions,
-  CALLABLE_FUNCTIONS.finances.getSystemAssets
-);
+const searchTradableAssets = httpsCallable<
+  SearchTradableAssetsInput,
+  ICallableResponse<Asset[]>
+>(functions, CALLABLE_FUNCTIONS.finances.searchTradableAssets);
+
+const getSystemAssets = httpsCallable<
+  undefined,
+  ICallableResponse<{ assets: Asset[]; count: number }>
+>(functions, CALLABLE_FUNCTIONS.finances.getSystemAssets);
 
 const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   selectedAsset,
@@ -55,7 +60,6 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   loading: externalLoading = false,
   error: externalError = null,
 }) => {
-  // Local state
   const [assetSearchQuery, setAssetSearchQuery] = useState('');
   const [availableAssets, setAvailableAssets] = useState<Asset[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -67,13 +71,8 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   const filteredAssets = useMemo(() => {
     let filtered = availableAssets;
 
-    console.log('Available assets:', availableAssets.length);
-    console.log('Selected filter:', selectedFilter);
-
-    // Filter by type if not "all"
     if (selectedFilter !== 'all') {
       filtered = filtered.filter((asset) => asset.type === selectedFilter);
-      console.log('Filtered assets:', filtered.length);
     }
 
     return filtered;
@@ -81,14 +80,18 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
 
   // Get system assets filtered by search query
   const getFilteredSystemAssets = async (query: string): Promise<Asset[]> => {
-    // If showing external products, don't return internal ones
     if (!showInternalProducts) return [];
 
     try {
       const result = await getSystemAssets();
-      const systemAssets = (result.data as any).assets as Asset[];
 
-      // For internal products, show all if no query or query is short
+      if (!result.data.success) {
+        console.error('Error getting system assets:', result.data.error);
+        return [];
+      }
+
+      const systemAssets = result.data.data.assets as Asset[];
+
       if (!query || query.length < 2) {
         return systemAssets;
       }
@@ -145,7 +148,13 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
 
       console.log('Search result:', result.data);
 
-      const externalAssets = (result.data as any).assets.map((asset: any) => ({
+      if (!result.data.success) {
+        console.error('Error searching assets:', result.data.error);
+        setAvailableAssets([]);
+        return;
+      }
+
+      const externalAssets = result.data.data.map((asset: any) => ({
         symbol: asset.symbol,
         name: asset.name,
         type: asset.type,

@@ -8,7 +8,7 @@ import {
   IPathwayTemplate,
   ITodoItem,
   ITodoList,
-} from '@shared/models/uplift';
+} from '@shared/types/uplift';
 import {
   addDoc,
   collection,

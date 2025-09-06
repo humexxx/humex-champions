@@ -29,12 +29,6 @@ interface PortfolioPosition {
 
 const polygonService = new PolygonService(env.POLYGON_API_KEY);
 
-/**
- * Search for tradable assets
- * @param query - Search query string
- * @param type - Asset type filter (currently not used by API)
- * @param limit - Maximum number of results
- */
 export async function searchTradableAssets(
   query: string,
   type: 'all' | 'stocks' | 'etfs' | 'crypto' = 'all',
@@ -59,10 +53,6 @@ export async function searchTradableAssets(
   }
 }
 
-/**
- * Get detailed information about a specific asset
- * @param symbol - Asset symbol
- */
 export async function getAssetDetails(symbol: string): Promise<Asset> {
   try {
     log.info('Getting asset details', { symbol });
@@ -87,10 +77,6 @@ export async function getAssetDetails(symbol: string): Promise<Asset> {
   }
 }
 
-/**
- * Get current price for a specific asset
- * @param symbol - Asset symbol
- */
 export async function getAssetPrice(symbol: string): Promise<PriceData> {
   try {
     log.info('Getting asset price', { symbol });
@@ -124,10 +110,6 @@ export async function getAssetPrice(symbol: string): Promise<PriceData> {
   }
 }
 
-/**
- * Get prices for multiple assets (watchlist)
- * @param symbols - Array of asset symbols
- */
 export async function getWatchlistPrices(
   symbols: string[]
 ): Promise<PriceData[]> {
@@ -162,10 +144,6 @@ export async function getWatchlistPrices(
   }
 }
 
-/**
- * Refresh and cache asset prices
- * @param symbols - Array of asset symbols to refresh
- */
 export async function refreshAssetPrices(
   symbols: string[]
 ): Promise<PriceData[]> {
@@ -207,12 +185,6 @@ export async function refreshAssetPrices(
   }
 }
 
-/**
- * Update portfolio positions with current prices
- * @param portfolioId - Portfolio document ID
- * @param uid - User ID
- * @param forceRefresh - Force refresh prices from API
- */
 export async function updatePortfolioWithCurrentPrices(
   portfolioId: string,
   uid: string,

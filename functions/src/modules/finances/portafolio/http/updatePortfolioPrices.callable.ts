@@ -1,4 +1,4 @@
-import { ICallableRequest, ICallableResponse } from '@shared/models';
+import { ICallableRequest, ICallableResponse } from '@shared/types';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAuth } from '../../../../core/auth';

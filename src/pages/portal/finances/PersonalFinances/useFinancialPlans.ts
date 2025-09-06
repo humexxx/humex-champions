@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IFinancialPlan } from '@shared/models/finances';
+import { IFinancialPlan } from '@shared/types/finances';
 import { CommonFetchHookProps } from 'src/_models';
 import { useAuth } from 'src/context/hooks';
 import { createFinancialPlansService } from 'src/services/finances';

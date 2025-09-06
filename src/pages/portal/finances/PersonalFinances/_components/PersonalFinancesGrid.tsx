@@ -9,16 +9,16 @@ import {
   Toolbar,
   Tooltip,
 } from '@mui/material';
-import { IFinancialPlan } from '@shared/models/finances';
-import { PAYOFF_METHODS, PayoffMethod } from '@shared/enums/finance';
-import { financeUtils } from '@shared/utils';
-import { SYSTEM } from 'src/consts';
 import {
   DataGrid,
   GridColDef,
   GridColumnGroupingModel,
 } from '@mui/x-data-grid';
+import { PAYOFF_METHODS, PayoffMethod } from '@shared/enums/finance';
+import { IFinancialPlan } from '@shared/types/finances';
+import { financeUtils } from '@shared/utils';
 import dayjs from 'dayjs';
+import { SYSTEM } from 'src/consts';
 import { formatCurrency } from 'src/utils';
 
 interface Props {

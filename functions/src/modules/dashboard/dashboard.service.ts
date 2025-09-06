@@ -1,4 +1,4 @@
-import { ISummary } from '@shared/models/dashboard';
+import { ISummary } from '@shared/types/dashboard';
 
 import { log } from '../../core/logger';
 

@@ -8,7 +8,7 @@ import {
   IPortfolioHolding,
   IPortfolioSnapshot,
   IPortfolioTransaction,
-} from '@shared/models/finances';
+} from '@shared/types/finances';
 import { CommonFetchHookProps } from 'src/_models';
 import { useAuth } from 'src/context/hooks';
 import { createPortfolioService } from 'src/services/finances';

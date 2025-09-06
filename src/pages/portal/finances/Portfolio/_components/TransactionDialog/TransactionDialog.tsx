@@ -21,7 +21,12 @@ import {
   Typography,
 } from '@mui/material';
 import { PORTFOLIO_CONSTANTS } from '@shared/consts';
-import { Asset, TransactionFormData } from '@shared/types/finances/portfolio';
+import {
+  Asset,
+  AssetFilterType,
+  TransactionFormData,
+  TransactionType,
+} from '@shared/types/finances/portfolio';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -29,6 +34,15 @@ import * as yup from 'yup';
 import { functions } from '../../../../../../firebase';
 import AssetSearchAutocomplete from './AssetSearchAutocomplete';
 import SelectedAssetView from './SelectedAssetView';
+
+export interface TransactionFormData {
+  assetId: string;
+  type: TransactionType;
+  quantity: number;
+  price: number;
+  executedAt: string;
+  notes: string;
+}
 
 // Component props interface
 interface TransactionDialogProps {
@@ -90,9 +104,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
 
   // Asset search state
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<
-    'all' | 'stock' | 'etf' | 'crypto' | 'system'
-  >('all');
+  const [selectedFilter, setSelectedFilter] = useState<AssetFilterType>('all');
   const [showInternalProducts, setShowInternalProducts] = useState(true);
   const [assetDetailsLoading, setAssetDetailsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

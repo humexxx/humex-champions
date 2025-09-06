@@ -1,40 +1,42 @@
 import { useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Edit as EditIcon } from '@mui/icons-material';
-import { Add as AddIcon } from '@mui/icons-material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  IconButton,
-  Grid,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+} from '@mui/icons-material';
+import {
   Box,
-  MenuItem,
-  Checkbox,
-  FormControlLabel,
-  Typography,
+  Button,
   Card,
   CardContent,
-  Stack,
-  ListItem,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControlLabel,
+  Grid,
+  IconButton,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
-  Divider,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { IIncome } from '@shared/models/finances';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { PERIOD_TYPES, PeriodType } from '@shared/enums/finance';
+import { IIncome } from '@shared/types/finances';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { CurrencyField, PercentageField } from 'src/components/forms';
 import { formatCurrency, normalizeObjectDates, toDayjs } from 'src/utils';
 import { yupDayjs } from 'src/yup';
 import * as yup from 'yup';
-import { PeriodType, PERIOD_TYPES } from '@shared/enums/finance';
 
 interface Props {
   onSubmit: (data: IIncome[]) => void;

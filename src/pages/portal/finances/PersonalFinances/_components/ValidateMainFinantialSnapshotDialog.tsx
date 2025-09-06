@@ -1,20 +1,20 @@
-import { useState, useEffect, Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import {
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
+  DialogTitle,
   Grid,
   Typography,
-  Button,
-  useTheme,
   useMediaQuery,
-  DialogActions,
+  useTheme,
 } from '@mui/material';
-import { IDebt, IFinancialPlan } from '@shared/models/finances';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
+import { IDebt, IFinancialPlan } from '@shared/types/finances';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { CurrencyField } from 'src/components/forms';
 import { formatCurrency } from 'src/utils';
 import * as yup from 'yup';

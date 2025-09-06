@@ -1,15 +1,15 @@
 import {
-  PeriodType,
+  PAYOFF_METHODS,
   PayoffMethod,
   PERIOD_TYPES,
-  PAYOFF_METHODS,
+  PeriodType,
 } from '@shared/enums/finance';
 import {
   IDebt,
   IFinancialSnapshot,
   IFixedExpense,
   IIncome,
-} from '@shared/models/finances';
+} from '@shared/types/finances';
 import dayjs, { Dayjs } from 'dayjs';
 
 function generatePastFinancialSnapshots(

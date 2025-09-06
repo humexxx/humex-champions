@@ -1,4 +1,4 @@
-import { ISummary } from '@shared/models/dashboard';
+import { ISummary } from '@shared/types/dashboard';
 
 export const MOCKED_SUMMARY: ISummary = {
   finance: {

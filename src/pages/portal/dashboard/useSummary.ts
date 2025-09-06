@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
 import { CALLABLE_FUNCTIONS } from '@shared/consts/callableFunctions';
-import { ICallableRequest, ICallableResponse } from '@shared/models';
-import { ISummary } from '@shared/models/dashboard';
+import { ICallableRequest, ICallableResponse } from '@shared/types';
+import { ISummary } from '@shared/types/dashboard';
 import { httpsCallable } from 'firebase/functions';
 import { CommonFetchHookProps } from 'src/_models';
 import { ENV } from 'src/consts';

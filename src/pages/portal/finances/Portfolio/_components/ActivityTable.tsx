@@ -1,6 +1,5 @@
 import {
   Box,
-  Typography,
   Chip,
   Table,
   TableBody,
@@ -8,8 +7,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from '@mui/material';
-import { IPortfolioTransaction } from '@shared/models/finances';
+import { IPortfolioTransaction } from '@shared/types/finances';
 import { formatCurrency } from 'src/utils';
 
 interface ActivityTableProps {

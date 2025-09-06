@@ -13,7 +13,7 @@ import {
   TextField,
 } from '@mui/material';
 import { ELabelColorType } from '@shared/enums/ELabelColorType';
-import { IPlanner } from '@shared/models/uplift/planner';
+import { IPlanner } from '@shared/types/uplift/planner';
 import { Dayjs } from 'dayjs';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';

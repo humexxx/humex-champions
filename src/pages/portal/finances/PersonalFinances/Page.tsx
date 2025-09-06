@@ -12,7 +12,7 @@ import {
   Tab,
   Typography,
 } from '@mui/material';
-import { IDebt, IFixedExpense, IIncome } from '@shared/models/finances';
+import { IDebt, IFixedExpense, IIncome } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 

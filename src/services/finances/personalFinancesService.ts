@@ -5,7 +5,7 @@ import {
   IFinancialPlan,
   IFixedExpense,
   IIncome,
-} from '@shared/models/finances';
+} from '@shared/types/finances';
 import { getError } from '@shared/utils';
 import dayjs from 'dayjs';
 import {
