@@ -1,23 +1,5 @@
 import { z } from 'zod';
 
-// Asset search input
-export const SearchTradableAssetsInput = z.object({
-  query: z.string().min(1, 'Query is required'),
-  type: z.enum(['all', 'stocks', 'etfs', 'crypto']).optional().default('all'),
-  limit: z.number().int().min(1).max(100).optional().default(20),
-});
-
-export type SearchTradableAssetsInput = z.infer<
-  typeof SearchTradableAssetsInput
->;
-
-// Asset details input
-export const GetAssetDetailsInput = z.object({
-  symbol: z.string().min(1, 'Symbol is required'),
-});
-
-export type GetAssetDetailsInput = z.infer<typeof GetAssetDetailsInput>;
-
 // Asset price input
 export const GetAssetPriceInput = z.object({
   symbol: z.string().min(1, 'Symbol is required'),

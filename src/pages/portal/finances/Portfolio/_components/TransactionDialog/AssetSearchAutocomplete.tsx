@@ -16,8 +16,12 @@ import {
   Typography,
 } from '@mui/material';
 import { CALLABLE_FUNCTIONS } from '@shared/consts';
-import { ICallableResponse } from '@shared/types';
-import { Asset, AssetFilterType } from '@shared/types/finances/portfolio';
+import { ICallableRequest, ICallableResponse } from '@shared/types';
+import {
+  AssetFilterType,
+  IAsset,
+  SearchTradableAssetsInput,
+} from '@shared/types/finances/portfolio';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
 import { functions } from 'src/firebase';
@@ -31,8 +35,8 @@ export const ASSET_TYPES: { value: AssetFilterType; label: string }[] = [
 ];
 
 interface AssetSearchAutocompleteProps {
-  selectedAsset: Asset | null;
-  onAssetSelect: (asset: Asset | null) => void;
+  selectedAsset: IAsset | null;
+  onAssetSelect: (asset: IAsset | null) => void;
   selectedFilter: AssetFilterType;
   onFilterChange: (filter: AssetFilterType) => void;
   showInternalProducts: boolean;
@@ -42,13 +46,13 @@ interface AssetSearchAutocompleteProps {
 
 // Firebase Functions
 const searchTradableAssets = httpsCallable<
-  SearchTradableAssetsInput,
-  ICallableResponse<Asset[]>
+  ICallableRequest<SearchTradableAssetsInput>,
+  ICallableResponse<IAsset[]>
 >(functions, CALLABLE_FUNCTIONS.finances.searchTradableAssets);
 
 const getSystemAssets = httpsCallable<
-  undefined,
-  ICallableResponse<{ assets: Asset[]; count: number }>
+  ICallableRequest,
+  ICallableResponse<{ assets: IAsset[]; count: number }>
 >(functions, CALLABLE_FUNCTIONS.finances.getSystemAssets);
 
 const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
@@ -61,9 +65,9 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   error: externalError = null,
 }) => {
   const [assetSearchQuery, setAssetSearchQuery] = useState('');
-  const [availableAssets, setAvailableAssets] = useState<Asset[]>([]);
+  const [availableAssets, setAvailableAssets] = useState<IAsset[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [searchCache, setSearchCache] = useState<Map<string, Asset[]>>(
+  const [searchCache, setSearchCache] = useState<Map<string, IAsset[]>>(
     new Map()
   );
 
@@ -79,7 +83,7 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   }, [availableAssets, selectedFilter]);
 
   // Get system assets filtered by search query
-  const getFilteredSystemAssets = async (query: string): Promise<Asset[]> => {
+  const getFilteredSystemAssets = async (query: string): Promise<IAsset[]> => {
     if (!showInternalProducts) return [];
 
     try {
@@ -90,7 +94,7 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
         return [];
       }
 
-      const systemAssets = result.data.data.assets as Asset[];
+      const systemAssets = result.data.data.assets;
 
       if (!query || query.length < 2) {
         return systemAssets;
@@ -110,24 +114,18 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   };
 
   // Asset search function
-  const searchAssets = async (
-    query: string,
-    type: 'all' | 'stocks' | 'etfs' | 'crypto' | 'system' = 'all'
-  ) => {
-    // For internal products, always get them (no minimum query length)
+  const searchAssets = async (query: string, type: AssetFilterType = 'all') => {
     if (showInternalProducts) {
       const systemAssets = await getFilteredSystemAssets(query);
       setAvailableAssets(systemAssets);
       return;
     }
 
-    // For external products, require at least 2 characters
     if (query.length < 2) {
       setAvailableAssets([]);
       return;
     }
 
-    // Check cache first for external assets
     const cacheKey = `${query.toLowerCase()}-${type}`;
     if (searchCache.has(cacheKey)) {
       const cachedAssets = searchCache.get(cacheKey) || [];
@@ -140,10 +138,13 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
     setSearchLoading(true);
 
     try {
-      const result = await searchTradableAssets({
+      const data: SearchTradableAssetsInput = {
         query,
-        type: type === 'system' ? 'all' : type, // Don't pass 'system' to Firebase
-        limit: 10,
+        type: type === 'system' ? 'all' : type,
+        limit: 15,
+      };
+      const result = await searchTradableAssets({
+        data,
       });
 
       console.log('Search result:', result.data);
@@ -181,7 +182,6 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   // Debounce asset search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      // For internal products, search immediately even with short queries
       if (
         showInternalProducts ||
         (assetSearchQuery && assetSearchQuery.length >= 2)
@@ -193,7 +193,6 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
     return () => clearTimeout(timeoutId);
   }, [assetSearchQuery, showInternalProducts]); // Add showInternalProducts dependency
 
-  // Load internal products immediately when switching to internal mode
   useEffect(() => {
     if (showInternalProducts) {
       searchAssets(''); // Empty query to load all internal products

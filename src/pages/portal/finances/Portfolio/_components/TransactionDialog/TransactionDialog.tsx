@@ -22,9 +22,8 @@ import {
 } from '@mui/material';
 import { PORTFOLIO_CONSTANTS } from '@shared/consts';
 import {
-  Asset,
   AssetFilterType,
-  TransactionFormData,
+  IAsset,
   TransactionType,
 } from '@shared/types/finances/portfolio';
 import { httpsCallable } from 'firebase/functions';
@@ -103,7 +102,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   });
 
   // Asset search state
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<IAsset | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<AssetFilterType>('all');
   const [showInternalProducts, setShowInternalProducts] = useState(true);
   const [assetDetailsLoading, setAssetDetailsLoading] = useState(false);
@@ -130,7 +129,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   }, [showInternalProducts, setValue]);
 
   // Handle asset selection
-  const handleAssetSelect = async (asset: Asset | null) => {
+  const handleAssetSelect = async (asset: IAsset | null) => {
     setSelectedAsset(asset);
     setError(null);
 

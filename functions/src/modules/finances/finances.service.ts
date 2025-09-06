@@ -1,3 +1,5 @@
+import { AssetFilterType } from '@shared/types/finances';
+import { IAsset } from '@shared/types/finances/portfolio';
 import { FieldValue } from 'firebase-admin/firestore';
 
 import { env } from '../../core/config';
@@ -5,16 +7,16 @@ import { AppError } from '../../core/errors';
 import { db } from '../../core/firebase';
 import { log } from '../../core/logger';
 import { PolygonService } from '../../services/financial/polygon';
-import { Asset, PriceUpdate } from '../../services/financial/types';
+import {
+  InternalPriceData,
+  mapPolygonAssetToIAsset,
+  mapPolygonAssetsToIAssets,
+  mapPolygonPriceUpdatesToInternal,
+} from '../../services/financial/polygon.mappers';
 
 // Types
-interface PriceData {
-  symbol: string;
-  price: number;
-  change: number;
-  changePercent: number;
-  timestamp: number;
-}
+// Using InternalPriceData from mappers instead of local PriceData
+type PriceData = InternalPriceData;
 
 interface PortfolioPosition {
   symbol: string;
@@ -31,40 +33,46 @@ const polygonService = new PolygonService(env.POLYGON_API_KEY);
 
 export async function searchTradableAssets(
   query: string,
-  type: 'all' | 'stocks' | 'etfs' | 'crypto' = 'all',
+  type: AssetFilterType = 'all',
   limit = 20
-): Promise<Asset[]> {
+): Promise<IAsset[]> {
   try {
     log.info('Searching tradable assets', { query, type, limit });
 
     const results = await polygonService.searchAssets(query, limit);
 
+    // Map Polygon assets to internal IAsset format using imported mapper
+    const mappedAssets = mapPolygonAssetsToIAssets(results.assets);
+
     log.info('Asset search completed', {
       query,
       type,
       limit,
-      resultsCount: results.assets.length,
+      resultsCount: mappedAssets.length,
     });
 
-    return results.assets;
+    return mappedAssets;
   } catch (error) {
     log.error('Failed to search assets', { query, type, limit, error });
     throw new AppError('asset-search-failed', 'Failed to search assets', 500);
   }
 }
 
-export async function getAssetDetails(symbol: string): Promise<Asset> {
+export async function getAssetDetails(symbol: string): Promise<IAsset> {
   try {
     log.info('Getting asset details', { symbol });
 
-    const details = await polygonService.getAssetDetails(symbol);
+    const polygonAsset = await polygonService.getAssetDetails(symbol);
 
-    if (!details) {
+    if (!polygonAsset) {
       throw new AppError('asset-not-found', `Asset ${symbol} not found`, 404);
     }
 
+    // Convert Polygon asset to internal format
+    const internalAsset = mapPolygonAssetToIAsset(polygonAsset);
+
     log.info('Asset details retrieved', { symbol });
-    return details;
+    return internalAsset;
   } catch (error) {
     if (error instanceof AppError) throw error;
 
@@ -92,13 +100,9 @@ export async function getAssetPrice(symbol: string): Promise<PriceData> {
     }
 
     const priceUpdate = priceUpdates[0];
-    const priceData: PriceData = {
-      symbol: priceUpdate.symbol,
-      price: priceUpdate.price,
-      change: priceUpdate.change || 0,
-      changePercent: priceUpdate.changePercent || 0,
-      timestamp: Date.now(),
-    };
+    const priceData: PriceData = mapPolygonPriceUpdatesToInternal([
+      priceUpdate,
+    ])[0];
 
     log.info('Asset price retrieved', { symbol, price: priceData.price });
     return priceData;
@@ -118,15 +122,8 @@ export async function getWatchlistPrices(
 
     const priceUpdates = await polygonService.getBatchPriceUpdates(symbols);
 
-    const priceData = priceUpdates.map(
-      (update: PriceUpdate): PriceData => ({
-        symbol: update.symbol,
-        price: update.price,
-        change: update.change || 0,
-        changePercent: update.changePercent || 0,
-        timestamp: Date.now(),
-      })
-    );
+    // Use mapper to convert Polygon price updates to internal format
+    const priceData = mapPolygonPriceUpdatesToInternal(priceUpdates);
 
     log.info('Watchlist prices retrieved', {
       requestedCount: symbols.length,

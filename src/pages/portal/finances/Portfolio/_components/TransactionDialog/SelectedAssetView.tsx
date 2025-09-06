@@ -3,11 +3,11 @@ import {
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
 import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
-import { Asset } from '@shared/types/finances/portfolio';
+import { IAsset } from '@shared/types/finances';
 import React from 'react';
 
 interface SelectedAssetViewProps {
-  asset: Asset;
+  asset: IAsset;
 }
 
 const SelectedAssetView: React.FC<SelectedAssetViewProps> = ({ asset }) => {

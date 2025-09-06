@@ -1,10 +1,24 @@
 import { Dayjs } from 'dayjs';
+import { z } from 'zod';
 
-export interface SearchTradableAssetsInput {
-  query: string;
-  type?: 'all' | 'stocks' | 'etfs' | 'crypto';
-  limit?: number;
-}
+const assetFilterTypes = ['all', 'stock', 'etf', 'crypto', 'system'] as const;
+export type AssetFilterType = (typeof assetFilterTypes)[number];
+
+export const SearchTradableAssetsInput = z.object({
+  query: z.string().min(1, 'Query is required'),
+  type: z.enum(assetFilterTypes).optional().default('all'),
+  limit: z.number().int().min(1).max(100).optional().default(20),
+});
+
+export type SearchTradableAssetsInput = z.infer<
+  typeof SearchTradableAssetsInput
+>;
+
+export const GetAssetDetailsInput = z.object({
+  symbol: z.string().min(1, 'Symbol is required'),
+});
+
+export type GetAssetDetailsInput = z.infer<typeof GetAssetDetailsInput>;
 
 export type AssetType = 'stock' | 'etf' | 'crypto' | 'system';
 export type AssetCategory =
@@ -15,7 +29,6 @@ export type AssetCategory =
   | 'FOREX'
   | 'SYSTEM';
 export type RiskLevel = 'low' | 'medium' | 'high';
-export type AssetFilterType = 'all' | 'stock' | 'etf' | 'crypto' | 'system';
 
 export type TransactionType = 'BUY' | 'SELL';
 export type ExtendedTransactionType =

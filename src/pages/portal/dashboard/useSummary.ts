@@ -6,7 +6,6 @@ import { ISummary } from '@shared/types/dashboard';
 import { httpsCallable } from 'firebase/functions';
 import { CommonFetchHookProps } from 'src/_models';
 import { ENV } from 'src/consts';
-import { useAuth } from 'src/context/hooks';
 import { functions } from 'src/firebase';
 import { MOCKED_SUMMARY } from 'src/mock/dashboardMockData';
 
@@ -28,7 +27,6 @@ const useSummary = (
     forceMock: false,
   }
 ): Props => {
-  const { currentUser } = useAuth();
   const [data, setData] = useState<ISummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,9 +41,7 @@ const useSummary = (
     }
 
     try {
-      const response = await _dashboardSummaryCallable({
-        uid: currentUser!.uid,
-      });
+      const response = await _dashboardSummaryCallable();
       if (!response.data.success) {
         throw new Error(response.data.error);
       }

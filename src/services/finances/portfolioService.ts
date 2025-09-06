@@ -48,7 +48,7 @@ const MOCK_ASSETS: Record<string, IAsset> = {
     symbol: 'BTC',
     name: 'Bitcoin',
     category: 'CRYPTO',
-    type: 'CRYPTOCURRENCY',
+    type: 'crypto',
     currentPrice: 116383.2,
     dayOpenPrice: 116678.28,
     previousDayClose: 116678.28,
@@ -65,7 +65,7 @@ const MOCK_ASSETS: Record<string, IAsset> = {
     symbol: 'ADA',
     name: 'Cardano',
     category: 'CRYPTO',
-    type: 'CRYPTOCURRENCY',
+    type: 'crypto',
     currentPrice: 0.81,
     dayOpenPrice: 0.79,
     previousDayClose: 0.79,
@@ -518,7 +518,7 @@ export const portfolioService = {
   },
 
   setAsset: async (asset: IAsset): Promise<void> => {
-    const docRef = doc(firestore, FIRESTORE_PATHS.ASSETS.ASSET(asset.id));
+    const docRef = doc(firestore, FIRESTORE_PATHS.ASSETS.ASSET(asset.id!));
     const { id, ...assetData } = normalizeObjectDates(
       asset,
       toTimestamp

@@ -3,5 +3,5 @@ export type ICallableResponse<T = void> =
   | { success: false; error: string };
 
 export type ICallableRequest<T = void> = T extends void
-  ? { uid: string }
-  : { uid: string; data: T };
+  ? { impersonatedUid?: string }
+  : { impersonatedUid?: string; data: T };

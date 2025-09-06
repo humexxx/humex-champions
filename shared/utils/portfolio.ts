@@ -1,11 +1,11 @@
+import dayjs, { Dayjs } from 'dayjs';
+import { PORTFOLIO_CONSTANTS } from '../consts';
 import {
+  IAsset,
   IPortfolio,
   IPortfolioHolding,
   IPortfolioTransaction,
-  IAsset,
-} from '../models/finances';
-import { PORTFOLIO_CONSTANTS } from '../consts';
-import dayjs, { Dayjs } from 'dayjs';
+} from '../types/finances';
 
 export function calculateHoldingsFromTransactions(
   transactions: IPortfolioTransaction[],
