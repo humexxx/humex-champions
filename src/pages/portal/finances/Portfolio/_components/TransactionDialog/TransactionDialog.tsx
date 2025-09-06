@@ -21,6 +21,7 @@ import {
   Typography,
 } from '@mui/material';
 import { PORTFOLIO_CONSTANTS } from '@shared/consts';
+import { Asset, TransactionFormData } from '@shared/types/finances/portfolio';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -28,7 +29,14 @@ import * as yup from 'yup';
 import { functions } from '../../../../../../firebase';
 import AssetSearchAutocomplete from './AssetSearchAutocomplete';
 import SelectedAssetView from './SelectedAssetView';
-import { Asset, TransactionDialogProps, TransactionFormData } from './types';
+
+// Component props interface
+interface TransactionDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (transaction: TransactionFormData) => Promise<void>;
+  portfolioId: string;
+}
 
 // Firebase Functions
 const getAssetPrice = httpsCallable(functions, 'getAssetPrice');

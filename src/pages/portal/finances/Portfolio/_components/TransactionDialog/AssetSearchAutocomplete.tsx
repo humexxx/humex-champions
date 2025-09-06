@@ -16,10 +16,25 @@ import {
   Typography,
 } from '@mui/material';
 import { CALLABLE_FUNCTIONS } from '@shared/consts';
+import {
+  Asset,
+  ASSET_TYPES,
+  AssetFilterType,
+} from '@shared/types/finances/portfolio';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
 import { functions } from '../../../../../../firebase';
-import { Asset, ASSET_TYPES, AssetSearchAutocompleteProps } from './types';
+
+// Component props interface
+interface AssetSearchAutocompleteProps {
+  selectedAsset: Asset | null;
+  onAssetSelect: (asset: Asset | null) => void;
+  selectedFilter: AssetFilterType;
+  onFilterChange: (filter: AssetFilterType) => void;
+  showInternalProducts: boolean;
+  loading?: boolean;
+  error?: string | null;
+}
 
 // Firebase Functions
 const searchTradableAssets = httpsCallable(

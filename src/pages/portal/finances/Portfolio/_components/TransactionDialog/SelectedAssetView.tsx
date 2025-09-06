@@ -1,10 +1,10 @@
-import React from 'react';
-import { Box, Typography, Chip, Card, CardContent } from '@mui/material';
 import {
-  TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
+  TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
-import { Asset } from './types';
+import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
+import { Asset } from '@shared/types/finances/portfolio';
+import React from 'react';
 
 interface SelectedAssetViewProps {
   asset: Asset;

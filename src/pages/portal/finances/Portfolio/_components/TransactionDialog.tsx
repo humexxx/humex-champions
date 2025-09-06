@@ -1,6 +1,7 @@
-export { default } from './TransactionDialog/TransactionDialog';
 export type {
-  TransactionDialogProps,
-  TransactionFormData,
   Asset,
-} from './TransactionDialog/types';
+  TransactionFormData,
+} from '@shared/types/finances/portfolio';
+export { default } from './TransactionDialog/TransactionDialog';
+
+// Note: TransactionDialogProps is now internal to the component
