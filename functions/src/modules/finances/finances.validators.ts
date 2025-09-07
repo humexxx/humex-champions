@@ -1,12 +1,5 @@
 import { z } from 'zod';
 
-// Asset price input
-export const GetAssetPriceInput = z.object({
-  symbol: z.string().min(1, 'Symbol is required'),
-});
-
-export type GetAssetPriceInput = z.infer<typeof GetAssetPriceInput>;
-
 // Watchlist prices input
 export const GetWatchlistPricesInput = z.object({
   symbols: z

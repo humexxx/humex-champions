@@ -1,4 +1,4 @@
-import { ICallableRequest, ICallableResponse } from '@shared/types';
+import { ICallableResponse } from '@shared/types';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAuth } from '../../../../../core/auth';
@@ -8,9 +8,7 @@ import { parseOrThrow } from '../../../../../core/validation';
 import { GetF1ScheduleInput } from '../../../entertainment.validators';
 import { getF1Schedule } from '../f1.service';
 
-export const getF1ScheduleCallable = onCall<
-  ICallableRequest<GetF1ScheduleInput>
->(
+export const getF1ScheduleCallable = onCall<GetF1ScheduleInput>(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
   async (req): Promise<ICallableResponse<unknown>> => {
     try {

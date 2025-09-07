@@ -1,10 +1,10 @@
+import { IFinancialPlan } from '@shared/types/finances';
+import { IUser } from '@shared/types/user';
 import * as admin from 'firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 import { FIRESTORE_PATHS } from '../../../../../shared/consts';
 import { PAYOFF_METHODS } from '../../../../../shared/enums/finance';
-import { IUser } from '../../../../../shared/models';
-import { IFinancialPlan } from '../../../../../shared/models/finances';
 import { financeUtils } from '../../../../../shared/utils/finance';
 import { AppError } from '../../../core/errors';
 import { log } from '../../../core/logger';

@@ -16,21 +16,24 @@ import {
   Typography,
 } from '@mui/material';
 import { CALLABLE_FUNCTIONS } from '@shared/consts';
-import { ICallableRequest, ICallableResponse } from '@shared/types';
 import {
   AssetFilterType,
   IAsset,
   SearchTradableAssetsInput,
 } from '@shared/types/finances/portfolio';
+import { ICallableResponse } from '@shared/types/functions';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
 import { functions } from 'src/firebase';
+import { getMarketColor } from './SelectedAssetView';
 
 export const ASSET_TYPES: { value: AssetFilterType; label: string }[] = [
   { value: 'all', label: 'All' },
-  { value: 'stock', label: 'Stocks' },
-  { value: 'etf', label: 'ETFs' },
+  { value: 'stocks', label: 'Stocks' },
+  { value: 'fx', label: 'FX' },
   { value: 'crypto', label: 'Crypto' },
+  { value: 'otc', label: 'OTC' },
+  { value: 'indices', label: 'Indices' },
   { value: 'system', label: 'HumEx Products' },
 ];
 
@@ -46,14 +49,9 @@ interface AssetSearchAutocompleteProps {
 
 // Firebase Functions
 const searchTradableAssets = httpsCallable<
-  ICallableRequest<SearchTradableAssetsInput>,
+  SearchTradableAssetsInput,
   ICallableResponse<IAsset[]>
->(functions, CALLABLE_FUNCTIONS.finances.searchTradableAssets);
-
-const getSystemAssets = httpsCallable<
-  ICallableRequest,
-  ICallableResponse<{ assets: IAsset[]; count: number }>
->(functions, CALLABLE_FUNCTIONS.finances.getSystemAssets);
+>(functions, CALLABLE_FUNCTIONS.finances.portfolio.searchTradableAssets);
 
 const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
   selectedAsset,
@@ -76,52 +74,15 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
     let filtered = availableAssets;
 
     if (selectedFilter !== 'all') {
-      filtered = filtered.filter((asset) => asset.type === selectedFilter);
+      filtered = filtered.filter((asset) => asset.market === selectedFilter);
     }
 
     return filtered;
   }, [availableAssets, selectedFilter]);
 
-  // Get system assets filtered by search query
-  const getFilteredSystemAssets = async (query: string): Promise<IAsset[]> => {
-    if (!showInternalProducts) return [];
-
-    try {
-      const result = await getSystemAssets();
-
-      if (!result.data.success) {
-        console.error('Error getting system assets:', result.data.error);
-        return [];
-      }
-
-      const systemAssets = result.data.data.assets;
-
-      if (!query || query.length < 2) {
-        return systemAssets;
-      }
-
-      // Filter by query if provided
-      const lowerQuery = query.toLowerCase();
-      return systemAssets.filter(
-        (asset) =>
-          asset.symbol.toLowerCase().includes(lowerQuery) ||
-          asset.name.toLowerCase().includes(lowerQuery)
-      );
-    } catch (error) {
-      console.error('Error fetching system assets:', error);
-      return [];
-    }
-  };
-
   // Asset search function
   const searchAssets = async (query: string, type: AssetFilterType = 'all') => {
-    if (showInternalProducts) {
-      const systemAssets = await getFilteredSystemAssets(query);
-      setAvailableAssets(systemAssets);
-      return;
-    }
-
-    if (query.length < 2) {
+    if (query.length < 2 && !showInternalProducts) {
       setAvailableAssets([]);
       return;
     }
@@ -138,16 +99,11 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
     setSearchLoading(true);
 
     try {
-      const data: SearchTradableAssetsInput = {
-        query,
-        type: type === 'system' ? 'all' : type,
-        limit: 15,
-      };
       const result = await searchTradableAssets({
-        data,
+        query,
+        type: showInternalProducts ? 'system' : type,
+        limit: 10,
       });
-
-      console.log('Search result:', result.data);
 
       if (!result.data.success) {
         console.error('Error searching assets:', result.data.error);
@@ -155,22 +111,11 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
         return;
       }
 
-      const externalAssets = result.data.data.map((asset: any) => ({
-        symbol: asset.symbol,
-        name: asset.name,
-        type: asset.type,
-        exchange: asset.exchange,
-        price: asset.price,
-        change: asset.change,
-        changePercent: asset.changePercent,
-        isSystemAsset: false, // Mark as external asset
-      }));
-
-      console.log('Mapped external assets:', externalAssets);
-      setAvailableAssets(externalAssets);
+      const assets = result.data.data as IAsset[];
+      setAvailableAssets(assets);
 
       // Cache the external result
-      setSearchCache((prev) => new Map(prev).set(cacheKey, externalAssets));
+      setSearchCache((prev) => new Map(prev).set(cacheKey, assets));
     } catch (err: any) {
       console.error('Error searching assets:', err);
       setAvailableAssets([]);
@@ -365,17 +310,9 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
                     <strong>{option.symbol}</strong> - {option.name}
                   </Typography>
                   <Chip
-                    label={option.type.toUpperCase()}
+                    label={option.market!.toUpperCase()}
                     size="small"
-                    color={
-                      option.type === 'system'
-                        ? 'primary'
-                        : option.type === 'crypto'
-                          ? 'warning'
-                          : option.type === 'etf'
-                            ? 'info'
-                            : 'default'
-                    }
+                    color={getMarketColor(option.market!)}
                   />
                 </Box>
                 {option.isSystemAsset && option.monthlyYield && (

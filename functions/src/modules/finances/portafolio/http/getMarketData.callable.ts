@@ -1,7 +1,7 @@
 import { onCall } from 'firebase-functions/v2/https';
 
-import { mapToHttpsError } from '../../../core/errors';
-import { PolygonService } from '../../../services/financial/polygon';
+import { mapToHttpsError } from '../../../../core/errors';
+import { PolygonService } from '../../../../services/polygon/polygon';
 
 const polygonClient = new PolygonService(process.env.POLYGON_API_KEY || '');
 

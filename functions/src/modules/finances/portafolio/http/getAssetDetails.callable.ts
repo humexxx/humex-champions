@@ -1,16 +1,14 @@
-import { ICallableRequest, ICallableResponse } from '@shared/types';
 import { GetAssetDetailsInput, IAsset } from '@shared/types/finances/portfolio';
+import { ICallableResponse } from '@shared/types/functions';
 import { onCall } from 'firebase-functions/v2/https';
 
-import { requireAuth } from '../../../core/auth';
-import { runtime } from '../../../core/config';
-import { mapToHttpsError } from '../../../core/errors';
-import { parseOrThrow } from '../../../core/validation';
-import { getAssetDetails } from '../finances.service';
+import { requireAuth } from '../../../../core/auth';
+import { runtime } from '../../../../core/config';
+import { mapToHttpsError } from '../../../../core/errors';
+import { parseOrThrow } from '../../../../core/validation';
+import { getAssetDetails } from '../../finances.service';
 
-export const getAssetDetailsCallable = onCall<
-  ICallableRequest<GetAssetDetailsInput>
->(
+export const getAssetDetailsCallable = onCall<GetAssetDetailsInput>(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
   async (req): Promise<ICallableResponse<IAsset>> => {
     try {

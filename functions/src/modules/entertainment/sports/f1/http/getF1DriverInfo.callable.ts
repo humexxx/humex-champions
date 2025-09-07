@@ -1,4 +1,4 @@
-import { ICallableRequest, ICallableResponse } from '@shared/types';
+import { ICallableResponse } from '@shared/types';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAuth } from '../../../../../core/auth';
@@ -8,9 +8,7 @@ import { parseOrThrow } from '../../../../../core/validation';
 import { GetF1DriverInfoInput } from '../../../entertainment.validators';
 import { getF1DriverInfo } from '../f1.service';
 
-export const getF1DriverInfoCallable = onCall<
-  ICallableRequest<GetF1DriverInfoInput>
->(
+export const getF1DriverInfoCallable = onCall<GetF1DriverInfoInput>(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
   async (req): Promise<ICallableResponse<unknown>> => {
     try {

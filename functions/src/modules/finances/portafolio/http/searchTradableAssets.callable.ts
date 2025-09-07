@@ -1,20 +1,21 @@
-import { ICallableRequest, ICallableResponse } from '@shared/types';
-import { logger } from 'firebase-functions';
+import { IAsset, SearchTradableAssetsInput } from '@shared/types/finances';
+import { ICallableResponse } from '@shared/types/functions';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAuth } from '../../../../core/auth';
 import { runtime } from '../../../../core/config';
 import { mapToHttpsError } from '../../../../core/errors';
+import { parseOrThrow } from '../../../../core/validation';
+import { searchTradableAssets } from '../../finances.service';
 
 // System assets definition - later this will come from database
-const SYSTEM_ASSETS = [
+const SYSTEM_ASSETS: IAsset[] = [
   {
     symbol: 'HUMEX-YIELD',
     name: 'HumEx Monthly Yield Fund',
-    type: 'system',
-    price: 100, // Base price
-    change: 0,
-    changePercent: 0,
+    market: 'system',
+    isActive: true,
+
     isSystemAsset: true,
     monthlyYield: 0.007, // 0.7% monthly
     description: 'Fixed monthly yield of 0.7% with compound interest',
@@ -24,10 +25,9 @@ const SYSTEM_ASSETS = [
   {
     symbol: 'HUMEX-GROWTH',
     name: 'HumEx Growth Fund',
-    type: 'system',
-    price: 150, // Base price
-    change: 0,
-    changePercent: 0,
+    market: 'system',
+    isActive: true,
+
     isSystemAsset: true,
     monthlyYield: 0.012, // 1.2% monthly
     description:
@@ -38,10 +38,9 @@ const SYSTEM_ASSETS = [
   {
     symbol: 'HUMEX-STABLE',
     name: 'HumEx Stable Income',
-    type: 'system',
-    price: 50, // Base price
-    change: 0,
-    changePercent: 0,
+    market: 'system',
+    isActive: true,
+
     isSystemAsset: true,
     monthlyYield: 0.004, // 0.4% monthly
     description: 'Conservative investment with stable monthly returns',
@@ -50,38 +49,29 @@ const SYSTEM_ASSETS = [
   },
 ];
 
-/**
- * Get system assets available for investment
- * These are internal HumEx investment products
- */
-export const getSystemAssetsCallable = onCall<ICallableRequest<undefined>>(
+export const searchTradableAssetsCallable = onCall<SearchTradableAssetsInput>(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
-  async (
-    req
-  ): Promise<
-    ICallableResponse<{ assets: typeof SYSTEM_ASSETS; count: number }>
-  > => {
+  async (req): Promise<ICallableResponse<IAsset[]>> => {
     try {
       requireAuth(req);
 
-      logger.info('Getting system assets');
+      if (req.data.type === 'system') {
+        return {
+          success: true,
+          data: SYSTEM_ASSETS,
+        };
+      }
+      const input = parseOrThrow(SearchTradableAssetsInput, req.data);
 
-      // In the future, this will query the database
-      // For now, return the static array
-      const assets = SYSTEM_ASSETS.map((asset) => ({
-        ...asset,
-        // You could add real-time data here if needed
-        lastUpdated: new Date().toISOString(),
-      }));
-
-      logger.info(`Found ${assets.length} system assets`);
+      const result = await searchTradableAssets(
+        input.query,
+        input.type,
+        input.limit
+      );
 
       return {
         success: true,
-        data: {
-          assets,
-          count: assets.length,
-        },
+        data: result,
       };
     } catch (error) {
       const httpsError = mapToHttpsError(error);

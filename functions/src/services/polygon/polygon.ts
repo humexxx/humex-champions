@@ -1,15 +1,20 @@
+import { IAsset } from '@shared/types/finances';
+
+import { log } from '../../core/logger';
+import { ApiClientFactory } from '../_core/clientFactory';
+import { HttpClient } from '../_core/httpClient';
 import {
-  PolygonAggResponse,
-  PolygonTickersResponse,
-  PolygonTickerDetailsResponse,
-  StockPrice,
-  CryptoPrice,
-  Asset,
+  mapPolygonAssetsToIAssets,
+  mapPolygonAssetToIAsset,
+  mapPolygonPriceUpdateToInternal,
+} from './polygon.mappers';
+import {
+  AssetPrice,
   AssetSearchResult,
-  PriceUpdate,
-} from './types.js';
-import { ApiClientFactory } from '../_core/clientFactory.js';
-import { HttpClient } from '../_core/httpClient.js';
+  PolygonAggResponse,
+  PolygonTickerDetailsResponse,
+  PolygonTickersResponse,
+} from './types';
 
 /**
  * Polygon.io API Client - Complete Portfolio Integration
@@ -82,16 +87,7 @@ export class PolygonService {
     });
 
     const response = await this.client.get<PolygonTickersResponse>(endpoint);
-
-    const assets: Asset[] = response.data.results.map((ticker) => ({
-      symbol: ticker.ticker,
-      name: ticker.name,
-      type: this.mapAssetType(ticker.type, ticker.market),
-      exchange: ticker.primary_exchange,
-      currency: ticker.currency_name || 'USD',
-      isActive: ticker.active,
-      lastUpdated: ticker.last_updated_utc,
-    }));
+    const assets = mapPolygonAssetsToIAssets(response.data.results);
 
     return {
       assets,
@@ -106,7 +102,7 @@ export class PolygonService {
    * @param {number} limit - Maximum number of stocks to return
    * @return {Promise<Asset[]>} Array of popular stock assets
    */
-  async getPopularStocks(limit = 100): Promise<Asset[]> {
+  async getPopularStocks(limit = 100): Promise<IAsset[]> {
     const endpoint = this.buildUrl('/v3/reference/tickers', {
       type: 'CS', // Common Stock
       market: 'stocks',
@@ -117,15 +113,9 @@ export class PolygonService {
     });
 
     const response = await this.client.get<PolygonTickersResponse>(endpoint);
+    const assets = mapPolygonAssetsToIAssets(response.data.results);
 
-    return response.data.results.map((ticker) => ({
-      symbol: ticker.ticker,
-      name: ticker.name,
-      type: 'stock' as const,
-      exchange: ticker.primary_exchange,
-      currency: ticker.currency_name || 'USD',
-      isActive: ticker.active,
-    }));
+    return assets;
   }
 
   /**
@@ -133,7 +123,7 @@ export class PolygonService {
    * @param {number} limit - Maximum number of ETFs to return
    * @return {Promise<Asset[]>} Array of ETF assets
    */
-  async getETFs(limit = 100): Promise<Asset[]> {
+  async getETFs(limit = 100): Promise<IAsset[]> {
     const endpoint = this.buildUrl('/v3/reference/tickers', {
       type: 'ETF',
       market: 'stocks',
@@ -142,21 +132,15 @@ export class PolygonService {
     });
 
     const response = await this.client.get<PolygonTickersResponse>(endpoint);
+    const assets = mapPolygonAssetsToIAssets(response.data.results);
 
-    return response.data.results.map((ticker) => ({
-      symbol: ticker.ticker,
-      name: ticker.name,
-      type: 'etf' as const,
-      exchange: ticker.primary_exchange,
-      currency: ticker.currency_name || 'USD',
-      isActive: ticker.active,
-    }));
+    return assets;
   }
 
   /**
    * Gets the most popular cryptocurrencies
    */
-  async getPopularCryptos(): Promise<Asset[]> {
+  async getPopularCryptos(): Promise<IAsset[]> {
     // Main cryptocurrencies - Polygon has limited free crypto access
     const popularCryptos = [
       'BTC',
@@ -176,21 +160,9 @@ export class PolygonService {
     });
 
     const response = await this.client.get<PolygonTickersResponse>(endpoint);
+    const assets = mapPolygonAssetsToIAssets(response.data.results);
 
-    return response.data.results
-      .filter((ticker) =>
-        popularCryptos.some((crypto) => ticker.ticker.startsWith(`X:${crypto}`))
-      )
-      .map((ticker) => {
-        const cryptoSymbol = ticker.ticker.replace('X:', '').replace('USD', '');
-        return {
-          symbol: cryptoSymbol,
-          name: ticker.name,
-          type: 'crypto' as const,
-          currency: 'USD',
-          isActive: ticker.active,
-        };
-      });
+    return assets.filter((asset) => popularCryptos.includes(asset.symbol));
   }
 
   // ==========================================
@@ -200,15 +172,15 @@ export class PolygonService {
   /**
    * Gets prices for multiple stocks in watchlist
    * @param {string[]} symbols - Array of stock symbols
-   * @return {Promise<StockPrice[]>} Array of stock price data
+   * @return {Promise<IAsset[]>} Array of stock price data
    */
-  async getStockPrices(symbols: string[]): Promise<StockPrice[]> {
-    const promises = symbols.map((symbol) => this.getStockPrice(symbol));
+  async getAssetPrices(symbols: string[]): Promise<IAsset[]> {
+    const promises = symbols.map((symbol) => this.getAssetPrice(symbol));
     const results = await Promise.allSettled(promises);
 
     return results
       .filter(
-        (result): result is PromiseFulfilledResult<StockPrice> =>
+        (result): result is PromiseFulfilledResult<IAsset> =>
           result.status === 'fulfilled'
       )
       .map((result) => result.value);
@@ -217,9 +189,9 @@ export class PolygonService {
   /**
    * Gets price for an individual stock
    * @param {string} symbol - Stock symbol (e.g., 'AAPL')
-   * @return {Promise<StockPrice>} Stock price data with OHLCV and change info
+   * @return {Promise<IAsset>} Stock price data with OHLCV and change info
    */
-  async getStockPrice(symbol: string): Promise<StockPrice> {
+  async getAssetPrice(symbol: string): Promise<IAsset> {
     const endpoint = this.buildUrl(`/v2/aggs/ticker/${symbol}/prev`);
     const response = await this.client.get<PolygonAggResponse>(endpoint);
 
@@ -231,8 +203,8 @@ export class PolygonService {
     const change = result.c - result.o;
     const changePercent = (change / result.o) * 100;
 
-    return {
-      symbol: symbol.toUpperCase(),
+    const AssetPrice: AssetPrice = {
+      symbol: symbol,
       price: result.c,
       open: result.o,
       high: result.h,
@@ -243,6 +215,8 @@ export class PolygonService {
       changePercent,
       timestamp: result.t,
     };
+
+    return mapPolygonPriceUpdateToInternal(AssetPrice);
   }
 
   /**
@@ -250,13 +224,13 @@ export class PolygonService {
    * @param {string[]} symbols - Array of crypto symbols
    * @return {Promise<CryptoPrice[]>} Array of cryptocurrency price data
    */
-  async getCryptoPrices(symbols: string[]): Promise<CryptoPrice[]> {
+  async getCryptoPrices(symbols: string[]): Promise<IAsset[]> {
     const promises = symbols.map((symbol) => this.getCryptoPrice(symbol));
     const results = await Promise.allSettled(promises);
 
     return results
       .filter(
-        (result): result is PromiseFulfilledResult<CryptoPrice> =>
+        (result): result is PromiseFulfilledResult<IAsset> =>
           result.status === 'fulfilled'
       )
       .map((result) => result.value);
@@ -268,7 +242,7 @@ export class PolygonService {
    * @param {string} to - Target currency (default: 'USD')
    * @return {Promise<CryptoPrice>} Cryptocurrency price data with change info
    */
-  async getCryptoPrice(symbol: string, to = 'USD'): Promise<CryptoPrice> {
+  async getCryptoPrice(symbol: string, to = 'USD'): Promise<IAsset> {
     const endpoint = this.buildUrl(`/v2/aggs/ticker/X:${symbol}${to}/prev`);
     const response = await this.client.get<PolygonAggResponse>(endpoint);
 
@@ -280,16 +254,20 @@ export class PolygonService {
     const change = result.c - result.o;
     const changePercent = (change / result.o) * 100;
 
-    return {
-      symbol: `${symbol}/${to}`,
+    const AssetPrice: AssetPrice = {
+      symbol: symbol,
       price: result.c,
+      open: result.o,
+      high: result.h,
+      low: result.l,
+      close: result.c,
       volume: result.v,
       change,
       changePercent,
       timestamp: result.t,
-      from: symbol,
-      to,
     };
+
+    return mapPolygonPriceUpdateToInternal(AssetPrice);
   }
 
   // ==========================================
@@ -301,24 +279,16 @@ export class PolygonService {
    * @param {string} symbol - Asset symbol to get details for
    * @return {Promise<Asset>} Detailed asset information including market cap and description
    */
-  async getAssetDetails(symbol: string): Promise<Asset> {
+  async getAssetDetails(symbol: string): Promise<IAsset> {
     const endpoint = this.buildUrl(`/v3/reference/tickers/${symbol}`);
     const response =
       await this.client.get<PolygonTickerDetailsResponse>(endpoint);
 
     const data = response.data.results;
+    log.info('Asset details retrieved', { data });
+    const asset = mapPolygonAssetToIAsset(data);
 
-    return {
-      symbol: data.ticker,
-      name: data.name,
-      type: this.mapAssetType(data.type, data.market),
-      exchange: data.primary_exchange,
-      currency: data.currency_name,
-      isActive: data.active,
-      marketCap: data.market_cap,
-      description: data.description,
-      logoUrl: data.branding?.logo_url,
-    };
+    return asset;
   }
 
   // ==========================================
@@ -331,61 +301,28 @@ export class PolygonService {
    * @param {string[]} symbols - Array of asset symbols to get price updates for
    * @return {Promise<PriceUpdate[]>} Array of price update objects ready for Firestore
    */
-  async getBatchPriceUpdates(symbols: string[]): Promise<PriceUpdate[]> {
+  async getBatchPriceUpdates(symbols: string[]): Promise<IAsset[]> {
     const stockSymbols = symbols.filter((s) => !s.includes('/'));
     const cryptoSymbols = symbols.filter((s) => s.includes('/'));
 
-    const [stockPrices, cryptoPrices] = await Promise.all([
-      this.getStockPrices(stockSymbols),
+    const [assetPrices, cryptoPrices] = await Promise.all([
+      this.getAssetPrices(stockSymbols),
       this.getCryptoPrices(cryptoSymbols.map((s) => s.split('/')[0])),
     ]);
 
-    const updates: PriceUpdate[] = [];
-
-    // Add stock updates
-    stockPrices.forEach((stock) => {
-      updates.push({
-        symbol: stock.symbol,
-        price: stock.price,
-        timestamp: stock.timestamp,
-        change: stock.change,
-        changePercent: stock.changePercent,
-      });
-    });
-
-    // Add crypto updates
-    cryptoPrices.forEach((crypto) => {
-      updates.push({
-        symbol: crypto.symbol,
-        price: crypto.price,
-        timestamp: crypto.timestamp,
-        change: crypto.change,
-        changePercent: crypto.changePercent,
-      });
-    });
-
-    return updates;
+    return [...assetPrices, ...cryptoPrices];
   }
 
   // ==========================================
   // 5. UTILITIES
   // ==========================================
 
-  private mapAssetType(
-    polygonType: string,
-    market: string
-  ): 'stock' | 'crypto' | 'etf' {
-    if (market === 'crypto') return 'crypto';
-    if (polygonType === 'ETF') return 'etf';
-    return 'stock';
-  }
-
   /**
    * Verifies if the API key works
    */
   async validateApiKey(): Promise<boolean> {
     try {
-      await this.getStockPrice('AAPL');
+      await this.getAssetPrice('AAPL');
       return true;
     } catch (error) {
       return false;

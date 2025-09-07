@@ -1,5 +1,4 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { PORTFOLIO_CONSTANTS } from '../consts';
 import {
   IAsset,
   IPortfolio,
@@ -40,29 +39,18 @@ export function calculateHoldingsFromTransactions(
     const holding = holdingsMap[assetId];
 
     switch (transaction.type) {
-      case 'BUY':
-      case 'TRANSFER_IN':
+      case 'buy':
         holding.quantity += transaction.quantity;
         holding.totalInvested += transaction.totalAmount;
         break;
 
-      case 'SELL':
-      case 'TRANSFER_OUT':
+      case 'sell':
         const avgCostPerUnit =
           holding.quantity > 0 ? holding.totalInvested / holding.quantity : 0;
         const soldValue = transaction.quantity * avgCostPerUnit;
 
         holding.quantity -= transaction.quantity;
         holding.totalInvested -= soldValue;
-        break;
-
-      case 'DIVIDEND':
-        holding.totalInvested -= transaction.totalAmount;
-        break;
-
-      case 'SPLIT':
-        const splitRatio = transaction.quantity;
-        holding.quantity *= splitRatio;
         break;
     }
 
@@ -78,7 +66,7 @@ export function calculateHoldingsFromTransactions(
     (sum, [assetId, holding]) => {
       const asset = assets[assetId];
       if (asset) {
-        return sum + holding.quantity * asset.currentPrice;
+        return sum + holding.quantity * (asset.price ?? 0);
       }
       return sum;
     },
@@ -89,8 +77,8 @@ export function calculateHoldingsFromTransactions(
     const asset = assets[assetId];
     if (!asset) continue;
 
-    const currentPrice = asset.currentPrice;
-    const currentValue = holding.quantity * currentPrice;
+    const currentPrice = asset.price;
+    const currentValue = holding.quantity * (currentPrice ?? 0);
     const averageBuyPrice =
       holding.quantity > 0 ? holding.totalInvested / holding.quantity : 0;
     const unrealizedGain = currentValue - holding.totalInvested;
@@ -108,7 +96,7 @@ export function calculateHoldingsFromTransactions(
       quantity: holding.quantity,
       averageBuyPrice,
       totalInvested: holding.totalInvested,
-      currentPrice,
+      currentPrice: currentPrice || 0,
       currentValue,
       unrealizedGain,
       unrealizedGainPercentage,
@@ -162,7 +150,7 @@ export function calculateDailyChange(
     if (!asset) continue;
 
     currentValue += holding.currentValue;
-    previousValue += holding.quantity * asset.previousDayClose;
+    previousValue += holding.quantity * (asset.previousDayClose ?? 0);
   }
 
   const dailyGain = currentValue - previousValue;
@@ -210,19 +198,16 @@ export function convertMockDataToNewModel(mockData: any): {
         id: assetId,
         symbol: mockHolding.symbol,
         name: mockHolding.name.split(' (')[0],
-        category:
+        market:
           mockHolding.symbol === 'BTC' || mockHolding.symbol === 'ADA'
-            ? 'CRYPTO'
-            : 'STOCK',
-        type:
-          mockHolding.symbol === 'BTC' || mockHolding.symbol === 'ADA'
-            ? 'CRYPTOCURRENCY'
-            : 'EQUITY',
-        currentPrice: mockHolding.price,
-        dayOpenPrice: mockHolding.price - mockHolding.dailyChange,
+            ? 'crypto'
+            : 'stocks',
+        isActive: true,
+        price: mockHolding.price,
+        open: mockHolding.price - mockHolding.dailyChange,
         previousDayClose: mockHolding.price - mockHolding.dailyChange,
-        dailyChange: mockHolding.dailyChange,
-        dailyChangePercentage: mockHolding.dailyChangePercentage,
+        change: mockHolding.dailyChange,
+        changePercent: mockHolding.dailyChangePercentage,
         currency: 'USD',
         lastPriceUpdate: now,
       };
@@ -316,7 +301,7 @@ export function getDefaultPortfolioData(
     userId,
     name,
     isDraft: false,
-    currency: PORTFOLIO_CONSTANTS.DEFAULT_CURRENCY,
+    currency: 'USD',
     isDefault: true,
     currentValue: 0,
     totalGain: 0,

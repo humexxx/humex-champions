@@ -3,7 +3,7 @@ import {
   TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
 import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
-import { IAsset } from '@shared/types/finances';
+import { IAsset, Market } from '@shared/types/finances';
 import React from 'react';
 
 interface SelectedAssetViewProps {
@@ -35,17 +35,9 @@ const SelectedAssetView: React.FC<SelectedAssetViewProps> = ({ asset }) => {
                 {asset.symbol}
               </Typography>
               <Chip
-                label={asset.type.toUpperCase()}
+                label={asset.market!.toUpperCase()}
                 size="small"
-                color={
-                  asset.type === 'system'
-                    ? 'primary'
-                    : asset.type === 'crypto'
-                      ? 'warning'
-                      : asset.type === 'etf'
-                        ? 'info'
-                        : 'default'
-                }
+                color={getMarketColor(asset.market!)}
               />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -116,5 +108,23 @@ const SelectedAssetView: React.FC<SelectedAssetViewProps> = ({ asset }) => {
     </Card>
   );
 };
+
+export function getMarketColor(
+  market: Market
+): 'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'default' {
+  return market === 'system'
+    ? 'primary'
+    : market === 'crypto'
+      ? 'warning'
+      : market === 'stocks'
+        ? 'secondary'
+        : market === 'fx'
+          ? 'info'
+          : market === 'otc'
+            ? 'default'
+            : market === 'indices'
+              ? 'success'
+              : 'default';
+}
 
 export default SelectedAssetView;

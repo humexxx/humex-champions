@@ -1,4 +1,4 @@
-import { ICallableRequest, ICallableResponse } from '@shared/types';
+import { ICallableResponse } from '@shared/types';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAdmin, requireAuth } from '../../../core/auth';
@@ -8,9 +8,7 @@ import { parseOrThrow } from '../../../core/validation';
 import { addAdminClaim } from '../admin.service';
 import { AddAdminClaimInput } from '../admin.validators';
 
-export const addAdminClaimCallable = onCall<
-  ICallableRequest<AddAdminClaimInput>
->(
+export const addAdminClaimCallable = onCall<AddAdminClaimInput>(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
   async (req): Promise<ICallableResponse<{ message: string }>> => {
     try {

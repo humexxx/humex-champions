@@ -1,10 +1,11 @@
-import { FIRESTORE_PATHS, PORTFOLIO_CONSTANTS } from '@shared/consts';
+import { FIRESTORE_PATHS } from '@shared/consts';
 import {
   IAsset,
   IPortfolio,
   IPortfolioHolding,
   IPortfolioSnapshot,
   IPortfolioTransaction,
+  TRANSACTION_TYPES,
 } from '@shared/types/finances';
 import { getDefaultPortfolioData, getError } from '@shared/utils';
 import dayjs, { Dayjs } from 'dayjs';
@@ -47,35 +48,37 @@ const MOCK_ASSETS: Record<string, IAsset> = {
     id: 'BTC',
     symbol: 'BTC',
     name: 'Bitcoin',
-    category: 'CRYPTO',
-    type: 'crypto',
-    currentPrice: 116383.2,
-    dayOpenPrice: 116678.28,
+    market: 'crypto',
+    isActive: true,
+
+    price: 116383.2,
+    open: 116678.28,
     previousDayClose: 116678.28,
-    dailyChange: -295.08,
-    dailyChangePercentage: -0.25,
+    change: -295.08,
+    changePercent: -0.25,
     currency: 'USD',
     exchange: 'Binance',
     lastPriceUpdate: dayjs(),
     marketCap: 2300000000000,
-    volume24h: 15000000000,
+    volume: 15000000000,
   },
   ADA: {
     id: 'ADA',
     symbol: 'ADA',
     name: 'Cardano',
-    category: 'CRYPTO',
-    type: 'crypto',
-    currentPrice: 0.81,
-    dayOpenPrice: 0.79,
+    market: 'crypto',
+    isActive: true,
+
+    price: 0.81,
+    open: 0.79,
     previousDayClose: 0.79,
-    dailyChange: 0.02,
-    dailyChangePercentage: 2.09,
+    change: 0.02,
+    changePercent: 2.09,
     currency: 'USD',
     exchange: 'Binance',
     lastPriceUpdate: dayjs(),
     marketCap: 28000000000,
-    volume24h: 400000000,
+    volume: 400000000,
   },
 };
 
@@ -117,7 +120,7 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     id: 'transaction_1',
     portfolioId: 'portfolio_1',
     assetId: 'BTC',
-    type: 'BUY',
+    type: 'buy',
     quantity: 1,
     price: 3000,
     totalAmount: 3000,
@@ -131,7 +134,7 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     id: 'transaction_2',
     portfolioId: 'portfolio_1',
     assetId: 'ADA',
-    type: 'BUY',
+    type: 'buy',
     quantity: 5000,
     price: 0.067,
     totalAmount: 333.5,
@@ -542,9 +545,7 @@ export const portfolioService = {
 
     if (
       !transaction.type ||
-      !Object.values(PORTFOLIO_CONSTANTS.TRANSACTION_TYPES).includes(
-        transaction.type as any
-      )
+      !Object.values(TRANSACTION_TYPES).includes(transaction.type as any)
     ) {
       errors.push('Valid transaction type is required');
     }

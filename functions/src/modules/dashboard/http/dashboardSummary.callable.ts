@@ -1,4 +1,4 @@
-import { ICallableRequest, ICallableResponse } from '@shared/types';
+import { ICallableResponse } from '@shared/types';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAuth } from '../../../core/auth';
@@ -24,9 +24,7 @@ interface DashboardSummaryResponse {
   };
 }
 
-export const dashboardSummaryCallable = onCall<
-  ICallableRequest<GetDashboardSummaryInput>
->(
+export const dashboardSummaryCallable = onCall<GetDashboardSummaryInput>(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
   async (req): Promise<ICallableResponse<DashboardSummaryResponse>> => {
     try {

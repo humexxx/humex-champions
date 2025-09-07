@@ -32,7 +32,7 @@ module.exports = {
     'new-cap': 'off',
 
     'import/order': [
-      'error',
+      'warn',
       {
         groups: [['builtin', 'external', 'internal']],
         pathGroups: [

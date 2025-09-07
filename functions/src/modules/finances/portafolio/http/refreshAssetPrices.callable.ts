@@ -1,9 +1,9 @@
 import { onCall } from 'firebase-functions/v2/https';
 import { z } from 'zod';
 
-import { mapToHttpsError } from '../../../core/errors';
-import { parseOrThrow } from '../../../core/validation';
-import { refreshAssetPrices } from '../finances.service';
+import { mapToHttpsError } from '../../../../core/errors';
+import { parseOrThrow } from '../../../../core/validation';
+import { refreshAssetPrices } from '../../finances.service';
 
 const RequestSchema = z.object({
   symbols: z.array(z.string()).min(1).max(50),

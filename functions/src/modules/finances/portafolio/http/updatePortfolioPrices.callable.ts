@@ -1,4 +1,4 @@
-import { ICallableRequest, ICallableResponse } from '@shared/types';
+import { ICallableResponse } from '@shared/types/functions';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAuth } from '../../../../core/auth';
@@ -13,9 +13,7 @@ interface UpdateResult {
   totalValue: number;
 }
 
-export const updatePortfolioPricesCallable = onCall<
-  ICallableRequest<UpdatePortfolioPricesInput>
->(
+export const updatePortfolioPricesCallable = onCall<UpdatePortfolioPricesInput>(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds * 2 }, // Longer timeout for portfolio updates
   async (req): Promise<ICallableResponse<UpdateResult>> => {
     try {

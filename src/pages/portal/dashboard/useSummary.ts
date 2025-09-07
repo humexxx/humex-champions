@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
 import { CALLABLE_FUNCTIONS } from '@shared/consts/callableFunctions';
-import { ICallableRequest, ICallableResponse } from '@shared/types';
 import { ISummary } from '@shared/types/dashboard';
+import { ICallableResponse } from '@shared/types/functions';
 import { httpsCallable } from 'firebase/functions';
 import { CommonFetchHookProps } from 'src/_models';
 import { ENV } from 'src/consts';
@@ -17,7 +17,7 @@ type Props = {
 };
 
 const _dashboardSummaryCallable = httpsCallable<
-  ICallableRequest,
+  undefined,
   ICallableResponse<ISummary>
 >(functions, CALLABLE_FUNCTIONS.dashboard.summary);
 

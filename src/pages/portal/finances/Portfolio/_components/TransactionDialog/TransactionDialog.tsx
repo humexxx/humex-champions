@@ -20,10 +20,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { PORTFOLIO_CONSTANTS } from '@shared/consts';
+import { CALLABLE_FUNCTIONS } from '@shared/consts';
+import { ICallableResponse } from '@shared/types';
 import {
   AssetFilterType,
+  GetAssetPriceInput,
   IAsset,
+  TRANSACTION_TYPES,
   TransactionType,
 } from '@shared/types/finances/portfolio';
 import { httpsCallable } from 'firebase/functions';
@@ -52,16 +55,17 @@ interface TransactionDialogProps {
 }
 
 // Firebase Functions
-const getAssetPrice = httpsCallable(functions, 'getAssetPrice');
+const getAssetPrice = httpsCallable<GetAssetPriceInput, ICallableResponse>(
+  functions,
+  CALLABLE_FUNCTIONS.finances.portfolio.getAssetPrice
+);
 
 // Validation schema
 const transactionSchema = yup.object({
   assetId: yup.string().required('Asset is required'),
   type: yup
     .string()
-    .oneOf(
-      Object.values(PORTFOLIO_CONSTANTS.TRANSACTION_TYPES) as ['BUY', 'SELL']
-    )
+    .oneOf(TRANSACTION_TYPES)
     .required('Transaction type is required'),
   quantity: yup
     .number()
@@ -92,7 +96,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   } = useForm<TransactionFormData>({
     resolver: yupResolver(transactionSchema),
     defaultValues: {
-      type: PORTFOLIO_CONSTANTS.TRANSACTION_TYPES.BUY as 'BUY',
+      type: 'buy',
       executedAt: new Date().toISOString().split('T')[0],
       notes: '',
       assetId: '',
@@ -124,7 +128,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   // Auto-set transaction type to BUY when HumEx products are selected
   useEffect(() => {
     if (showInternalProducts) {
-      setValue('type', 'BUY');
+      setValue('type', 'buy');
     }
   }, [showInternalProducts, setValue]);
 

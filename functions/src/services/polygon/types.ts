@@ -1,3 +1,5 @@
+import { IAsset } from '@shared/types/finances';
+
 // Polygon.io API Response Types
 export interface PolygonAggResponse {
   results: Array<{
@@ -23,7 +25,7 @@ export interface PolygonTickersResponse {
 export interface PolygonTicker {
   ticker: string;
   name: string;
-  market: 'stocks' | 'crypto' | 'fx';
+  market: string;
   locale: string;
   primary_exchange?: string;
   type: string;
@@ -59,7 +61,7 @@ export interface PolygonTickerDetailsResponse {
 }
 
 // Our clean response types for the app
-export interface StockPrice {
+export interface AssetPrice {
   symbol: string;
   price: number;
   open: number;
@@ -83,30 +85,9 @@ export interface CryptoPrice {
   to: string;
 }
 
-export interface Asset {
-  symbol: string;
-  name: string;
-  type: 'stock' | 'crypto' | 'etf';
-  exchange?: string;
-  currency: string;
-  isActive: boolean;
-  marketCap?: number;
-  description?: string;
-  logoUrl?: string;
-  lastUpdated?: string;
-}
-
 export interface AssetSearchResult {
-  assets: Asset[];
+  assets: IAsset[];
   total: number;
   hasMore: boolean;
   nextCursor?: string;
-}
-
-export interface PriceUpdate {
-  symbol: string;
-  price: number;
-  timestamp: number;
-  change: number;
-  changePercent: number;
 }

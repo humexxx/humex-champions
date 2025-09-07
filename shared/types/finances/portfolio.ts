@@ -1,12 +1,26 @@
 import { Dayjs } from 'dayjs';
 import { z } from 'zod';
 
-const assetFilterTypes = ['all', 'stock', 'etf', 'crypto', 'system'] as const;
-export type AssetFilterType = (typeof assetFilterTypes)[number];
+export const GetAssetPriceInput = z.object({
+  symbol: z.string().min(1, 'Symbol is required'),
+});
+
+export type GetAssetPriceInput = z.infer<typeof GetAssetPriceInput>;
+
+export const ASSET_FILTER_TYPES = [
+  'all',
+  'stocks',
+  'fx',
+  'crypto',
+  'otc',
+  'indices',
+  'system',
+] as const;
+export type AssetFilterType = (typeof ASSET_FILTER_TYPES)[number];
 
 export const SearchTradableAssetsInput = z.object({
   query: z.string().min(1, 'Query is required'),
-  type: z.enum(assetFilterTypes).optional().default('all'),
+  type: z.enum(ASSET_FILTER_TYPES).optional().default('all'),
   limit: z.number().int().min(1).max(100).optional().default(20),
 });
 
@@ -20,55 +34,38 @@ export const GetAssetDetailsInput = z.object({
 
 export type GetAssetDetailsInput = z.infer<typeof GetAssetDetailsInput>;
 
-export type AssetType = 'stock' | 'etf' | 'crypto' | 'system';
-export type AssetCategory =
-  | 'CRYPTO'
-  | 'STOCK'
-  | 'ETF'
-  | 'COMMODITY'
-  | 'FOREX'
-  | 'SYSTEM';
+export type Market = 'crypto' | 'stocks' | 'fx' | 'otc' | 'indices' | 'system';
 export type RiskLevel = 'low' | 'medium' | 'high';
 
-export type TransactionType = 'BUY' | 'SELL';
-export type ExtendedTransactionType =
-  | TransactionType
-  | 'DIVIDEND'
-  | 'SPLIT'
-  | 'TRANSFER_IN'
-  | 'TRANSFER_OUT';
+export const TRANSACTION_TYPES = ['buy', 'sell'] as const;
+export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 export type TransactionStatus = 'pending' | 'approved' | 'rejected';
 
 export interface IAsset {
   id?: string;
   symbol: string;
-  name: string;
-  category?: AssetCategory;
-  type: AssetType;
-
-  currentPrice?: number;
-  dayOpenPrice?: number;
-  dayClosePrice?: number;
-  previousDayClose?: number;
-  dailyChange?: number;
-  dailyChangePercentage?: number;
-
-  currency?: string;
-  exchange?: string;
-  lastPriceUpdate?: Dayjs;
-
+  name?: string;
+  market?: Market;
   marketCap?: number;
-  volume24h?: number;
-  sector?: string;
-  industry?: string;
+  exchange?: string;
+  currency?: string;
+  isActive: boolean;
+
+  price?: number;
+  open?: number;
+  high?: number;
+  low?: number;
+  close?: number;
+  volume?: number;
+  change?: number;
+  changePercent?: number;
+  lastPriceUpdate?: Dayjs;
+  previousDayClose?: number;
 
   isSystemAsset?: boolean;
   monthlyYield?: number;
   description?: string;
   riskLevel?: RiskLevel;
-  price?: number;
-  change?: number;
-  changePercent?: number;
 }
 
 export interface IPortfolio {
@@ -130,7 +127,7 @@ export interface IPortfolioTransaction {
   portfolioId: string;
   assetId: string;
 
-  type: ExtendedTransactionType;
+  type: TransactionType;
   quantity: number;
   price: number; // Original purchase price
   totalAmount: number;

@@ -6,17 +6,7 @@ import { env } from '../../core/config';
 import { AppError } from '../../core/errors';
 import { db } from '../../core/firebase';
 import { log } from '../../core/logger';
-import { PolygonService } from '../../services/financial/polygon';
-import {
-  InternalPriceData,
-  mapPolygonAssetToIAsset,
-  mapPolygonAssetsToIAssets,
-  mapPolygonPriceUpdatesToInternal,
-} from '../../services/financial/polygon.mappers';
-
-// Types
-// Using InternalPriceData from mappers instead of local PriceData
-type PriceData = InternalPriceData;
+import { PolygonService } from '../../services/polygon/polygon';
 
 interface PortfolioPosition {
   symbol: string;
@@ -41,17 +31,14 @@ export async function searchTradableAssets(
 
     const results = await polygonService.searchAssets(query, limit);
 
-    // Map Polygon assets to internal IAsset format using imported mapper
-    const mappedAssets = mapPolygonAssetsToIAssets(results.assets);
-
     log.info('Asset search completed', {
       query,
       type,
       limit,
-      resultsCount: mappedAssets.length,
+      resultsCount: results.assets.length,
     });
 
-    return mappedAssets;
+    return results.assets;
   } catch (error) {
     log.error('Failed to search assets', { query, type, limit, error });
     throw new AppError('asset-search-failed', 'Failed to search assets', 500);
@@ -62,17 +49,14 @@ export async function getAssetDetails(symbol: string): Promise<IAsset> {
   try {
     log.info('Getting asset details', { symbol });
 
-    const polygonAsset = await polygonService.getAssetDetails(symbol);
+    const asset = await polygonService.getAssetDetails(symbol);
 
-    if (!polygonAsset) {
+    if (!asset) {
       throw new AppError('asset-not-found', `Asset ${symbol} not found`, 404);
     }
 
-    // Convert Polygon asset to internal format
-    const internalAsset = mapPolygonAssetToIAsset(polygonAsset);
-
     log.info('Asset details retrieved', { symbol });
-    return internalAsset;
+    return asset;
   } catch (error) {
     if (error instanceof AppError) throw error;
 
@@ -85,7 +69,7 @@ export async function getAssetDetails(symbol: string): Promise<IAsset> {
   }
 }
 
-export async function getAssetPrice(symbol: string): Promise<PriceData> {
+export async function getAssetPrice(symbol: string): Promise<IAsset> {
   try {
     log.info('Getting asset price', { symbol });
 
@@ -99,13 +83,8 @@ export async function getAssetPrice(symbol: string): Promise<PriceData> {
       );
     }
 
-    const priceUpdate = priceUpdates[0];
-    const priceData: PriceData = mapPolygonPriceUpdatesToInternal([
-      priceUpdate,
-    ])[0];
-
-    log.info('Asset price retrieved', { symbol, price: priceData.price });
-    return priceData;
+    log.info('Asset price retrieved', { symbol, price: priceUpdates[0].price });
+    return priceUpdates[0];
   } catch (error) {
     if (error instanceof AppError) throw error;
 
@@ -114,23 +93,20 @@ export async function getAssetPrice(symbol: string): Promise<PriceData> {
   }
 }
 
-export async function getWatchlistPrices(
-  symbols: string[]
-): Promise<PriceData[]> {
+export async function getWatchlistPrices(symbols: string[]): Promise<IAsset[]> {
   try {
     log.info('Getting watchlist prices', { symbols, count: symbols.length });
 
     const priceUpdates = await polygonService.getBatchPriceUpdates(symbols);
 
     // Use mapper to convert Polygon price updates to internal format
-    const priceData = mapPolygonPriceUpdatesToInternal(priceUpdates);
 
     log.info('Watchlist prices retrieved', {
       requestedCount: symbols.length,
-      retrievedCount: priceData.length,
+      retrievedCount: priceUpdates.length,
     });
 
-    return priceData;
+    return priceUpdates;
   } catch (error) {
     log.error('Failed to get watchlist prices', { symbols, error });
     throw new AppError(
@@ -141,9 +117,7 @@ export async function getWatchlistPrices(
   }
 }
 
-export async function refreshAssetPrices(
-  symbols: string[]
-): Promise<PriceData[]> {
+export async function refreshAssetPrices(symbols: string[]): Promise<IAsset[]> {
   try {
     log.info('Refreshing asset prices', { symbols, count: symbols.length });
 
@@ -234,7 +208,7 @@ export async function updatePortfolioWithCurrentPrices(
       const currentPrice = priceMap.get(position.symbol);
 
       if (currentPrice) {
-        const currentValue = position.shares * currentPrice.price;
+        const currentValue = position.shares * (currentPrice.price || 0);
         const costBasis = position.shares * position.avgPrice;
         const pnl = currentValue - costBasis;
         const pnlPercent = (pnl / costBasis) * 100;

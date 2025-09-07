@@ -23,16 +23,13 @@ export const CALLABLE_FUNCTIONS = {
 
   // ============= FINANCES MODULE =============
   finances: {
-    // Core finance functions (shared level)
-    getSystemAssets: 'getSystemAssetsCallable',
-    getAssetPrice: 'getAssetPriceCallable',
-    getAssetDetails: 'getAssetDetailsCallable',
-    getMarketData: 'getMarketDataCallable',
-    searchTradableAssets: 'searchTradableAssetsCallable',
-    refreshAssetPrices: 'refreshAssetPricesCallable',
-
     // Portfolio submodule
     portfolio: {
+      getAssetPrice: 'getAssetPriceCallable',
+      getAssetDetails: 'getAssetDetailsCallable',
+      getMarketData: 'getMarketDataCallable',
+      searchTradableAssets: 'searchTradableAssetsCallable',
+      refreshAssetPrices: 'refreshAssetPricesCallable',
       updatePortfolioPrices: 'updatePortfolioPricesCallable',
       getWatchlistPrices: 'getWatchlistPricesCallable',
     },

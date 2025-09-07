@@ -2,14 +2,6 @@
  * Portfolio module constants
  */
 
-import { TransactionType } from '../../../types/finances/portfolio';
-
-// Transaction type constants
-export const TRANSACTION_TYPES: Record<string, TransactionType> = {
-  BUY: 'BUY',
-  SELL: 'SELL',
-} as const;
-
 // Asset search configuration
 export const ASSET_SEARCH_CONFIG = {
   MIN_QUERY_LENGTH: 2,
@@ -28,7 +20,7 @@ export const PORTFOLIO_LIMITS = {
 // Default form values
 export const DEFAULT_FORM_VALUES = {
   TRANSACTION: {
-    type: TRANSACTION_TYPES.BUY,
+    type: 'BUY',
     quantity: 0,
     price: 0,
     notes: '',
