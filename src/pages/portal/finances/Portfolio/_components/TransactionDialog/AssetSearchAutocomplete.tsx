@@ -310,9 +310,9 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
                     <strong>{option.symbol}</strong> - {option.name}
                   </Typography>
                   <Chip
-                    label={option.market!.toUpperCase()}
+                    label={option.market.toUpperCase()}
                     size="small"
-                    color={getMarketColor(option.market!)}
+                    color={getMarketColor(option.market)}
                   />
                 </Box>
                 {option.isSystemAsset && option.monthlyYield && (

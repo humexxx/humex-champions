@@ -1,5 +1,4 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { AttachMoney as MoneyIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -10,16 +9,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
   FormControlLabel,
+  Grid,
   InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
   Switch,
   TextField,
   Typography,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
 import { CALLABLE_FUNCTIONS } from '@shared/consts';
 import { ICallableResponse } from '@shared/types';
 import {
@@ -29,9 +26,12 @@ import {
   TRANSACTION_TYPES,
   TransactionType,
 } from '@shared/types/finances/portfolio';
+import dayjs from 'dayjs';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { CurrencyField } from 'src/components/forms';
+import { useAuth } from 'src/context/hooks';
 import * as yup from 'yup';
 import { functions } from '../../../../../../firebase';
 import AssetSearchAutocomplete from './AssetSearchAutocomplete';
@@ -50,15 +50,15 @@ export interface TransactionFormData {
 interface TransactionDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (transaction: TransactionFormData) => Promise<void>;
+  onSubmit: (transaction: TransactionFormData, asset: IAsset) => Promise<void>;
   portfolioId: string;
 }
 
 // Firebase Functions
-const getAssetPrice = httpsCallable<GetAssetPriceInput, ICallableResponse>(
-  functions,
-  CALLABLE_FUNCTIONS.finances.portfolio.getAssetPrice
-);
+const getAssetPrice = httpsCallable<
+  GetAssetPriceInput,
+  ICallableResponse<IAsset>
+>(functions, CALLABLE_FUNCTIONS.finances.portfolio.getAssetPrice);
 
 // Validation schema
 const transactionSchema = yup.object({
@@ -104,6 +104,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
       price: 0,
     },
   });
+  const { isAdmin } = useAuth();
 
   // Asset search state
   const [selectedAsset, setSelectedAsset] = useState<IAsset | null>(null);
@@ -137,6 +138,8 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
     setSelectedAsset(asset);
     setError(null);
 
+    setValue('quantity', 1);
+
     if (!asset) {
       setValue('assetId', '');
       setValue('price', 0);
@@ -145,14 +148,14 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
 
     setValue('assetId', asset.symbol);
 
-    // If it's a system asset or we have a price from search, use it
-    if (asset.price) {
-      setValue('price', asset.price);
+    // For system assets, don't fetch price as it's fixed
+    if (asset.isSystemAsset) {
       return;
     }
 
-    // For system assets, don't fetch price as it's fixed
-    if (asset.isSystemAsset) {
+    // If it's a system asset or we have a price from search, use it
+    if (asset.price) {
+      setValue('price', asset.price);
       return;
     }
 
@@ -160,16 +163,22 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
     setAssetDetailsLoading(true);
     try {
       const result = await getAssetPrice({ symbol: asset.symbol });
-      const priceData = result.data as any;
+      const resultAsset = (result.data as any).data as IAsset;
 
-      if (priceData.price) {
-        setValue('price', priceData.price);
-        // Update the selected asset with fresh data
+      if (resultAsset.price) {
+        setValue('price', resultAsset.price);
+        // Update the selected resultAsset with fresh data
         setSelectedAsset({
           ...asset,
-          price: priceData.price,
-          change: priceData.change,
-          changePercent: priceData.changePercent,
+          price: resultAsset.price,
+          change: resultAsset.change,
+          changePercent: resultAsset.changePercent,
+          close: resultAsset.close,
+          open: resultAsset.open,
+          high: resultAsset.high,
+          low: resultAsset.low,
+          volume: resultAsset.volume,
+          marketCap: resultAsset.marketCap,
         });
       }
     } catch (err: any) {
@@ -184,7 +193,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   const onFormSubmit = async (data: TransactionFormData) => {
     try {
       setError(null);
-      await onSubmit(data);
+      await onSubmit(data, selectedAsset!);
       handleClose();
     } catch (err: any) {
       console.error('Error submitting transaction:', err);
@@ -210,7 +219,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
       fullWidth
       slotProps={{
         paper: {
-          sx: { minHeight: '600px' },
+          sx: { minHeight: '400px' },
         },
       }}
     >
@@ -224,135 +233,75 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Box component="form" sx={{ mt: 2 }}>
+        <Box component="form">
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Internal vs External Products Toggle */}
-            <Box sx={{ mb: 1 }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={showInternalProducts}
-                    onChange={(e) => setShowInternalProducts(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="body2">
-                      {showInternalProducts
-                        ? 'Internal Products'
-                        : 'External Assets'}
-                    </Typography>
-                    <Chip
-                      label={showInternalProducts ? 'HumEx' : 'Market'}
-                      size="small"
-                      color={showInternalProducts ? 'primary' : 'default'}
-                      variant={showInternalProducts ? 'filled' : 'outlined'}
-                    />
-                  </Box>
-                }
-              />
-            </Box>
-
-            {/* Asset Selection */}
-            {selectedAsset ? (
-              <SelectedAssetView asset={selectedAsset} />
-            ) : (
-              <AssetSearchAutocomplete
-                selectedAsset={selectedAsset}
-                onAssetSelect={handleAssetSelect}
-                selectedFilter={selectedFilter}
-                onFilterChange={setSelectedFilter}
-                showInternalProducts={showInternalProducts}
-                loading={assetDetailsLoading}
-                error={error}
-              />
-            )}
-
-            <Box display={selectedAsset ? 'block' : 'none'}>
-              {/* Transaction Type and Date */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  flexDirection: { xs: 'column', sm: 'row' },
-                }}
-              >
-                <FormControl sx={{ flex: 1 }}>
-                  <InputLabel>Transaction Type</InputLabel>
-                  <Controller
-                    name="type"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        label="Transaction Type"
-                        disabled={showInternalProducts}
-                      >
-                        <MenuItem value="BUY">Buy</MenuItem>
-                        <MenuItem value="SELL">Sell</MenuItem>
-                      </Select>
-                    )}
-                  />
-                  {showInternalProducts && (
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ mt: 0.5 }}
-                    >
-                      HumEx products can only be purchased (BUY)
-                    </Typography>
-                  )}
-                </FormControl>
-
-                <Controller
-                  name="executedAt"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Date"
-                      type="date"
-                      sx={{ flex: 1 }}
-                      slotProps={{
-                        inputLabel: {
-                          shrink: true,
-                        },
-                      }}
-                      error={!!errors.executedAt}
-                      helperText={errors.executedAt?.message}
-                    />
-                  )}
+          <Box sx={{ mb: 1 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showInternalProducts}
+                  onChange={(e) => setShowInternalProducts(e.target.checked)}
+                  color="primary"
+                  disabled={!!selectedAsset || !isAdmin}
                 />
-              </Box>
+              }
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2">
+                    {showInternalProducts
+                      ? 'Internal Products'
+                      : 'External Assets'}
+                  </Typography>
+                  <Chip
+                    label={showInternalProducts ? 'HumEx' : 'Market'}
+                    size="small"
+                    color={showInternalProducts ? 'primary' : 'default'}
+                    variant={showInternalProducts ? 'filled' : 'outlined'}
+                  />
+                </Box>
+              }
+            />
+          </Box>
 
-              {/* Quantity and Price */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  flexDirection: { xs: 'column', sm: 'row' },
-                }}
-              >
+          {/* Asset Selection */}
+          {selectedAsset ? (
+            <SelectedAssetView
+              asset={selectedAsset}
+              loading={assetDetailsLoading}
+            />
+          ) : (
+            <AssetSearchAutocomplete
+              selectedAsset={selectedAsset}
+              onAssetSelect={handleAssetSelect}
+              selectedFilter={selectedFilter}
+              onFilterChange={setSelectedFilter}
+              showInternalProducts={showInternalProducts}
+              loading={assetDetailsLoading}
+              error={error}
+            />
+          )}
+          {!!selectedAsset && (
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Controller
                   name="quantity"
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
+                      fullWidth
                       label="Quantity"
                       type="number"
-                      sx={{ flex: 1 }}
+                      disabled={selectedAsset?.isSystemAsset}
                       slotProps={{
                         htmlInput: {
+                          step: 1,
                           min: 0,
-                          step: 0.000001,
                         },
                       }}
                       error={!!errors.quantity}
@@ -360,78 +309,63 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
                     />
                   )}
                 />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }} sx={{ mt: 2 }}>
+                <Controller
+                  name="executedAt"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      {...field}
+                      label="Date"
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(d) => field.onChange(d ? d.toISOString() : '')}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          error: !!errors.executedAt,
+                          helperText: errors.executedAt?.message,
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
 
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Controller
                   name="price"
                   control={control}
                   render={({ field }) => (
-                    <TextField
+                    <CurrencyField
+                      fullWidth
                       {...field}
-                      label="Price per Unit"
-                      type="number"
-                      sx={{ flex: 1 }}
-                      inputProps={{ min: 0, step: 0.01 }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <MoneyIcon />
-                          </InputAdornment>
-                        ),
-                        endAdornment: assetDetailsLoading && (
-                          <InputAdornment position="end">
-                            <CircularProgress size={20} />
-                          </InputAdornment>
-                        ),
+                      label={
+                        selectedAsset?.isSystemAsset
+                          ? 'Amount'
+                          : 'Price per Unit'
+                      }
+                      slotProps={{
+                        htmlInput: {
+                          min: 0,
+                        },
+                        input: {
+                          endAdornment: assetDetailsLoading ? (
+                            <InputAdornment position="end">
+                              <CircularProgress size={16} />
+                            </InputAdornment>
+                          ) : undefined,
+                        },
                       }}
                       error={!!errors.price}
                       helperText={errors.price?.message}
+                      disabled={assetDetailsLoading}
                     />
                   )}
                 />
-              </Box>
-
-              {/* Total Value Display */}
-              {totalValue > 0 && (
-                <Box
-                  sx={{
-                    p: 2,
-                    bgcolor: 'grey.50',
-                    borderRadius: 1,
-                    border: '1px solid',
-                    borderColor: 'grey.200',
-                  }}
-                >
-                  <Typography variant="h6" color="primary">
-                    Total Value: $
-                    {totalValue.toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {watchedType} {watchedQuantity} shares at ${watchedPrice}{' '}
-                    each
-                  </Typography>
-                </Box>
-              )}
-
-              {/* Notes */}
-              <Controller
-                name="notes"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Notes (Optional)"
-                    multiline
-                    rows={3}
-                    fullWidth
-                    placeholder="Add any additional notes about this transaction..."
-                  />
-                )}
-              />
-            </Box>
-          </Box>
+              </Grid>
+            </Grid>
+          )}
         </Box>
       </DialogContent>
 
@@ -442,7 +376,8 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
         <Button
           onClick={handleSubmit(onFormSubmit)}
           variant="contained"
-          disabled={isSubmitting || !selectedAsset}
+          loading={isSubmitting || assetDetailsLoading}
+          disabled={!selectedAsset}
           startIcon={isSubmitting && <CircularProgress size={16} />}
         >
           {isSubmitting ? 'Adding...' : `Add ${watchedType || 'Transaction'}`}

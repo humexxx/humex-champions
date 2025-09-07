@@ -8,14 +8,25 @@ export function formatCurrency(
   if (typeof amount === 'string') {
     amount = parseFloat(amount);
   }
-  return '$' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(Number(amount));
+  const formatted =
+    '$' + absAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+  return isNegative ? '-' + formatted : formatted;
 }
 
-export function formatPercentage(amount: number | string) {
+export function formatPercentage(
+  amount: number | string,
+  fractionDigits = 2,
+  absolute = false
+) {
   if (typeof amount === 'string') {
     amount = parseFloat(amount);
   }
-  return amount.toFixed(2) + '%';
+  if (absolute) {
+    amount = Math.abs(amount);
+  }
+  return amount.toFixed(fractionDigits) + '%';
 }
 
 export function forceNumberOnInputChange(setter: (value: number) => void) {

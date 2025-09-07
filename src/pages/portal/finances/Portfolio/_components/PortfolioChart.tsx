@@ -1,6 +1,7 @@
 import { Box, Tab, Tabs, useTheme } from '@mui/material';
 import { AxisValueFormatterContext } from '@mui/x-charts';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { IPortfolioSnapshot } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import LoadingOverlay from 'src/components/graphs/LoadingOverlay';
 import NoDataOverlay from 'src/components/graphs/NoDataOverlay';
@@ -8,7 +9,7 @@ import { formatCompactNumber, formatCurrency } from 'src/utils/number';
 import { TimeFilter } from '../../../../../../shared/enums/finance/timeFilters';
 
 interface PortfolioChartProps {
-  chartData: { date: Date; portfolioTotal: number }[];
+  snapshots: IPortfolioSnapshot[];
   selectedTimeFilter: TimeFilter;
   timeFilters: readonly TimeFilter[];
   onTimeFilterChange: (filter: TimeFilter) => void;
@@ -16,7 +17,7 @@ interface PortfolioChartProps {
 }
 
 const PortfolioChart = ({
-  chartData,
+  snapshots,
   selectedTimeFilter,
   timeFilters,
   onTimeFilterChange,
@@ -24,8 +25,9 @@ const PortfolioChart = ({
 }: PortfolioChartProps) => {
   const theme = useTheme();
 
-  // Check if we have meaningful data
-  const hasData = !loading && chartData && chartData.length > 1;
+  const hasData = !loading && snapshots && snapshots.length > 1;
+
+  console.log('Rendering PortfolioChart with snapshots:', snapshots);
 
   return (
     <>
@@ -53,15 +55,15 @@ const PortfolioChart = ({
       </Box>
 
       {/* Chart */}
-      <Box sx={{ width: '100%', aspectRatio: '2', mb: 3 }}>
+      <Box sx={{ width: '100%', aspectRatio: '7/3', mb: 3 }}>
         <LineChart
           loading={loading}
-          dataset={hasData ? chartData : []}
+          dataset={hasData ? (snapshots as any) : []}
           series={[
             {
               label: 'Total',
               color: theme.palette.primary.main,
-              dataKey: 'portfolioTotal',
+              dataKey: 'currentValue',
               showMark: false,
               area: true,
               curve: 'linear',
@@ -87,7 +89,7 @@ const PortfolioChart = ({
                 if (context.location === 'tick') {
                   return dayjs(value).format('DD MMM');
                 }
-                return dayjs(value).format('DD MMM');
+                return dayjs(value).format('DD MMM YYYY');
               },
             },
           ]}
@@ -130,22 +132,22 @@ const PortfolioChart = ({
               <stop
                 offset="0%"
                 stopColor={theme.palette.primary.main}
-                stopOpacity={0.5}
+                stopOpacity={0.3}
               />
               <stop
                 offset="25%"
                 stopColor={theme.palette.primary.main}
-                stopOpacity={0.4}
+                stopOpacity={0.1}
               />
               <stop
                 offset="50%"
                 stopColor={theme.palette.primary.main}
-                stopOpacity={0.1}
+                stopOpacity={0.02}
               />
               <stop
                 offset="100%"
                 stopColor={theme.palette.primary.main}
-                stopOpacity={0.02}
+                stopOpacity={0.01}
               />
             </linearGradient>
           </defs>

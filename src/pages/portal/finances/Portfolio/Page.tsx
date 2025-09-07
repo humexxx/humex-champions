@@ -6,6 +6,7 @@ import {
   Person,
 } from '@mui/icons-material';
 import { Box, Button, Grid, Stack } from '@mui/material';
+import { IAsset } from '@shared/types/finances';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GlobalLoader } from 'src/components';
@@ -28,6 +29,7 @@ import {
   TableFilter,
 } from './_components';
 import TransactionDialog from './_components/TransactionDialog';
+import { TransactionFormData } from './_components/TransactionDialog/TransactionDialog';
 import usePortfolio from './usePortfolio';
 
 const PortafolioPage = () => {
@@ -86,28 +88,32 @@ const PortafolioPage = () => {
 
   // Handle transaction dialog submission
   const handleTransactionSubmit = useCallback(
-    async (transactionData: any) => {
+    async (transactionData: TransactionFormData, asset: IAsset) => {
       if (!selectedPortfolioId) {
         throw new Error('No portfolio selected');
+      }
+
+      if (!asset) {
+        throw new Error('No asset selected');
       }
 
       try {
         const totalAmount = transactionData.quantity * transactionData.price;
         const result = await addTransaction(selectedPortfolioId, {
           assetId: transactionData.assetId,
-          type: transactionData.type as 'BUY' | 'SELL',
+          type: transactionData.type,
           quantity: transactionData.quantity,
           price: transactionData.price,
           totalAmount: totalAmount,
           fees: 0, // Default to 0 fees for now
           executedAt: dayjs(transactionData.executedAt),
           notes: transactionData.notes || '',
+          requiresApproval: asset.isSystemAsset || false,
+          status: 'pending', // Default to pending for approval workflow
         });
 
         console.log('Transaction added successfully:', result);
 
-        // Force reload portfolio data to ensure UI updates immediately
-        // This helps with cases where the snapshot creation might take a moment
         setTimeout(() => {
           loadPortfolioData(selectedPortfolioId);
         }, 1000); // Small delay to allow Firebase function to complete
@@ -150,36 +156,6 @@ const PortafolioPage = () => {
     },
     [createPortfolio]
   );
-
-  // Simple chart data generation - use snapshots + current data point
-  const chartData = useMemo(() => {
-    const now = dayjs();
-    const dataPoints: Array<{
-      date: Date;
-      portfolioTotal: number;
-    }> = [];
-
-    // Add all snapshots
-    snapshots.forEach((snapshot: any) => {
-      dataPoints.push({
-        date: snapshot.date.toDate(),
-        portfolioTotal: snapshot.currentValue ?? snapshot.totalInvested,
-      });
-    });
-
-    // Always add current data point
-    if (portfolio) {
-      dataPoints.push({
-        date: now.toDate(),
-        portfolioTotal: portfolio.currentValue,
-      });
-    }
-
-    // Sort by date
-    dataPoints.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    return dataPoints;
-  }, [snapshots, portfolio]);
 
   // Optimized sorting with memoization - MOVED BEFORE EARLY RETURNS
   const sortedTransactions = useMemo(() => {
@@ -317,20 +293,16 @@ const PortafolioPage = () => {
         totalValue={portfolio.currentValue}
         totalGain={portfolio.totalGain}
         totalGainPercentage={portfolio.totalGainPercentage}
-        lastUpdate={
-          portfolio.lastPriceUpdate
-            ? portfolio.lastPriceUpdate.toString()
-            : new Date().toISOString()
-        }
+        lastUpdate={portfolio.lastPriceUpdate!}
         selectedTimeFilter={selectedTimeFilter}
       />
 
       <Grid container spacing={4}>
         {/* Left Column - Main Chart and Stats */}
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Grid size={{ xs: 12, md: 'grow' }}>
           <Box sx={{ mb: 3 }}>
             <PortfolioChart
-              chartData={chartData}
+              snapshots={snapshots}
               selectedTimeFilter={selectedTimeFilter}
               timeFilters={Object.values(TIME_FILTERS)}
               onTimeFilterChange={setSelectedTimeFilter}
@@ -394,13 +366,12 @@ const PortafolioPage = () => {
         </Grid>
 
         {/* Right Column - Portfolio Highlights */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, md: 'auto' }}>
           <PortfolioHighlights
             dailyGain={portfolioHighlights.dailyGain}
             dailyGainPercentage={portfolioHighlights.dailyGainPercentage}
             overallGain={portfolioHighlights.overallGain}
             overallGainPercentage={portfolioHighlights.overallGainPercentage}
-            cryptoPercentage={portfolioHighlights.cryptoPercentage}
           />
         </Grid>
       </Grid>

@@ -1,13 +1,11 @@
-import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
-import { TrendingUp, TrendingDown } from '@mui/icons-material';
-import { formatCurrency, formatPercentage } from 'src/utils';
+import { Card, CardContent, Grid, Typography } from '@mui/material';
+import ChangeChip from 'src/components/finance/ChangeChip';
 
 interface PortfolioHighlightsProps {
   dailyGain: number;
   dailyGainPercentage: number;
   overallGain: number;
   overallGainPercentage: number;
-  cryptoPercentage: number;
 }
 
 const PortfolioHighlights = ({
@@ -15,11 +13,10 @@ const PortfolioHighlights = ({
   dailyGainPercentage,
   overallGain,
   overallGainPercentage,
-  cryptoPercentage,
 }: PortfolioHighlightsProps) => {
   return (
-    <Card sx={{ height: 'fit-content' }}>
-      <CardContent>
+    <Card>
+      <CardContent sx={{ minWidth: 300 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           Portfolio Highlights
         </Typography>
@@ -29,98 +26,24 @@ const PortfolioHighlights = ({
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               DAILY GAIN
             </Typography>
-            <Box
-              sx={{
-                backgroundColor:
-                  dailyGain >= 0 ? 'success.light' : 'error.light',
-                color:
-                  dailyGain >= 0
-                    ? 'success.contrastText'
-                    : 'error.contrastText',
-                p: 1,
-                borderRadius: 1,
-                textAlign: 'center',
-              }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                {dailyGain >= 0 ? '+' : ''}
-                {formatCurrency(dailyGain)}
-              </Typography>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 0.5,
-                }}
-              >
-                {dailyGain >= 0 ? (
-                  <TrendingUp sx={{ fontSize: 14 }} />
-                ) : (
-                  <TrendingDown sx={{ fontSize: 14 }} />
-                )}
-                <Typography variant="body2">
-                  {formatPercentage(Math.abs(dailyGainPercentage))}
-                </Typography>
-              </Box>
-            </Box>
+            <ChangeChip
+              change={dailyGain}
+              changePercentage={dailyGainPercentage}
+              size="large"
+            />
           </Grid>
 
           <Grid size={{ xs: 6 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               TOTAL GAIN
             </Typography>
-            <Box
-              sx={{
-                backgroundColor:
-                  overallGain >= 0 ? 'success.light' : 'error.light',
-                color:
-                  overallGain >= 0
-                    ? 'success.contrastText'
-                    : 'error.contrastText',
-                p: 1,
-                borderRadius: 1,
-                textAlign: 'center',
-              }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                {overallGain >= 0 ? '+' : ''}
-                {formatCurrency(overallGain)}
-              </Typography>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 0.5,
-                }}
-              >
-                {overallGain >= 0 ? (
-                  <TrendingUp sx={{ fontSize: 14 }} />
-                ) : (
-                  <TrendingDown sx={{ fontSize: 14 }} />
-                )}
-                <Typography variant="body2">
-                  {formatPercentage(overallGainPercentage)}
-                </Typography>
-              </Box>
-            </Box>
+            <ChangeChip
+              change={overallGain}
+              changePercentage={overallGainPercentage}
+              size="large"
+            />
           </Grid>
         </Grid>
-
-        <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box
-            sx={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              backgroundColor: 'warning.main',
-            }}
-          />
-          <Typography variant="body2">
-            {cryptoPercentage}% cryptocurrencies
-          </Typography>
-        </Box>
       </CardContent>
     </Card>
   );

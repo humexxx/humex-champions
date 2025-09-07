@@ -45,7 +45,7 @@ export interface IAsset {
   id?: string;
   symbol: string;
   name?: string;
-  market?: Market;
+  market: Market;
   marketCap?: number;
   exchange?: string;
   currency?: string;

@@ -36,13 +36,6 @@ function getTheme(mode: EThemeType) {
         defaultProps: {
           variant: 'outlined',
         },
-        styleOverrides: {
-          root: {
-            borderRadius: 12,
-            border: '1px solid rgba(0,0,0,0.12)',
-            boxShadow: 'none',
-          },
-        },
       },
       MuiTextField: {
         defaultProps: {

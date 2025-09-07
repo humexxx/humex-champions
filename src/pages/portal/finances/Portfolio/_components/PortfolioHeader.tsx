@@ -1,6 +1,7 @@
-import { Box, Typography, Stack } from '@mui/material';
-import { TrendingUp, TrendingDown } from '@mui/icons-material';
-import { formatCurrency, formatPercentage } from 'src/utils';
+import { Box, Stack, Typography } from '@mui/material';
+import dayjs from 'dayjs';
+import ChangeChip from 'src/components/finance/ChangeChip';
+import { formatCurrency } from 'src/utils';
 import {
   TimeFilter,
   getTimeFilterText,
@@ -11,7 +12,7 @@ interface PortfolioHeaderProps {
   totalValue: number;
   totalGain: number;
   totalGainPercentage: number;
-  lastUpdate: string;
+  lastUpdate: dayjs.Dayjs;
   selectedTimeFilter: TimeFilter;
 }
 
@@ -25,7 +26,6 @@ const PortfolioHeader = ({
 }: PortfolioHeaderProps) => {
   const isPositive = totalGain >= 0;
   const colorScheme = isPositive ? 'success.main' : 'error.main';
-  const TrendIcon = isPositive ? TrendingUp : TrendingDown;
 
   return (
     <>
@@ -42,23 +42,23 @@ const PortfolioHeader = ({
 
       {/* Portfolio Value */}
       <Box sx={{ mb: 2 }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="h3" sx={{ fontWeight: 300, mb: 1 }}>
+        <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+          <Typography variant="h3" component={'p'} sx={{ mb: 1 }}>
             {formatCurrency(totalValue)}
           </Typography>
           <Stack direction="row" alignItems="center" spacing={0.5}>
-            <TrendIcon sx={{ color: colorScheme, fontSize: 16 }} />
-            <Typography sx={{ color: colorScheme, fontWeight: 500 }}>
-              {formatPercentage(Math.abs(totalGainPercentage))}
-            </Typography>
+            <ChangeChip changePercentage={totalGainPercentage} />
           </Stack>
-          <Typography sx={{ color: colorScheme, fontWeight: 500 }}>
+          <Typography
+            variant="body2"
+            sx={{ color: colorScheme, fontWeight: 600 }}
+          >
             {isPositive ? '+' : ''}
             {formatCurrency(totalGain)} {getTimeFilterText(selectedTimeFilter)}
           </Typography>
         </Stack>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          {lastUpdate}
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          {lastUpdate.format('MMM D, YYYY h:mm A')} (Last updated)
         </Typography>
       </Box>
     </>

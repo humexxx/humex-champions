@@ -42,6 +42,7 @@ export function mapPolygonPriceUpdateToInternal(
     volume: priceUpdate.volume,
     lastPriceUpdate: dayjs(priceUpdate.timestamp),
     isActive: true, // Assuming active if we have a price update
+    market: 'stocks', // Defaulting to stocks; can be adjusted based on app logic
   };
 }
 

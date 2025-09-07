@@ -128,7 +128,7 @@ const HoldingsTable = ({ holdings, transactions = [] }: HoldingsTableProps) => {
                     <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                       <Box
                         sx={{
-                          margin: 2,
+                          marginY: 2,
                           border: '1px solid',
                           borderColor: 'divider',
                           borderRadius: 1,
