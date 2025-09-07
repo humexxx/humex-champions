@@ -1,4 +1,4 @@
-import { IAsset } from '@shared/types/finances';
+import { IAsset, IPriceData } from '@shared/types/finances';
 
 import { log } from '../../core/logger';
 import { ApiClientFactory } from '../_core/clientFactory';
@@ -174,13 +174,13 @@ export class PolygonService {
    * @param {string[]} symbols - Array of stock symbols
    * @return {Promise<IAsset[]>} Array of stock price data
    */
-  async getAssetPrices(symbols: string[]): Promise<IAsset[]> {
+  async getAssetPrices(symbols: string[]): Promise<IPriceData[]> {
     const promises = symbols.map((symbol) => this.getAssetPrice(symbol));
     const results = await Promise.allSettled(promises);
 
     return results
       .filter(
-        (result): result is PromiseFulfilledResult<IAsset> =>
+        (result): result is PromiseFulfilledResult<IPriceData> =>
           result.status === 'fulfilled'
       )
       .map((result) => result.value);
@@ -191,7 +191,7 @@ export class PolygonService {
    * @param {string} symbol - Stock symbol (e.g., 'AAPL')
    * @return {Promise<IAsset>} Stock price data with OHLCV and change info
    */
-  async getAssetPrice(symbol: string): Promise<IAsset> {
+  async getAssetPrice(symbol: string): Promise<IPriceData> {
     const endpoint = this.buildUrl(`/v2/aggs/ticker/${symbol}/prev`);
     const response = await this.client.get<PolygonAggResponse>(endpoint);
 
@@ -224,13 +224,13 @@ export class PolygonService {
    * @param {string[]} symbols - Array of crypto symbols
    * @return {Promise<CryptoPrice[]>} Array of cryptocurrency price data
    */
-  async getCryptoPrices(symbols: string[]): Promise<IAsset[]> {
+  async getCryptoPrices(symbols: string[]): Promise<IPriceData[]> {
     const promises = symbols.map((symbol) => this.getCryptoPrice(symbol));
     const results = await Promise.allSettled(promises);
 
     return results
       .filter(
-        (result): result is PromiseFulfilledResult<IAsset> =>
+        (result): result is PromiseFulfilledResult<IPriceData> =>
           result.status === 'fulfilled'
       )
       .map((result) => result.value);
@@ -242,7 +242,7 @@ export class PolygonService {
    * @param {string} to - Target currency (default: 'USD')
    * @return {Promise<CryptoPrice>} Cryptocurrency price data with change info
    */
-  async getCryptoPrice(symbol: string, to = 'USD'): Promise<IAsset> {
+  async getCryptoPrice(symbol: string, to = 'USD'): Promise<IPriceData> {
     const endpoint = this.buildUrl(`/v2/aggs/ticker/X:${symbol}${to}/prev`);
     const response = await this.client.get<PolygonAggResponse>(endpoint);
 
@@ -301,7 +301,7 @@ export class PolygonService {
    * @param {string[]} symbols - Array of asset symbols to get price updates for
    * @return {Promise<PriceUpdate[]>} Array of price update objects ready for Firestore
    */
-  async getBatchPriceUpdates(symbols: string[]): Promise<IAsset[]> {
+  async getBatchPriceUpdates(symbols: string[]): Promise<IPriceData[]> {
     const stockSymbols = symbols.filter((s) => !s.includes('/'));
     const cryptoSymbols = symbols.filter((s) => s.includes('/'));
 

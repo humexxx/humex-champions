@@ -23,12 +23,13 @@ import {
   AssetFilterType,
   GetAssetPriceInput,
   IAsset,
+  IPriceData,
   TRANSACTION_TYPES,
   TransactionType,
 } from '@shared/types/finances/portfolio';
 import dayjs from 'dayjs';
 import { httpsCallable } from 'firebase/functions';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { CurrencyField } from 'src/components/forms';
 import { useAuth } from 'src/context/hooks';
@@ -57,7 +58,7 @@ interface TransactionDialogProps {
 // Firebase Functions
 const getAssetPrice = httpsCallable<
   GetAssetPriceInput,
-  ICallableResponse<IAsset>
+  ICallableResponse<IPriceData>
 >(functions, CALLABLE_FUNCTIONS.finances.portfolio.getAssetPrice);
 
 // Validation schema
@@ -114,17 +115,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Watched form values
-  const watchedQuantity = watch('quantity');
-  const watchedPrice = watch('price');
   const watchedType = watch('type');
-
-  // Calculate total value
-  const totalValue = useMemo(() => {
-    if (watchedQuantity && watchedPrice) {
-      return watchedQuantity * watchedPrice;
-    }
-    return 0;
-  }, [watchedQuantity, watchedPrice]);
 
   // Auto-set transaction type to BUY when HumEx products are selected
   useEffect(() => {
@@ -154,8 +145,8 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
     }
 
     // If it's a system asset or we have a price from search, use it
-    if (asset.price) {
-      setValue('price', asset.price);
+    if (!!asset.priceData) {
+      setValue('price', asset.priceData.price);
       return;
     }
 
@@ -163,22 +154,13 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
     setAssetDetailsLoading(true);
     try {
       const result = await getAssetPrice({ symbol: asset.symbol });
-      const resultAsset = (result.data as any).data as IAsset;
+      const priceData = (result.data as any).data as IPriceData;
 
-      if (resultAsset.price) {
-        setValue('price', resultAsset.price);
-        // Update the selected resultAsset with fresh data
+      if (priceData.price) {
+        setValue('price', priceData.price);
         setSelectedAsset({
           ...asset,
-          price: resultAsset.price,
-          change: resultAsset.change,
-          changePercent: resultAsset.changePercent,
-          close: resultAsset.close,
-          open: resultAsset.open,
-          high: resultAsset.high,
-          low: resultAsset.low,
-          volume: resultAsset.volume,
-          marketCap: resultAsset.marketCap,
+          priceData,
         });
       }
     } catch (err: any) {

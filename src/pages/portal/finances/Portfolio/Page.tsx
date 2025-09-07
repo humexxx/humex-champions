@@ -293,7 +293,7 @@ const PortafolioPage = () => {
         totalValue={portfolio.currentValue}
         totalGain={portfolio.totalGain}
         totalGainPercentage={portfolio.totalGainPercentage}
-        lastUpdate={portfolio.lastPriceUpdate!}
+        lastUpdate={portfolio.updatedAt}
         selectedTimeFilter={selectedTimeFilter}
       />
 

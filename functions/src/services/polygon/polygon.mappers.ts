@@ -1,4 +1,4 @@
-import { IAsset } from '@shared/types/finances/portfolio';
+import { IAsset, IPriceData } from '@shared/types/finances/portfolio';
 import dayjs from 'dayjs';
 
 import { AssetPrice, PolygonTicker } from './types';
@@ -14,11 +14,10 @@ export function mapPolygonAssetToIAsset(ticker: PolygonTicker): IAsset {
     symbol: ticker.ticker,
     name: ticker.name,
     market: ticker.market as any,
-    exchange: ticker.primary_exchange,
+    exchange: ticker.primary_exchange ?? '',
     currency: ticker.currency_name || 'USD',
     isActive: ticker.active,
     isSystemAsset: false, // Defaulting to false; can be set based on app logic
-    lastPriceUpdate: dayjs(ticker.last_updated_utc),
   };
 }
 
@@ -28,9 +27,8 @@ export function mapPolygonAssetsToIAssets(tickers: PolygonTicker[]): IAsset[] {
 
 export function mapPolygonPriceUpdateToInternal(
   priceUpdate: AssetPrice
-): IAsset {
+): IPriceData {
   return {
-    id: priceUpdate.symbol,
     symbol: priceUpdate.symbol,
     price: priceUpdate.price,
     change: priceUpdate.change || 0,
@@ -40,14 +38,12 @@ export function mapPolygonPriceUpdateToInternal(
     low: priceUpdate.low,
     close: priceUpdate.close,
     volume: priceUpdate.volume,
-    lastPriceUpdate: dayjs(priceUpdate.timestamp),
-    isActive: true, // Assuming active if we have a price update
-    market: 'stocks', // Defaulting to stocks; can be adjusted based on app logic
+    updatedAt: dayjs(priceUpdate.timestamp),
   };
 }
 
 export function mapPolygonPriceUpdatesToInternal(
   priceUpdates: AssetPrice[]
-): IAsset[] {
+): IPriceData[] {
   return priceUpdates.map(mapPolygonPriceUpdateToInternal);
 }

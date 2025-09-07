@@ -41,31 +41,39 @@ export const TRANSACTION_TYPES = ['buy', 'sell'] as const;
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 export type TransactionStatus = 'pending' | 'approved' | 'rejected';
 
-export interface IAsset {
-  id?: string;
+export interface IPriceData {
   symbol: string;
-  name?: string;
+  price: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  change: number;
+  changePercent: number;
+  updatedAt: Dayjs;
+}
+
+export interface ISystemAssetDetails {
+  monthlyYield: number;
+  description: string;
+  riskLevel: RiskLevel;
+}
+
+export interface IAsset {
+  id: string;
+  symbol: string;
+  name: string;
   market: Market;
-  marketCap?: number;
-  exchange?: string;
-  currency?: string;
+  exchange: string;
+  currency: string;
   isActive: boolean;
 
-  price?: number;
-  open?: number;
-  high?: number;
-  low?: number;
-  close?: number;
-  volume?: number;
-  change?: number;
-  changePercent?: number;
-  lastPriceUpdate?: Dayjs;
+  priceData?: IPriceData;
   previousDayClose?: number;
 
-  isSystemAsset?: boolean;
-  monthlyYield?: number;
-  description?: string;
-  riskLevel?: RiskLevel;
+  isSystemAsset: boolean;
+  systemAssetDetails?: ISystemAssetDetails;
 }
 
 export interface IPortfolio {
@@ -84,8 +92,7 @@ export interface IPortfolio {
   totalInvested: number;
 
   currency: string;
-  isDefault?: boolean;
-  lastPriceUpdate?: Dayjs;
+  isDefault: boolean;
 }
 
 export interface IPortfolioSnapshot {
@@ -99,7 +106,6 @@ export interface IPortfolioSnapshot {
   dailyChange: number;
   dailyChangePercentage: number;
 
-  holdings: IPortfolioHolding[];
   createdAt: Dayjs;
 }
 
@@ -109,8 +115,8 @@ export interface IPortfolioHolding {
   assetId: string;
 
   quantity: number;
-  averageBuyPrice: number;
   totalInvested: number;
+  averageBuyPrice: number;
 
   currentPrice: number;
   currentValue: number;

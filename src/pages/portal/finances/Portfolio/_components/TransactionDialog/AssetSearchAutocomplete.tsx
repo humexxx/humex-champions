@@ -1,8 +1,4 @@
-import {
-  Search as SearchIcon,
-  TrendingDown as TrendingDownIcon,
-  TrendingUp as TrendingUpIcon,
-} from '@mui/icons-material';
+import { Search as SearchIcon } from '@mui/icons-material';
 import {
   Autocomplete,
   Box,
@@ -25,6 +21,7 @@ import { ICallableResponse } from '@shared/types/functions';
 import { httpsCallable } from 'firebase/functions';
 import React, { useEffect, useMemo, useState } from 'react';
 import { functions } from 'src/firebase';
+import { formatPercentage } from 'src/utils';
 import { getMarketColor } from './SelectedAssetView';
 
 export const ASSET_TYPES: { value: AssetFilterType; label: string }[] = [
@@ -315,55 +312,23 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
                     color={getMarketColor(option.market)}
                   />
                 </Box>
-                {option.isSystemAsset && option.monthlyYield && (
-                  <Typography
-                    variant="body2"
-                    color="primary.main"
-                    sx={{ fontWeight: 'medium' }}
-                  >
-                    Monthly Yield: {(option.monthlyYield * 100).toFixed(2)}% •
-                    Risk: {option.riskLevel}
-                  </Typography>
-                )}
-                {option.description && option.isSystemAsset && (
-                  <Typography variant="caption" color="text.secondary">
-                    {option.description}
-                  </Typography>
-                )}
-                {option.price && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 1,
-                    }}
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      ${option.price.toFixed(2)}
-                      {option.isSystemAsset && ' (Base Price)'}
+                {!!option.systemAssetDetails && (
+                  <>
+                    <Typography
+                      variant="body2"
+                      color="primary.main"
+                      sx={{ fontWeight: 'medium' }}
+                    >
+                      Monthly Yield:{' '}
+                      {formatPercentage(
+                        option.systemAssetDetails?.monthlyYield
+                      )}{' '}
+                      • Risk: {option.systemAssetDetails?.riskLevel}
                     </Typography>
-                    {option.changePercent !== undefined &&
-                      !option.isSystemAsset && (
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          {option.changePercent >= 0 ? (
-                            <TrendingUpIcon color="success" fontSize="small" />
-                          ) : (
-                            <TrendingDownIcon color="error" fontSize="small" />
-                          )}
-                          <Typography
-                            variant="body2"
-                            color={
-                              option.changePercent >= 0
-                                ? 'success.main'
-                                : 'error.main'
-                            }
-                          >
-                            {option.changePercent > 0 ? '+' : ''}
-                            {option.changePercent.toFixed(2)}%
-                          </Typography>
-                        </Box>
-                      )}
-                  </Box>
+                    <Typography variant="caption" color="text.secondary">
+                      {option.systemAssetDetails?.description}
+                    </Typography>
+                  </>
                 )}
               </Box>
             </Box>

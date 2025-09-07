@@ -11,40 +11,52 @@ import { searchTradableAssets } from '../../finances.service';
 // System assets definition - later this will come from database
 const SYSTEM_ASSETS: IAsset[] = [
   {
+    id: 'humex-yield',
+    currency: 'USD',
     symbol: 'HUMEX-YIELD',
     name: 'HumEx Monthly Yield Fund',
     market: 'system',
     isActive: true,
 
     isSystemAsset: true,
-    monthlyYield: 0.007, // 0.7% monthly
-    description: 'Fixed monthly yield of 0.7% with compound interest',
-    riskLevel: 'low',
+    systemAssetDetails: {
+      monthlyYield: 0.007, // 0.7% monthly
+      description: 'Fixed monthly yield of 0.7% with compound interest',
+      riskLevel: 'low',
+    },
     exchange: 'HUMEX',
   },
   {
+    id: 'humex-growth',
+    currency: 'USD',
     symbol: 'HUMEX-GROWTH',
     name: 'HumEx Growth Fund',
     market: 'system',
     isActive: true,
 
     isSystemAsset: true,
-    monthlyYield: 0.012, // 1.2% monthly
-    description:
-      'Higher yield with moderate risk for growth-oriented investors',
-    riskLevel: 'medium',
+    systemAssetDetails: {
+      monthlyYield: 0.012, // 1.2% monthly
+      description:
+        'Higher yield with moderate risk for growth-oriented investors',
+      riskLevel: 'medium',
+    },
     exchange: 'HUMEX',
   },
   {
+    id: 'humex-stable',
+    currency: 'USD',
     symbol: 'HUMEX-STABLE',
     name: 'HumEx Stable Income',
     market: 'system',
     isActive: true,
 
     isSystemAsset: true,
-    monthlyYield: 0.004, // 0.4% monthly
-    description: 'Conservative investment with stable monthly returns',
-    riskLevel: 'low',
+    systemAssetDetails: {
+      monthlyYield: 0.004, // 0.4% monthly
+      description: 'Conservative investment with stable monthly returns',
+      riskLevel: 'low',
+    },
     exchange: 'HUMEX',
   },
 ];

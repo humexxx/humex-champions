@@ -1,5 +1,5 @@
 import { AssetFilterType } from '@shared/types/finances';
-import { IAsset } from '@shared/types/finances/portfolio';
+import { IAsset, IPriceData } from '@shared/types/finances/portfolio';
 import { FieldValue } from 'firebase-admin/firestore';
 
 import { env } from '../../core/config';
@@ -69,7 +69,7 @@ export async function getAssetDetails(symbol: string): Promise<IAsset> {
   }
 }
 
-export async function getAssetPrice(symbol: string): Promise<IAsset> {
+export async function getAssetPrice(symbol: string): Promise<IPriceData> {
   try {
     log.info('Getting asset price', { symbol });
 
@@ -93,7 +93,9 @@ export async function getAssetPrice(symbol: string): Promise<IAsset> {
   }
 }
 
-export async function getWatchlistPrices(symbols: string[]): Promise<IAsset[]> {
+export async function getWatchlistPrices(
+  symbols: string[]
+): Promise<IPriceData[]> {
   try {
     log.info('Getting watchlist prices', { symbols, count: symbols.length });
 
@@ -117,7 +119,9 @@ export async function getWatchlistPrices(symbols: string[]): Promise<IAsset[]> {
   }
 }
 
-export async function refreshAssetPrices(symbols: string[]): Promise<IAsset[]> {
+export async function refreshAssetPrices(
+  symbols: string[]
+): Promise<IPriceData[]> {
   try {
     log.info('Refreshing asset prices', { symbols, count: symbols.length });
 
