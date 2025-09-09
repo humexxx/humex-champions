@@ -84,7 +84,7 @@ const ChangeChip: React.FC<Props> = ({
               }
               fontWeight={size === 'small' ? 600 : 500}
             >
-              {formatPercentage(changePercentage, 2, true)}
+              {formatPercentage(changePercentage, 3, true)}
             </Typography>
           </Box>
         )}

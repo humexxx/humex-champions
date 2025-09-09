@@ -6,8 +6,7 @@ import {
   Person,
 } from '@mui/icons-material';
 import { Box, Button, Grid, Stack } from '@mui/material';
-import { IAsset } from '@shared/types/finances';
-import dayjs from 'dayjs';
+import { IAsset, TransactionFormData } from '@shared/types/finances';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GlobalLoader } from 'src/components';
 import { PageContainer } from 'src/components/layout';
@@ -29,7 +28,6 @@ import {
   TableFilter,
 } from './_components';
 import TransactionDialog from './_components/TransactionDialog';
-import { TransactionFormData } from './_components/TransactionDialog/TransactionDialog';
 import usePortfolio from './usePortfolio';
 
 const PortafolioPage = () => {
@@ -98,19 +96,7 @@ const PortafolioPage = () => {
       }
 
       try {
-        const totalAmount = transactionData.quantity * transactionData.price;
-        const result = await addTransaction(selectedPortfolioId, {
-          assetId: transactionData.assetId,
-          type: transactionData.type,
-          quantity: transactionData.quantity,
-          price: transactionData.price,
-          totalAmount: totalAmount,
-          fees: 0, // Default to 0 fees for now
-          executedAt: dayjs(transactionData.executedAt),
-          notes: transactionData.notes || '',
-          requiresApproval: asset.isSystemAsset || false,
-          status: 'pending', // Default to pending for approval workflow
-        });
+        const result = await addTransaction(transactionData, asset);
 
         console.log('Transaction added successfully:', result);
 
@@ -165,8 +151,8 @@ const PortafolioPage = () => {
         const dateB = b.executedAt.valueOf();
         return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
       } else if (sortBy === 'amount') {
-        const amountA = a.quantity * a.price;
-        const amountB = b.quantity * b.price;
+        const amountA = a.quantity * a.purchasePrice;
+        const amountB = b.quantity * b.purchasePrice;
         return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
       }
       return 0;
@@ -180,8 +166,8 @@ const PortafolioPage = () => {
       name: holding.assetId, // Will be replaced with actual asset name later
       price: holding.currentPrice,
       quantity: holding.quantity,
-      totalGain: holding.unrealizedGain, // Using unrealized gain as total gain
-      totalGainPercentage: holding.unrealizedGainPercentage,
+      totalGain: holding.localCalculations?.unrealizedGain, // Using unrealized gain as total gain
+      totalGainPercentage: holding.localCalculations?.unrealizedGainPercentage,
       value: holding.currentValue,
     }));
 
@@ -195,8 +181,8 @@ const PortafolioPage = () => {
       } else if (sortBy === 'date') {
         // For holdings, we can sort by total gain as a proxy
         return sortOrder === 'asc'
-          ? a.totalGain - b.totalGain
-          : b.totalGain - a.totalGain;
+          ? (a.totalGain ?? 0) - (b.totalGain ?? 0)
+          : (b.totalGain ?? 0) - (a.totalGain ?? 0);
       } else if (sortBy === 'amount') {
         return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
       }
@@ -356,7 +342,7 @@ const PortafolioPage = () => {
             {/* Tab Content */}
             {selectedTab === 'investments' ? (
               <HoldingsTable
-                holdings={sortedHoldings}
+                holdings={sortedHoldings as any}
                 transactions={sortedTransactions}
               />
             ) : (

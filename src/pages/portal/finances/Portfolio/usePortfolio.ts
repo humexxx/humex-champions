@@ -8,6 +8,7 @@ import {
   IPortfolioHolding,
   IPortfolioSnapshot,
   IPortfolioTransaction,
+  TransactionFormData,
 } from '@shared/types/finances';
 import { CommonFetchHookProps } from 'src/_models';
 import { useAuth } from 'src/context/hooks';
@@ -36,8 +37,8 @@ interface UsePortfolio {
     portfolio: Omit<IPortfolio, 'id' | 'createdAt' | 'updatedAt'>
   ) => Promise<string>;
   addTransaction: (
-    portfolioId: string,
-    transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt' | 'portfolioId'>
+    transactionData: TransactionFormData,
+    asset: IAsset
   ) => Promise<string>;
   getAsset: (assetId: string) => Promise<IAsset | null>;
   setAsset: (asset: IAsset) => Promise<void>;
@@ -265,25 +266,10 @@ const usePortfolio = (
   );
 
   const addTransaction = useCallback(
-    async (
-      portfolioId: string,
-      transactionData: Omit<
-        IPortfolioTransaction,
-        'id' | 'createdAt' | 'portfolioId'
-      >
-    ) => {
+    async (transactionData: TransactionFormData, asset: IAsset) => {
       if (!currentUser) throw new Error('User not authenticated');
 
-      // Crear la transacción completa con el portfolioId
-      const completeTransaction: Omit<
-        IPortfolioTransaction,
-        'id' | 'createdAt'
-      > = {
-        ...transactionData,
-        portfolioId: portfolioId,
-      };
-
-      return await (service.addTransaction as any)(completeTransaction);
+      return await service.addTransaction(transactionData, asset);
     },
     [currentUser, service]
   );

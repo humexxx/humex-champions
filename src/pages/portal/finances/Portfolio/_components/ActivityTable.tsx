@@ -47,7 +47,7 @@ const ActivityTable = ({ transactions }: ActivityTableProps) => {
                 <Chip
                   label={transaction.type}
                   size="small"
-                  color={transaction.type === 'BUY' ? 'success' : 'error'}
+                  color={transaction.type === 'buy' ? 'success' : 'error'}
                   variant="outlined"
                 />
               </TableCell>
@@ -61,7 +61,7 @@ const ActivityTable = ({ transactions }: ActivityTableProps) => {
               >
                 <Box>
                   <Typography variant="body2" fontWeight={500}>
-                    {transaction.type === 'BUY' ? 'Bought' : 'Sold'}{' '}
+                    {transaction.type === 'buy' ? 'Bought' : 'Sold'}{' '}
                     {transaction.quantity} {transaction.assetId}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -80,8 +80,8 @@ const ActivityTable = ({ transactions }: ActivityTableProps) => {
               >
                 <Typography variant="subtitle1">
                   {formatCurrency(
-                    transaction.currentValue ??
-                      transaction.quantity * transaction.price
+                    transaction.purchasePrice ??
+                      transaction.quantity * transaction.purchasePrice
                   )}
                 </Typography>
                 {transaction.gainLoss !== undefined && (

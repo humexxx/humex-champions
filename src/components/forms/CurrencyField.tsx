@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 
-import { TextFieldProps, TextField, InputAdornment } from '@mui/material';
+import { InputAdornment, TextField, TextFieldProps } from '@mui/material';
 
 interface Props {
   currency?: 'USD';
@@ -23,19 +23,19 @@ const CurrencyField = forwardRef<HTMLInputElement, TextFieldProps & Props>(
         inputRef={ref}
         type="number"
         slotProps={{
+          ...props.slotProps,
           input: {
-            ...props.slotProps?.input,
             startAdornment: (
               <InputAdornment position="start">
                 {getCurrencySymbol(currency)}
               </InputAdornment>
             ),
+            ...props.slotProps?.input,
           },
           htmlInput: {
             step: 'any',
             ...props.slotProps?.htmlInput,
           },
-          ...props.slotProps,
         }}
         onFocus={(event) => {
           event.target.select();

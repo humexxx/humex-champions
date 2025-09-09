@@ -1,4 +1,27 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "checklist",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "system_assets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "searchKeywords", "arrayConfig": "CONTAINS" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

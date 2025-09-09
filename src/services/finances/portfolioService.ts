@@ -1,11 +1,14 @@
-import { FIRESTORE_PATHS } from '@shared/consts';
+import { CALLABLE_FUNCTIONS, FIRESTORE_PATHS } from '@shared/consts';
+import { TRANSACTION_TYPES } from '@shared/schemas';
+import { ICallableResponse } from '@shared/types';
 import {
+  AddTransactionInput,
   IAsset,
   IPortfolio,
   IPortfolioHolding,
   IPortfolioSnapshot,
   IPortfolioTransaction,
-  TRANSACTION_TYPES,
+  TransactionFormData,
 } from '@shared/types/finances';
 import { getDefaultPortfolioData, getError } from '@shared/utils';
 import dayjs, { Dayjs } from 'dayjs';
@@ -20,8 +23,9 @@ import {
   query,
   setDoc,
 } from 'firebase/firestore';
-import { firestore } from 'src/firebase';
-import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
+import { httpsCallable } from 'firebase/functions';
+import { firestore, functions } from 'src/firebase';
+import { normalizeObjectDates, toDate, toDayjs } from 'src/utils';
 
 // ============= MOCK DATA =============
 
@@ -40,7 +44,6 @@ const MOCK_PORTFOLIO: IPortfolio = {
   totalInvested: 3333.5,
   currency: 'USD',
   isDefault: true,
-  lastPriceUpdate: dayjs(),
 };
 
 const MOCK_ASSETS: Record<string, IAsset> = {
@@ -49,36 +52,46 @@ const MOCK_ASSETS: Record<string, IAsset> = {
     symbol: 'BTC',
     name: 'Bitcoin',
     market: 'crypto',
-    isActive: true,
-
-    price: 116383.2,
-    open: 116678.28,
-    previousDayClose: 116678.28,
-    change: -295.08,
-    changePercent: -0.25,
-    currency: 'USD',
     exchange: 'Binance',
-    lastPriceUpdate: dayjs(),
-    marketCap: 2300000000000,
-    volume: 15000000000,
+    currency: 'USD',
+    isActive: true,
+    isSystemAsset: false,
+    priceData: {
+      symbol: 'BTC',
+      price: 116383.2,
+      open: 116678.28,
+      high: 117000,
+      low: 115000,
+      close: 116383.2,
+      volume: 15000000000,
+      change: -295.08,
+      changePercent: -0.25,
+      updatedAt: dayjs(),
+    },
+    previousDayClose: 116678.28,
   },
   ADA: {
     id: 'ADA',
     symbol: 'ADA',
     name: 'Cardano',
     market: 'crypto',
-    isActive: true,
-
-    price: 0.81,
-    open: 0.79,
-    previousDayClose: 0.79,
-    change: 0.02,
-    changePercent: 2.09,
-    currency: 'USD',
     exchange: 'Binance',
-    lastPriceUpdate: dayjs(),
-    marketCap: 28000000000,
-    volume: 400000000,
+    currency: 'USD',
+    isActive: true,
+    isSystemAsset: false,
+    priceData: {
+      symbol: 'ADA',
+      price: 0.81,
+      open: 0.79,
+      high: 0.82,
+      low: 0.78,
+      close: 0.81,
+      volume: 400000000,
+      change: 0.02,
+      changePercent: 2.09,
+      updatedAt: dayjs(),
+    },
+    previousDayClose: 0.79,
   },
 };
 
@@ -88,30 +101,38 @@ const MOCK_HOLDINGS: IPortfolioHolding[] = [
     portfolioId: 'portfolio_1',
     assetId: 'BTC',
     quantity: 1,
-    averageBuyPrice: 3000,
     totalInvested: 3000,
     currentPrice: 116383.2,
     currentValue: 116383.2,
-    unrealizedGain: 113383.2,
-    unrealizedGainPercentage: 3779.44,
-    firstPurchaseDate: dayjs('2024-01-01'),
-    lastUpdateDate: dayjs(),
-    portfolioPercentage: 96.65,
+    createdAt: dayjs('2024-01-01'),
+    updatedAt: dayjs(),
+    isSystemAsset: false,
+
+    localCalculations: {
+      averageBuyPrice: 3000,
+      portfolioPercentage: 96.65,
+      unrealizedGain: 113383.2,
+      unrealizedGainPercentage: 3779.44,
+    },
   },
   {
     id: 'holding_2',
     portfolioId: 'portfolio_1',
     assetId: 'ADA',
     quantity: 5000,
-    averageBuyPrice: 0.067,
     totalInvested: 333.5,
     currentPrice: 0.81,
     currentValue: 4034.4,
-    unrealizedGain: 3700.9,
-    unrealizedGainPercentage: 1109.55,
-    firstPurchaseDate: dayjs('2024-02-01'),
-    lastUpdateDate: dayjs(),
-    portfolioPercentage: 3.35,
+    createdAt: dayjs('2024-02-01'),
+    updatedAt: dayjs(),
+    isSystemAsset: false,
+
+    localCalculations: {
+      averageBuyPrice: 0.067,
+      portfolioPercentage: 3.35,
+      unrealizedGain: 3700.9,
+      unrealizedGainPercentage: 1109.55,
+    },
   },
 ];
 
@@ -122,13 +143,11 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     assetId: 'BTC',
     type: 'buy',
     quantity: 1,
-    price: 3000,
+    purchasePrice: 3000,
     totalAmount: 3000,
     fees: 15,
     executedAt: dayjs('2024-01-01'),
-    createdAt: dayjs('2024-01-01'),
     notes: 'Initial BTC purchase',
-    source: 'Binance',
   },
   {
     id: 'transaction_2',
@@ -136,13 +155,11 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     assetId: 'ADA',
     type: 'buy',
     quantity: 5000,
-    price: 0.067,
+    purchasePrice: 0.067,
     totalAmount: 333.5,
     fees: 1.67,
     executedAt: dayjs('2024-02-01'),
-    createdAt: dayjs('2024-02-01'),
     notes: 'ADA accumulation',
-    source: 'Binance',
   },
 ];
 
@@ -165,28 +182,15 @@ const generateMockSnapshots = (
     const value =
       baseValue +
       (finalValue - baseValue) * Math.max(0, Math.min(1, growthFactor));
-    const previousValue =
-      i === 0
-        ? baseValue
-        : snapshots[snapshots.length - 1]?.totalValue || baseValue;
-
     const iterationDate = currentDate.add(i, 'day');
     const snapshot: IPortfolioSnapshot = {
       id: `snapshot_${iterationDate.format('YYYY-MM-DD')}`,
       portfolioId: 'portfolio_1',
-      date: iterationDate,
-      totalValue: value,
-      totalGain: value - baseValue,
-      totalGainPercentage: ((value - baseValue) / baseValue) * 100,
-      dailyChange: value - previousValue,
-      dailyChangePercentage:
-        previousValue > 0 ? ((value - previousValue) / previousValue) * 100 : 0,
-      holdings: MOCK_HOLDINGS.map((holding) => ({
-        ...holding,
-        currentValue: holding.currentValue * (value / finalValue),
-        unrealizedGain: holding.unrealizedGain * (value / finalValue),
-      })),
       createdAt: iterationDate,
+      totalInvested: value,
+      totalValue: value - baseValue,
+      holdings: MOCK_HOLDINGS,
+      updatedAt: iterationDate,
     };
 
     snapshots.push(snapshot);
@@ -199,6 +203,11 @@ const MOCK_SNAPSHOTS: IPortfolioSnapshot[] = generateMockSnapshots(
   dayjs('2024-01-01'),
   dayjs()
 );
+
+const addTransactionCallable = httpsCallable<
+  AddTransactionInput,
+  ICallableResponse<{ transactionId: string }>
+>(functions, CALLABLE_FUNCTIONS.finances.portfolio.addTransaction);
 
 export const portfolioService = {
   getPortfolioCollection: (userId: string, portfolioId: string) =>
@@ -368,7 +377,7 @@ export const portfolioService = {
             )
           )
           .filter((snapshot) => {
-            const snapshotDate = snapshot.date;
+            const snapshotDate = snapshot.createdAt;
             return (
               (snapshotDate.isAfter(startDate) ||
                 snapshotDate.isSame(startDate)) &&
@@ -453,46 +462,23 @@ export const portfolioService = {
     );
     const docRef = await addDoc(
       collectionRef,
-      normalizeObjectDates(mergedData, toTimestamp)
+      normalizeObjectDates(mergedData, toDate)
     );
 
     return docRef.id;
   },
 
-  // DEPRECATED: Function not implemented in Firebase Functions
-  // TODO: Implement addPortfolioTransaction callable function in backend
   addTransaction: async (
-    _transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
+    transactionData: TransactionFormData,
+    asset: IAsset
   ): Promise<string> => {
-    // Placeholder implementation - function needs to be created in Firebase Functions
-    throw new Error(
-      'addPortfolioTransaction function not implemented in backend. Please implement in functions/src/modules/finances/'
-    );
-
-    /*
-    Use callable function for robust transaction processing (COMMENTED OUT - FUNCTION DOESN'T EXIST)
-    const addPortfolioTransaction = httpsCallable(
-      functions,
-      CALLABLE_FUNCTION_NAMES.addPortfolioTransaction
-    );
-
     try {
-      const result = await addPortfolioTransaction({
-        portfolioId: transaction.portfolioId,
-        assetId: transaction.assetId,
-        symbol: transaction.assetId.toUpperCase(), // Temporary: use assetId as symbol
-        name: transaction.assetId, // Temporary: use assetId as name
-        type: 'CRYPTOCURRENCY', // Default type for now
-        category: 'CRYPTO', // Default category for now
-        transactionType: transaction.type,
-        quantity: transaction.quantity,
-        price: transaction.price,
-        fees: transaction.fees || 0,
-        executedAt: transaction.executedAt.toDate().toISOString(),
-        notes: transaction.notes || '',
+      const result = await addTransactionCallable({
+        transactionData,
+        asset,
       });
 
-      const response = result.data as any;
+      const response = result.data;
 
       if (!response?.success) {
         throw new Error(response?.error || 'Failed to add transaction');
@@ -500,10 +486,9 @@ export const portfolioService = {
 
       return response.data.transactionId;
     } catch (error) {
-      console.error('Error calling addPortfolioTransaction:', error);
+      console.error('Error calling addTransaction:', error);
       throw error;
     }
-    */
   },
 
   getAsset: async (assetId: string): Promise<IAsset | null> => {
@@ -522,10 +507,7 @@ export const portfolioService = {
 
   setAsset: async (asset: IAsset): Promise<void> => {
     const docRef = doc(firestore, FIRESTORE_PATHS.ASSETS.ASSET(asset.id!));
-    const { id, ...assetData } = normalizeObjectDates(
-      asset,
-      toTimestamp
-    ) as any;
+    const { id, ...assetData } = normalizeObjectDates(asset, toDate) as any;
 
     await setDoc(docRef, assetData);
   },
@@ -554,7 +536,7 @@ export const portfolioService = {
       errors.push('Quantity must be greater than 0');
     }
 
-    if (!transaction.price || transaction.price <= 0) {
+    if (!transaction.purchasePrice || transaction.purchasePrice <= 0) {
       errors.push('Price must be greater than 0');
     }
 
@@ -613,7 +595,7 @@ export const mockPortfolioService = {
   ) => {
     setTimeout(() => {
       const filteredSnapshots = MOCK_SNAPSHOTS.filter((snapshot) => {
-        const snapshotDate = snapshot.date;
+        const snapshotDate = snapshot.createdAt;
         return (
           (snapshotDate.isAfter(startDate) || snapshotDate.isSame(startDate)) &&
           (snapshotDate.isBefore(endDate) || snapshotDate.isSame(endDate))
@@ -666,9 +648,16 @@ export const mockPortfolioService = {
   },
 
   addTransaction: async (
-    _userId: string,
-    _transaction: Omit<IPortfolioTransaction, 'id' | 'createdAt'>
+    transactionData: TransactionFormData,
+    asset: IAsset
   ): Promise<string> => {
+    // Mock implementation
+    console.log(
+      'Mock: Adding transaction',
+      transactionData,
+      'for asset',
+      asset.symbol
+    );
     return 'mock_transaction_id';
   },
 

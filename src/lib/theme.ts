@@ -16,11 +16,15 @@ function getTheme(mode: EThemeType) {
     spacing: 8, // Google's 8px spacing system
     components: {
       MuiButton: {
+        defaultProps: {
+          sx: {
+            boxShadow: 'none',
+          },
+        },
         styleOverrides: {
           root: {
             borderRadius: 24, // Google's pill-shaped buttons
             textTransform: 'none',
-            boxShadow: 'none',
           },
           outlined: {
             borderWidth: '1px',

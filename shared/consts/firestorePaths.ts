@@ -41,6 +41,7 @@ export const FIRESTORE_PATHS = {
   ASSETS: {
     ROOT: () => `assets`,
     ASSET: (assetId: string) => `assets/${assetId}`,
+    SYSTEM_ASSETS: () => `system_assets`,
   },
 
   // ============= THIRD PARTY / EXTERNAL APIS =============

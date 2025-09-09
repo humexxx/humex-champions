@@ -45,19 +45,23 @@ const SelectedAssetView: React.FC<SelectedAssetViewProps> = ({
             ) : asset.isSystemAsset ? (
               <>
                 <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                  Risk Level: {asset.riskLevel}
+                  Risk Level: {asset.systemAssetDetails?.riskLevel || 'N/A'}
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
                   • Monthly Yield:
                 </Typography>
-                <ChangeChip changePercentage={asset.monthlyYield} />
+                <ChangeChip
+                  changePercentage={asset.systemAssetDetails?.monthlyYield || 0}
+                />
               </>
             ) : (
               <>
                 <Typography variant="h6" component="div">
-                  {formatCurrency(asset.price ?? 0)}
+                  {formatCurrency(asset.priceData?.price ?? 0)}
                 </Typography>
-                <ChangeChip changePercentage={asset.changePercent} />
+                <ChangeChip
+                  changePercentage={asset.priceData?.changePercent || 0}
+                />
               </>
             )}
           </Stack>

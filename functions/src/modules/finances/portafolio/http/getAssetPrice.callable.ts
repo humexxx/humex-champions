@@ -1,5 +1,9 @@
+import { GetAssetPriceInput } from '@shared/schemas/finances';
 import { ICallableResponse } from '@shared/types';
-import { GetAssetPriceInput, IPriceData } from '@shared/types/finances';
+import {
+  GetAssetPriceInput as GetAssetPriceInputType,
+  IPriceData,
+} from '@shared/types/finances';
 import { onCall } from 'firebase-functions/v2/https';
 
 import { requireAuth } from '../../../../core/auth';
@@ -9,7 +13,7 @@ import { parseOrThrow } from '../../../../core/validation';
 import { getAssetPrice } from '../../finances.service';
 
 export const getAssetPriceCallable = onCall<
-  GetAssetPriceInput,
+  GetAssetPriceInputType,
   Promise<ICallableResponse<IPriceData>>
 >(
   { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },

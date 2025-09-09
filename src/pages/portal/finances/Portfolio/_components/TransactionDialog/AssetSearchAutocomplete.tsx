@@ -321,7 +321,8 @@ const AssetSearchAutocomplete: React.FC<AssetSearchAutocompleteProps> = ({
                     >
                       Monthly Yield:{' '}
                       {formatPercentage(
-                        option.systemAssetDetails?.monthlyYield
+                        option.systemAssetDetails?.monthlyYield,
+                        3
                       )}{' '}
                       • Risk: {option.systemAssetDetails?.riskLevel}
                     </Typography>

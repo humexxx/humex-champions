@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
+import { normalizeObjectDates, toDate, toDayjs } from 'src/utils';
 
 function injectEndBalance(operation: IOperation) {
   operation.balanceEnd =
@@ -148,10 +148,7 @@ export const useTradingJournal = () => {
             user.currentUser!.uid,
             'tradingJournal'
           );
-          await addDoc(
-            journalRef,
-            normalizeObjectDates(nextJournal, toTimestamp)
-          );
+          await addDoc(journalRef, normalizeObjectDates(nextJournal, toDate));
         }
 
         if (tradingJournal) {
@@ -172,7 +169,7 @@ export const useTradingJournal = () => {
           ];
 
           await updateDoc(docRef, {
-            operations: normalizeObjectDates(updatedOperations, toTimestamp),
+            operations: normalizeObjectDates(updatedOperations, toDate),
           });
 
           setJournal({ ...tradingJournal, operations: updatedOperations });
@@ -190,7 +187,7 @@ export const useTradingJournal = () => {
           );
           const docRef = await addDoc(
             journalRef,
-            normalizeObjectDates(newJournal, toTimestamp)
+            normalizeObjectDates(newJournal, toDate)
           );
           setJournal({ id: docRef.id, ...newJournal });
         }

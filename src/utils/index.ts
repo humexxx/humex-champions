@@ -1,5 +1,5 @@
-export * from './number';
+export * from '../../shared/utils/date';
 export * from './auth';
-export * from './date';
 export * from './env';
 export * from './env-validator';
+export * from './number';

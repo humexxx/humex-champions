@@ -1,6 +1,6 @@
 import { App, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 
 let app: App;
 
@@ -13,6 +13,7 @@ export function adminApp(): App {
 
 export const db = () => getFirestore(adminApp());
 export const adminAuth = () => getAuth(adminApp());
+export const now = () => FieldValue.serverTimestamp();
 
 // Initialize based on environment
 export function initializeFirebase(): void {

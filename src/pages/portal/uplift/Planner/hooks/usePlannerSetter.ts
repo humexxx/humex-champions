@@ -6,7 +6,7 @@ import { Dayjs } from 'dayjs';
 import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from 'src/context/hooks';
 import { firestore } from 'src/firebase';
-import { normalizeObjectDates, toTimestamp } from 'src/utils';
+import { normalizeObjectDates, toDate } from 'src/utils';
 
 export default function usePlanner() {
   const { currentUser } = useAuth();
@@ -27,7 +27,7 @@ export default function usePlanner() {
         if (!plannerCollection) throw new Error('No planner collection');
         const isNew = !planner.id;
         setLoading(true);
-        const formmatedPlanner = normalizeObjectDates(planner, toTimestamp);
+        const formmatedPlanner = normalizeObjectDates(planner, toDate);
 
         if (isNew) {
           const docRef = await addDoc(plannerCollection, formmatedPlanner);

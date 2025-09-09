@@ -1,7 +1,13 @@
-current
+-> agregar bien la transaccion a un historial 🟢
+-> revisar que add transactiton sirve 🟡
+-> build bugs!!!
 
-ya se acaba de supuesetamente refactorizar para tener la nueva arquitectura
+-> desde admin aceptar las de system
+-> revisar pub
+-> admin ejecutar pub
 
--> revisar que el fe se actualice con las nuevas
--> revisar que no haya nada viejo
--> revisar la pubsub de portafolio y la de personal finances para calcular deudas del mes
+-> eliminar un holding
+-> agregar portafolio en personal finances
+-> agregar checking
+-> mejorar un poco entertainment
+-> mejorar un poco uplift

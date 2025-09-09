@@ -7,6 +7,7 @@ import { AppError } from '../../core/errors';
 import { db } from '../../core/firebase';
 import { log } from '../../core/logger';
 import { PolygonService } from '../../services/polygon/polygon';
+import { getSystemAssets } from './portafolio/portafolio.service';
 
 interface PortfolioPosition {
   symbol: string;
@@ -27,6 +28,8 @@ export async function searchTradableAssets(
   limit = 20
 ): Promise<IAsset[]> {
   try {
+    if (type === 'system') return getSystemAssets(query, limit);
+
     log.info('Searching tradable assets', { query, type, limit });
 
     const results = await polygonService.searchAssets(query, limit);
@@ -56,6 +59,7 @@ export async function getAssetDetails(symbol: string): Promise<IAsset> {
     }
 
     log.info('Asset details retrieved', { symbol });
+
     return asset;
   } catch (error) {
     if (error instanceof AppError) throw error;

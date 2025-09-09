@@ -17,7 +17,7 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import { firestore } from 'src/firebase';
-import { normalizeObjectDates, toDayjs, toTimestamp } from 'src/utils';
+import { normalizeObjectDates, toDate, toDayjs } from 'src/utils';
 
 // ============= MOCK DATA =============
 const firstDayOfLastMonth = dayjs().subtract(1, 'month').startOf('month');
@@ -171,7 +171,7 @@ export const financialPlansService = {
 
     const { id: _id, ..._data } = normalizeObjectDates<IFinancialPlan>(
       data,
-      toTimestamp
+      toDate
     );
 
     return await setDoc(docRef, _data);

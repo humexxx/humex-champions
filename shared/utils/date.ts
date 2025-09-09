@@ -2,18 +2,21 @@ import dayjs, { Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { Timestamp } from 'firebase/firestore';
 
-export function toTimestamp(date: any): Timestamp {
+export function toDate(date: any): Date {
   if (!date) return date;
-  if (date instanceof Timestamp) {
+  if (date instanceof Date) {
     return date;
-  } else if (date instanceof Date) {
-    return Timestamp.fromDate(date);
   } else if (dayjs.isDayjs(date)) {
-    return Timestamp.fromDate(date.toDate());
+    return date.toDate();
+  } else if (date?.$isDayjsObject) {
+    return new Date(date.$d);
+  } else if (typeof date === 'string') {
+    const parsed = dayjs(date, 'YYYY-MM-DD', true);
+    if (parsed.isValid()) return parsed.toDate();
+    const fallback = new Date(date);
+    if (!isNaN(fallback.getTime())) return fallback;
   }
-  if (typeof date === 'string') {
-    return Timestamp.fromDate(new Date(date));
-  }
+
   throw new Error('Invalid date type');
 }
 
@@ -38,7 +41,7 @@ export function toDayjs(date: any): Dayjs {
 dayjs.extend(customParseFormat);
 export function normalizeObjectDates<T>(
   obj: any,
-  converter: typeof toTimestamp | typeof toDayjs
+  converter: typeof toDate | typeof toDayjs
 ): T {
   if (Array.isArray(obj)) {
     return obj.map((item) => normalizeObjectDates(item, converter)) as any;

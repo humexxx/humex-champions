@@ -1,43 +1,17 @@
 import { Dayjs } from 'dayjs';
 import { z } from 'zod';
+import {
+  ASSET_FILTER_TYPES,
+  GetAssetDetailsInput as GetAssetDetailsInputSchema,
+  GetAssetPriceInput as GetAssetPriceInputSchema,
+  SearchTradableAssetsInput as SearchTradableAssetsInputSchema,
+  TRANSACTION_TYPES,
+} from '../../schemas/finances/portfolio';
 
-export const GetAssetPriceInput = z.object({
-  symbol: z.string().min(1, 'Symbol is required'),
-});
-
-export type GetAssetPriceInput = z.infer<typeof GetAssetPriceInput>;
-
-export const ASSET_FILTER_TYPES = [
-  'all',
-  'stocks',
-  'fx',
-  'crypto',
-  'otc',
-  'indices',
-  'system',
-] as const;
+// Exported types
 export type AssetFilterType = (typeof ASSET_FILTER_TYPES)[number];
-
-export const SearchTradableAssetsInput = z.object({
-  query: z.string().min(1, 'Query is required'),
-  type: z.enum(ASSET_FILTER_TYPES).optional().default('all'),
-  limit: z.number().int().min(1).max(100).optional().default(20),
-});
-
-export type SearchTradableAssetsInput = z.infer<
-  typeof SearchTradableAssetsInput
->;
-
-export const GetAssetDetailsInput = z.object({
-  symbol: z.string().min(1, 'Symbol is required'),
-});
-
-export type GetAssetDetailsInput = z.infer<typeof GetAssetDetailsInput>;
-
 export type Market = 'crypto' | 'stocks' | 'fx' | 'otc' | 'indices' | 'system';
 export type RiskLevel = 'low' | 'medium' | 'high';
-
-export const TRANSACTION_TYPES = ['buy', 'sell'] as const;
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 export type TransactionStatus = 'pending' | 'approved' | 'rejected';
 
@@ -84,12 +58,12 @@ export interface IPortfolio {
   createdAt: Dayjs;
   updatedAt: Dayjs;
 
+  totalInvested: number;
   currentValue: number;
   totalGain: number;
   totalGainPercentage: number;
   dailyGain: number;
   dailyGainPercentage: number;
-  totalInvested: number;
 
   currency: string;
   isDefault: boolean;
@@ -98,15 +72,27 @@ export interface IPortfolio {
 export interface IPortfolioSnapshot {
   id: string;
   portfolioId: string;
-  date: Dayjs;
 
+  totalInvested: number;
   totalValue: number;
-  totalGain: number;
-  totalGainPercentage: number;
-  dailyChange: number;
-  dailyChangePercentage: number;
 
   createdAt: Dayjs;
+  updatedAt: Dayjs;
+  holdings: IPortfolioHolding[];
+}
+
+export interface ILocalHoldingCalculations {
+  portfolioPercentage: number;
+  averageBuyPrice: number;
+  unrealizedGain: number;
+  unrealizedGainPercentage: number;
+}
+
+export interface ISystemPortfolioHoldingFlags {
+  status: TransactionStatus;
+  adminNotes?: string;
+  approvedBy?: string;
+  approvedAt?: Dayjs;
 }
 
 export interface IPortfolioHolding {
@@ -116,16 +102,18 @@ export interface IPortfolioHolding {
 
   quantity: number;
   totalInvested: number;
-  averageBuyPrice: number;
 
   currentPrice: number;
   currentValue: number;
-  unrealizedGain: number;
-  unrealizedGainPercentage: number;
 
-  firstPurchaseDate: Dayjs;
-  lastUpdateDate: Dayjs;
-  portfolioPercentage: number;
+  createdAt: Dayjs;
+  updatedAt: Dayjs;
+
+  isSystemAsset: boolean;
+  systemFlags?: ISystemPortfolioHoldingFlags;
+
+  // Local calculated fields, not stored in DB
+  localCalculations?: ILocalHoldingCalculations;
 }
 
 export interface IPortfolioTransaction {
@@ -135,28 +123,38 @@ export interface IPortfolioTransaction {
 
   type: TransactionType;
   quantity: number;
-  price: number; // Original purchase price
+  purchasePrice: number;
   totalAmount: number;
   fees: number;
 
-  // Current market data (updated by portfolio calculations)
-  currentPrice?: number; // Current market price per unit
-  currentValue?: number; // Current total market value (quantity * currentPrice)
-  gainLoss?: number; // Current gain/loss in currency
-  gainLossPercentage?: number; // Current gain/loss percentage
-  lastPriceUpdate?: Dayjs; // When prices were last updated
+  // Optional fields if the asset is sold
+  soldPrice?: number;
+  soldAmount?: number;
+  gainLoss?: number;
+  gainLossPercentage?: number;
 
   executedAt: Dayjs;
-  createdAt: Dayjs;
-
   notes?: string;
-  source?: string;
+}
 
-  // Approval workflow for system assets
-  status?: TransactionStatus; // Default 'approved' for regular transactions
-  sourceExpenseId?: string; // Link to the fixed expense that generated this
-  requiresApproval?: boolean; // True for system asset transactions
-  adminNotes?: string;
-  approvedBy?: string;
-  approvedAt?: Dayjs;
+// Import schemas to generate types
+import {
+  AddTransactionInputSchema,
+  AssetForTransactionSchema,
+  TransactionFormDataSchema,
+} from '../../schemas/finances/portfolio';
+
+// Inferred types from schemas
+export type GetAssetPriceInput = z.infer<typeof GetAssetPriceInputSchema>;
+export type SearchTradableAssetsInput = z.infer<
+  typeof SearchTradableAssetsInputSchema
+>;
+export type GetAssetDetailsInput = z.infer<typeof GetAssetDetailsInputSchema>;
+export type TransactionFormData = z.infer<typeof TransactionFormDataSchema>;
+export type AssetForTransaction = z.infer<typeof AssetForTransactionSchema>;
+export type AddTransactionInput = z.infer<typeof AddTransactionInputSchema>;
+
+export interface AddTransactionResult {
+  transactionId: string;
+  assetId: string;
 }

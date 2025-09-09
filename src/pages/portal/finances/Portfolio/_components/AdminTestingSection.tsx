@@ -45,7 +45,7 @@ const AdminTestingSection = () => {
       // TODO: Replace with actual refresh asset prices function
       const updatePrices = httpsCallable(
         functions,
-        CALLABLE_FUNCTIONS.finances.refreshAssetPrices
+        CALLABLE_FUNCTIONS.finances.portfolio.refreshAssetPrices
       );
 
       const result = await updatePrices({});
