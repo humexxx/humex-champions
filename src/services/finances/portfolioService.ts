@@ -114,6 +114,8 @@ const MOCK_HOLDINGS: IPortfolioHolding[] = [
       unrealizedGain: 113383.2,
       unrealizedGainPercentage: 3779.44,
     },
+
+    status: 'active',
   },
   {
     id: 'holding_2',
@@ -133,6 +135,8 @@ const MOCK_HOLDINGS: IPortfolioHolding[] = [
       unrealizedGain: 3700.9,
       unrealizedGainPercentage: 1109.55,
     },
+
+    status: 'active',
   },
 ];
 
@@ -148,6 +152,8 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     fees: 15,
     executedAt: dayjs('2024-01-01'),
     notes: 'Initial BTC purchase',
+    holdingId: 'holding_1',
+    isSystemAsset: false,
   },
   {
     id: 'transaction_2',
@@ -160,6 +166,8 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     fees: 1.67,
     executedAt: dayjs('2024-02-01'),
     notes: 'ADA accumulation',
+    holdingId: 'holding_1',
+    isSystemAsset: false,
   },
 ];
 

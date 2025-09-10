@@ -1,8 +1,8 @@
 -> agregar bien la transaccion a un historial 🟢
--> revisar que add transactiton sirve 🟡
--> build bugs!!!
+-> revisar que add transactiton sirve 🟢🟡
+-> build bugs!!! 🟢
 
--> desde admin aceptar las de system
+-> desde admin aceptar las de system 🟢
 -> revisar pub
 -> admin ejecutar pub
 

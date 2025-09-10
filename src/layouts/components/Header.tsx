@@ -95,6 +95,15 @@ const Header = () => {
       };
     }
 
+    if (pathname.startsWith('/portal/admin')) {
+      return {
+        title: 'Admin',
+        routes: [
+          { label: 'Transactions', path: ROUTES.PORTAL.ADMIN.TRANSACTIONS },
+        ],
+      };
+    }
+
     return null;
   }, [location.pathname]);
 

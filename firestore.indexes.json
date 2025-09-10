@@ -18,8 +18,46 @@
       "collectionGroup": "system_assets",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isActive", "order": "ASCENDING" },
-        { "fieldPath": "searchKeywords", "arrayConfig": "CONTAINS" }
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "searchKeywords",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transactions",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "isSystemAsset",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "executedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isSystemAsset",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "executedAt",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],

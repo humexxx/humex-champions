@@ -11,6 +11,12 @@ import { ErrorPage, LandingPage } from './pages';
 const AdminPage = lazy(() =>
   import('./pages/admin').then((module) => ({ default: module.AdminPage }))
 );
+const TransactionsAdminPage = lazy(() =>
+  import('./pages/admin/Transactions').then((module) => ({
+    default: module.TransactionsPage,
+  }))
+);
+
 const ForgotPasswordPage = lazy(() =>
   import('./pages/auth').then((module) => ({
     default: module.ForgotPasswordPage,
@@ -183,6 +189,17 @@ interface RouteConfig {
     roles?: string[];
   };
 }
+
+const adminRoutes: RouteConfig[] = [
+  {
+    path: ROUTES.PORTAL.ADMIN.INDEX,
+    element: <AdminPage />,
+  },
+  {
+    path: ROUTES.PORTAL.ADMIN.TRANSACTIONS,
+    element: <TransactionsAdminPage />,
+  },
+];
 
 // Finance routes configuration
 const financeRoutes: RouteConfig[] = [
@@ -398,14 +415,6 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.PORTAL.ADMIN.INDEX,
-        element: (
-          <LazyWrapper>
-            <AdminPage />
-          </LazyWrapper>
-        ),
-      },
-      {
         path: ROUTES.PORTAL.SETTINGS,
         element: (
           <LazyWrapper>
@@ -415,6 +424,7 @@ export const router = createBrowserRouter([
       },
 
       // Module routes
+      ...adminRoutes,
       ...financeRoutes,
       ...healthRoutes,
       ...upliftRoutes,
@@ -436,6 +446,7 @@ export const getRouteMetadata = (path: string): RouteConfig['meta'] => {
     ...healthRoutes,
     ...upliftRoutes,
     ...entertainmentRoutes,
+    ...adminRoutes,
   ];
 
   const route = allRoutes.find((route) => route.path === path);
@@ -466,9 +477,9 @@ export const isValidRoute = (path: string): boolean => {
     ...Object.values(ROUTES.PORTAL.HEALTH),
     ...Object.values(ROUTES.PORTAL.UPLIFT),
     ...Object.values(ROUTES.PORTAL.ENTERTAINMENT),
+    ...Object.values(ROUTES.PORTAL.ADMIN),
     ROUTES.PORTAL.DASHBOARD,
     ROUTES.PORTAL.SETTINGS,
-    ROUTES.PORTAL.ADMIN.INDEX,
   ] as string[];
 
   return allPaths.includes(path);

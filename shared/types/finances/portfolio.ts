@@ -14,6 +14,7 @@ export type Market = 'crypto' | 'stocks' | 'fx' | 'otc' | 'indices' | 'system';
 export type RiskLevel = 'low' | 'medium' | 'high';
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 export type TransactionStatus = 'pending' | 'approved' | 'rejected';
+export type HoldingStatus = 'pending' | 'active';
 
 export interface IPriceData {
   symbol: string;
@@ -91,8 +92,9 @@ export interface ILocalHoldingCalculations {
 export interface ISystemPortfolioHoldingFlags {
   status: TransactionStatus;
   adminNotes?: string;
-  approvedBy?: string;
   approvedAt?: Dayjs;
+  approvedBy?: string;
+  approvedByUserId?: string;
 }
 
 export interface IPortfolioHolding {
@@ -110,7 +112,7 @@ export interface IPortfolioHolding {
   updatedAt: Dayjs;
 
   isSystemAsset: boolean;
-  systemFlags?: ISystemPortfolioHoldingFlags;
+  status: HoldingStatus;
 
   // Local calculated fields, not stored in DB
   localCalculations?: ILocalHoldingCalculations;
@@ -135,6 +137,13 @@ export interface IPortfolioTransaction {
 
   executedAt: Dayjs;
   notes?: string;
+
+  // System asset approval workflow
+  isSystemAsset: boolean;
+  systemFlags?: ISystemPortfolioHoldingFlags;
+  holdingId: string;
+  userId: string;
+  username: string;
 }
 
 // Import schemas to generate types

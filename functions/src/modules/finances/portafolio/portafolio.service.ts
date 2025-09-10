@@ -133,6 +133,16 @@ export async function addTransaction(
     fees: 0, // Default fees to 0 for now
     executedAt: now() as any, // Firestore server timestamp
     notes: transactionData.notes,
+
+    userId: userId,
+    username: 'username', // TODO: Fetch username from user profile
+    holdingId: holdingRef.id,
+    isSystemAsset: asset.isSystemAsset || false,
+    systemFlags: asset.isSystemAsset
+      ? {
+          status: 'pending',
+        }
+      : undefined,
   };
 
   const holding: IPortfolioHolding = {
@@ -150,11 +160,7 @@ export async function addTransaction(
     updatedAt: now() as any,
 
     isSystemAsset: asset.isSystemAsset || false,
-    systemFlags: asset.isSystemAsset
-      ? {
-          status: 'pending',
-        }
-      : undefined,
+    status: asset.isSystemAsset ? 'pending' : 'active',
   };
 
   const newSnapshot = normalizeObjectDates<IPortfolioSnapshot>(

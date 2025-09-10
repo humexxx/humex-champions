@@ -88,6 +88,7 @@ export const ROUTES = {
     },
     ADMIN: {
       INDEX: '/portal/admin',
+      TRANSACTIONS: '/portal/admin/transactions',
     },
   },
 } as const;
