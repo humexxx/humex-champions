@@ -19,6 +19,11 @@ export interface UseAdminTransactionsReturn {
 
   // Actions
   refetch: () => void;
+  approveTransaction: (
+    userId: string,
+    portfolioId: string,
+    transactionId: string
+  ) => Promise<boolean>;
 
   // Query type management
   setQueryType: (type: TransactionQueryType) => void;
@@ -140,6 +145,31 @@ export const useAdminTransactions = (
     setTransactions([]);
   }, [queryType, userId, portfolioId]);
 
+  // Approve transaction action
+  const approveTransaction = useCallback(
+    async (
+      userId: string,
+      portfolioId: string,
+      transactionId: string
+    ): Promise<boolean> => {
+      try {
+        setError(null);
+        const result = await transactionsService.approveTransaction(
+          userId,
+          portfolioId,
+          transactionId
+        );
+        return result;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to approve transaction';
+        setError(errorMessage);
+        throw err;
+      }
+    },
+    []
+  );
+
   return {
     transactions,
     loading,
@@ -147,6 +177,7 @@ export const useAdminTransactions = (
 
     // Actions
     refetch,
+    approveTransaction,
 
     // Query management
     setQueryType,

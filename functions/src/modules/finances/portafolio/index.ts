@@ -1,5 +1,6 @@
 // Portfolio HTTP Callables
 export { addTransactionCallable } from './http/addTransaction.callable';
+export { approveTransactionCallable } from './http/approveTransaction.callable';
 export { getAssetDetailsCallable } from './http/getAssetDetails.callable';
 export { getAssetPriceCallable } from './http/getAssetPrice.callable';
 export { getMarketDataCallable } from './http/getMarketData.callable';

@@ -26,6 +26,7 @@ export const CALLABLE_FUNCTIONS = {
     // Portfolio submodule
     portfolio: {
       addTransaction: 'addTransactionCallable',
+      approveTransaction: 'approveTransactionCallable',
       getAssetPrice: 'getAssetPriceCallable',
       getAssetDetails: 'getAssetDetailsCallable',
       getMarketData: 'getMarketDataCallable',

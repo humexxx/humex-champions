@@ -96,3 +96,10 @@ export const AddTransactionInputSchema = z.object({
   transactionData: TransactionFormDataSchema,
   asset: AssetForTransactionSchema,
 });
+
+// Approve Transaction Input Schema
+export const ApproveTransactionInputSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  portfolioId: z.string().min(1, 'Portfolio ID is required'),
+  transactionId: z.string().min(1, 'Transaction ID is required'),
+});

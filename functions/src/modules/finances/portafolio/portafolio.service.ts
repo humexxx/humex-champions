@@ -21,6 +21,7 @@ import dayjs from 'dayjs';
 import { AppError } from '../../../core/errors';
 import { db, now } from '../../../core/firebase';
 import { log } from '../../../core/logger';
+import { getUserData } from '../../auth/auth.service';
 
 export async function addAsset(asset: IAsset): Promise<void> {
   log.info('Adding new asset', { asset });
@@ -121,6 +122,8 @@ export async function addTransaction(
     holdingCollectionRef.get(),
   ]);
 
+  const userData = await getUserData(userId);
+
   // Step 3: Create the transaction
   const transaction: IPortfolioTransaction = {
     id: transactionRef.id,
@@ -135,7 +138,7 @@ export async function addTransaction(
     notes: transactionData.notes,
 
     userId: userId,
-    username: 'username', // TODO: Fetch username from user profile
+    username: userData.fullName,
     holdingId: holdingRef.id,
     isSystemAsset: asset.isSystemAsset || false,
     systemFlags: asset.isSystemAsset
@@ -211,6 +214,139 @@ export async function addTransaction(
     transactionId: transactionRef.id,
     assetId,
   };
+}
+
+export async function approveTransaction(
+  userId: string,
+  portfolioId: string,
+  transactionId: string,
+  approvedByUserId: string
+): Promise<boolean> {
+  log.info('Approving transaction', {
+    userId,
+    portfolioId,
+    transactionId,
+    approvedByUserId,
+  });
+
+  try {
+    const firestore = db();
+
+    // Step 1: Create references for batch operation
+    const transactionRef = firestore
+      .collection(FIRESTORE_PATHS.FINANCES.TRANSACTIONS(userId, portfolioId))
+      .doc(transactionId);
+
+    // Step 2: Read all required documents first (before any writes)
+    const transactionDoc = await transactionRef.get();
+
+    if (!transactionDoc.exists) {
+      throw new AppError('transaction-not-found', 'Transaction not found', 404);
+    }
+
+    const transaction = transactionDoc.data() as IPortfolioTransaction;
+
+    // Step 3: Validate business rules
+    if (!transaction.isSystemAsset) {
+      throw new AppError(
+        'invalid-transaction-type',
+        'Only system asset transactions can be approved through this function',
+        400
+      );
+    }
+
+    if (transaction.systemFlags?.status !== 'pending') {
+      throw new AppError(
+        'invalid-transaction-status',
+        'Transaction is not in pending status',
+        400
+      );
+    }
+
+    // Step 4: Get holding document
+    const holdingRef = firestore
+      .collection(FIRESTORE_PATHS.FINANCES.HOLDINGS(userId, portfolioId))
+      .doc(transaction.holdingId);
+
+    const holdingDoc = await holdingRef.get();
+
+    if (!holdingDoc.exists) {
+      throw new AppError(
+        'holding-not-found',
+        'Portfolio holding not found',
+        404
+      );
+    }
+
+    const holding = holdingDoc.data() as IPortfolioHolding;
+
+    // Step 5: Validate holding status
+    if (holding.status !== 'pending') {
+      throw new AppError(
+        'invalid-holding-status',
+        'Holding is not in pending status',
+        400
+      );
+    }
+
+    const adminUser = await getUserData(approvedByUserId);
+
+    if (!adminUser) {
+      throw new AppError(
+        'admin-user-not-found',
+        'Admin user approving the transaction was not found',
+        404
+      );
+    }
+
+    // Step 7: Create batch and execute all updates atomically
+    const batch = firestore.batch();
+
+    // Update transaction with approval
+    batch.update(transactionRef, {
+      'systemFlags.status': 'approved',
+      'systemFlags.approvedAt': now(),
+      'systemFlags.approvedBy': adminUser.fullName,
+      'systemFlags.approvedByUserId': approvedByUserId,
+      updatedAt: now(),
+    });
+
+    // Update holding status to active
+    batch.update(holdingRef, {
+      status: 'active',
+      updatedAt: now(),
+    });
+
+    // Commit all changes atomically
+    await batch.commit();
+
+    log.info('Transaction approved successfully', {
+      transactionId,
+      holdingId: holding.id,
+      approvedByUserId,
+    });
+
+    return true;
+  } catch (error) {
+    log.error('Failed to approve transaction', {
+      userId,
+      portfolioId,
+      transactionId,
+      approvedByUserId,
+      error,
+    });
+
+    // Re-throw AppErrors as-is, wrap unknown errors
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(
+      'transaction-approval-failed',
+      'Failed to approve transaction: ' + (error as Error).message,
+      500
+    );
+  }
 }
 
 function generateSnapshot(

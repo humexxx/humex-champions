@@ -48,4 +48,13 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      rules: {
+        'require-jsdoc': 'off',
+        'valid-jsdoc': 'off',
+      },
+    },
+  ],
 };

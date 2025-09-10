@@ -149,6 +149,7 @@ export interface IPortfolioTransaction {
 // Import schemas to generate types
 import {
   AddTransactionInputSchema,
+  ApproveTransactionInputSchema,
   AssetForTransactionSchema,
   TransactionFormDataSchema,
 } from '../../schemas/finances/portfolio';
@@ -162,6 +163,13 @@ export type GetAssetDetailsInput = z.infer<typeof GetAssetDetailsInputSchema>;
 export type TransactionFormData = z.infer<typeof TransactionFormDataSchema>;
 export type AssetForTransaction = z.infer<typeof AssetForTransactionSchema>;
 export type AddTransactionInput = z.infer<typeof AddTransactionInputSchema>;
+export type ApproveTransactionInput = z.infer<
+  typeof ApproveTransactionInputSchema
+>;
+
+export type ApproveTransactionOutput = {
+  success: boolean;
+};
 
 export interface AddTransactionResult {
   transactionId: string;

@@ -1,5 +1,9 @@
-import { FIRESTORE_PATHS } from '@shared/consts';
-import { IPortfolioTransaction } from '@shared/types/finances/portfolio';
+import { CALLABLE_FUNCTIONS, FIRESTORE_PATHS } from '@shared/consts';
+import {
+  ApproveTransactionInput,
+  ApproveTransactionOutput,
+  IPortfolioTransaction,
+} from '@shared/types/finances/portfolio';
 import { getError } from '@shared/utils';
 import {
   collection,
@@ -9,8 +13,14 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { firestore } from 'src/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { firestore, functions } from 'src/firebase';
 import { normalizeObjectDates, toDayjs } from 'src/utils';
+
+const approveTransactionCallable = httpsCallable<
+  ApproveTransactionInput,
+  ApproveTransactionOutput
+>(functions, CALLABLE_FUNCTIONS.finances.portfolio.approveTransaction);
 
 /**
  * Service for managing admin operations on portfolio transactions,
@@ -112,5 +122,31 @@ export const transactionsService = {
         onError(getError(error));
       }
     );
+  },
+
+  /**
+   * Approves a pending system asset transaction
+   * @param userId - The user ID who owns the transaction
+   * @param portfolioId - The portfolio ID containing the transaction
+   * @param transactionId - The transaction ID to approve
+   * @returns Promise with the approval result
+   */
+  approveTransaction: async (
+    userId: string,
+    portfolioId: string,
+    transactionId: string
+  ): Promise<boolean> => {
+    try {
+      const result = await approveTransactionCallable({
+        userId,
+        portfolioId,
+        transactionId,
+      });
+
+      return result.data.success;
+    } catch (error) {
+      console.error('Error approving transaction:', error);
+      throw new Error(getError(error));
+    }
   },
 };
