@@ -1,21 +1,26 @@
 import {
-  Typography,
+  ArrowDownward,
+  ArrowUpward,
+  Check,
+  KeyboardArrowDown,
+} from '@mui/icons-material';
+import {
   Button,
+  Divider,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
-  ListItemText,
-  ListItemIcon,
-  Divider,
+  Typography,
 } from '@mui/material';
-import {
-  KeyboardArrowDown,
-  Check,
-  NorthEast,
-  SouthEast,
-} from '@mui/icons-material';
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-export type SortField = 'date' | 'amount' | 'name' | 'value';
+export type SortField =
+  | 'executedAt'
+  | 'amount'
+  | 'symbol'
+  | 'totalValue'
+  | 'gainstotalGainPercentage';
 export type SortOrder = 'asc' | 'desc';
 
 interface TableFilterProps {
@@ -112,14 +117,14 @@ const TableFilter = ({
 
         <MenuItem onClick={() => handleSortChange(sortBy, 'asc')}>
           <ListItemIcon>
-            <NorthEast fontSize="small" />
+            <ArrowUpward fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Low to High" />
           {sortOrder === 'asc' && <Check fontSize="small" color="primary" />}
         </MenuItem>
         <MenuItem onClick={() => handleSortChange(sortBy, 'desc')}>
           <ListItemIcon>
-            <SouthEast fontSize="small" />
+            <ArrowDownward fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="High to Low" />
           {sortOrder === 'desc' && <Check fontSize="small" color="primary" />}

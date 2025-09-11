@@ -160,6 +160,7 @@ const usePortfolio = (
   useEffect(() => {
     if (!currentPortfolioId || !currentUser) return;
 
+    setLoading(true);
     const { startDate, endDate } = getDateRangeFromTimeFilter(timeFilter);
 
     // Suscripción a snapshots con el rango de fechas del timeFilter
@@ -171,9 +172,11 @@ const usePortfolio = (
       (snapshotsData: IPortfolioSnapshot[]) => {
         setSnapshots(snapshotsData);
         setError(null);
+        setLoading(false);
       },
       (error: string) => {
         setError(error);
+        setLoading(false);
       }
     );
 
@@ -221,6 +224,7 @@ const usePortfolio = (
       // GET de transacciones (sin suscripción continua)
       const loadTransactions = async () => {
         try {
+          setLoading(true);
           // Usando el método de suscripción existente pero solo para carga inicial
           const unsubscribeTransactions = service.subscribeToTransactions(
             currentUser.uid,

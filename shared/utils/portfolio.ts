@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import {
+  ILocalHoldingCalculations,
   IPortfolio,
   IPortfolioHolding,
   IPortfolioSnapshot,
@@ -89,3 +90,33 @@ export function getDefaultPortfolioData(
     updatedAt: now,
   };
 }
+
+export const calculateLocalCalculations = (
+  holding: IPortfolioHolding,
+  totalPortfolioValue: number
+): ILocalHoldingCalculations => {
+  const portfolioPercentage =
+    totalPortfolioValue > 0
+      ? ((holding.currentValue || 0) / totalPortfolioValue) * 100
+      : 0;
+
+  const averageBuyPrice =
+    holding.quantity > 0 && holding.totalInvested
+      ? holding.totalInvested / holding.quantity
+      : 0;
+
+  const unrealizedGain =
+    (holding.currentValue || 0) - (holding.totalInvested || 0);
+
+  const unrealizedGainPercentage =
+    holding.totalInvested > 0
+      ? (unrealizedGain / holding.totalInvested) * 100
+      : 0;
+
+  return {
+    portfolioPercentage,
+    averageBuyPrice,
+    unrealizedGain,
+    unrealizedGainPercentage,
+  };
+};

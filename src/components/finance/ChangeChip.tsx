@@ -10,12 +10,14 @@ type Props = {
   changePercentage?: number;
   change?: number;
   size?: 'small' | 'large';
+  changeDigits?: number;
 };
 
 const ChangeChip: React.FC<Props> = ({
   changePercentage,
   change,
   size = 'small',
+  changeDigits = 2,
 }) => {
   if (changePercentage === undefined && change === undefined) {
     return null;
@@ -84,7 +86,7 @@ const ChangeChip: React.FC<Props> = ({
               }
               fontWeight={size === 'small' ? 600 : 500}
             >
-              {formatPercentage(changePercentage, 3, true)}
+              {formatPercentage(changePercentage, changeDigits, true)}
             </Typography>
           </Box>
         )}

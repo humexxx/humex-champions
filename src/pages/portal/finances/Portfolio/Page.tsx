@@ -38,7 +38,7 @@ const PortafolioPage = () => {
   const [selectedTab, setSelectedTab] = useState<'investments' | 'activity'>(
     'investments'
   );
-  const [sortBy, setSortBy] = useState<SortField>('date');
+  const [sortBy, setSortBy] = useState<SortField>('symbol');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
   const [createPortfolioDialogOpen, setCreatePortfolioDialogOpen] =
@@ -143,7 +143,7 @@ const PortafolioPage = () => {
   const transactionFields = useMemo(
     () => [
       {
-        field: 'date' as SortField,
+        field: 'executedAt' as SortField,
         label: 'date',
         icon: <CalendarToday fontSize="small" />,
       },
@@ -159,17 +159,17 @@ const PortafolioPage = () => {
   const holdingFields = useMemo(
     () => [
       {
-        field: 'name' as SortField,
+        field: 'symbol' as SortField,
         label: 'name',
         icon: <Person fontSize="small" />,
       },
       {
-        field: 'value' as SortField,
+        field: 'totalValue' as SortField,
         label: 'value',
         icon: <AttachMoney fontSize="small" />,
       },
       {
-        field: 'date' as SortField,
+        field: 'totalGainPercentage' as SortField,
         label: 'gains',
         icon: <MonetizationOn fontSize="small" />,
       },
@@ -234,65 +234,73 @@ const PortafolioPage = () => {
           </Box>
           {/* Holdings/Activity Tabs */}
           <Stack sx={{ mt: 3 }} spacing={4}>
-            <Stack direction="row" justifyContent={'space-between'}>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  color="info"
-                  variant={
-                    selectedTab === 'investments' ? 'contained' : 'outlined'
-                  }
-                  onClick={() => setSelectedTab('investments')}
-                >
-                  Investments
-                </Button>
-                <Button
-                  color="info"
-                  variant={
-                    selectedTab === 'activity' ? 'contained' : 'outlined'
-                  }
-                  onClick={() => setSelectedTab('activity')}
-                >
-                  Activity
-                </Button>
+            <Stack spacing={2}>
+              <Stack direction="row" justifyContent={'space-between'}>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    color="info"
+                    variant={
+                      selectedTab === 'investments' ? 'contained' : 'outlined'
+                    }
+                    onClick={() => {
+                      setSortBy('symbol');
+                      setSelectedTab('investments');
+                    }}
+                  >
+                    Investments
+                  </Button>
+                  <Button
+                    color="info"
+                    variant={
+                      selectedTab === 'activity' ? 'contained' : 'outlined'
+                    }
+                    onClick={() => {
+                      setSelectedTab('activity');
+                      setSortBy('executedAt');
+                    }}
+                  >
+                    Activity
+                  </Button>
+                </Stack>
+
+                <Stack direction="row" spacing={1}>
+                  <TableFilter
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                    onSortChange={handleSortChange}
+                    availableFields={
+                      selectedTab === 'investments'
+                        ? holdingFields
+                        : transactionFields
+                    }
+                  />
+                  <Button
+                    startIcon={<Add />}
+                    variant={'contained'}
+                    onClick={() => setTransactionDialogOpen(true)}
+                  >
+                    Add Transaction
+                  </Button>
+                </Stack>
               </Stack>
 
-              <Stack direction="row" spacing={1}>
-                <TableFilter
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                  onSortChange={handleSortChange}
-                  availableFields={
-                    selectedTab === 'investments'
-                      ? holdingFields
-                      : transactionFields
-                  }
-                />
-                <Button
-                  startIcon={<Add />}
-                  variant={'contained'}
-                  onClick={() => setTransactionDialogOpen(true)}
-                >
-                  Add Transaction
-                </Button>
-              </Stack>
+              <Box>
+                {/* Tab Content */}
+                {selectedTab === 'investments' ? (
+                  <HoldingsTable
+                    holdings={holdings}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                  />
+                ) : (
+                  <ActivityTable
+                    transactions={transactions}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
+                  />
+                )}
+              </Box>
             </Stack>
-
-            <Box>
-              {/* Tab Content */}
-              {selectedTab === 'investments' ? (
-                <HoldingsTable
-                  holdings={holdings}
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-              ) : (
-                <ActivityTable
-                  transactions={transactions}
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                />
-              )}
-            </Box>
 
             <AdminTestingSection />
           </Stack>

@@ -52,6 +52,7 @@ const SelectedAssetView: React.FC<SelectedAssetViewProps> = ({
                 </Typography>
                 <ChangeChip
                   changePercentage={asset.systemAssetDetails?.monthlyYield || 0}
+                  changeDigits={3}
                 />
               </>
             ) : (

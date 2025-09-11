@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { IPortfolioHolding } from '@shared/types/finances';
+import { calculateLocalCalculations } from '@shared/utils';
 import { useMemo, useState } from 'react';
 import ChangeChip from 'src/components/finance/ChangeChip';
 import { formatCurrency } from 'src/utils';
@@ -39,10 +40,22 @@ interface HoldingsTableProps {
 const groupHoldingsByAsset = (
   holdings: IPortfolioHolding[]
 ): GroupedHolding[] => {
+  // Primero calcular el valor total del portfolio para poder calcular porcentajes
+  const totalPortfolioValue = holdings.reduce(
+    (sum, h) => sum + (h.currentValue || 0),
+    0
+  );
+
+  // Calcular localCalculations para cada holding
+  const holdingsWithCalculations = holdings.map((holding) => ({
+    ...holding,
+    localCalculations: calculateLocalCalculations(holding, totalPortfolioValue),
+  }));
+
   const groupedMap = new Map<string, IPortfolioHolding[]>();
 
   // Agrupar holdings por assetId
-  holdings.forEach((holding) => {
+  holdingsWithCalculations.forEach((holding) => {
     if (!groupedMap.has(holding.assetId)) {
       groupedMap.set(holding.assetId, []);
     }
@@ -126,35 +139,36 @@ const HoldingsTable = ({ holdings, sortBy, sortOrder }: HoldingsTableProps) => {
             {params.row.name}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {params.value} ({params.row.holdingsCount} holdings)
+            {params.value}
           </Typography>
         </Box>
       ),
     },
     {
       field: 'averagePrice',
-      headerName: 'AVG PRICE',
+      headerName: 'Avg Price',
       type: 'number',
-      width: 120,
+      width: 100,
       valueFormatter: (value: number) => formatCurrency(value),
     },
     {
       field: 'totalQuantity',
-      headerName: 'QUANTITY',
+      headerName: 'Qty',
       type: 'number',
-      width: 120,
+      width: 80,
       valueFormatter: (value: number) => value.toLocaleString(),
     },
     {
       field: 'totalValue',
-      headerName: 'VALUE',
+      headerName: 'Value',
       type: 'number',
-      width: 120,
+      width: 100,
       valueFormatter: (value: number) => formatCurrency(value),
     },
     {
       field: 'totalGainPercentage',
       headerName: 'P&L %',
+      headerAlign: 'center',
       type: 'number',
       width: 100,
       renderCell: (params) => (
@@ -175,8 +189,9 @@ const HoldingsTable = ({ holdings, sortBy, sortOrder }: HoldingsTableProps) => {
     },
     {
       field: 'actions',
-      headerName: 'ACTIONS',
-      width: 120,
+      headerName: 'Actions',
+      width: 90,
+      headerAlign: 'center',
       sortable: false,
       filterable: false,
       renderCell: (params) => (
@@ -215,17 +230,13 @@ const HoldingsTable = ({ holdings, sortBy, sortOrder }: HoldingsTableProps) => {
       }}
     >
       <DataGrid
+        disableColumnMenu
         disableColumnSelector
         rowSelection={false}
         rowHeight={80}
         hideFooter
         rows={groupedHoldings}
         columns={columns}
-        initialState={{
-          sorting: {
-            sortModel: [{ field: sortBy, sort: sortOrder }],
-          },
-        }}
         sortModel={[{ field: sortBy, sort: sortOrder }]}
         disableRowSelectionOnClick
         sx={{
@@ -239,149 +250,136 @@ const HoldingsTable = ({ holdings, sortBy, sortOrder }: HoldingsTableProps) => {
       <Dialog
         open={dialogOpen}
         onClose={handleCloseDialog}
-        maxWidth="lg"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle>Holdings Details - {selectedGroup?.symbol}</DialogTitle>
         <DialogContent>
           {selectedGroup && (
             <Box sx={{ mt: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Individual Holdings ({selectedGroup.holdingsCount} total)
-              </Typography>
-
-              {/* Headers */}
-              <Box
+              <DataGrid
+                disableColumnSelector
+                rowSelection={false}
+                rowHeight={60}
+                hideFooter
+                rows={selectedGroup.holdings}
+                columns={[
+                  {
+                    field: 'id',
+                    headerName: 'HOLDING',
+                    flex: 1,
+                    renderCell: (params) => (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          height: '100%',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Typography variant="body2" fontWeight="500">
+                          Holding #
+                          {selectedGroup.holdings.findIndex(
+                            (h) => h.id === params.value
+                          ) + 1}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {params.row.createdAt
+                            ? params.row.createdAt.format('MMM DD, YYYY')
+                            : 'Date not available'}
+                        </Typography>
+                      </Box>
+                    ),
+                  },
+                  {
+                    field: 'averagePrice',
+                    headerName: 'AVG PRICE',
+                    type: 'number',
+                    width: 120,
+                    valueGetter: (_, row) => {
+                      return row.localCalculations?.averageBuyPrice || 0;
+                    },
+                    valueFormatter: (value: number) => formatCurrency(value),
+                  },
+                  {
+                    field: 'quantity',
+                    headerName: 'QUANTITY',
+                    type: 'number',
+                    width: 120,
+                    valueFormatter: (value: number) =>
+                      value?.toLocaleString() || '0',
+                  },
+                  {
+                    field: 'currentValue',
+                    headerName: 'VALUE',
+                    type: 'number',
+                    width: 120,
+                    valueFormatter: (value: number) =>
+                      formatCurrency(value || 0),
+                  },
+                  {
+                    field: 'unrealizedGain',
+                    headerName: 'P&L',
+                    type: 'number',
+                    width: 120,
+                    valueGetter: (_, row) => {
+                      return row.localCalculations?.unrealizedGain || 0;
+                    },
+                    renderCell: (params) => (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          height: '100%',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color:
+                              params.value >= 0 ? 'success.main' : 'error.main',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {params.value >= 0 ? '+' : ''}
+                          {formatCurrency(params.value)}
+                        </Typography>
+                      </Box>
+                    ),
+                  },
+                  {
+                    field: 'status',
+                    headerName: 'STATUS',
+                    width: 100,
+                    renderCell: (params) => (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          height: '100%',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Chip
+                          label={params.value || 'unknown'}
+                          size="small"
+                          color={
+                            params.value === 'active' ? 'success' : 'default'
+                          }
+                          variant="outlined"
+                        />
+                      </Box>
+                    ),
+                  },
+                ]}
+                disableRowSelectionOnClick
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 120px 120px 120px 120px 100px',
-                  gap: 2,
-                  p: 2,
-                  fontWeight: 'bold',
-                  borderBottom: '2px solid',
-                  borderColor: 'divider',
-                  mb: 1,
-                  bgcolor: 'grey.50',
+                  '& .MuiDataGrid-row:hover': {
+                    cursor: 'default',
+                  },
                 }}
-              >
-                <Typography variant="subtitle2" fontWeight="bold">
-                  HOLDING
-                </Typography>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight="bold"
-                  align="center"
-                >
-                  AVG PRICE
-                </Typography>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight="bold"
-                  align="center"
-                >
-                  QUANTITY
-                </Typography>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight="bold"
-                  align="center"
-                >
-                  VALUE
-                </Typography>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight="bold"
-                  align="center"
-                >
-                  P&L
-                </Typography>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight="bold"
-                  align="center"
-                >
-                  STATUS
-                </Typography>
-              </Box>
-
-              {/* Datos */}
-              <Box sx={{ display: 'grid', gap: 1 }}>
-                {selectedGroup.holdings.map((holding, index) => (
-                  <Box
-                    key={holding.id}
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 120px 120px 120px 120px 100px',
-                      gap: 2,
-                      p: 2,
-                      bgcolor: index % 2 === 0 ? 'grey.25' : 'white',
-                      borderRadius: 1,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="body2" fontWeight="500">
-                        Holding #{index + 1}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {holding.createdAt
-                          ? holding.createdAt.format('MMM DD, YYYY')
-                          : 'Date not available'}
-                      </Typography>
-                    </Box>
-
-                    <Typography variant="body2" align="center">
-                      {holding.totalInvested && holding.quantity
-                        ? formatCurrency(
-                            holding.totalInvested / holding.quantity
-                          )
-                        : 'N/A'}
-                    </Typography>
-
-                    <Typography variant="body2" align="center">
-                      {holding.quantity
-                        ? holding.quantity.toLocaleString()
-                        : '0'}
-                    </Typography>
-
-                    <Typography variant="body2" align="center">
-                      {holding.currentValue
-                        ? formatCurrency(holding.currentValue)
-                        : 'N/A'}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      align="center"
-                      sx={{
-                        color:
-                          (holding.localCalculations?.unrealizedGain || 0) >= 0
-                            ? 'success.main'
-                            : 'error.main',
-                        fontWeight: 500,
-                      }}
-                    >
-                      {(holding.localCalculations?.unrealizedGain || 0) >= 0
-                        ? '+'
-                        : ''}
-                      {formatCurrency(
-                        holding.localCalculations?.unrealizedGain || 0
-                      )}
-                    </Typography>
-
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Chip
-                        label={holding.status || 'unknown'}
-                        size="small"
-                        color={
-                          holding.status === 'active' ? 'success' : 'default'
-                        }
-                        variant="outlined"
-                      />
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
+              />
             </Box>
           )}
         </DialogContent>

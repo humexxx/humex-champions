@@ -25,7 +25,7 @@ const ActivityTable = ({
     () => [
       {
         field: 'type',
-        headerName: 'TYPE',
+        headerName: 'Type',
         width: 100,
         renderCell: (params) => (
           <Chip
@@ -38,7 +38,7 @@ const ActivityTable = ({
       },
       {
         field: 'assetId',
-        headerName: 'ASSET',
+        headerName: 'Asset',
         width: 120,
         renderCell: (params) => (
           <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
@@ -50,28 +50,28 @@ const ActivityTable = ({
       },
       {
         field: 'executedAt',
-        headerName: 'DATE',
+        headerName: 'Date',
         width: 120,
         type: 'date',
         valueGetter: (value: any) => (value ? new Date(value.valueOf()) : null),
       },
       {
         field: 'quantity',
-        headerName: 'QUANTITY',
+        headerName: 'Qty',
         type: 'number',
         width: 120,
         valueFormatter: (value: number) => value.toLocaleString(),
       },
       {
         field: 'purchasePrice',
-        headerName: 'PRICE',
+        headerName: 'Price',
         type: 'number',
         width: 120,
         valueFormatter: (value: number) => formatCurrency(value),
       },
       {
         field: 'totalAmount',
-        headerName: 'TOTAL',
+        headerName: 'Total',
         type: 'number',
         width: 120,
         valueFormatter: (value: number) => formatCurrency(value),
@@ -89,14 +89,14 @@ const ActivityTable = ({
       },
       {
         field: 'fees',
-        headerName: 'FEES',
+        headerName: 'Fees',
         type: 'number',
         width: 100,
         valueFormatter: (value: number) => formatCurrency(value),
       },
       {
         field: 'status',
-        headerName: 'STATUS',
+        headerName: 'Status',
         width: 100,
         renderCell: (params) => (
           <Chip
@@ -122,6 +122,7 @@ const ActivityTable = ({
   return (
     <Box sx={{ width: '100%' }}>
       <DataGrid
+        disableColumnMenu
         hideFooter
         apiRef={apiRef}
         columns={columns}

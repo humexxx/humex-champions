@@ -63,7 +63,7 @@ const PortfolioChart = ({
             {
               label: 'Total',
               color: theme.palette.primary.main,
-              dataKey: 'currentValue',
+              dataKey: 'totalValue',
               showMark: false,
               area: true,
               curve: 'linear',
@@ -78,7 +78,7 @@ const PortfolioChart = ({
           }}
           xAxis={[
             {
-              dataKey: 'date',
+              dataKey: 'createdAt',
               scaleType: 'time',
               tickNumber: 4,
               domainLimit: 'strict',
