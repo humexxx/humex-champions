@@ -231,14 +231,10 @@ const PortafolioPage = () => {
               onTimeFilterChange={setSelectedTimeFilter}
               loading={loading}
             />
-          </Box>{' '}
+          </Box>
           {/* Holdings/Activity Tabs */}
-          <Box sx={{ mt: 3 }}>
-            <Stack
-              direction="row"
-              justifyContent={'space-between'}
-              sx={{ mb: 2 }}
-            >
+          <Stack sx={{ mt: 3 }} spacing={4}>
+            <Stack direction="row" justifyContent={'space-between'}>
               <Stack direction="row" spacing={1}>
                 <Button
                   color="info"
@@ -259,6 +255,7 @@ const PortafolioPage = () => {
                   Activity
                 </Button>
               </Stack>
+
               <Stack direction="row" spacing={1}>
                 <TableFilter
                   sortBy={sortBy}
@@ -280,21 +277,25 @@ const PortafolioPage = () => {
               </Stack>
             </Stack>
 
-            {/* Tab Content */}
-            {selectedTab === 'investments' ? (
-              <HoldingsTable
-                holdings={holdings}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-              />
-            ) : (
-              <ActivityTable
-                transactions={transactions}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-              />
-            )}
-          </Box>
+            <Box>
+              {/* Tab Content */}
+              {selectedTab === 'investments' ? (
+                <HoldingsTable
+                  holdings={holdings}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                />
+              ) : (
+                <ActivityTable
+                  transactions={transactions}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                />
+              )}
+            </Box>
+
+            <AdminTestingSection />
+          </Stack>
         </Grid>
 
         {/* Right Column - Portfolio Highlights */}
@@ -307,9 +308,6 @@ const PortafolioPage = () => {
           />
         </Grid>
       </Grid>
-
-      {/* Admin Testing Section */}
-      <AdminTestingSection />
 
       {/* Transaction Dialog */}
       <TransactionDialog

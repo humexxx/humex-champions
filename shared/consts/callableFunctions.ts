@@ -34,6 +34,11 @@ export const CALLABLE_FUNCTIONS = {
       refreshAssetPrices: 'refreshAssetPricesCallable',
       updatePortfolioPrices: 'updatePortfolioPricesCallable',
       getWatchlistPrices: 'getWatchlistPricesCallable',
+
+      // Admin callable functions for portfolio schedulers
+      updatePortfolios: 'updatePortfoliosSchedulerCallable',
+      updatePortfoliosWithSystemHoldings:
+        'updatePortfoliosWithSystemHoldingsSchedulerCallable',
     },
 
     // Personal Finances submodule

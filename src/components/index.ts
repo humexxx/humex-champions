@@ -1,3 +1,4 @@
+export { default as AdminCard } from './AdminCard';
 export { default as BreadcrumbNavigation } from './BreadcrumbNavigation';
 export { default as ButtonOptionCard } from './ButtonOptionCard';
 export { default as ConfirmDialog } from './ConfirmDialog';

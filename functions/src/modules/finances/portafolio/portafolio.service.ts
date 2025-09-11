@@ -7,6 +7,7 @@ import {
   IPortfolioHolding,
   IPortfolioSnapshot,
   IPortfolioTransaction,
+  IPriceData,
   TransactionFormData,
 } from '@shared/types/finances/portfolio';
 import { normalizeObjectDates, toDate } from '@shared/utils';
@@ -18,10 +19,288 @@ import {
 } from '@shared/utils/portfolio';
 import dayjs from 'dayjs';
 
+import { env } from '../../../core/config';
 import { AppError } from '../../../core/errors';
 import { db, now } from '../../../core/firebase';
 import { log } from '../../../core/logger';
+import { PolygonService } from '../../../services/polygon/polygon';
 import { getUserData } from '../../auth/auth.service';
+
+const polygonService = new PolygonService(env.POLYGON_API_KEY);
+
+export async function updateSystemHoldings(
+  correlationId: string
+): Promise<IPortfolioHolding[]> {
+  log.info('Updating system holdings', undefined, correlationId);
+
+  try {
+    const holdingsRef = db().collectionGroup('holdings');
+    const snapshot = await holdingsRef.where('isSystemAsset', '==', true).get();
+
+    const holdings = snapshot.docs.map(
+      (doc) => ({ ...doc.data(), id: doc.id }) as IPortfolioHolding
+    );
+    log.info(
+      'System holdings to update',
+      { count: holdings.length },
+      correlationId
+    );
+
+    const assetsToUpdate = await getSystemAssets();
+
+    const holdingsToUpdate: IPortfolioHolding[] = [];
+    for (const holding of holdings) {
+      const asset = assetsToUpdate.find((a) => a.id === holding.assetId);
+      if (!asset) {
+        log.warn(
+          'Asset for holding not found, skipping',
+          { holdingId: holding.id, assetId: holding.assetId },
+          correlationId
+        );
+        continue;
+      }
+
+      const holdingToUpdate = {
+        ...holding,
+        currentPrice: asset?.priceData?.price || holding.currentPrice,
+        currentValue: asset?.priceData?.price || holding.currentPrice,
+        updatedAt: new Date() as any,
+      };
+      holdingsToUpdate.push(holdingToUpdate);
+
+      log.info(
+        'Updating system holding',
+        { holdingId: holding.id },
+        correlationId
+      );
+      const holdingRef = db().doc(
+        FIRESTORE_PATHS.FINANCES.HOLDING(
+          holding.userId,
+          holding.portfolioId,
+          holding.id
+        )
+      );
+      await holdingRef.update(holdingToUpdate);
+    }
+
+    log.info('System holdings update completed', undefined, correlationId);
+    return holdingsToUpdate;
+  } catch (error) {
+    log.error('Failed to update system holdings', { error }, correlationId);
+    throw new AppError(
+      'system-holdings-update-failed',
+      'Failed to update system holdings',
+      500
+    );
+  }
+}
+
+export async function updateHoldings(
+  assetsUpdated: IAsset[],
+  correlationId: string
+): Promise<IPortfolioHolding[]> {
+  log.info('Updating holdings for updated assets', undefined, correlationId);
+
+  if (assetsUpdated.length === 0) {
+    log.info(
+      'No assets were updated, skipping holdings update',
+      undefined,
+      correlationId
+    );
+    return [];
+  }
+
+  try {
+    const holdingsRef = db().collectionGroup('holdings');
+    const snapshot = await holdingsRef
+      .where(
+        'assetId',
+        'in',
+        assetsUpdated.map((a) => a.id)
+      )
+      .get();
+
+    const holdings = snapshot.docs.map(
+      (doc) => ({ ...doc.data(), id: doc.id }) as IPortfolioHolding
+    );
+    log.info('Holdings to update', { count: holdings.length }, correlationId);
+
+    const holdingsToUpdate: IPortfolioHolding[] = [];
+    for (const holding of holdings) {
+      const asset = assetsUpdated.find((a) => a.id === holding.assetId);
+      const holdingToUpdate = {
+        ...holding,
+        currentPrice: asset?.priceData?.price || holding.currentPrice,
+        currentValue:
+          (asset?.priceData?.price || holding.currentPrice) * holding.quantity,
+        updatedAt: new Date() as any,
+      };
+
+      holdingsToUpdate.push(holdingToUpdate);
+
+      log.info('Updating holding', { holdingId: holding.id }, correlationId);
+      const holdingRef = db().doc(
+        FIRESTORE_PATHS.FINANCES.HOLDING(
+          holding.userId,
+          holding.portfolioId,
+          holding.id
+        )
+      );
+      await holdingRef.update(holdingToUpdate);
+    }
+
+    log.info('Holdings update completed', undefined, correlationId);
+    return holdingsToUpdate;
+  } catch (error) {
+    log.error('Failed to update holdings', { error }, correlationId);
+    throw new AppError(
+      'holdings-update-failed',
+      'Failed to update holdings',
+      500
+    );
+  }
+}
+
+export async function updateAssets(correlationId: string): Promise<IAsset[]> {
+  log.info('Updating asset prices', undefined, correlationId);
+
+  try {
+    const assetsRef = db().collection(FIRESTORE_PATHS.ASSETS.ROOT());
+    const snapshot = await assetsRef.where('isActive', '==', true).get();
+    const assets = snapshot.docs.map((doc) => doc.data() as IAsset);
+    const symbols = assets.map((a) => a.symbol);
+
+    if (symbols.length === 0) {
+      log.info('No active assets found to update', undefined, correlationId);
+      return [];
+    }
+
+    const prices = await getWatchlistPrices(symbols, correlationId);
+
+    const assetsToUpdate: IAsset[] = [];
+    for (const priceData of prices) {
+      const asset = assets.find((a) => a.symbol === priceData.symbol);
+      if (asset && asset.priceData?.price !== priceData.price) {
+        assetsToUpdate.push({
+          ...asset,
+          priceData,
+        });
+      }
+    }
+
+    log.info(
+      'Assets to update',
+      { count: assetsToUpdate.length },
+      correlationId
+    );
+
+    if (assetsToUpdate.length > 0) {
+      for (const asset of assetsToUpdate) {
+        log.info('Updating asset price', { assetId: asset.id }, correlationId);
+        const assetRef = db().doc(FIRESTORE_PATHS.ASSETS.ASSET(asset.id));
+        await assetRef.update({ priceData: asset.priceData });
+      }
+    }
+
+    log.info('Asset prices update completed', undefined, correlationId);
+    return assetsToUpdate;
+  } catch (error) {
+    log.error('Failed to update asset prices', { error }, correlationId);
+    throw new AppError(
+      'asset-update-failed',
+      'Failed to update asset prices',
+      500
+    );
+  }
+}
+
+export async function updatePortfolioSnapshotsAndPortfolios(
+  updatedHoldings: IPortfolioHolding[],
+  correlationId: string
+): Promise<boolean> {
+  log.info('Updating portfolio snapshots', undefined, correlationId);
+
+  try {
+    const uniqueRecordsToUpdate = Array.from(
+      new Set(updatedHoldings.map((h) => `${h.userId}::${h.portfolioId}`))
+    );
+
+    for (const x of uniqueRecordsToUpdate) {
+      const [userId, portfolioId] = x.split('::');
+      const holdingsRefs = db().collection(
+        FIRESTORE_PATHS.FINANCES.HOLDINGS(userId, portfolioId)
+      );
+      const holdings = (await holdingsRefs.get()).docs.map(
+        (doc) => doc.data() as IPortfolioHolding
+      );
+
+      const newSnapshot = generateSnapshot(portfolioId, holdings);
+      const previousSnapshotRef = db().doc(
+        FIRESTORE_PATHS.FINANCES.SNAPSHOT(
+          userId,
+          portfolioId,
+          dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+        )
+      );
+      const previousSnapshot = (
+        await previousSnapshotRef.get()
+      ).data() as IPortfolioSnapshot;
+
+      const portfolioRef = db().doc(
+        FIRESTORE_PATHS.FINANCES.PORTFOLIO(userId, portfolioId)
+      );
+      const portfolioSnapshot = (await portfolioRef.get()).data() as IPortfolio;
+
+      const {
+        currentValue,
+        dailyGain,
+        dailyGainPercentage,
+        totalGain,
+        totalGainPercentage,
+        totalInvested,
+      } = calculatePortfolioTotals(previousSnapshot, newSnapshot);
+
+      const updatedPortfolio: IPortfolio = {
+        ...portfolioSnapshot,
+        currentValue,
+        dailyGain,
+        dailyGainPercentage,
+        totalGain,
+        totalGainPercentage,
+        totalInvested,
+      };
+
+      const snapshotRef = db().doc(
+        FIRESTORE_PATHS.FINANCES.SNAPSHOT(userId, portfolioId, newSnapshot.id)
+      );
+
+      log.info(
+        'Updating portfolio and snapshot',
+        { userId, portfolioId },
+        correlationId
+      );
+
+      const batch = db().batch();
+      batch.set(snapshotRef, normalizeObjectDates(newSnapshot, toDate));
+      batch.set(portfolioRef, updatedPortfolio);
+      await batch.commit();
+    }
+
+    log.info(
+      'Portfolio snapshots updated successfully',
+      undefined,
+      correlationId
+    );
+    return true;
+  } catch (error) {
+    log.error('Failed to update portfolio snapshots', { error }, correlationId);
+    throw new AppError(
+      'portfolio-snapshots-update-failed',
+      'Failed to update portfolio snapshots',
+      500
+    );
+  }
+}
 
 export async function addAsset(asset: IAsset): Promise<void> {
   log.info('Adding new asset', { asset });
@@ -35,21 +314,29 @@ export async function addAsset(asset: IAsset): Promise<void> {
 }
 
 export async function getSystemAssets(
-  query: string,
-  limit: number
+  query?: string,
+  limit?: number
 ): Promise<IAsset[]> {
   try {
     log.info('Fetching system assets', { query, limit });
     const assetsRef = db().collection(FIRESTORE_PATHS.ASSETS.SYSTEM_ASSETS());
 
-    let queryRef = assetsRef.where('isActive', '==', true);
+    let queryRef: FirebaseFirestore.Query = assetsRef.where(
+      'isActive',
+      '==',
+      true
+    );
 
     if (query && query.trim().length > 0) {
       const queryLower = query.trim().toLowerCase();
       queryRef = queryRef.where('searchKeywords', 'array-contains', queryLower);
     }
 
-    const snapshot = await queryRef.limit(limit).get();
+    if (typeof limit === 'number' && Number.isInteger(limit) && limit > 0) {
+      queryRef = queryRef.limit(limit);
+    }
+
+    const snapshot = await queryRef.get();
     const assets = snapshot.docs.map((doc) => doc.data() as IAsset);
     log.info('System assets fetched', { count: assets.length });
     return assets;
@@ -151,6 +438,7 @@ export async function addTransaction(
   const holding: IPortfolioHolding = {
     id: holdingRef.id,
     portfolioId: transactionData.portfolioId,
+    userId: userId,
     assetId: assetId,
 
     quantity: transactionData.quantity,
@@ -344,6 +632,45 @@ export async function approveTransaction(
     throw new AppError(
       'transaction-approval-failed',
       'Failed to approve transaction: ' + (error as Error).message,
+      500
+    );
+  }
+}
+
+export async function getWatchlistPrices(
+  symbols: string[],
+  correlationId?: string
+): Promise<IPriceData[]> {
+  try {
+    log.info(
+      'Getting watchlist prices',
+      { symbols, count: symbols.length },
+      correlationId
+    );
+
+    const priceUpdates = await polygonService.getBatchPriceUpdates(symbols);
+
+    // Use mapper to convert Polygon price updates to internal format
+
+    log.info(
+      'Watchlist prices retrieved',
+      {
+        requestedCount: symbols.length,
+        retrievedCount: priceUpdates.length,
+      },
+      correlationId
+    );
+
+    return priceUpdates;
+  } catch (error) {
+    log.error(
+      'Failed to get watchlist prices',
+      { symbols, error },
+      correlationId
+    );
+    throw new AppError(
+      'watchlist-prices-failed',
+      'Failed to get watchlist prices',
       500
     );
   }

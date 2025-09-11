@@ -25,7 +25,7 @@ export function logWithCorrelation(
   }
 }
 
-function generateCorrelationId(): string {
+export function generateCorrelationId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 

@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { mapToHttpsError } from '../../../../core/errors';
 import { parseOrThrow } from '../../../../core/validation';
-import { refreshAssetPrices } from '../../finances.service';
+import { getWatchlistPrices } from '../portafolio.service';
 
 const RequestSchema = z.object({
   symbols: z.array(z.string()).min(1).max(50),
@@ -18,7 +18,7 @@ export const refreshAssetPricesCallable = onCall(
     try {
       const { symbols } = parseOrThrow(RequestSchema, request.data);
 
-      const result = await refreshAssetPrices(symbols);
+      const result = await getWatchlistPrices(symbols);
 
       return {
         success: true,

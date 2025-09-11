@@ -7,4 +7,14 @@ export { getMarketDataCallable } from './http/getMarketData.callable';
 export { getWatchlistPricesCallable } from './http/getWatchlistPrices.callable';
 export { refreshAssetPricesCallable } from './http/refreshAssetPrices.callable';
 export { searchTradableAssetsCallable } from './http/searchTradableAssets.callable';
-export { updatePortfolioPricesCallable } from './http/updatePortfolioPrices.callable';
+
+// Personal Finance Schedulers and Schedulers Callables
+export {
+  updatePortfoliosScheduler,
+  updatePortfoliosSchedulerCallable,
+} from './schedulers/updatePortfolios.scheduler';
+
+export {
+  updatePortfoliosWithSystemHoldingsScheduler,
+  updatePortfoliosWithSystemHoldingsSchedulerCallable,
+} from './schedulers/updatePortfoliosWithSystemHoldings.scheduler';

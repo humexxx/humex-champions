@@ -116,6 +116,7 @@ const MOCK_HOLDINGS: IPortfolioHolding[] = [
     },
 
     status: 'active',
+    userId: 'user_1',
   },
   {
     id: 'holding_2',
@@ -137,6 +138,7 @@ const MOCK_HOLDINGS: IPortfolioHolding[] = [
     },
 
     status: 'active',
+    userId: 'user_1',
   },
 ];
 
@@ -154,6 +156,8 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     notes: 'Initial BTC purchase',
     holdingId: 'holding_1',
     isSystemAsset: false,
+    userId: 'user_1',
+    username: 'john_doe',
   },
   {
     id: 'transaction_2',
@@ -168,6 +172,8 @@ const MOCK_TRANSACTIONS: IPortfolioTransaction[] = [
     notes: 'ADA accumulation',
     holdingId: 'holding_1',
     isSystemAsset: false,
+    userId: 'user_1',
+    username: 'john_doe',
   },
 ];
 

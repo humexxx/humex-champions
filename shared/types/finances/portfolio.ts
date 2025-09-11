@@ -101,6 +101,7 @@ export interface IPortfolioHolding {
   id: string;
   portfolioId: string;
   assetId: string;
+  userId: string;
 
   quantity: number;
   totalInvested: number;
