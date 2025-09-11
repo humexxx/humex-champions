@@ -53,6 +53,9 @@ interface UsePortfolio {
 interface UsePortfolioOptions extends CommonFetchHookProps {
   // Current time filter for dynamic snapshot date range
   timeFilter?: TimeFilter;
+  // Control what data to load
+  loadTransactions?: boolean;
+  loadHoldings?: boolean;
 }
 
 // Helper function to get date range based on time filter
@@ -86,10 +89,14 @@ const usePortfolio = (
     autoLoad,
     forceMock,
     timeFilter = TIME_FILTERS.ONE_YEAR,
+    loadTransactions = true,
+    loadHoldings = true,
   }: UsePortfolioOptions = {
     autoLoad: true,
     forceMock: false,
     timeFilter: TIME_FILTERS.ONE_YEAR,
+    loadTransactions: true,
+    loadHoldings: true,
   }
 ): UsePortfolio => {
   const { currentUser } = useAuth();
@@ -207,22 +214,33 @@ const usePortfolio = (
         }
       );
 
-      // Subscribe to holdings (datos que cambian frecuentemente)
-      const unsubscribeHoldings = service.subscribeToHoldings(
-        currentUser.uid,
-        portfolioId,
-        (holdingsData: IPortfolioHolding[]) => {
-          setHoldings(holdingsData);
-          setError(null);
-        },
-        (error: string) => {
-          setError(error);
-          setLoading(false);
-        }
-      );
+      // Conditionally subscribe to holdings
+      let unsubscribeHoldings: (() => void) | undefined;
+      if (loadHoldings) {
+        unsubscribeHoldings = service.subscribeToHoldings(
+          currentUser.uid,
+          portfolioId,
+          (holdingsData: IPortfolioHolding[]) => {
+            setHoldings(holdingsData);
+            setError(null);
+          },
+          (error: string) => {
+            setError(error);
+            setLoading(false);
+          }
+        );
+      } else {
+        // Clear holdings if not loading them
+        setHoldings([]);
+      }
 
-      // GET de transacciones (sin suscripción continua)
-      const loadTransactions = async () => {
+      // Conditionally load transactions
+      const loadTransactionsData = async () => {
+        if (!loadTransactions) {
+          setTransactions([]);
+          return;
+        }
+
         try {
           setLoading(true);
           // Usando el método de suscripción existente pero solo para carga inicial
@@ -250,14 +268,16 @@ const usePortfolio = (
         }
       };
 
-      loadTransactions();
+      loadTransactionsData();
 
       return () => {
         unsubscribePortfolio();
-        unsubscribeHoldings();
+        if (unsubscribeHoldings) {
+          unsubscribeHoldings();
+        }
       };
     },
-    [currentUser, service]
+    [currentUser, service, loadTransactions, loadHoldings]
   );
 
   const createPortfolio = useCallback(

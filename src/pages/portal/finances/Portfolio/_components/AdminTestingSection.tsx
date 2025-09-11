@@ -108,7 +108,7 @@ const AdminTestingSection = () => {
     }
   };
 
-  const renderResultsTable = (data: SchedulerResult, type: string) => {
+  const renderResultsTable = (data: SchedulerResult) => {
     if (!data) return null;
 
     const hasAssets = data.assetsUpdated && data.assetsUpdated.length > 0;
@@ -294,7 +294,7 @@ const AdminTestingSection = () => {
             </Alert>
           )}
 
-          {renderResultsTable(results.updatePortfolios, 'updatePortfolios')}
+          {renderResultsTable(results.updatePortfolios)}
         </Box>
 
         {/* Update Portfolios with System Holdings Scheduler */}
@@ -340,10 +340,7 @@ const AdminTestingSection = () => {
             </Alert>
           )}
 
-          {renderResultsTable(
-            results.updateSystemHoldings,
-            'updateSystemHoldings'
-          )}
+          {renderResultsTable(results.updateSystemHoldings)}
         </Box>
       </Stack>
     </AdminCard>

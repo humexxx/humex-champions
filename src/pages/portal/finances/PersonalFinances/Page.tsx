@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import ButtonInTabs from 'src/components/ButtonInTabs';
 
 import { PageContainer } from '../../../../components/layout';
+import usePortfolio from '../Portfolio/usePortfolio';
 import {
   DebtCard,
   FixedExpenseCard,
@@ -37,6 +38,13 @@ function getTabProps(id: string) {
 
 const PersonalFinancesPage = () => {
   const { data: financialPlans, error, loading, set } = useFinancialPlans();
+  const { snapshots: portfolioSnapshots, loading: portfolioLoading } =
+    usePortfolio({
+      autoLoad: true,
+      forceMock: false,
+      loadTransactions: false, // No necesitamos transactions en Personal Finances
+      loadHoldings: false, // No necesitamos holdings en Personal Finances
+    });
   const [_, setIsAddingNewPlan] = useState(false);
   const [selectedTab, setSelectedTab] = useState('0');
 
@@ -237,9 +245,10 @@ const PersonalFinancesPage = () => {
                       Grafico de los planes financieros
                     </Typography>
                     <PersonalFinancesGraph
-                      loading={loading}
+                      loading={loading || portfolioLoading}
                       financialPlans={financialPlans}
                       currentIndex={Number(selectedTab)}
+                      portfolioSnapshots={portfolioSnapshots}
                     />
                   </>
                 )}

@@ -2,11 +2,16 @@ import { useMemo } from 'react';
 
 import { alpha, Box, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart, LineSeries } from '@mui/x-charts';
-import { IFinancialPlan } from '@shared/types/finances';
+import { IFinancialPlan, IPortfolioSnapshot } from '@shared/types/finances';
 import { financeUtils } from '@shared/utils';
 import dayjs from 'dayjs';
 import { CustomAnimatedLine } from 'src/components/graphs';
-import { formatCompactNumber, normalizeObjectDates, toDayjs } from 'src/utils';
+import {
+  formatCompactNumber,
+  formatCurrency,
+  normalizeObjectDates,
+  toDayjs,
+} from 'src/utils';
 
 const NUMBER_OF_MONTHS_FUTURE_TO_SHOW = {
   sm: 6,
@@ -28,16 +33,24 @@ function getColorForPlan(index: number, total: number, baseColor: string) {
   return alpha(baseColor, opacity);
 }
 
+// Colores específicos para diferentes tipos de datos
+const CHART_COLORS = {
+  debt: '#f44336', // Rojo para deudas
+  portfolio: '#2196f3', // Azul para portfolio
+};
+
 interface Props {
   financialPlans: IFinancialPlan[];
   loading: boolean;
   currentIndex: number;
+  portfolioSnapshots?: IPortfolioSnapshot[];
 }
 
 const PersonalFinancesGraph = ({
   financialPlans,
   loading,
   currentIndex,
+  portfolioSnapshots = [],
 }: Props) => {
   const theme = useTheme();
 
@@ -56,13 +69,14 @@ const PersonalFinancesGraph = ({
   const _allPlansWithPredictions = useMemo(() => {
     return _clonedFinancialPlans.flatMap((plan, index) => {
       // El plan seleccionado (currentIndex) tiene color principal, los demás usan getColorForPlan
+      // Cambiar a color rojo para las deudas
       const baseColor =
         index === currentIndex
-          ? theme.palette.primary.main
+          ? CHART_COLORS.debt
           : getColorForPlan(
               index,
               _clonedFinancialPlans.length,
-              theme.palette.primary.main
+              CHART_COLORS.debt
             );
 
       // Plan original
@@ -100,9 +114,7 @@ const PersonalFinancesGraph = ({
         displayName: `${plan.name} (Avalanche)`,
         financialSnapshots: avalancheSnapshots,
         color: alpha(
-          typeof baseColor === 'string'
-            ? baseColor
-            : theme.palette.primary.main,
+          typeof baseColor === 'string' ? baseColor : CHART_COLORS.debt,
           0.5
         ),
       };
@@ -121,9 +133,7 @@ const PersonalFinancesGraph = ({
         displayName: `${plan.name} (Snowball)`,
         financialSnapshots: snowballSnapshots,
         color: alpha(
-          typeof baseColor === 'string'
-            ? baseColor
-            : theme.palette.primary.main,
+          typeof baseColor === 'string' ? baseColor : CHART_COLORS.debt,
           0.5
         ),
       };
@@ -153,16 +163,15 @@ const PersonalFinancesGraph = ({
       };
     });
 
-    const monthlyDebtsMap: Record<string, { [key: string]: number | Date }> =
-      {};
+    const monthlyDataMap: Record<string, { [key: string]: number | Date }> = {};
 
-    // Procesar planes originales con bridge
+    // Procesar planes originales con bridge (DEUDAS)
     plansWithBridgeSnapshot.forEach((plan) => {
       plan.financialSnapshots.forEach((snapshot) => {
         const monthKey = snapshot.date.startOf('month').format('YYYY-MM');
 
-        if (!monthlyDebtsMap[monthKey]) {
-          monthlyDebtsMap[monthKey] = {
+        if (!monthlyDataMap[monthKey]) {
+          monthlyDataMap[monthKey] = {
             date: snapshot.date.startOf('month').toDate(),
           };
         }
@@ -174,19 +183,45 @@ const PersonalFinancesGraph = ({
           totalDebts !== null &&
           !isNaN(totalDebts)
         ) {
-          monthlyDebtsMap[monthKey][plan.name] = totalDebts;
+          monthlyDataMap[monthKey][plan.name] = totalDebts;
         }
       });
     });
 
-    // Procesar todas las predicciones
+    // Procesar snapshots del portfolio (VALOR DEL PORTFOLIO)
+    if (portfolioSnapshots && portfolioSnapshots.length > 0) {
+      const normalizedPortfolioSnapshots = normalizeObjectDates<
+        IPortfolioSnapshot[]
+      >(structuredClone(portfolioSnapshots), toDayjs);
+
+      normalizedPortfolioSnapshots.forEach((snapshot) => {
+        const monthKey = snapshot.createdAt.startOf('month').format('YYYY-MM');
+
+        if (!monthlyDataMap[monthKey]) {
+          monthlyDataMap[monthKey] = {
+            date: snapshot.createdAt.startOf('month').toDate(),
+          };
+        }
+
+        // Agregar el valor total del portfolio
+        if (
+          snapshot.totalValue !== undefined &&
+          snapshot.totalValue !== null &&
+          !isNaN(snapshot.totalValue)
+        ) {
+          monthlyDataMap[monthKey]['Portfolio'] = snapshot.totalValue;
+        }
+      });
+    }
+
+    // Procesar todas las predicciones (DEUDAS)
     _allPlansWithPredictions.forEach((plan) => {
       if (plan.name.includes('_AVALANCHE') || plan.name.includes('_SNOWBALL')) {
         plan.financialSnapshots.forEach((snapshot) => {
           const monthKey = snapshot.date.startOf('month').format('YYYY-MM');
 
-          if (!monthlyDebtsMap[monthKey]) {
-            monthlyDebtsMap[monthKey] = {
+          if (!monthlyDataMap[monthKey]) {
+            monthlyDataMap[monthKey] = {
               date: snapshot.date.startOf('month').toDate(),
             };
           }
@@ -198,24 +233,24 @@ const PersonalFinancesGraph = ({
             totalDebts !== null &&
             !isNaN(totalDebts)
           ) {
-            monthlyDebtsMap[monthKey][plan.name] = totalDebts;
+            monthlyDataMap[monthKey][plan.name] = totalDebts;
           }
         });
       }
     });
 
-    const datasetsResult = Object.values(monthlyDebtsMap).sort(
+    const datasetsResult = Object.values(monthlyDataMap).sort(
       (a, b) => (a.date as Date).getTime() - (b.date as Date).getTime()
     );
 
     return datasetsResult;
-  }, [_clonedFinancialPlans, _allPlansWithPredictions]);
+  }, [_clonedFinancialPlans, _allPlansWithPredictions, portfolioSnapshots]);
 
   const series = useMemo(() => {
-    // Crear todas las series: planes originales + predicciones
+    // Crear todas las series: planes originales + predicciones + portfolio
     const allSeries: LineSeries[] = [];
 
-    // Primero añadir los planes originales (solo si tienen datos históricos válidos)
+    // Primero añadir los planes originales de deudas (solo si tienen datos históricos válidos)
     _clonedFinancialPlans.forEach((plan, index) => {
       // Verificar que el plan tenga snapshots Y que al menos uno tenga datos de deuda válidos
       if (plan.financialSnapshots && plan.financialSnapshots.length > 0) {
@@ -233,11 +268,11 @@ const PersonalFinancesGraph = ({
         if (hasValidHistoricalData) {
           const color =
             index === currentIndex
-              ? theme.palette.primary.main
+              ? CHART_COLORS.debt
               : getColorForPlan(
                   index,
                   _clonedFinancialPlans.length,
-                  theme.palette.primary.main
+                  CHART_COLORS.debt
                 );
 
           allSeries.push({
@@ -255,6 +290,30 @@ const PersonalFinancesGraph = ({
         }
       }
     });
+
+    // Añadir la serie del portfolio (si hay snapshots válidos)
+    if (portfolioSnapshots && portfolioSnapshots.length > 0) {
+      const hasValidPortfolioData = portfolioSnapshots.some((snapshot) => {
+        return (
+          snapshot.totalValue !== undefined &&
+          snapshot.totalValue !== null &&
+          !isNaN(snapshot.totalValue)
+        );
+      });
+
+      if (hasValidPortfolioData) {
+        allSeries.push({
+          dataKey: 'Portfolio',
+          color: CHART_COLORS.portfolio,
+          valueFormatter: (value: any) => {
+            if (value === undefined || value === null || isNaN(value)) {
+              return 'No data';
+            }
+            return `$${value?.toFixed(2)} Portfolio Value`;
+          },
+        });
+      }
+    }
 
     // Luego añadir las predicciones (solo si tienen datos válidos)
     _allPlansWithPredictions.forEach((plan) => {
@@ -280,7 +339,7 @@ const PersonalFinancesGraph = ({
                 if (value === undefined || value === null || isNaN(value)) {
                   return 'No data';
                 }
-                return `$${value?.toFixed(2)} ${plan.displayName} (Prediction)`;
+                return formatCurrency(value) + ` (Prediction)`;
               },
             });
           }
@@ -292,8 +351,8 @@ const PersonalFinancesGraph = ({
   }, [
     _clonedFinancialPlans,
     _allPlansWithPredictions,
+    portfolioSnapshots,
     currentIndex,
-    theme,
     datasets,
   ]);
 
