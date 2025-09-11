@@ -68,11 +68,6 @@ export function calculateTotalInvestedFromHoldings(
   );
 }
 
-export function createAssetId(symbol: string, exchange?: string): string {
-  const baseId = symbol.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return exchange ? `${baseId}_${exchange.toLowerCase()}` : baseId;
-}
-
 export function getDefaultPortfolioData(
   userId: string,
   name: string

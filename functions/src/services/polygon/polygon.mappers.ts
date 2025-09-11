@@ -38,7 +38,7 @@ export function mapPolygonPriceUpdateToInternal(
     low: priceUpdate.low,
     close: priceUpdate.close,
     volume: priceUpdate.volume,
-    updatedAt: dayjs(priceUpdate.timestamp),
+    updatedAt: dayjs(priceUpdate.timestamp).toDate() as any,
   };
 }
 

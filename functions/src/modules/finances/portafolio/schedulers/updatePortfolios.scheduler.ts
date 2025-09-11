@@ -26,33 +26,15 @@ const runUpdatePortfolios = async (
     log.info('Starting update portfolios scheduler', undefined, correlationId);
 
     const assetsUpdated = await updateAssets(correlationId);
-    log.info(
-      `Assets updated: ${assetsUpdated.length}`,
-      { assetsUpdatedCount: assetsUpdated.length },
-      correlationId
-    );
-
     const holdingsUpdated = await updateHoldings(assetsUpdated, correlationId);
-    log.info(
-      `Holdings updated: ${holdingsUpdated.length}`,
-      { holdingsUpdatedCount: holdingsUpdated.length },
-      correlationId
-    );
-
     await updatePortfolioSnapshotsAndPortfolios(holdingsUpdated, correlationId);
-    log.info(
-      'Portfolio snapshots and portfolios updated',
-      undefined,
-      correlationId
-    );
 
     return {
       assetsUpdated,
       holdingsUpdated,
     };
   } catch (error) {
-    log.error('Financial snapshot generation failed', { error }, correlationId);
-    throw error;
+    throw mapToHttpsError(error, correlationId);
   }
 };
 
@@ -68,8 +50,7 @@ const createSchedulerHandler = (
 
 // Common callable handler function
 const createCallableHandler = <T>(
-  businessLogic: (correlationId: string) => Promise<T>,
-  errorMessage: string
+  businessLogic: (correlationId: string) => Promise<T>
 ) => {
   return onCall<undefined, Promise<T>>(
     { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
@@ -80,7 +61,6 @@ const createCallableHandler = <T>(
         requireAdmin(request);
         return await businessLogic(correlationId);
       } catch (error) {
-        log.error(errorMessage, { error }, correlationId);
         throw mapToHttpsError(error);
       }
     }
@@ -105,7 +85,5 @@ export const updatePortfoliosSchedulerClose = onSchedule(
   createSchedulerHandler(runUpdatePortfolios)
 );
 
-export const updatePortfoliosSchedulerCallable = createCallableHandler(
-  runUpdatePortfolios,
-  'Callable update portfolios failed'
-);
+export const updatePortfoliosSchedulerCallable =
+  createCallableHandler(runUpdatePortfolios);

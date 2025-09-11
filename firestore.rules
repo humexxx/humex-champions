@@ -11,6 +11,10 @@ service cloud.firestore {
     match /{path=**}/transactions/{transactionId} {
       allow read: if isAdmin();
     }
+    
+    match /{path=**}/holdings/{holdingId} {
+      allow read: if isAdmin();
+    }
 
     match /instruments/{document=**} {
       allow read: if request.auth != null;

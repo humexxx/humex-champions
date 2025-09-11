@@ -15,7 +15,6 @@ import {
   calculatePortfolioTotals,
   calculateTotalInvestedFromHoldings,
   calculateTotalValueFromHoldings,
-  createAssetId,
 } from '@shared/utils/portfolio';
 import dayjs from 'dayjs';
 
@@ -40,11 +39,8 @@ export async function updateSystemHoldings(
     const holdings = snapshot.docs.map(
       (doc) => ({ ...doc.data(), id: doc.id }) as IPortfolioHolding
     );
-    log.info(
-      'System holdings to update',
-      { count: holdings.length },
-      correlationId
-    );
+
+    log.info('System holdings to update', { holdings }, correlationId);
 
     const assetsToUpdate = await getSystemAssets();
 
@@ -54,7 +50,12 @@ export async function updateSystemHoldings(
       if (!asset) {
         log.warn(
           'Asset for holding not found, skipping',
-          { holdingId: holding.id, assetId: holding.assetId },
+          {
+            holdingId: holding.id,
+            assetId: holding.assetId,
+            portfolioId: holding.portfolioId,
+            userId: holding.userId,
+          },
           correlationId
         );
         continue;
@@ -62,8 +63,12 @@ export async function updateSystemHoldings(
 
       const holdingToUpdate = {
         ...holding,
-        currentPrice: asset?.priceData?.price || holding.currentPrice,
-        currentValue: asset?.priceData?.price || holding.currentPrice,
+        currentPrice:
+          holding.currentPrice *
+          ((asset.systemAssetDetails?.monthlyYield ?? 0) + 1),
+        currentValue:
+          holding.currentValue *
+          ((asset.systemAssetDetails?.monthlyYield ?? 0) + 1),
         updatedAt: new Date() as any,
       };
       holdingsToUpdate.push(holdingToUpdate);
@@ -86,10 +91,9 @@ export async function updateSystemHoldings(
     log.info('System holdings update completed', undefined, correlationId);
     return holdingsToUpdate;
   } catch (error) {
-    log.error('Failed to update system holdings', { error }, correlationId);
     throw new AppError(
       'system-holdings-update-failed',
-      'Failed to update system holdings',
+      'Failed to update system holdings. ' + (error as Error).message,
       500
     );
   }
@@ -152,10 +156,9 @@ export async function updateHoldings(
     log.info('Holdings update completed', undefined, correlationId);
     return holdingsToUpdate;
   } catch (error) {
-    log.error('Failed to update holdings', { error }, correlationId);
     throw new AppError(
       'holdings-update-failed',
-      'Failed to update holdings',
+      'Failed to update holdings. ' + (error as Error).message,
       500
     );
   }
@@ -205,10 +208,9 @@ export async function updateAssets(correlationId: string): Promise<IAsset[]> {
     log.info('Asset prices update completed', undefined, correlationId);
     return assetsToUpdate;
   } catch (error) {
-    log.error('Failed to update asset prices', { error }, correlationId);
     throw new AppError(
       'asset-update-failed',
-      'Failed to update asset prices',
+      'Failed to update asset prices. ' + (error as Error).message,
       500
     );
   }
@@ -293,10 +295,9 @@ export async function updatePortfolioSnapshotsAndPortfolios(
     );
     return true;
   } catch (error) {
-    log.error('Failed to update portfolio snapshots', { error }, correlationId);
     throw new AppError(
       'portfolio-snapshots-update-failed',
-      'Failed to update portfolio snapshots',
+      'Failed to update portfolio snapshots. ' + (error as Error).message,
       500
     );
   }
@@ -308,8 +309,11 @@ export async function addAsset(asset: IAsset): Promise<void> {
     const assetRef = db().doc(FIRESTORE_PATHS.ASSETS.ASSET(asset.id));
     await assetRef.set(asset);
   } catch (error) {
-    log.error('Failed to add asset', { asset, error });
-    throw new AppError('asset-add-failed', 'Failed to add asset', 500);
+    throw new AppError(
+      'asset-add-failed',
+      'Failed to add asset. ' + (error as Error).message,
+      500
+    );
   }
 }
 
@@ -341,10 +345,9 @@ export async function getSystemAssets(
     log.info('System assets fetched', { count: assets.length });
     return assets;
   } catch (error) {
-    log.error('Failed to fetch system assets', { query, limit, error });
     throw new AppError(
       'system-assets-fetch-failed',
-      'Failed to fetch system assets',
+      'Failed to fetch system assets. ' + (error as Error).message,
       500
     );
   }
@@ -355,153 +358,164 @@ export async function addTransaction(
   transactionData: TransactionFormData,
   asset: AssetForTransaction
 ): Promise<AddTransactionResult> {
-  const firestore = db();
-  const batch = firestore.batch();
-  const assetId = createAssetId(asset.symbol, asset.exchange);
+  try {
+    const firestore = db();
+    const batch = firestore.batch();
+    const assetId = asset.id || asset.symbol;
 
-  // Step 1: Handle asset creation/update (outside batch if needed)
-  const assetRef = firestore.doc(FIRESTORE_PATHS.ASSETS.ASSET(assetId));
-  const assetSnapshot = await assetRef.get();
+    // Step 1: Handle asset creation/update (outside batch if needed)
+    const assetRef = firestore.doc(FIRESTORE_PATHS.ASSETS.ASSET(assetId));
+    const assetSnapshot = await assetRef.get();
 
-  if (!assetSnapshot.exists && !asset.isSystemAsset) {
-    // Create new asset (can be done outside batch)
-    const newAsset: IAsset = {
-      id: assetId,
-      ...(asset as any),
+    if (!assetSnapshot.exists && !asset.isSystemAsset) {
+      // Create new asset (can be done outside batch)
+      const newAsset: IAsset = {
+        id: assetId,
+        ...(asset as any),
+      };
+
+      await assetRef.set(newAsset);
+    }
+
+    // Step 2: Read all necessary documents within batch context
+    const portfolioRef = firestore.doc(
+      FIRESTORE_PATHS.FINANCES.PORTFOLIO(userId, transactionData.portfolioId)
+    );
+
+    const previousSnapshotRef = firestore.doc(
+      FIRESTORE_PATHS.FINANCES.SNAPSHOT(
+        userId,
+        transactionData.portfolioId,
+        dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+      )
+    );
+    const snapshotRef = firestore.doc(
+      FIRESTORE_PATHS.FINANCES.SNAPSHOT(
+        userId,
+        transactionData.portfolioId,
+        dayjs().format('YYYY-MM-DD')
+      )
+    );
+
+    const holdingCollectionRef = firestore.collection(
+      FIRESTORE_PATHS.FINANCES.HOLDINGS(userId, transactionData.portfolioId)
+    );
+    const holdingRef = holdingCollectionRef.doc();
+    const transactionRef = firestore
+      .collection(
+        FIRESTORE_PATHS.FINANCES.TRANSACTIONS(
+          userId,
+          transactionData.portfolioId
+        )
+      )
+      .doc();
+
+    const [portfolioSnapshot, previousSnapshot, holdings] = await Promise.all([
+      portfolioRef.get(),
+      previousSnapshotRef.get(),
+      holdingCollectionRef.get(),
+    ]);
+
+    const userData = await getUserData(userId);
+
+    // Step 3: Create the transaction
+    const transaction: IPortfolioTransaction = {
+      id: transactionRef.id,
+      portfolioId: transactionData.portfolioId,
+      assetId: assetId,
+      type: transactionData.type,
+      quantity: transactionData.quantity,
+      purchasePrice: transactionData.price,
+      totalAmount: transactionData.price * transactionData.quantity,
+      fees: 0, // Default fees to 0 for now
+      executedAt: now() as any, // Firestore server timestamp
+      notes: transactionData.notes,
+
+      userId: userId,
+      username: userData.fullName,
+      holdingId: holdingRef.id,
+      isSystemAsset: asset.isSystemAsset || false,
+      systemFlags: asset.isSystemAsset
+        ? {
+            status: 'pending',
+          }
+        : undefined,
     };
 
-    await assetRef.set(newAsset);
+    const holding: IPortfolioHolding = {
+      id: holdingRef.id,
+      portfolioId: transactionData.portfolioId,
+      userId: userId,
+      assetId: assetId,
+
+      quantity: transactionData.quantity,
+      totalInvested: transactionData.price * transactionData.quantity,
+
+      currentPrice: transactionData.price,
+      currentValue: transactionData.price * transactionData.quantity,
+
+      createdAt: now() as any,
+      updatedAt: now() as any,
+
+      isSystemAsset: asset.isSystemAsset || false,
+      status: asset.isSystemAsset ? 'pending' : 'active',
+    };
+
+    const newSnapshot = normalizeObjectDates<IPortfolioSnapshot>(
+      generateSnapshot(
+        transactionData.portfolioId,
+        holdings.docs
+          .map((doc) => doc.data() as IPortfolioHolding)
+          .concat([holding])
+      ),
+      toDate
+    );
+
+    batch.set(transactionRef, transaction);
+    batch.set(holdingRef, holding);
+    batch.set(snapshotRef, newSnapshot);
+
+    const {
+      currentValue,
+      dailyGain,
+      dailyGainPercentage,
+      totalGain,
+      totalGainPercentage,
+      totalInvested,
+    } = calculatePortfolioTotals(
+      previousSnapshot.data() as IPortfolioSnapshot,
+      newSnapshot
+    );
+
+    const updatedPortfolio: IPortfolio = {
+      ...(portfolioSnapshot.data() as IPortfolio),
+      currentValue,
+      dailyGain,
+      dailyGainPercentage,
+      totalGain,
+      totalGainPercentage,
+      totalInvested,
+    };
+
+    batch.set(transactionRef, transaction);
+    batch.set(holdingRef, holding);
+    batch.set(snapshotRef, newSnapshot);
+    batch.set(portfolioRef, updatedPortfolio);
+
+    // Commit all changes at once
+    await batch.commit();
+
+    return {
+      transactionId: transactionRef.id,
+      assetId,
+    };
+  } catch (error) {
+    throw new AppError(
+      'transaction-add-failed',
+      'Failed to add transaction: ' + (error as Error).message,
+      500
+    );
   }
-
-  // Step 2: Read all necessary documents within batch context
-  const portfolioRef = firestore.doc(
-    FIRESTORE_PATHS.FINANCES.PORTFOLIO(userId, transactionData.portfolioId)
-  );
-
-  const previousSnapshotRef = firestore.doc(
-    FIRESTORE_PATHS.FINANCES.SNAPSHOT(
-      userId,
-      transactionData.portfolioId,
-      dayjs().subtract(1, 'day').format('YYYY-MM-DD')
-    )
-  );
-  const snapshotRef = firestore.doc(
-    FIRESTORE_PATHS.FINANCES.SNAPSHOT(
-      userId,
-      transactionData.portfolioId,
-      dayjs().format('YYYY-MM-DD')
-    )
-  );
-
-  const holdingCollectionRef = firestore.collection(
-    FIRESTORE_PATHS.FINANCES.HOLDINGS(userId, transactionData.portfolioId)
-  );
-  const holdingRef = holdingCollectionRef.doc();
-  const transactionRef = firestore
-    .collection(
-      FIRESTORE_PATHS.FINANCES.TRANSACTIONS(userId, transactionData.portfolioId)
-    )
-    .doc();
-
-  const [portfolioSnapshot, previousSnapshot, holdings] = await Promise.all([
-    portfolioRef.get(),
-    previousSnapshotRef.get(),
-    holdingCollectionRef.get(),
-  ]);
-
-  const userData = await getUserData(userId);
-
-  // Step 3: Create the transaction
-  const transaction: IPortfolioTransaction = {
-    id: transactionRef.id,
-    portfolioId: transactionData.portfolioId,
-    assetId: assetId,
-    type: transactionData.type,
-    quantity: transactionData.quantity,
-    purchasePrice: transactionData.price,
-    totalAmount: transactionData.price * transactionData.quantity,
-    fees: 0, // Default fees to 0 for now
-    executedAt: now() as any, // Firestore server timestamp
-    notes: transactionData.notes,
-
-    userId: userId,
-    username: userData.fullName,
-    holdingId: holdingRef.id,
-    isSystemAsset: asset.isSystemAsset || false,
-    systemFlags: asset.isSystemAsset
-      ? {
-          status: 'pending',
-        }
-      : undefined,
-  };
-
-  const holding: IPortfolioHolding = {
-    id: holdingRef.id,
-    portfolioId: transactionData.portfolioId,
-    userId: userId,
-    assetId: assetId,
-
-    quantity: transactionData.quantity,
-    totalInvested: transactionData.price * transactionData.quantity,
-
-    currentPrice: transactionData.price,
-    currentValue: transactionData.price * transactionData.quantity,
-
-    createdAt: now() as any,
-    updatedAt: now() as any,
-
-    isSystemAsset: asset.isSystemAsset || false,
-    status: asset.isSystemAsset ? 'pending' : 'active',
-  };
-
-  const newSnapshot = normalizeObjectDates<IPortfolioSnapshot>(
-    generateSnapshot(
-      transactionData.portfolioId,
-      holdings.docs
-        .map((doc) => doc.data() as IPortfolioHolding)
-        .concat([holding])
-    ),
-    toDate
-  );
-
-  batch.set(transactionRef, transaction);
-  batch.set(holdingRef, holding);
-  batch.set(snapshotRef, newSnapshot);
-
-  const {
-    currentValue,
-    dailyGain,
-    dailyGainPercentage,
-    totalGain,
-    totalGainPercentage,
-    totalInvested,
-  } = calculatePortfolioTotals(
-    previousSnapshot.data() as IPortfolioSnapshot,
-    newSnapshot
-  );
-
-  const updatedPortfolio: IPortfolio = {
-    ...(portfolioSnapshot.data() as IPortfolio),
-    currentValue,
-    dailyGain,
-    dailyGainPercentage,
-    totalGain,
-    totalGainPercentage,
-    totalInvested,
-  };
-
-  batch.set(transactionRef, transaction);
-  batch.set(holdingRef, holding);
-  batch.set(snapshotRef, newSnapshot);
-  batch.set(portfolioRef, updatedPortfolio);
-
-  // Commit all changes at once
-  await batch.commit();
-
-  return {
-    transactionId: transactionRef.id,
-    assetId,
-  };
 }
 
 export async function approveTransaction(
@@ -616,14 +630,6 @@ export async function approveTransaction(
 
     return true;
   } catch (error) {
-    log.error('Failed to approve transaction', {
-      userId,
-      portfolioId,
-      transactionId,
-      approvedByUserId,
-      error,
-    });
-
     // Re-throw AppErrors as-is, wrap unknown errors
     if (error instanceof AppError) {
       throw error;
@@ -655,22 +661,17 @@ export async function getWatchlistPrices(
     log.info(
       'Watchlist prices retrieved',
       {
-        requestedCount: symbols.length,
-        retrievedCount: priceUpdates.length,
+        requested: symbols,
+        retrieved: priceUpdates,
       },
       correlationId
     );
 
     return priceUpdates;
   } catch (error) {
-    log.error(
-      'Failed to get watchlist prices',
-      { symbols, error },
-      correlationId
-    );
     throw new AppError(
       'watchlist-prices-failed',
-      'Failed to get watchlist prices',
+      'Failed to get watchlist prices ' + (error as Error).message,
       500
     );
   }

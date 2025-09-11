@@ -13,8 +13,11 @@ export class AppError extends Error {
   }
 }
 
-export function mapToHttpsError(error: unknown): HttpsError {
-  logger.error('Function error:', error);
+export function mapToHttpsError(
+  error: unknown,
+  correlationId?: string
+): HttpsError {
+  logger.error('Function error:', error, correlationId);
 
   if (error instanceof HttpsError) {
     return error;

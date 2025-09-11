@@ -26,29 +26,13 @@ const runUpdatePortfoliosWithSystemHoldings = async (
     );
 
     const holdingsUpdated = await updateSystemHoldings(correlationId);
-    log.info(
-      `Holdings updated: ${holdingsUpdated.length}`,
-      { holdingsUpdatedCount: holdingsUpdated.length },
-      correlationId
-    );
-
     await updatePortfolioSnapshotsAndPortfolios(holdingsUpdated, correlationId);
-    log.info(
-      'Portfolio snapshots and portfolios updated',
-      undefined,
-      correlationId
-    );
 
     return {
       holdingsUpdated,
     };
   } catch (error) {
-    log.error(
-      'Update portfolios with system holdings failed',
-      { error },
-      correlationId
-    );
-    throw error;
+    throw mapToHttpsError(error, correlationId);
   }
 };
 
@@ -64,8 +48,7 @@ const createSchedulerHandler = (
 
 // Common callable handler function
 const createCallableHandler = <T>(
-  businessLogic: (correlationId: string) => Promise<T>,
-  errorMessage: string
+  businessLogic: (correlationId: string) => Promise<T>
 ) => {
   return onCall<undefined, Promise<T>>(
     { region: runtime.region, timeoutSeconds: runtime.timeoutSeconds },
@@ -76,8 +59,7 @@ const createCallableHandler = <T>(
         requireAdmin(request);
         return await businessLogic(correlationId);
       } catch (error) {
-        log.error(errorMessage, { error }, correlationId);
-        throw mapToHttpsError(error);
+        throw mapToHttpsError(error, correlationId);
       }
     }
   );
@@ -93,7 +75,4 @@ export const updatePortfoliosWithSystemHoldingsScheduler = onSchedule(
 );
 
 export const updatePortfoliosWithSystemHoldingsSchedulerCallable =
-  createCallableHandler(
-    runUpdatePortfoliosWithSystemHoldings,
-    'Callable update portfolios with system holdings failed'
-  );
+  createCallableHandler(runUpdatePortfoliosWithSystemHoldings);

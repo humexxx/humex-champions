@@ -22,12 +22,15 @@ import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
 
 import { CALLABLE_FUNCTIONS } from '@shared/consts';
+import { IAsset, IPortfolioHolding } from '@shared/types/finances';
 import { AdminCard } from 'src/components';
+import ChangeChip from 'src/components/finance/ChangeChip';
 import { functions } from 'src/firebase';
+import { formatCurrency } from 'src/utils';
 
 interface SchedulerResult {
-  assetsUpdated?: any[];
-  holdingsUpdated: any[];
+  assetsUpdated?: IAsset[];
+  holdingsUpdated: IPortfolioHolding[];
   timestamp?: string;
   message?: string;
 }
@@ -144,7 +147,6 @@ const AdminTestingSection = () => {
                     <TableHead>
                       <TableRow>
                         <TableCell>Symbol</TableCell>
-                        <TableCell>Name</TableCell>
                         <TableCell align="right">Price</TableCell>
                         <TableCell align="right">Change %</TableCell>
                       </TableRow>
@@ -152,29 +154,17 @@ const AdminTestingSection = () => {
                     <TableBody>
                       {data
                         .assetsUpdated!.slice(0, 5)
-                        .map((asset: any, index: number) => (
+                        .map((asset: IAsset, index: number) => (
                           <TableRow key={index}>
-                            <TableCell>
-                              {asset.symbol || asset.ticker || 'N/A'}
-                            </TableCell>
-                            <TableCell>
-                              {asset.name || asset.companyName || 'N/A'}
+                            <TableCell>{asset.symbol}</TableCell>
+
+                            <TableCell align="right">
+                              {formatCurrency(asset.priceData?.price)}
                             </TableCell>
                             <TableCell align="right">
-                              ${asset.currentPrice || asset.price || 'N/A'}
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{
-                                color:
-                                  (asset.changePercentage || 0) >= 0
-                                    ? 'success.main'
-                                    : 'error.main',
-                              }}
-                            >
-                              {asset.changePercentage
-                                ? `${asset.changePercentage}%`
-                                : 'N/A'}
+                              <ChangeChip
+                                change={asset.priceData?.change || 0}
+                              />
                             </TableCell>
                           </TableRow>
                         ))}
@@ -211,31 +201,23 @@ const AdminTestingSection = () => {
                     <TableBody>
                       {data.holdingsUpdated
                         .slice(0, 5)
-                        .map((holding: any, index: number) => (
+                        .map((holding: IPortfolioHolding, index: number) => (
                           <TableRow key={index}>
-                            <TableCell>
-                              {holding.asset?.symbol ||
-                                holding.assetSymbol ||
-                                'N/A'}
-                            </TableCell>
+                            <TableCell>{holding.assetId}</TableCell>
                             <TableCell align="right">
                               {holding.quantity || 'N/A'}
                             </TableCell>
                             <TableCell align="right">
-                              ${holding.currentValue || holding.value || 'N/A'}
+                              {formatCurrency(holding.currentValue || 0)}
                             </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{
-                                color:
-                                  (holding.gainLoss || 0) >= 0
-                                    ? 'success.main'
-                                    : 'error.main',
-                              }}
-                            >
-                              {holding.gainLoss
-                                ? `$${holding.gainLoss}`
-                                : 'N/A'}
+                            <TableCell align="center">
+                              <Box>
+                                <ChangeChip
+                                  change={
+                                    holding.currentValue - holding.totalInvested
+                                  }
+                                />
+                              </Box>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -267,10 +249,7 @@ const AdminTestingSection = () => {
   };
 
   return (
-    <AdminCard
-      title="🛠️ Portfolio Schedulers Admin Panel"
-      description="Execute portfolio update schedulers manually. These functions normally run automatically via Firebase Scheduler."
-    >
+    <AdminCard>
       <Stack spacing={3}>
         {/* Update Portfolios Scheduler */}
         <Box>
@@ -352,7 +331,7 @@ const AdminTestingSection = () => {
             sx={{ display: 'block', mb: 1 }}
           >
             Updates system holdings and portfolio snapshots (normally runs
-            monthly on the 1st)
+            monthly on the 1st).
           </Typography>
 
           {errors.updateSystemHoldings && (
