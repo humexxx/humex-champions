@@ -161,8 +161,9 @@ const TransactionsPage = () => {
           Error: {error}
         </Alert>
       )}
-      <Box sx={{ height: 400, width: '100%' }}>
+      <Box sx={{ width: '100%' }}>
         <DataGrid
+          hideFooter
           loading={loading}
           rows={gridRows}
           columns={columns}
