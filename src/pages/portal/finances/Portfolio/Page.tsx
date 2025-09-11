@@ -7,7 +7,7 @@ import {
 } from '@mui/icons-material';
 import { Box, Button, Grid, Stack } from '@mui/material';
 import { IAsset, TransactionFormData } from '@shared/types/finances';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { GlobalLoader } from 'src/components';
 import { PageContainer } from 'src/components/layout';
 import {
@@ -50,7 +50,7 @@ const PortafolioPage = () => {
     setSortOrder(order);
   }, []);
 
-  // Using the updated usePortfolio hook that brings all portfolios
+  // Using the updated usePortfolio hook
   const {
     portfolio,
     holdings,
@@ -66,28 +66,12 @@ const PortafolioPage = () => {
     autoLoad: true,
     forceMock: false,
     timeFilter: selectedTimeFilter, // Pass the current time filter
-    snapshotDeps: [selectedTimeFilter], // Dependencies that trigger snapshot reload
   });
-
-  // Seleccionar automáticamente el primer portfolio cuando se cargan
-  const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(
-    null
-  );
-
-  // Efecto para seleccionar el primer portfolio automáticamente
-  useEffect(() => {
-    if (userPortfolios.length > 0 && !selectedPortfolioId) {
-      const defaultPortfolio = userPortfolios.find((p) => p.isDefault);
-      const firstPortfolio = defaultPortfolio || userPortfolios[0];
-      setSelectedPortfolioId(firstPortfolio.id);
-      loadPortfolioData(firstPortfolio.id);
-    }
-  }, [userPortfolios, selectedPortfolioId, loadPortfolioData]);
 
   // Handle transaction dialog submission
   const handleTransactionSubmit = useCallback(
     async (transactionData: TransactionFormData, asset: IAsset) => {
-      if (!selectedPortfolioId) {
+      if (!portfolio?.id) {
         throw new Error('No portfolio selected');
       }
 
@@ -101,14 +85,14 @@ const PortafolioPage = () => {
         console.log('Transaction added successfully:', result);
 
         setTimeout(() => {
-          loadPortfolioData(selectedPortfolioId);
+          loadPortfolioData(portfolio.id);
         }, 1000); // Small delay to allow Firebase function to complete
       } catch (error) {
         console.error('Error adding transaction:', error);
         throw error; // Re-throw so the dialog can handle it
       }
     },
-    [selectedPortfolioId, addTransaction, loadPortfolioData]
+    [portfolio?.id, addTransaction, loadPortfolioData]
   );
 
   // Handle portfolio creation
@@ -143,54 +127,7 @@ const PortafolioPage = () => {
     [createPortfolio]
   );
 
-  // Optimized sorting with memoization - MOVED BEFORE EARLY RETURNS
-  const sortedTransactions = useMemo(() => {
-    return [...transactions].sort((a, b) => {
-      if (sortBy === 'date') {
-        const dateA = a.executedAt.valueOf();
-        const dateB = b.executedAt.valueOf();
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-      } else if (sortBy === 'amount') {
-        const amountA = a.quantity * a.purchasePrice;
-        const amountB = b.quantity * b.purchasePrice;
-        return sortOrder === 'asc' ? amountA - amountB : amountB - amountA;
-      }
-      return 0;
-    });
-  }, [transactions, sortBy, sortOrder]);
-
-  // Transform and sort holdings with memoization - MOVED BEFORE EARLY RETURNS
-  const sortedHoldings = useMemo(() => {
-    const mappedHoldings = holdings.map((holding) => ({
-      symbol: holding.assetId, // Will be replaced with actual asset symbol later
-      name: holding.assetId, // Will be replaced with actual asset name later
-      price: holding.currentPrice,
-      quantity: holding.quantity,
-      totalGain: holding.localCalculations?.unrealizedGain, // Using unrealized gain as total gain
-      totalGainPercentage: holding.localCalculations?.unrealizedGainPercentage,
-      value: holding.currentValue,
-    }));
-
-    return [...mappedHoldings].sort((a, b) => {
-      if (sortBy === 'name') {
-        return sortOrder === 'asc'
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      } else if (sortBy === 'value') {
-        return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
-      } else if (sortBy === 'date') {
-        // For holdings, we can sort by total gain as a proxy
-        return sortOrder === 'asc'
-          ? (a.totalGain ?? 0) - (b.totalGain ?? 0)
-          : (b.totalGain ?? 0) - (a.totalGain ?? 0);
-      } else if (sortBy === 'amount') {
-        return sortOrder === 'asc' ? a.value - b.value : b.value - a.value;
-      }
-      return 0;
-    });
-  }, [holdings, sortBy, sortOrder]);
-
-  // Memoized portfolio highlights - MOVED BEFORE EARLY RETURNS
+  // Memoized portfolio highlights
   const portfolioHighlights = useMemo(
     () => ({
       dailyGain: portfolio?.dailyGain || 0,
@@ -202,7 +139,7 @@ const PortafolioPage = () => {
     [portfolio]
   );
 
-  // Memoized field definitions - MOVED BEFORE EARLY RETURNS
+  // Temporary field definitions until components are updated
   const transactionFields = useMemo(
     () => [
       {
@@ -297,7 +234,11 @@ const PortafolioPage = () => {
           </Box>{' '}
           {/* Holdings/Activity Tabs */}
           <Box sx={{ mt: 3 }}>
-            <Stack direction="row" justifyContent={'space-between'}>
+            <Stack
+              direction="row"
+              justifyContent={'space-between'}
+              sx={{ mb: 2 }}
+            >
               <Stack direction="row" spacing={1}>
                 <Button
                   color="info"
@@ -342,11 +283,16 @@ const PortafolioPage = () => {
             {/* Tab Content */}
             {selectedTab === 'investments' ? (
               <HoldingsTable
-                holdings={sortedHoldings as any}
-                transactions={sortedTransactions}
+                holdings={holdings}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
               />
             ) : (
-              <ActivityTable transactions={sortedTransactions} />
+              <ActivityTable
+                transactions={transactions}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+              />
             )}
           </Box>
         </Grid>

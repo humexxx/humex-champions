@@ -1,22 +1,116 @@
-import {
-  Box,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
+import { DataGrid, GridColDef, useGridApiRef } from '@mui/x-data-grid';
 import { IPortfolioTransaction } from '@shared/types/finances';
+import { useMemo } from 'react';
 import { formatCurrency } from 'src/utils';
+import { SortField, SortOrder } from './index';
 
 interface ActivityTableProps {
   transactions: IPortfolioTransaction[];
+  sortBy: SortField;
+  sortOrder: SortOrder;
 }
 
-const ActivityTable = ({ transactions }: ActivityTableProps) => {
+const ActivityTable = ({
+  transactions,
+  sortBy,
+  sortOrder,
+}: ActivityTableProps) => {
+  const apiRef = useGridApiRef();
+
+  // Definir columnas del DataGrid
+  const columns: GridColDef<IPortfolioTransaction>[] = useMemo(
+    () => [
+      {
+        field: 'type',
+        headerName: 'TYPE',
+        width: 100,
+        renderCell: (params) => (
+          <Chip
+            label={params.value.toUpperCase()}
+            size="small"
+            color={params.value === 'buy' ? 'success' : 'error'}
+            variant="outlined"
+          />
+        ),
+      },
+      {
+        field: 'assetId',
+        headerName: 'ASSET',
+        width: 120,
+        renderCell: (params) => (
+          <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+            <Typography variant="body2" fontWeight="bold">
+              {params.value}
+            </Typography>
+          </Box>
+        ),
+      },
+      {
+        field: 'executedAt',
+        headerName: 'DATE',
+        width: 120,
+        type: 'date',
+        valueGetter: (value: any) => (value ? new Date(value.valueOf()) : null),
+      },
+      {
+        field: 'quantity',
+        headerName: 'QUANTITY',
+        type: 'number',
+        width: 120,
+        valueFormatter: (value: number) => value.toLocaleString(),
+      },
+      {
+        field: 'purchasePrice',
+        headerName: 'PRICE',
+        type: 'number',
+        width: 120,
+        valueFormatter: (value: number) => formatCurrency(value),
+      },
+      {
+        field: 'totalAmount',
+        headerName: 'TOTAL',
+        type: 'number',
+        width: 120,
+        valueFormatter: (value: number) => formatCurrency(value),
+        renderCell: (params) => (
+          <Typography
+            variant="body2"
+            fontWeight="500"
+            sx={{
+              color: params.row.type === 'buy' ? 'error.main' : 'success.main',
+            }}
+          >
+            {params.row.type === 'buy' ? '-' : '+'}${params.value.toFixed(2)}
+          </Typography>
+        ),
+      },
+      {
+        field: 'fees',
+        headerName: 'FEES',
+        type: 'number',
+        width: 100,
+        valueFormatter: (value: number) => formatCurrency(value),
+      },
+      {
+        field: 'status',
+        headerName: 'STATUS',
+        width: 100,
+        renderCell: (params) => (
+          <Chip
+            label={params.value}
+            size="small"
+            color={params.value === 'approved' ? 'success' : 'warning'}
+            variant="filled"
+          />
+        ),
+      },
+    ],
+    []
+  );
+
   if (transactions.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -26,85 +120,31 @@ const ActivityTable = ({ transactions }: ActivityTableProps) => {
   }
 
   return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell> </TableCell>
-            <TableCell>TRANSACTION DETAILS</TableCell>
-            <TableCell align="right">TOTAL AMOUNT</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {transactions.map((transaction, index) => (
-            <TableRow
-              key={transaction.id || index}
-              hover
-              sx={{ '&:last-child td': { border: 0 } }}
-            >
-              {/* Columna 1: Icono */}
-              <TableCell sx={{ width: 'auto', pr: 2 }}>
-                <Chip
-                  label={transaction.type}
-                  size="small"
-                  color={transaction.type === 'buy' ? 'success' : 'error'}
-                  variant="outlined"
-                />
-              </TableCell>
-
-              {/* Columna 2: Detalles */}
-              <TableCell
-                sx={{
-                  flex: 1,
-                  width: '100%',
-                }}
-              >
-                <Box>
-                  <Typography variant="body2" fontWeight={500}>
-                    {transaction.type === 'buy' ? 'Bought' : 'Sold'}{' '}
-                    {transaction.quantity} {transaction.assetId}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {transaction.executedAt.format('MMM D, YYYY')}
-                  </Typography>
-                </Box>
-              </TableCell>
-
-              {/* Columna 3: Monto total (flex: 1) */}
-              <TableCell
-                align="right"
-                sx={{
-                  width: 'auto',
-                  minWidth: '150px',
-                }}
-              >
-                <Typography variant="subtitle1">
-                  {formatCurrency(
-                    transaction.purchasePrice ??
-                      transaction.quantity * transaction.purchasePrice
-                  )}
-                </Typography>
-                {transaction.gainLoss !== undefined && (
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color:
-                        transaction.gainLoss >= 0
-                          ? 'success.main'
-                          : 'error.main',
-                      display: 'block',
-                    }}
-                  >
-                    {transaction.gainLoss >= 0 ? '+' : ''}
-                    {formatCurrency(transaction.gainLoss)}
-                  </Typography>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box sx={{ width: '100%' }}>
+      <DataGrid
+        hideFooter
+        apiRef={apiRef}
+        columns={columns}
+        rows={transactions}
+        initialState={{
+          sorting: {
+            sortModel: [{ field: sortBy, sort: sortOrder }],
+          },
+          pagination: {
+            paginationModel: { pageSize: 25, page: 0 },
+          },
+        }}
+        sortModel={[{ field: sortBy, sort: sortOrder }]}
+        disableRowSelectionOnClick
+        pageSizeOptions={[25, 50, 100]}
+        sx={{
+          '& .MuiDataGrid-cell--textLeft': {
+            textAlign: 'left',
+          },
+        }}
+      />
+    </Box>
   );
 };
+
 export default ActivityTable;

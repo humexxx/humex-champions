@@ -51,8 +51,6 @@ interface UsePortfolio {
 }
 
 interface UsePortfolioOptions extends CommonFetchHookProps {
-  // Dependencies that will trigger snapshot re-fetching
-  snapshotDeps?: any[];
   // Current time filter for dynamic snapshot date range
   timeFilter?: TimeFilter;
 }
@@ -87,12 +85,10 @@ const usePortfolio = (
   {
     autoLoad,
     forceMock,
-    snapshotDeps = [],
     timeFilter = TIME_FILTERS.ONE_YEAR,
   }: UsePortfolioOptions = {
     autoLoad: true,
     forceMock: false,
-    snapshotDeps: [],
     timeFilter: TIME_FILTERS.ONE_YEAR,
   }
 ): UsePortfolio => {
@@ -118,13 +114,13 @@ const usePortfolio = (
   // Crear el servicio basado en la configuración
   const service = useMemo(() => createPortfolioService(forceMock), [forceMock]);
 
-  // Efecto principal que solo obtiene la lista de portfolios del usuario
+  // Efecto principal: obtener portfolios y seleccionar el default automáticamente
   useEffect(() => {
     if (!autoLoad || !currentUser) return;
 
     setLoading(true);
 
-    // Subscribe to user portfolios para obtener la lista
+    // Suscripción a portfolios del usuario para obtener la lista
     const unsubscribeUserPortfolios = service.subscribeToUserPortfolios(
       currentUser.uid,
       (
@@ -136,6 +132,16 @@ const usePortfolio = (
         }>
       ) => {
         setUserPortfolios(portfoliosData);
+
+        // Seleccionar automáticamente el portfolio default
+        if (portfoliosData.length > 0 && !currentPortfolioId) {
+          const defaultPortfolio = portfoliosData.find((p: any) => p.isDefault);
+          const selectedPortfolio = defaultPortfolio || portfoliosData[0];
+
+          setCurrentPortfolioId(selectedPortfolio.id);
+          loadPortfolioData(selectedPortfolio.id);
+        }
+
         setLoading(false);
         setError(null);
       },
@@ -150,12 +156,13 @@ const usePortfolio = (
     };
   }, [autoLoad, currentUser, service]);
 
-  // Effect to reload snapshots when timeFilter or snapshotDeps change
+  // Effect para recargar snapshots cuando cambia el timeFilter
   useEffect(() => {
     if (!currentPortfolioId || !currentUser) return;
 
-    // Only reload snapshots, not all data
     const { startDate, endDate } = getDateRangeFromTimeFilter(timeFilter);
+
+    // Suscripción a snapshots con el rango de fechas del timeFilter
     const unsubscribeSnapshots = service.subscribeToSnapshots(
       currentUser.uid,
       currentPortfolioId,
@@ -173,8 +180,7 @@ const usePortfolio = (
     return () => {
       unsubscribeSnapshots();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, service, timeFilter, currentPortfolioId, ...snapshotDeps]);
+  }, [currentUser, service, timeFilter, currentPortfolioId]);
 
   // Función para cargar datos de un portfolio específico
   const loadPortfolioData = useCallback(
@@ -198,7 +204,7 @@ const usePortfolio = (
         }
       );
 
-      // Subscribe to holdings
+      // Subscribe to holdings (datos que cambian frecuentemente)
       const unsubscribeHoldings = service.subscribeToHoldings(
         currentUser.uid,
         portfolioId,
@@ -212,47 +218,42 @@ const usePortfolio = (
         }
       );
 
-      // Subscribe to transactions
-      const unsubscribeTransactions = service.subscribeToTransactions(
-        currentUser.uid,
-        portfolioId,
-        50, // limit
-        (transactionsData: IPortfolioTransaction[]) => {
-          setTransactions(transactionsData);
-          setError(null);
-        },
-        (error: string) => {
-          setError(error);
+      // GET de transacciones (sin suscripción continua)
+      const loadTransactions = async () => {
+        try {
+          // Usando el método de suscripción existente pero solo para carga inicial
+          const unsubscribeTransactions = service.subscribeToTransactions(
+            currentUser.uid,
+            portfolioId,
+            50, // limit
+            (transactionsData: IPortfolioTransaction[]) => {
+              setTransactions(transactionsData);
+              setLoading(false);
+              setError(null);
+              // Desuscribirse inmediatamente después de la primera carga
+              unsubscribeTransactions();
+            },
+            (error: string) => {
+              setError(error);
+              setLoading(false);
+            }
+          );
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : 'Error loading transactions'
+          );
           setLoading(false);
         }
-      );
+      };
 
-      // Subscribe to snapshots with dynamic date range based on timeFilter
-      const { startDate, endDate } = getDateRangeFromTimeFilter(timeFilter);
-      const unsubscribeSnapshots = service.subscribeToSnapshots(
-        currentUser.uid,
-        portfolioId,
-        startDate,
-        endDate,
-        (snapshotsData: IPortfolioSnapshot[]) => {
-          setSnapshots(snapshotsData);
-          setLoading(false);
-          setError(null);
-        },
-        (error: string) => {
-          setError(error);
-          setLoading(false);
-        }
-      );
+      loadTransactions();
 
       return () => {
         unsubscribePortfolio();
         unsubscribeHoldings();
-        unsubscribeTransactions();
-        unsubscribeSnapshots();
       };
     },
-    [currentUser, service, timeFilter]
+    [currentUser, service]
   );
 
   const createPortfolio = useCallback(
