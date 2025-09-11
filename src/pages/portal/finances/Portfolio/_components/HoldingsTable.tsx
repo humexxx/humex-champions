@@ -1,233 +1,396 @@
 import {
-  IPortfolioHolding,
-  IPortfolioTransaction,
-} from '@shared/types/finances';
-import { useCallback, useMemo, useState } from 'react';
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from '@mui/material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { IPortfolioHolding } from '@shared/types/finances';
+import { useMemo, useState } from 'react';
+import ChangeChip from 'src/components/finance/ChangeChip';
+import { formatCurrency } from 'src/utils';
+import { SortField, SortOrder } from './index';
+
+interface GroupedHolding {
+  id: string;
+  assetId: string;
+  symbol: string;
+  name: string;
+  totalQuantity: number;
+  totalValue: number;
+  averagePrice: number;
+  totalGain: number;
+  totalGainPercentage: number;
+  holdingsCount: number;
+  holdings: IPortfolioHolding[];
+}
 
 interface HoldingsTableProps {
   holdings: IPortfolioHolding[];
-  transactions?: IPortfolioTransaction[];
+  sortBy: SortField;
+  sortOrder: SortOrder;
 }
 
-const HoldingsTable = ({ holdings, transactions = [] }: HoldingsTableProps) => {
-  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+// Función para agrupar holdings por assetId
+const groupHoldingsByAsset = (
+  holdings: IPortfolioHolding[]
+): GroupedHolding[] => {
+  const groupedMap = new Map<string, IPortfolioHolding[]>();
 
-  // Memoize transaction lookup for performance
-  const transactionsByAsset = useMemo(() => {
-    const map = new Map<string, IPortfolioTransaction[]>();
-    transactions.forEach((tx) => {
-      if (!map.has(tx.assetId)) {
-        map.set(tx.assetId, []);
-      }
-      map.get(tx.assetId)!.push(tx);
-    });
-    return map;
-  }, [transactions]);
+  // Agrupar holdings por assetId
+  holdings.forEach((holding) => {
+    if (!groupedMap.has(holding.assetId)) {
+      groupedMap.set(holding.assetId, []);
+    }
+    groupedMap.get(holding.assetId)!.push(holding);
+  });
 
-  // Helper function to get transactions for a specific asset
-  const getTransactionsForAsset = useCallback(
-    (assetId: string) => {
-      return transactionsByAsset.get(assetId) || [];
-    },
-    [transactionsByAsset]
+  // Convertir a GroupedHolding con cálculos agregados
+  return Array.from(groupedMap.entries()).map(([assetId, holdingsGroup]) => {
+    const totalQuantity = holdingsGroup.reduce(
+      (sum, h) => sum + (h.quantity || 0),
+      0
+    );
+    const totalValue = holdingsGroup.reduce(
+      (sum, h) => sum + (h.currentValue || 0),
+      0
+    );
+    const totalInvested = holdingsGroup.reduce(
+      (sum, h) => sum + (h.totalInvested || 0),
+      0
+    );
+    const averagePrice = totalQuantity > 0 ? totalInvested / totalQuantity : 0;
+    const totalGain = holdingsGroup.reduce(
+      (sum, h) => sum + (h.localCalculations?.unrealizedGain || 0),
+      0
+    );
+    const totalGainPercentage =
+      totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
+
+    return {
+      id: assetId,
+      assetId,
+      symbol: assetId, // Temporal hasta tener el símbolo real
+      name: assetId, // Temporal hasta tener el nombre real
+      totalQuantity,
+      totalValue,
+      averagePrice,
+      totalGain,
+      totalGainPercentage,
+      holdingsCount: holdingsGroup.length,
+      holdings: holdingsGroup,
+    };
+  });
+};
+
+const HoldingsTable = ({ holdings, sortBy, sortOrder }: HoldingsTableProps) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<GroupedHolding | null>(
+    null
   );
 
-  const toggleRow = useCallback((symbol: string) => {
-    // If the same row is clicked, close it. Otherwise, open the new one (closing any previously opened)
-    setExpandedRow((prev) => (prev === symbol ? null : symbol));
-  }, []);
+  // Agrupar holdings por asset
+  const groupedHoldings = useMemo(() => {
+    return groupHoldingsByAsset(holdings);
+  }, [holdings]);
 
-  return <>jojojo</>;
+  const handleViewDetails = (group: GroupedHolding) => {
+    setSelectedGroup(group);
+    setDialogOpen(true);
+  };
 
-  // return (
-  //   <TableContainer>
-  //     <Table>
-  //       <TableHead>
-  //         <TableRow>
-  //           <TableCell>SYMBOL</TableCell>
-  //           <TableCell align="right">PRICE</TableCell>
-  //           <TableCell align="right">QTY</TableCell>
-  //           <TableCell align="right">VALUE</TableCell>
-  //           <TableCell></TableCell>
-  //         </TableRow>
-  //       </TableHead>
-  //       <TableBody>
-  //         {holdings.map((holding) => {
-  //           const assetTransactions = getTransactionsForAsset(holding.symbol);
-  //           const isExpanded = expandedRow === holding.symbol;
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedGroup(null);
+  };
 
-  //           return (
-  //             <React.Fragment key={holding.symbol}>
-  //               {/* Main holding row */}
-  //               <TableRow
-  //                 hover
-  //                 onClick={() => toggleRow(holding.symbol)}
-  //                 sx={{ cursor: 'pointer' }}
-  //               >
-  //                 <TableCell>
-  //                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-  //                     <Chip
-  //                       label={holding.symbol}
-  //                       size="small"
-  //                       variant="outlined"
-  //                       sx={{ fontWeight: 'bold' }}
-  //                     />
-  //                     <Typography>{holding.name}</Typography>
-  //                   </Box>
-  //                 </TableCell>
-  //                 <TableCell align="right">
-  //                   {formatCurrency(holding.price)}
-  //                 </TableCell>
-  //                 <TableCell align="right">
-  //                   {holding.quantity.toLocaleString()}
-  //                 </TableCell>
-  //                 <TableCell align="right">
-  //                   <Typography fontWeight={500}>
-  //                     {formatCurrency(holding.value)}
-  //                   </Typography>
-  //                 </TableCell>
-  //                 <TableCell>
-  //                   <IconButton
-  //                     size="small"
-  //                     onClick={(e) => {
-  //                       e.stopPropagation(); // Prevent row click
-  //                       toggleRow(holding.symbol);
-  //                     }}
-  //                   >
-  //                     {isExpanded ? <ExpandLess /> : <ExpandMore />}
-  //                   </IconButton>
-  //                 </TableCell>
-  //               </TableRow>
+  const columns: GridColDef<GroupedHolding>[] = [
+    {
+      field: 'symbol',
+      headerName: 'Name',
+      flex: 1,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            display: 'flex',
+            height: '100%',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="body2" fontWeight="bold">
+            {params.row.name}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {params.value} ({params.row.holdingsCount} holdings)
+          </Typography>
+        </Box>
+      ),
+    },
+    {
+      field: 'averagePrice',
+      headerName: 'AVG PRICE',
+      type: 'number',
+      width: 120,
+      valueFormatter: (value: number) => formatCurrency(value),
+    },
+    {
+      field: 'totalQuantity',
+      headerName: 'QUANTITY',
+      type: 'number',
+      width: 120,
+      valueFormatter: (value: number) => value.toLocaleString(),
+    },
+    {
+      field: 'totalValue',
+      headerName: 'VALUE',
+      type: 'number',
+      width: 120,
+      valueFormatter: (value: number) => formatCurrency(value),
+    },
+    {
+      field: 'totalGainPercentage',
+      headerName: 'P&L %',
+      type: 'number',
+      width: 100,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            height: '100%',
+            justifyContent: 'center',
+          }}
+        >
+          <ChangeChip
+            change={params.row.totalGain}
+            changePercentage={params.value}
+          />
+        </Box>
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'ACTIONS',
+      width: 120,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => handleViewDetails(params.row)}
+          sx={{ minWidth: 'auto', px: 2 }}
+        >
+          Details
+        </Button>
+      ),
+    },
+  ];
 
-  //               {/* Expandable transaction details row */}
-  //               <TableRow>
-  //                 <TableCell
-  //                   style={{ paddingBottom: 0, paddingTop: 0 }}
-  //                   colSpan={6}
-  //                 >
-  //                   <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-  //                     <Box
-  //                       sx={{
-  //                         marginY: 2,
-  //                         border: '1px solid',
-  //                         borderColor: 'divider',
-  //                         borderRadius: 1,
-  //                         padding: 2,
-  //                         backgroundColor: 'background.paper',
-  //                       }}
-  //                     >
-  //                       {assetTransactions.length > 0 ? (
-  //                         <>
-  //                           <Typography
-  //                             variant="h6"
-  //                             sx={{ mb: 2, color: 'text.secondary' }}
-  //                           >
-  //                             Transaction History
-  //                           </Typography>
-  //                           <Table size="small">
-  //                             <TableHead>
-  //                               <TableRow>
-  //                                 <TableCell>DATE</TableCell>
-  //                                 <TableCell align="right">PRICE</TableCell>
-  //                                 <TableCell align="right">QTY</TableCell>
-  //                                 <TableCell align="right">P&L</TableCell>
-  //                                 <TableCell align="right">VALUE</TableCell>
-  //                                 <TableCell></TableCell>
-  //                               </TableRow>
-  //                             </TableHead>
-  //                             <TableBody>
-  //                               {assetTransactions.map((transaction, index) => (
-  //                                 <TableRow key={transaction.id || index}>
-  //                                   <TableCell>
-  //                                     {transaction.executedAt.format(
-  //                                       'YYYY-MM-DD'
-  //                                     )}
-  //                                   </TableCell>
-  //                                   <TableCell align="right">
-  //                                     {formatCurrency(
-  //                                       transaction.purchasePrice
-  //                                     )}
-  //                                   </TableCell>
-  //                                   <TableCell align="right">
-  //                                     {transaction.quantity}
-  //                                   </TableCell>
-  //                                   <TableCell align="right">
-  //                                     <Typography
-  //                                       sx={{
-  //                                         color:
-  //                                           (transaction.gainLoss ??
-  //                                             (holding.price -
-  //                                               transaction.purchasePrice) *
-  //                                               transaction.quantity) >= 0
-  //                                             ? 'success.main'
-  //                                             : 'error.main',
-  //                                         fontWeight: 500,
-  //                                       }}
-  //                                     >
-  //                                       {(transaction.gainLoss ??
-  //                                         (holding.price -
-  //                                           transaction.purchasePrice) *
-  //                                           transaction.quantity) >= 0
-  //                                         ? '+'
-  //                                         : ''}
-  //                                       {formatCurrency(
-  //                                         transaction.gainLoss ??
-  //                                           (holding.price -
-  //                                             transaction.purchasePrice) *
-  //                                             transaction.quantity
-  //                                       )}
-  //                                     </Typography>
-  //                                   </TableCell>
-  //                                   <TableCell align="right">
-  //                                     {formatCurrency(
-  //                                       transaction.purchasePrice ??
-  //                                         holding.price * transaction.quantity
-  //                                     )}
-  //                                   </TableCell>
-  //                                   <TableCell>
-  //                                     <Chip
-  //                                       size="small"
-  //                                       label="🏷️"
-  //                                       variant="outlined"
-  //                                     />
-  //                                   </TableCell>
-  //                                 </TableRow>
-  //                               ))}
-  //                             </TableBody>
-  //                           </Table>
-  //                           <Box
-  //                             sx={{
-  //                               mt: 2,
-  //                               display: 'flex',
-  //                               alignItems: 'center',
-  //                               gap: 1,
-  //                             }}
-  //                           >
-  //                             <Typography
-  //                               variant="body2"
-  //                               color="primary"
-  //                               sx={{ cursor: 'pointer' }}
-  //                             >
-  //                               + Add Purchase
-  //                             </Typography>
-  //                           </Box>
-  //                         </>
-  //                       ) : (
-  //                         <Typography color="text.secondary">
-  //                           No transactions recorded for this asset
-  //                         </Typography>
-  //                       )}
-  //                     </Box>
-  //                   </Collapse>
-  //                 </TableCell>
-  //               </TableRow>
-  //             </React.Fragment>
-  //           );
-  //         })}
-  //       </TableBody>
-  //     </Table>
-  //   </TableContainer>
-  // );
+  if (groupedHoldings.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Typography color="text.secondary">No holdings found</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        '& .profit-cell': {
+          color: 'success.main',
+          fontWeight: 500,
+        },
+        '& .loss-cell': {
+          color: 'error.main',
+          fontWeight: 500,
+        },
+      }}
+    >
+      <DataGrid
+        disableColumnSelector
+        rowSelection={false}
+        rowHeight={80}
+        hideFooter
+        rows={groupedHoldings}
+        columns={columns}
+        initialState={{
+          sorting: {
+            sortModel: [{ field: sortBy, sort: sortOrder }],
+          },
+        }}
+        sortModel={[{ field: sortBy, sort: sortOrder }]}
+        disableRowSelectionOnClick
+        sx={{
+          '& .MuiDataGrid-row:hover': {
+            cursor: 'default',
+          },
+        }}
+      />
+
+      {/* Dialog para mostrar detalles de holdings */}
+      <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>Holdings Details - {selectedGroup?.symbol}</DialogTitle>
+        <DialogContent>
+          {selectedGroup && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Individual Holdings ({selectedGroup.holdingsCount} total)
+              </Typography>
+
+              {/* Headers */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 120px 120px 120px 120px 100px',
+                  gap: 2,
+                  p: 2,
+                  fontWeight: 'bold',
+                  borderBottom: '2px solid',
+                  borderColor: 'divider',
+                  mb: 1,
+                  bgcolor: 'grey.50',
+                }}
+              >
+                <Typography variant="subtitle2" fontWeight="bold">
+                  HOLDING
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  align="center"
+                >
+                  AVG PRICE
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  align="center"
+                >
+                  QUANTITY
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  align="center"
+                >
+                  VALUE
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  align="center"
+                >
+                  P&L
+                </Typography>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  align="center"
+                >
+                  STATUS
+                </Typography>
+              </Box>
+
+              {/* Datos */}
+              <Box sx={{ display: 'grid', gap: 1 }}>
+                {selectedGroup.holdings.map((holding, index) => (
+                  <Box
+                    key={holding.id}
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 120px 120px 120px 120px 100px',
+                      gap: 2,
+                      p: 2,
+                      bgcolor: index % 2 === 0 ? 'grey.25' : 'white',
+                      borderRadius: 1,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="body2" fontWeight="500">
+                        Holding #{index + 1}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {holding.createdAt
+                          ? holding.createdAt.format('MMM DD, YYYY')
+                          : 'Date not available'}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="body2" align="center">
+                      {holding.totalInvested && holding.quantity
+                        ? formatCurrency(
+                            holding.totalInvested / holding.quantity
+                          )
+                        : 'N/A'}
+                    </Typography>
+
+                    <Typography variant="body2" align="center">
+                      {holding.quantity
+                        ? holding.quantity.toLocaleString()
+                        : '0'}
+                    </Typography>
+
+                    <Typography variant="body2" align="center">
+                      {holding.currentValue
+                        ? formatCurrency(holding.currentValue)
+                        : 'N/A'}
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      align="center"
+                      sx={{
+                        color:
+                          (holding.localCalculations?.unrealizedGain || 0) >= 0
+                            ? 'success.main'
+                            : 'error.main',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {(holding.localCalculations?.unrealizedGain || 0) >= 0
+                        ? '+'
+                        : ''}
+                      {formatCurrency(
+                        holding.localCalculations?.unrealizedGain || 0
+                      )}
+                    </Typography>
+
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Chip
+                        label={holding.status || 'unknown'}
+                        size="small"
+                        color={
+                          holding.status === 'active' ? 'success' : 'default'
+                        }
+                        variant="outlined"
+                      />
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
 };
 
 export default HoldingsTable;

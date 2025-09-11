@@ -229,7 +229,7 @@ const PortafolioPage = () => {
               selectedTimeFilter={selectedTimeFilter}
               timeFilters={Object.values(TIME_FILTERS)}
               onTimeFilterChange={setSelectedTimeFilter}
-              loading={false}
+              loading={loading}
             />
           </Box>{' '}
           {/* Holdings/Activity Tabs */}
