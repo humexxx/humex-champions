@@ -1,6 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { Timestamp } from 'firebase/firestore';
 
 export function toDate(date: any): Date {
   if (!date) return date;
@@ -27,7 +26,7 @@ export function toDayjs(date: any): Dayjs {
     return date as Dayjs;
   } else if (date instanceof Date) {
     return dayjs(date);
-  } else if (date instanceof Timestamp) {
+  } else if (date?.toDate instanceof Function) {
     return dayjs(date.toDate());
   } else if (typeof date === 'string') {
     return dayjs(date, 'YYYY-MM-DD', true);
@@ -48,7 +47,7 @@ export function normalizeObjectDates<T>(
   } else if (
     obj !== null &&
     typeof obj === 'object' &&
-    !(obj instanceof Timestamp) &&
+    !(obj?.toDate instanceof Function) &&
     !dayjs.isDayjs(obj) &&
     !obj.$isDayjsObject
   ) {
@@ -58,7 +57,7 @@ export function normalizeObjectDates<T>(
     }, {} as any);
   } else if (
     obj instanceof Date ||
-    obj instanceof Timestamp ||
+    obj?.toDate instanceof Function ||
     dayjs.isDayjs(obj) ||
     (typeof obj === 'string' && dayjs(obj, 'YYYY-MM-DD', true).isValid()) ||
     obj?.$isDayjsObject
